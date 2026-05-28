@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NToolkit — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #111118; --surface2: #16161f; --border: #1e1e2e;
+    --accent: #e8ff47; --accent2: #7b5ea7; --text: #e8e8f0;
+    --muted: #5a5a6e; --error: #ff5566; --success: #47ffb0;
+  }
+  html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+
+  /* Login overlay */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+  .login-overlay.hide { display: none; }
+
+  .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.12; animation: drift 10s ease-in-out infinite alternate; }
+  .blob-1 { width: 400px; height: 400px; background: #ff5566; top: -100px; right: -100px; }
+  .blob-2 { width: 300px; height: 300px; background: var(--accent2); bottom: 0; left: 0; animation-delay: -5s; }
+  @keyframes drift { 0% { transform: translate(0,0); } 100% { transform: translate(30px, 20px); } }
+
+  .login-box { position: relative; z-index: 10; width: 380px; padding: 20px; }
+  .admin-badge {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .admin-badge .icon {
+    width: 52px; height: 52px;
+    background: var(--error);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 10px;
+    box-shadow: 0 0 30px rgba(255,85,102,0.3);
+  }
+  .admin-badge h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+  .admin-badge p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 7px; }
+  .field input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 9px; padding: 11px 14px; font-size: 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--error); }
+  .btn {
+    width: 100%; padding: 13px; background: var(--error); color: #fff; border: none;
+    border-radius: 9px; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; margin-top: 6px;
+  }
+  .btn:hover { box-shadow: 0 6px 20px rgba(255,85,102,0.3); transform: translateY(-1px); }
+  .err-msg {
+    display: none; background: rgba(255,85,102,0.1); border: 1px solid rgba(255,85,102,0.3);
+    border-radius: 8px; padding: 9px 13px; font-size: 13px; color: var(--error);
+    margin-bottom: 14px; text-align: center;
+  }
+  .err-msg.show { display: block; }
+  .back-link { display: block; text-align: center; margin-top: 18px; font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .back-link:hover { color: var(--text); }
+
+  /* Admin dashboard */
+  .admin-dash { display: none; }
+  .admin-dash.show { display: block; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-icon {
+    width: 36px; height: 36px; background: var(--error); border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .topbar h1 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; }
+  .topbar-btns { display: flex; gap: 10px; }
+  .tbtn {
+    padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface2); color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; cursor: pointer; transition: all 0.15s;
+  }
+  .tbtn:hover { border-color: var(--muted); }
+  .tbtn.danger { border-color: rgba(255,85,102,0.3); color: var(--error); }
+  .tbtn.danger:hover { background: rgba(255,85,102,0.1); }
+
+  .main-content { max-width: 900px; margin: 0 auto; padding: 28px; }
+
+  /* Stats row */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .stat-card .val { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); }
+  .stat-card .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card.active .val { color: var(--success); }
+  .stat-card.inactive .val { color: var(--error); }
+
+  /* Users table */
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-head h2 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .search-filter {
+    display: flex; gap: 8px;
+  }
+  .search-filter input {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; font-size: 13px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; outline: none; width: 180px;
+  }
+  .search-filter input:focus { border-color: var(--muted); }
+
+  .user-table { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .user-table-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr 90px 80px 80px;
+    padding: 10px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .user-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr 90px 80px 80px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background 0.15s;
+    font-size: 14px;
+  }
+  .user-row:last-child { border-bottom: none; }
+  .user-row:hover { background: var(--surface2); }
+
+  .row-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; font-family: 'Syne', sans-serif;
+    color: #fff; background: var(--accent2);
+  }
+  .row-name { font-weight: 500; color: var(--text); }
+  .row-user { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted); }
+  .role-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 5px;
+    font-size: 11px; font-weight: 600; font-family: 'Syne', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .role-badge.admin { background: rgba(255,85,102,0.15); color: var(--error); border: 1px solid rgba(255,85,102,0.2); }
+  .role-badge.user { background: rgba(123,94,167,0.15); color: var(--accent2); border: 1px solid rgba(123,94,167,0.2); }
+  .status-dot { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.on { background: var(--success); box-shadow: 0 0 6px rgba(71,255,176,0.5); }
+  .dot.off { background: var(--error); }
+
+  .notice {
+    background: rgba(232,255,71,0.05); border: 1px solid rgba(232,255,71,0.15);
+    border-radius: 10px; padding: 14px 18px; margin-top: 20px;
+    font-size: 13px; color: var(--muted); line-height: 1.6;
+  }
+  .notice strong { color: var(--accent); }
+
+  @media (max-width: 650px) {
+    .user-table-header, .user-row { grid-template-columns: 40px 1fr 80px 60px; }
+    .user-table-header > *:nth-child(3),
+    .user-row > *:nth-child(3) { display: none; }
+    .user-table-header > *:nth-child(6),
+    .user-row > *:nth-child(6) { display: none; }
+    .topbar { padding: 14px 16px; }
+    .main-content { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="admin-badge">
+      <div class="icon">⚙️</div>
+      <h2>Admin Access</h2>
+      <p>Restricted — authorized personnel only</p>
+    </div>
+    <div class="card">
+      <div class="err-msg" id="adminErr">❌ Invalid admin credentials</div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="adminUser" placeholder="admin" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="••••••">
+      </div>
+      <button class="btn" onclick="adminLogin()">Access Admin Panel →</button>
+    </div>
+    <a href="index.html" class="back-link">← Back to Login</a>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="admin-dash" id="adminDash">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon">⚙️</div>
+      <h1>Admin Panel</h1>
+    </div>
+    <div class="topbar-btns">
+      <button class="tbtn" onclick="window.location.href='index.html'">← Main Site</button>
+      <button class="tbtn danger" onclick="adminLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="val" id="statTotal">—</div>
+        <div class="lbl">Total Users</div>
+      </div>
+      <div class="stat-card active">
+        <div class="val" id="statActive">—</div>
+        <div class="lbl">Active</div>
+      </div>
+      <div class="stat-card inactive">
+        <div class="val" id="statInactive">—</div>
+        <div class="lbl">Inactive</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="statAdmins">—</div>
+        <div class="lbl">Admins</div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="section-head">
+      <h2>👥 User Directory</h2>
+      <div class="search-filter">
+        <input type="text" id="searchInput" placeholder="Filter users…" oninput="filterUsers()">
+      </div>
+    </div>
+
+    <div class="user-table">
+      <div class="user-table-header">
+        <div></div>
+        <div>Name</div>
+        <div>Username</div>
+        <div>Role</div>
+        <div>Status</div>
+        <div>Since</div>
+      </div>
+      <div id="userTableBody"></div>
+    </div>
+
+    <div class="notice">
+      <strong>⚠ To add or remove users:</strong><br>
+      Edit <code>users.js</code> directly and re-upload to GitHub. The page will reflect changes on next load.
+      Set <code>active: false</code> to disable a user without deleting them.
+    </div>
+  </div>
+</div>
+
+<script src="users.js"></script>
+<script>
+// Check if already admin-logged-in
+if (sessionStorage.getItem('ntoolkit_admin') === 'true') showDash();
+
+function adminLogin() {
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value;
+  const err = document.getElementById('adminErr');
+
+  if (u === ADMIN_CREDS.username && p === ADMIN_CREDS.password) {
+    sessionStorage.setItem('ntoolkit_admin', 'true');
+    showDash();
+  } else {
+    err.className = 'err-msg show';
+    setTimeout(() => err.className = 'err-msg', 3000);
+  }
+}
+function adminLogout() {
+  sessionStorage.removeItem('ntoolkit_admin');
+  window.location.reload();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('loginOverlay').classList.contains('hide')) adminLogin();
+});
+
+function showDash() {
+  document.getElementById('loginOverlay').classList.add('hide');
+  document.getElementById('adminDash').classList.add('show');
+  populateStats();
+  renderUsers(USERS);
+}
+
+function populateStats() {
+  const active = USERS.filter(u => u.active).length;
+  const admins = USERS.filter(u => u.role === 'admin').length;
+  document.getElementById('statTotal').textContent = USERS.length;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statInactive').textContent = USERS.length - active;
+  document.getElementById('statAdmins').textContent = admins;
+}
+
+function renderUsers(list) {
+  const colors = ['#7b5ea7','#3a7bd5','#e8604c','#47b89e','#d4a843'];
+  const body = document.getElementById('userTableBody');
+  body.innerHTML = list.map((u, i) => `
+    <div class="user-row">
+      <div><div class="row-avatar" style="background:${colors[i % colors.length]}">${u.name.charAt(0)}</div></div>
+      <div class="row-name">${u.name}</div>
+      <div class="row-user">@${u.username}</div>
+      <div><span class="role-badge ${u.role}">${u.role}</span></div>
+      <div class="status-dot"><div class="dot ${u.active ? 'on' : 'off'}"></div>${u.active ? 'Active' : 'Inactive'}</div>
+      <div style="font-size:12px;color:var(--muted);">users.js</div>
+    </div>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  renderUsers(USERS.filter(u => u.name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q) || u.role.includes(q)));
+}
+</script>
+</body>
+</html>
