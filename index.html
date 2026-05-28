@@ -1,432 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nandakumar M — Engineering Portfolio</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NToolkit — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root{
-  --bg:#06070b;
-  --card:#10131c;
-  --card2:#161b28;
-  --text:#e9eefc;
-  --muted:#8c95b2;
-  --accent:#7c6df8;
-  --accent2:#38d0ff;
-  --border:rgba(255,255,255,0.08);
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  background:radial-gradient(circle at top left,#11162a 0%,#06070b 45%);
-  color:var(--text);
-  font-family:'Inter',sans-serif;
-  overflow-x:hidden;
-  min-height:100vh;
-}
-
-/* Background glow */
-
-.glow{
-  position:fixed;
-  border-radius:50%;
-  filter:blur(120px);
-  pointer-events:none;
-  opacity:.25;
-}
-
-.glow1{
-  width:500px;
-  height:500px;
-  background:#7c6df8;
-  top:-150px;
-  left:-120px;
-  animation:float1 10s ease-in-out infinite;
-}
-
-.glow2{
-  width:400px;
-  height:400px;
-  background:#38d0ff;
-  bottom:-120px;
-  right:-100px;
-  animation:float2 12s ease-in-out infinite;
-}
-
-@keyframes float1{
-  0%,100%{transform:translate(0,0);}
-  50%{transform:translate(40px,20px);}
-}
-
-@keyframes float2{
-  0%,100%{transform:translate(0,0);}
-  50%{transform:translate(-30px,-20px);}
-}
-
-.container{
-  width:min(1100px,92%);
-  margin:auto;
-  padding:70px 0;
-}
-
-.hero{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:40px;
-  align-items:center;
-  margin-bottom:60px;
-}
-
-@media(max-width:850px){
-  .hero{
-    grid-template-columns:1fr;
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #e8ff47;
+    --accent2: #7b5ea7;
+    --text: #e8e8f0;
+    --muted: #5a5a6e;
+    --error: #ff5566;
+    --success: #47ffb0;
   }
-}
 
-.left h1{
-  font-size:clamp(3rem,8vw,5rem);
-  line-height:1;
-  font-family:'Syne',sans-serif;
-  margin-bottom:15px;
-  background:linear-gradient(90deg,#fff,#7c6df8);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
 
-.left p{
-  color:var(--muted);
-  font-size:1.1rem;
-  line-height:1.8;
-  max-width:600px;
-}
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
 
-.badges{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  margin-top:24px;
-}
+  /* Animated background blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .blob-1 { width: 500px; height: 500px; background: var(--accent2); top: -100px; left: -100px; animation-delay: 0s; }
+  .blob-2 { width: 400px; height: 400px; background: var(--accent); top: 60%; right: -100px; animation-delay: -4s; }
+  .blob-3 { width: 300px; height: 300px; background: #3a7bd5; bottom: -50px; left: 30%; animation-delay: -8s; }
 
-.badge{
-  padding:10px 16px;
-  border-radius:999px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.08);
-  backdrop-filter:blur(10px);
-  font-size:.9rem;
-}
+  @keyframes drift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 30px) scale(1.08); }
+  }
 
-.hero-card{
-  position:relative;
-  padding:30px;
-  border-radius:28px;
-  background:rgba(16,19,28,.72);
-  border:1px solid rgba(255,255,255,0.08);
-  backdrop-filter:blur(22px);
-  transform-style:preserve-3d;
-  perspective:1000px;
-  transition:transform .25s ease;
-  box-shadow:
-    0 20px 60px rgba(0,0,0,.5),
-    0 0 80px rgba(124,109,248,.12);
-}
+  /* Grid overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.hero-card:hover{
-  transform:
-    rotateX(5deg)
-    rotateY(-5deg)
-    translateY(-8px);
-}
+  .login-wrap {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 
-.hero-card::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:28px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.12),
-      rgba(124,109,248,.08),
-      transparent 60%
-    );
-  pointer-events:none;
-}
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-.card-title{
-  font-size:1.3rem;
-  margin-bottom:20px;
-  font-weight:700;
-}
+  .brand {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .brand-icon {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 30px rgba(232,255,71,0.3);
+  }
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .brand-sub {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
 
-.stat-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:16px;
-}
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  }
 
-.stat{
-  padding:18px;
-  border-radius:18px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-}
+  .card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .card p { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
 
-.stat h2{
-  font-size:2rem;
-  color:var(--accent2);
-}
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,255,71,0.1);
+  }
+  .field input::placeholder { color: var(--muted); }
 
-.stat p{
-  color:var(--muted);
-  margin-top:8px;
-}
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    letter-spacing: 0.3px;
+    margin-top: 8px;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(232,255,71,0.35);
+  }
+  .btn:active { transform: translateY(0); }
 
-.section-title{
-  font-family:'Syne',sans-serif;
-  font-size:2rem;
-  margin-bottom:28px;
-}
+  .error-msg {
+    display: none;
+    background: rgba(255,85,102,0.1);
+    border: 1px solid rgba(255,85,102,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--error);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .error-msg.show { display: block; animation: shake 0.4s; }
 
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:24px;
-  margin-bottom:60px;
-}
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60%  { transform: translateX(-6px); }
+    40%,80%  { transform: translateX(6px); }
+  }
 
-.card{
-  position:relative;
-  background:rgba(16,19,28,.72);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:24px;
-  padding:26px;
-  overflow:hidden;
-  backdrop-filter:blur(18px);
-  transform-style:preserve-3d;
-  transition:
-    transform .25s ease,
-    border-color .25s ease,
-    box-shadow .25s ease;
-}
+  .admin-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .admin-link:hover { color: var(--accent2); }
 
-.card:hover{
-  transform:
-    translateY(-8px)
-    rotateX(5deg)
-    rotateY(-5deg)
-    scale(1.02);
-
-  border-color:rgba(124,109,248,.5);
-
-  box-shadow:
-    0 20px 50px rgba(0,0,0,.45),
-    0 0 60px rgba(124,109,248,.15);
-}
-
-.card::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.08),
-      rgba(124,109,248,.06),
-      transparent 70%
-    );
-  pointer-events:none;
-}
-
-.card h3{
-  margin-bottom:14px;
-  font-size:1.2rem;
-}
-
-.card p{
-  color:var(--muted);
-  line-height:1.7;
-}
-
-.skills{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  margin-top:20px;
-}
-
-.skill{
-  padding:8px 14px;
-  border-radius:12px;
-  background:rgba(124,109,248,.12);
-  border:1px solid rgba(124,109,248,.18);
-  font-size:.85rem;
-}
-
-.footer{
-  text-align:center;
-  margin-top:60px;
-  color:var(--muted);
-}
-
-a{
-  color:#fff;
-  text-decoration:none;
-}
-
-.btns{
-  display:flex;
-  gap:14px;
-  margin-top:28px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  padding:14px 22px;
-  border-radius:16px;
-  background:linear-gradient(135deg,#7c6df8,#4d5fff);
-  font-weight:600;
-  box-shadow:0 10px 30px rgba(124,109,248,.3);
-}
-
-.btn.secondary{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow:none;
-}
-
+  @media (max-width: 480px) {
+    .card { padding: 24px; }
+  }
 </style>
 </head>
-
 <body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
 
-<div class="glow glow1"></div>
-<div class="glow glow2"></div>
+<div class="login-wrap">
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="brand-icon">🧰</div>
+      <span class="brand-name">NToolkit</span>
+    </div>
+    <p class="brand-sub">Engineering Tools Dashboard</p>
+  </div>
 
-<div class="container">
+  <div class="card">
+    <h2>Welcome back</h2>
+    <p>Sign in to access your tools</p>
 
-<section class="hero">
+    <div class="error-msg" id="errMsg">❌ Invalid credentials. Try again.</div>
 
-<div class="left">
-<h1>Nandakumar M</h1>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+    </div>
 
-<p>
-Electrical & Electronics Drawing Engineer focused on industrial systems,
-automation concepts, control architecture, and modern engineering interfaces.
-Building practical technical solutions instead of fake startup buzzwords.
-</p>
+    <button class="btn" onclick="doLogin()">Sign In →</button>
+  </div>
 
-<div class="badges">
-<div class="badge">⚡ Electrical Engineering</div>
-<div class="badge">🏭 Industrial Systems</div>
-<div class="badge">🔧 CAD & Drawings</div>
-<div class="badge">🤖 Automation</div>
+  <a href="admin.html" class="admin-link">⚙ Admin Panel</a>
 </div>
 
-<div class="btns">
-<a class="btn" href="https://github.com/nandurpm" target="_blank">GitHub</a>
-<a class="btn secondary" href="mailto:nandakumar@example.com">Contact</a>
-</div>
+<script src="users.js"></script>
+<script>
+  // Already logged in? Redirect
+  if (localStorage.getItem('ntoolkit_user')) {
+    window.location.href = 'dashboard.html';
+  }
 
-</div>
+  function doLogin() {
+    const u = document.getElementById('username').value.trim().toLowerCase();
+    const p = document.getElementById('password').value;
+    const err = document.getElementById('errMsg');
 
-<div class="hero-card">
+    const match = USERS.find(x => x.username === u && x.password === p && x.active);
 
-<div class="card-title">Engineering Profile</div>
+    if (match) {
+      localStorage.setItem('ntoolkit_user', JSON.stringify({ username: match.username, name: match.name, role: match.role }));
+      window.location.href = 'dashboard.html';
+    } else {
+      err.className = 'error-msg show';
+      setTimeout(() => err.className = 'error-msg', 3000);
+    }
+  }
 
-<div class="stat-grid">
-
-<div class="stat">
-<h2>3D</h2>
-<p>Interactive UI Depth</p>
-</div>
-
-<div class="stat">
-<h2>24/7</h2>
-<p>Learning & Building</p>
-</div>
-
-<div class="stat">
-<h2>CAD</h2>
-<p>Electrical Drawings</p>
-</div>
-
-<div class="stat">
-<h2>IoT</h2>
-<p>Automation Interest</p>
-</div>
-
-</div>
-</div>
-
-</section>
-
-<section>
-
-<h2 class="section-title">Projects & Focus Areas</h2>
-
-<div class="cards">
-
-<div class="card">
-<h3>Escalator Control Concepts</h3>
-<p>
-Working with electrical and electronics drawing workflows related to industrial
-systems and escalator manufacturing environments.
-</p>
-
-<div class="skills">
-<div class="skill">Electrical</div>
-<div class="skill">Control Systems</div>
-<div class="skill">Industrial</div>
-</div>
-</div>
-
-<div class="card">
-<h3>Automation Dashboard Ideas</h3>
-<p>
-Exploring modern industrial monitoring interfaces, visualization systems,
-and smart engineering dashboards.
-</p>
-
-<div class="skills">
-<div class="skill">Dashboard UI</div>
-<div class="skill">Monitoring</div>
-<div class="skill">Automation</div>
-</div>
-</div>
-
-<div class="card">
-<h3>3D Web Interfaces</h3>
-<p>
-Experimenting with futuristic UI concepts using depth, perspective,
-glassmorphism, and interactive animations.
-</p>
-
-<div class="skills">
-<div class="skill">HTML</div>
-<div class="skill">CSS</div>
-<div class="skill">JavaScript</div>
-</div>
-</div>
-
-</div>
-
-</section>
-
-<div class="footer">
-Built by Nandakumar M · Chennai, India
-</div>
-
-</div>
-
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
 </body>
 </html>
