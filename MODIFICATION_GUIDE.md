@@ -1,3 +1,24 @@
+# Portfolio Modification Guide
+
+This site is a static GitHub Pages portfolio. You can update it without installing a framework or running a build command.
+
+## File Map
+
+- `index.html` - page structure and section order.
+- `style.css` - colors, layout, spacing, responsive design, and animation styles.
+- `script.js` - editable website content, cards, filters, contact links, and interactions.
+- `assets/hero-workstation.png` - main hero visual.
+- `CNAME` - your custom GitHub Pages domain.
+
+## Fastest Way To Update Content
+
+Most content is at the top of `script.js`.
+
+### 1. Change Personal Details
+
+Open `script.js` and edit the `SITE` object:
+
+```js
 const SITE = {
   name: "Nandakumar M",
   email: "nandakumar@example.com",
@@ -48,7 +69,6 @@ Allowed project categories are controlled by `WORK_FILTERS`:
 - `docs`
 
 If you create a new category, add it to both `WORK_FILTERS` and the relevant project item.
-
 ### 4. Add Featured Items
 
 Edit `FEATURED` in `script.js`. Keep this section short and strong. Three items is ideal.
@@ -120,7 +140,6 @@ Common edits:
 - Hero intro: search `I build clean, useful digital systems`.
 - About text: search `Background`.
 - Footer domain text: search `nandakumarm.dpdns.org`.
-
 ## Change Colors And Theme
 
 Open `style.css` and edit the variables at the top:
