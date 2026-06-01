@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Python 3.13 Released – Key New Features",
+    "category": "Technical",
+    "date": "2026-06-01",
+    "description": "Python 3.13 brings improved error messages, experimental JIT compiler, and a new interactive interpreter. A must-know for every developer.",
+    "link": "https://www.python.org/downloads/"
+  },
+  {
+    "title": "Junior Engineer Vacancy – KSEB Kerala",
+    "category": "Job",
+    "date": "2026-06-01",
+    "description": "KSEB has announced 120 Junior Engineer vacancies for Electrical and Civil branches. Last date to apply: 30 June 2026.",
+    "link": "https://kseb.in"
+  },
+  {
+    "title": "Free VS Code Extension for Students",
+    "category": "Tool",
+    "date": "2026-05-30",
+    "description": "GitHub Copilot is now free for students. Activate it with your college email for AI-assisted coding in VS Code.",
+    "link": "https://github.com/features/copilot"
+  },
+  {
+    "title": "Kerala PSC Technical Education Notification",
+    "category": "Job",
+    "date": "2026-05-28",
+    "description": "Kerala PSC released notification for Lecturer posts in Government Polytechnic Colleges. Degree + B.Ed required.",
+    "link": "https://keralapsc.gov.in"
+  }
+]

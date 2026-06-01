@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NanduRPM – Tech & Notes Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Nandu<span>RPM</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="technical.html">Tech &amp; Jobs</a></li>
+        <li><a href="notes.html">Poly Notes</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">🎓 Kerala Polytechnic Resource Hub</div>
+      <h1>Learn Smart.<br><span class="accent">Stay Updated.</span></h1>
+      <p class="hero-sub">Daily tech news, job vacancies &amp; easy-to-understand study notes for Government Polytechnic College students across Kerala.</p>
+      <div class="hero-btns">
+        <a href="technical.html" class="btn btn-primary">Tech &amp; Jobs ↗</a>
+        <a href="notes.html" class="btn btn-ghost">Study Notes →</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-icon">📡</span>
+        <strong>Daily</strong>
+        <span>Tech Updates</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">💼</span>
+        <strong>Latest</strong>
+        <span>Job Vacancies</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📚</span>
+        <strong>Free</strong>
+        <span>Poly Notes</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTIONS OVERVIEW -->
+  <main class="main-container">
+
+    <section class="section-overview">
+      <h2 class="section-title">What's Inside</h2>
+      <div class="overview-grid">
+
+        <a href="technical.html" class="overview-card card-tech">
+          <div class="card-icon">⚡</div>
+          <h3>Tech &amp; Jobs</h3>
+          <p>Daily technical articles, tools, tutorials, government &amp; private job vacancies, and industry news — curated for engineering students.</p>
+          <span class="card-link">Explore →</span>
+        </a>
+
+        <a href="notes.html" class="overview-card card-notes">
+          <div class="card-icon">📖</div>
+          <h3>Polytechnic Notes</h3>
+          <p>Syllabus-aligned, easy-to-understand sample notes for every subject across all branches of Government Polytechnic Colleges, Kerala.</p>
+          <span class="card-link">Browse Notes →</span>
+        </a>
+
+        <div class="overview-card card-soon">
+          <div class="card-icon">🚀</div>
+          <h3>Coming Soon</h3>
+          <p>More sections are on the way — stay tuned for additional resources, tools, and content.</p>
+          <span class="card-tag">In Progress</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LATEST UPDATES -->
+    <section class="latest-section">
+      <div class="latest-header">
+        <h2 class="section-title">Latest Updates</h2>
+        <a href="technical.html" class="view-all">View all →</a>
+      </div>
+      <div id="latest-list" class="latest-grid">
+        <!-- Populated by script.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo">Nandu<span>RPM</span></span>
+        <p>A free resource hub for Kerala Polytechnic students and tech enthusiasts.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Pages</h4>
+        <a href="index.html">Home</a>
+        <a href="technical.html">Tech &amp; Jobs</a>
+        <a href="notes.html">Poly Notes</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 NanduRPM · Made with ❤️ for Kerala Polytechnic Students</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+    });
+    // Hamburger
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.querySelector('.nav-links').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

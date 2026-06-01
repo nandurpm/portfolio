@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Engineering Mathematics – Unit 1: Matrices",
+    "category": "Common",
+    "date": "2026-06-01",
+    "description": "Easy-to-understand notes on Matrices, Determinants and their applications. Covers all exam-important topics with solved examples.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID/view"
+  },
+  {
+    "title": "Basic Civil Engineering – Building Materials",
+    "category": "Civil",
+    "date": "2026-05-30",
+    "description": "Syllabus-aligned notes on building materials including bricks, cement, steel, and timber. Ideal for 1st year Civil students.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID/view"
+  },
+  {
+    "title": "C Programming – Unit 2: Control Structures",
+    "category": "Computer",
+    "date": "2026-05-28",
+    "description": "Clear notes on if-else, switch, loops and nested conditions in C. Includes flowcharts and sample programs.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID/view"
+  },
+  {
+    "title": "Basic Electrical Engineering – Ohm's Law & Circuits",
+    "category": "Electrical",
+    "date": "2026-05-25",
+    "description": "Simplified notes on Ohm's Law, Kirchhoff's laws, series and parallel circuits with diagrams and numerical problems.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID/view"
+  }
+]
