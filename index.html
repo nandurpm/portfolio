@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nandakumar M — Engineer · Developer · Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo"><span class="logo-circle">N</span> My Portfolio</a>
+    <ul class="nav-links">
+      <li><a href="#home" class="nav-link active">Home</a></li>
+      <li><a href="#about" class="nav-link">About Me</a></li>
+      <li><a href="#works" class="nav-link">My Works</a></li>
+      <li><a href="#writings" class="nav-link">My Writings</a></li>
+      <li><a href="#resources" class="nav-link">Resources</a></li>
+      <li><a href="#updates" class="nav-link">Blog / Updates</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#works" class="btn btn-outline">View My Works</a>
+      <a href="#contact" class="btn btn-fill">Contact Me</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home">Home</a>
+    <a href="#about">About Me</a>
+    <a href="#works">My Works</a>
+    <a href="#writings">My Writings</a>
+    <a href="#resources">Resources</a>
+    <a href="#updates">Blog / Updates</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HOME / HERO -->
+<section id="home" class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <p class="hero-greeting">Hello, I'm</p>
+      <h1 class="hero-name">Nandakumar M</h1>
+      <p class="hero-roles">
+        <span class="role-tag">Engineer</span>
+        <span class="role-dot">·</span>
+        <span class="role-tag">Developer</span>
+        <span class="role-dot">·</span>
+        <span class="role-tag">Creator</span>
+      </p>
+      <p class="hero-bio">Passionate about building innovative solutions that solve real-world problems. I combine engineering principles with creative design to craft impactful digital experiences.</p>
+      <div class="hero-actions">
+        <a href="#works" class="btn btn-fill">View My Works</a>
+        <a href="#contact" class="btn btn-outline">Contact Me</a>
+      </div>
+    </div>
+    <div class="hero-avatar">
+      <div class="avatar-ring">
+        <div class="avatar-placeholder">
+          <span>NM</span>
+        </div>
+      </div>
+      <div class="avatar-badge">Available for Projects</div>
+    </div>
+  </div>
+  <div class="hero-highlights">
+    <div class="highlight-item">
+      <span class="highlight-icon">⚡</span>
+      <span>Full-Stack Development</span>
+    </div>
+    <div class="highlight-item">
+      <span class="highlight-icon">🛠</span>
+      <span>Electrical Engineering</span>
+    </div>
+    <div class="highlight-item">
+      <span class="highlight-icon">💻</span>
+      <span>Web & Mobile Apps</span>
+    </div>
+    <div class="highlight-item">
+      <span class="highlight-icon">📐</span>
+      <span>Technical Design</span>
+    </div>
+  </div>
+  <div class="featured-preview">
+    <p class="section-label">Featured Projects</p>
+    <div class="featured-cards" id="featuredCards"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section about-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Know More</span>
+      <h2 class="section-title">About Me</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-info">
+        <div class="about-card">
+          <h3>Background</h3>
+          <p>I'm a passionate engineer and developer from Chennai, India. With a strong foundation in electrical engineering and a deep interest in software development, I bridge the gap between hardware and software to create innovative solutions.</p>
+        </div>
+        <div class="about-card">
+          <h3>What Drives Me</h3>
+          <p>I'm driven by the desire to solve complex problems and create meaningful impact through technology. I love learning new technologies, collaborating with talented people, and building projects that make a difference.</p>
+        </div>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-group">
+          <h4>Technical Skills</h4>
+          <div class="skill-tags">
+            <span>Python</span><span>JavaScript</span><span>React</span><span>Node.js</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <h4>Design Skills</h4>
+          <div class="skill-tags">
+            <span>HTML/CSS</span><span>UI/UX Design</span><span>Figma</span><span>Responsive Design</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <h4>Software Tools</h4>
+          <div class="skill-tags">
+            <span>Git</span><span>VS Code</span><span>Docker</span><span>MySQL</span>
+          </div>
+        </div>
+        <div class="about-links">
+          <a href="#" class="btn btn-outline small">Resume / CV ↓</a>
+          <a href="#" class="btn btn-fill small">Certifications</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MY WORKS -->
+<section id="works" class="section works-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Explore Projects</span>
+      <h2 class="section-title">My Works</h2>
+    </div>
+    <div class="works-filter">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="technical">Technical</button>
+      <button class="filter-btn" data-filter="design">Design</button>
+      <button class="filter-btn" data-filter="college">College Works</button>
+      <button class="filter-btn" data-filter="electrical">Electrical</button>
+      <button class="filter-btn" data-filter="web">Website Projects</button>
+      <button class="filter-btn" data-filter="docs">Documentation</button>
+    </div>
+    <div class="works-grid" id="worksGrid"></div>
+  </div>
+</section>
+
+<!-- MY WRITINGS -->
+<section id="writings" class="section writings-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Read & Learn</span>
+      <h2 class="section-title">My Writings</h2>
+    </div>
+    <div class="writings-filter">
+      <button class="filter-btn active" data-wfilter="all">All</button>
+      <button class="filter-btn" data-wfilter="essays">Essays</button>
+      <button class="filter-btn" data-wfilter="technical">Technical Articles</button>
+      <button class="filter-btn" data-wfilter="college">College Notes</button>
+      <button class="filter-btn" data-wfilter="personal">Personal Thoughts</button>
+    </div>
+    <div class="writings-grid" id="writingsGrid"></div>
+  </div>
+</section>
+
+<!-- FEATURED PROJECTS (full section) -->
+<section id="featured" class="section featured-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Highlights</span>
+      <h2 class="section-title">Featured Projects</h2>
+    </div>
+    <div class="featured-big-grid" id="featuredBig"></div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources" class="section resources-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Study Resources</span>
+      <h2 class="section-title">Latest Notes & Resources</h2>
+    </div>
+    <div class="resources-grid" id="resourcesGrid"></div>
+  </div>
+</section>
+
+<!-- BLOG / UPDATES -->
+<section id="updates" class="section updates-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Daily Updates</span>
+      <h2 class="section-title">Blog / Updates</h2>
+    </div>
+    <div class="updates-tabs">
+      <button class="tab-btn active" data-tab="daily">Daily Updates</button>
+      <button class="tab-btn" data-tab="announcements">Announcements</button>
+      <button class="tab-btn" data-tab="learnings">Technical Learnings</button>
+    </div>
+    <div class="updates-grid" id="updatesGrid"></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section contact-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Get In Touch</span>
+      <h2 class="section-title">Contact</h2>
+      <p class="section-sub">I'd love to hear from you! Let's connect and build something great.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-item">
+          <span class="contact-icon">✉</span>
+          <div>
+            <p class="contact-label">Email</p>
+            <a href="mailto:nandakumar@example.com">nandakumar@example.com</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">📞</span>
+          <div>
+            <p class="contact-label">Phone</p>
+            <span>+91 98765 43210</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">📍</span>
+          <div>
+            <p class="contact-label">Location</p>
+            <span>Chennai, Tamil Nadu, India</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">⌨</span>
+          <div>
+            <p class="contact-label">GitHub</p>
+            <a href="https://github.com/nandurpm" target="_blank">github.com/nandurpm</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">💼</span>
+          <div>
+            <p class="contact-label">LinkedIn</p>
+            <a href="https://linkedin.com/in/nandakumar" target="_blank">linkedin.com/in/nandakumar</a>
+          </div>
+        </div>
+        <div class="social-links">
+          <a href="https://github.com/nandurpm" target="_blank" class="social-btn" title="GitHub">GH</a>
+          <a href="https://linkedin.com/in/nandakumar" target="_blank" class="social-btn" title="LinkedIn">LI</a>
+          <a href="https://twitter.com/yourhandle" target="_blank" class="social-btn" title="Twitter">TW</a>
+          <a href="https://instagram.com/yourhandle" target="_blank" class="social-btn" title="Instagram">IG</a>
+        </div>
+      </div>
+      <form class="contact-form" id="contactForm">
+        <h3>Send Me a Message</h3>
+        <div class="form-group">
+          <input type="text" id="contactName" placeholder="Your Name" required />
+        </div>
+        <div class="form-group">
+          <input type="email" id="contactEmail" placeholder="Your Email" required />
+        </div>
+        <div class="form-group">
+          <input type="text" id="contactSubject" placeholder="Subject" />
+        </div>
+        <div class="form-group">
+          <textarea id="contactMessage" placeholder="Your Message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-fill full-width">Send Message ✈</button>
+        <p class="form-note" id="formNote"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-circle">N</span>
+      <div>
+        <strong>Nandakumar M</strong>
+        <p>Engineer · Developer · Creator</p>
+        <p class="footer-tagline">Building ideas, solving problems and creating impact.</p>
+        <div class="footer-social">
+          <a href="https://github.com/nandurpm" target="_blank" title="GitHub">GH</a>
+          <a href="https://linkedin.com/in/nandakumar" target="_blank" title="LinkedIn">LI</a>
+          <a href="https://twitter.com/yourhandle" target="_blank" title="Twitter">TW</a>
+          <a href="https://youtube.com/yourhandle" target="_blank" title="YouTube">YT</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About Me</a></li>
+        <li><a href="#works">My Works</a></li>
+        <li><a href="#writings">My Writings</a></li>
+        <li><a href="#resources">Resources</a></li>
+        <li><a href="#updates">Blog / Updates</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#resources">Latest Notes</a></li>
+        <li><a href="#resources">Study Materials</a></li>
+        <li><a href="#">Downloads</a></li>
+        <li><a href="#">Reference Links</a></li>
+        <li><a href="#">Tools I Use</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Categories</h4>
+      <ul>
+        <li><a href="#works">Technical Projects</a></li>
+        <li><a href="#works">Design Works</a></li>
+        <li><a href="#writings">Technical Articles</a></li>
+        <li><a href="#writings">College Notes</a></li>
+        <li><a href="#writings">Personal Thoughts</a></li>
+        <li><a href="#updates">Daily Updates</a></li>
+      </ul>
+    </div>
+    <div class="footer-newsletter">
+      <h4>Stay Connected</h4>
+      <p>Subscribe to my updates and never miss a thing.</p>
+      <div class="newsletter-form">
+        <input type="email" placeholder="Enter your email" id="newsletterEmail" />
+        <button onclick="subscribeNewsletter()" type="button">Subscribe ✈</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Nandakumar M. All Rights Reserved.</span>
+    <span>Made with ❤ and ☕</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
