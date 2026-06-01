@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Your Technical Project",
+    "category": "Technical",
+    "date": "2026-06-01",
+    "description": "Add a personal technical project here — a script, app, tool, or anything you built. Update the link.",
+    "link": "#"
+  },
+  {
+    "title": "Another Project",
+    "category": "Technical",
+    "date": "2026-06-01",
+    "description": "Add another project here. Could be anything — web, hardware, design, automation.",
+    "link": "#"
+  }
+]

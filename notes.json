@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Your Note Title",
+    "category": "College Notes",
+    "date": "2026-06-01",
+    "description": "Add a short description of this note. Link it to your Google Drive or any file hosting.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID/view"
+  },
+  {
+    "title": "Another Note Title",
+    "category": "College Notes",
+    "date": "2026-06-01",
+    "description": "Add another note here. You can have as many entries as you like.",
+    "link": "https://drive.google.com/file/d/YOUR_FILE_ID/view"
+  }
+]
