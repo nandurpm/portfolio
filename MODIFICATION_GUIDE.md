@@ -69,6 +69,7 @@ Allowed project categories are controlled by `WORK_FILTERS`:
 - `docs`
 
 If you create a new category, add it to both `WORK_FILTERS` and the relevant project item.
+
 ### 4. Add Featured Items
 
 Edit `FEATURED` in `script.js`. Keep this section short and strong. Three items is ideal.
@@ -140,6 +141,7 @@ Common edits:
 - Hero intro: search `I build clean, useful digital systems`.
 - About text: search `Background`.
 - Footer domain text: search `nandakumarm.dpdns.org`.
+
 ## Change Colors And Theme
 
 Open `style.css` and edit the variables at the top:
