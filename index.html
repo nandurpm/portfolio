@@ -1,542 +1,265 @@
-/* ============================================================
-   Nandakumar M Portfolio
-   Edit the content arrays below to update the website.
-   ============================================================ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nandakumar M portfolio - engineer, developer, and creator building web, software, and engineering projects." />
+  <meta name="theme-color" content="#05070a" />
+  <title>Nandakumar M | Engineer, Developer, Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-const SITE = {
-  name: "Nandakumar M",
-  email: "nandakumar@example.com",
-  location: "Chennai, Tamil Nadu, India",
-  github: "https://github.com/nandurpm",
-  linkedin: "https://linkedin.com/in/nandakumar",
-  domain: "nandakumarm.dpdns.org",
-  skills: [
-    {
-      title: "Software",
-      items: ["JavaScript", "Python", "HTML", "CSS", "Git"]
-    },
-    {
-      title: "Frontend",
-      items: ["Responsive UI", "Animations", "Accessibility", "Performance"]
-    },
-    {
-      title: "Engineering",
-      items: ["Electrical Basics", "IoT Ideas", "Automation", "Documentation"]
-    },
-    {
-      title: "Tools",
-      items: ["VS Code", "GitHub", "Figma", "Docker"]
-    }
-  ]
-};
+  <header class="site-header" id="siteHeader">
+    <nav class="nav-shell" aria-label="Primary navigation">
+      <a class="brand" href="#home" aria-label="Nandakumar M home">
+        <span class="brand-mark">N</span>
+        <span class="brand-text">
+          <strong>Nandakumar M</strong>
+          <small>Portfolio</small>
+        </span>
+      </a>
 
-const WORK_FILTERS = [
-  ["all", "All"],
-  ["web", "Web"],
-  ["technical", "Technical"],
-  ["electrical", "Electrical"],
-  ["college", "College"],
-  ["design", "Design"],
-  ["docs", "Docs"]
-];
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-const WORKS = [
-  {
-    title: "Personal Portfolio Website",
-    category: "web",
-    icon: "WEB",
-    date: "2026-06-01",
-    description: "A polished GitHub Pages portfolio with futuristic visuals, responsive sections, filters, and editable content.",
-    tags: ["HTML", "CSS", "JavaScript"],
-    link: "https://github.com/nandurpm/portfolio"
-  },
-  {
-    title: "IoT Smart Home Concept",
-    category: "electrical",
-    icon: "IOT",
-    date: "2026-05-16",
-    description: "A concept build for connected room automation with sensors, control logic, and practical safety notes.",
-    tags: ["IoT", "Automation", "Sensors"],
-    link: "#contact"
-  },
-  {
-    title: "Task Workflow Dashboard",
-    category: "technical",
-    icon: "APP",
-    date: "2026-04-22",
-    description: "A productivity interface concept for tracking goals, priorities, project status, and personal learning progress.",
-    tags: ["UI", "Productivity", "Frontend"],
-    link: "#contact"
-  },
-  {
-    title: "College Study Notes System",
-    category: "college",
-    icon: "EDU",
-    date: "2026-03-18",
-    description: "A structured resource area for notes, formulas, references, and learning material that can grow over time.",
-    tags: ["Notes", "Resources", "Docs"],
-    link: "#resources"
-  },
-  {
-    title: "Interface Design Experiments",
-    category: "design",
-    icon: "UX",
-    date: "2026-02-28",
-    description: "A collection of layout studies, modern cards, navigation patterns, and responsive design experiments.",
-    tags: ["UI", "Design", "Cards"],
-    link: "#writings"
-  },
-  {
-    title: "Technical Documentation Kit",
-    category: "docs",
-    icon: "DOC",
-    date: "2026-01-30",
-    description: "Reusable templates for project explainers, setup notes, troubleshooting pages, and clean README files.",
-    tags: ["Docs", "GitHub", "Writing"],
-    link: "#resources"
-  }
-];
-
-const FEATURED = [
- {
-    title: "Portfolio Website",
-    description: "The main public hub for projects, writings, resources, and contact.",
-    status: "Live",
-    link: "https://github.com/nandurpm/portfolio"
-  },
-  {
-    title: "Engineering + Software Projects",
-    description: "A flexible section ready for electrical, web, automation, and college builds.",
-    status: "Growing",
-    link: "#works"
-  },
-  {
-    title: "Knowledge Base",
-    description: "Resources and notes area for study material, references, downloads, and learning logs.",
-    status: "Editable",
-    link: "#resources"
-  }
-];
-
-const WRITING_FILTERS = [
-  ["all", "All"],
-  ["technical", "Technical"],
-  ["college", "College Notes"],
-  ["personal", "Personal"],
-  ["reviews", "Reviews"]
-];
-
-const WRITINGS = [
-  {
-    title: "How I Am Building My Portfolio",
-    category: "technical",
-    icon: "DEV",
-    date: "2026-06-01",
-    description: "A short breakdown of the sections, layout decisions, and future content plan for this website.",
-    tags: ["Portfolio", "Frontend"],
-    link: "#works"
-  },
-  {
-    title: "Learning Notes: Web Foundations",
-    category: "college",
-    icon: "NOTE",
-    date: "2026-05-18",
-    description: "Important notes on HTML structure, CSS layout, responsive design, and JavaScript basics.",
-    tags: ["HTML", "CSS", "JS"],
-    link: "#resources"
-  },
-  {
-    title: "Why Clean UI Matters",
-    category: "personal",
-    icon: "IDEA",
-    date: "2026-04-26",
-    description: "Thoughts on clarity, spacing, contrast, and why good interfaces make technical work easier to trust.",
-    tags: ["UI", "Design"],
-    link: "#contact"
-  },
-  {
-    title: "Tools I Use for Building",
-    category: "reviews",
-    icon: "TOOL",
-    date: "2026-03-12",
-    description: "A practical list of editors, design tools, references, and workflows I use while learning and building.",
-    tags: ["Tools", "Workflow"],
-    link: "#resources"
-  }
-];
-
-const RESOURCES = [
-  {
-    title: "Study Materials",
-    category: "Learning",
-    icon: "MAT",
-    description: "Keep PDFs, notes, formulas, diagrams, and reference links grouped by subject.",
-    link: "#contact"
-  },
-  {
-    title: "Tools I Use",
-    category: "Setup",
-    icon: "KIT",
-    description: "A public list of software, extensions, services, and hardware used for projects.",
-    link: "#contact"
-  },
-  {
-    title: "Downloads",
-    category: "Files",
-    icon: "DL",
-    description: "Add resume files, certificates, project reports, and useful templates here.",
-    link: "#contact"
-  },
-  {
-    title: "Reference Links",
-    category: "Web",
-    icon: "REF",
-    description: "Collect documentation, tutorials, articles, and learning paths that helped you.",
-    link: "#contact"
-  }
-];
-
-const UPDATES = {
-  daily: [
-     {
-      date: "2026-06-01",
-      title: "Portfolio redesigned",
-      description: "The site now has a stronger hero, modern layout, editable content, filters, and responsive sections."
-    },
-    {
-      date: "2026-05-28",
-      title: "Project content planning",
-      description: "Created a structure for projects, writing, resources, notes, and future updates."
-    }
-  ],
-  announcements: [
-    {
-      date: "2026-06-01",
-      title: "Website is ready for GitHub Pages",
-      description: "The domain can serve this static website directly from the repository."
-    },
-    {
-      date: "2026-05-20",
-      title: "Open for collaboration",
-      description: "Use the contact section for project ideas, feedback, opportunities, and technical discussions."
-    }
-  ],
-  learnings: [
-    {
-      date: "2026-05-26",
-      title: "Responsive portfolio layout",
-      description: "Focused on navigation, card grids, readable spacing, hover states, and mobile behavior."
-    },
-    {
-      date: "2026-05-14",
-      title: "Static site contact forms",
-      description: "Used a mailto flow so the contact form can work without backend hosting."
-    }
-  ]
-};
-
-const UPDATE_TABS = [
-  ["daily", "Daily Updates"],
-  ["announcements", "Announcements"],
-  ["learnings", "Technical Learnings"]
-];
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function formatDate(value) {
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  }).format(date);
-}
-
-function linkTarget(link) {
-  return link && link.startsWith("http") ? 'target="_blank" rel="noreferrer"' : "";
-}
-
-function renderSkillMatrix() {
-  const matrix = document.getElementById("skillMatrix");
-  if (!matrix) return;
-
-  matrix.innerHTML = SITE.skills.map(group => `
-    <article class="skill-group reveal">
-      <h4>${escapeHtml(group.title)}</h4>
-      <div class="tag-list">
-        ${group.items.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join("")}
+      <div class="nav-links" id="navLinks">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#works" class="nav-link">Works</a>
+        <a href="#writings" class="nav-link">Writings</a>
+        <a href="#resources" class="nav-link">Resources</a>
+        <a href="#updates" class="nav-link">Updates</a>
+        <a href="#contact" class="nav-link">Contact</a>
       </div>
-    </article>
-  `).join("");
-}
 
-function renderFilterButtons(targetId, filters, active, onClick) {
-  const target = document.getElementById(targetId);
-  if (!target) return;
+      <a class="nav-action" href="#works">View Work</a>
+    </nav>
+  </header>
 
-  target.innerHTML = filters.map(([id, label]) => `
-    <button class="filter-button ${id === active ? "is-active" : ""}" type="button" data-filter-value="${escapeHtml(id)}">
-      ${escapeHtml(label)}
-    </button>
-  `).join("");
+  <main id="main">
+    <section class="hero" id="home" aria-label="Portfolio introduction">
+      <picture class="hero-media">
+        <img src="assets/hero-workstation.png" alt="Futuristic engineering workstation with holographic interface panels" />
+      </picture>
+      <div class="hero-shade"></div>
+      <div class="hero-grid" aria-hidden="true"></div>
 
-      
-  target.querySelectorAll("button").forEach(button => {
-    button.addEventListener("click", () => onClick(button.dataset.filterValue));
-  });
-}
+      <div class="hero-inner">
+        <p class="eyebrow reveal">Engineer / Developer / Creator</p>
+        <h1 class="hero-title reveal">Nandakumar M</h1>
+        <p class="hero-copy reveal">
+          I build clean, useful digital systems where software, engineering logic, and thoughtful design work together.
+        </p>
 
-function renderTabButtons(active) {
-  const target = document.getElementById("updateTabs");
-  if (!target) return;
+        <div class="hero-actions reveal">
+          <a class="button button-primary" href="#works">Explore Projects</a>
+          <a class="button button-secondary" href="#contact">Start a Conversation</a>
+        </div>
 
-  target.innerHTML = UPDATE_TABS.map(([id, label]) => `
-         <button class="tab-button ${id === active ? "is-active" : ""}" type="button" data-tab-value="${escapeHtml(id)}">
-      ${escapeHtml(label)}
-    </button>
-  `).join("");
-
-  target.querySelectorAll("button").forEach(button => {
-    button.addEventListener("click", () => {
-      renderTabButtons(button.dataset.tabValue);
-      renderUpdates(button.dataset.tabValue);
-    });
-  });
-}
-
-function makeWorkCard(item, variant = "work-card") {
-  const tags = item.tags || [];
-
-  return `
-    <article class="${variant} reveal">
-      <div class="card-top">
-        <span class="card-icon">${escapeHtml(item.icon || "PRJ")}</span>
-        <span class="card-category-light">${escapeHtml(item.category || "Project")}</span>
+        <div class="hero-status reveal" aria-label="Portfolio highlights">
+          <span><strong>Focus</strong> Web, electronics, automation</span>
+          <span><strong>Base</strong> Chennai, India</span>
+          <span><strong>Status</strong> Open to projects</span>
+        </div>
       </div>
-      <h3 class="card-title">${escapeHtml(item.title)}</h3>
-      <p class="card-desc">${escapeHtml(item.description)}</p>
-      <div class="card-meta">
-        ${item.date ? `<span class="meta-pill">${formatDate(item.date)}</span>` : ""}
-        ${tags.map(tag => `<span class="meta-pill">${escapeHtml(tag)}</span>`).join("")}
+
+      <div class="hero-dock reveal" aria-label="Website sections">
+        <a href="#about"><span>01</span> About</a>
+        <a href="#works"><span>02</span> Works</a>
+        <a href="#writings"><span>03</span> Writings</a>
+        <a href="#contact"><span>04</span> Contact</a>
       </div>
-      ${item.link ? `<a class="card-link" href="${escapeHtml(item.link)}" ${linkTarget(item.link)}>Open</a>` : ""}
-    </article>
-  `;
-}
+    </section>
 
-function renderWorks(filter = "all") {
-  const grid = document.getElementById("worksGrid");
-  if (!grid) return;
-
-  const items = filter === "all" ? WORKS : WORKS.filter(item => item.category === filter);
-  grid.innerHTML = items.length
-    ? items.map(item => makeWorkCard(item)).join("")
-    : `<p class="empty-state">No projects in this category yet.</p>`;
-
-  renderFilterButtons("workFilters", WORK_FILTERS, filter, renderWorks);
-  observeReveal();
-}
-
-function renderFeatured() {
-  const grid = document.getElementById("featuredGrid");
-  if (!grid) return;
-
-  grid.innerHTML = FEATURED.map((item, index) => `
-    <a class="feature-item reveal" href="${escapeHtml(item.link)}" ${linkTarget(item.link)}>
-      <span class="feature-number">${String(index + 1).padStart(2, "0")}</span>
-      <span>
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.description)}</p>
-      </span>
-      <span class="feature-status">${escapeHtml(item.status)}</span>
-    </a>
-  `).join("");
-}
-
-function renderWritings(filter = "all") {
-  const grid = document.getElementById("writingsGrid");
-  if (!grid) return;
-
-  const items = filter === "all" ? WRITINGS : WRITINGS.filter(item => item.category === filter);
-  grid.innerHTML = items.length
-    ? items.map(item => makeWorkCard(item, "writing-card")).join("")
-    : `<p class="empty-state">No writing in this category yet.</p>`;
-
-  renderFilterButtons("writingFilters", WRITING_FILTERS, filter, renderWritings);
-  observeReveal();
-}
-
-function renderResources() {
-  const grid = document.getElementById("resourcesGrid");
-  if (!grid) return;
-
-  grid.innerHTML = RESOURCES.map(item => `
-    <article class="resource-item reveal">
-      <div class="card-top">
-        <span class="card-icon">${escapeHtml(item.icon)}</span>
-        <span class="card-category-light">${escapeHtml(item.category)}</span>
+    <section class="signal-strip" aria-label="Key strengths">
+      <div class="signal-track">
+        <article class="signal-card reveal">
+          <span class="signal-code">UI</span>
+          <h2>Modern Interface</h2>
+          <p>Sharp layouts, readable typography, and responsive cards designed for quick scanning.</p>
+        </article>
+        <article class="signal-card reveal">
+          <span class="signal-code">DEV</span>
+          <h2>Clean Frontend</h2>
+          <p>Static GitHub Pages friendly structure with editable content in one JavaScript file.</p>
+        </article>
+        <article class="signal-card reveal">
+          <span class="signal-code">ENG</span>
+          <h2>Engineering Mindset</h2>
+          <p>Projects can present software, electrical, documentation, and study work in one place.</p>
+        </article>
       </div>
-      <h3 class="card-title">${escapeHtml(item.title)}</h3>
-      <p class="card-desc">${escapeHtml(item.description)}</p>
-      <a class="card-link" href="${escapeHtml(item.link)}">Explore</a>
-    </article>
-  `).join("");
-}
-function renderUpdates(tab = "daily") {
-  const grid = document.getElementById("updatesGrid");
-  if (!grid) return;
+    </section>
 
-  const items = UPDATES[tab] || [];
-  grid.innerHTML = items.map(item => `
-    <article class="timeline-item reveal">
-      <time class="timeline-date" datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time>
-          <div>
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.description)}</p>
+       <section class="section about-section" id="about">
+      <div class="container two-column">
+        <div class="section-heading reveal">
+          <p class="eyebrow">About Me</p>
+          <h2>Designing useful systems with engineering discipline.</h2>
+          <p>
+            This portfolio is built to introduce who I am, show the work I am building, and keep my notes,
+            resources, and updates easy to explore.
+          </p>
+        </div>
+
+        <div class="about-panel reveal">
+          <div class="about-copy">
+            <h3>Background</h3>
+            <p>
+              I am an engineer and developer from Chennai, India. I enjoy working across software,
+              web interfaces, automation ideas, and technical documentation.
+            </p>
+          </div>
+          <div class="about-copy">
+            <h3>What I Like Building</h3>
+            <p>
+              Practical tools, portfolio systems, learning resources, engineering experiments, and
+              interfaces that feel fast, direct, and polished.
+            </p>
+          </div>
+          <div class="skill-matrix" id="skillMatrix" aria-label="Skills"></div>
+        </div>
       </div>
-    </article>
-  `).join("");
+    </section>
 
-  observeReveal();
-}
+    <section class="section works-section" id="works">
+      <div class="container">
+        <div class="section-heading centered reveal">
+          <p class="eyebrow">My Works</p>
+          <h2>Projects, experiments, and technical builds.</h2>
+          <p>Filter the work by category. Add your real projects in <code>script.js</code> whenever you are ready.</p>
+        </div>
 
-function renderContact() {
-  const list = document.getElementById("contactList");
-  if (!list) return;
+        <div class="filter-bar reveal" id="workFilters" aria-label="Project filters"></div>
+        <div class="card-grid" id="worksGrid" aria-live="polite"></div>
+      </div>
+    </section>
 
-  const contacts = [
-    ["Email", SITE.email, `mailto:${SITE.email}`],
-    ["GitHub", "github.com/nandurpm", SITE.github],
-    ["LinkedIn", "linkedin.com/in/nandakumar", SITE.linkedin],
-    ["Location", SITE.location, ""]
-  ];
+    <section class="section featured-section" id="featured">
+      <div class="container split-feature">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Featured</p>
+          <h2>Selected work that deserves attention first.</h2>
+          <p>
+            Keep this section focused on your strongest 2-3 items: live demos, GitHub repositories,
+            college work, technical builds, or case studies.
+          </p>
+        </div>
+        <div class="feature-stack" id="featuredGrid"></div>
+      </div>
+    </section>
 
-  list.innerHTML = contacts.map(([label, text, href]) => `
-    <article class="contact-item">
-      <span>${escapeHtml(label)}</span>
-      ${href ? `<a href="${escapeHtml(href)}" ${linkTarget(href)}>${escapeHtml(text)}</a>` : `<p>${escapeHtml(text)}</p>`}
-    </article>
-  `).join("");
-}
+    <section class="section writings-section" id="writings">
+      <div class="container">
+        <div class="section-heading centered reveal">
+          <p class="eyebrow">My Writings</p>
+          <h2>Notes, essays, and learning logs.</h2>
+          <p>Use this area for technical articles, college notes, reflections, reviews, and resources.</p>
+        </div>
 
-function initNavigation() {
-  const header = document.getElementById("siteHeader");
-  const toggle = document.getElementById("navToggle");
-  const navLinks = document.getElementById("navLinks");
-  const links = document.querySelectorAll(".nav-link");
-  const sections = [...document.querySelectorAll("main section[id]")];
+        <div class="filter-bar reveal" id="writingFilters" aria-label="Writing filters"></div>
+        <div class="card-grid writing-grid" id="writingsGrid" aria-live="polite"></div>
+      </div>
+    </section>
 
-  function updateHeader() {
-    header?.classList.toggle("is-scrolled", window.scrollY > 24);
-  }
+    <section class="section resources-section" id="resources">
+      <div class="container resource-layout">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Resources</p>
+          <h2>Study materials, downloads, and useful tools.</h2>
+          <p>
+            Build this into your public knowledge base: guides, reference links, software tools,
+            course notes, and reusable downloads.
+          </p>
+          <a class="text-link" href="#contact">Request a resource</a>
+        </div>
+        <div class="resource-grid" id="resourcesGrid"></div>
+      </div>
+    </section>
 
-  function updateActiveLink() {
-    const visibleSections = sections.filter(section => window.scrollY >= section.offsetTop - 140);
-    const current = visibleSections[visibleSections.length - 1];
+    <section class="section updates-section" id="updates">
+      <div class="container">
+        <div class="section-heading centered reveal">
+          <p class="eyebrow">Blog / Updates</p>
+          <h2>Daily progress and announcements.</h2>
+          <p>Share what you are building, learning, fixing, or publishing.</p>
+        </div>
 
-    links.forEach(link => {
-      const isActive = current && link.getAttribute("href") === `#${current.id}`;
-      link.classList.toggle("is-active", Boolean(isActive));
-    });
-  }
+        <div class="tab-bar reveal" id="updateTabs" aria-label="Update categories"></div>
+        <div class="timeline" id="updatesGrid" aria-live="polite"></div>
+      </div>
+    </section>
 
-  toggle?.addEventListener("click", () => {
-    const isOpen = navLinks?.classList.toggle("is-open");
-    toggle.classList.toggle("is-open", Boolean(isOpen));
-    toggle.setAttribute("aria-expanded", String(Boolean(isOpen)));
-  });
+    <section class="section contact-section" id="contact">
+        <div class="container contact-layout">
+        <div class="contact-intro reveal">
+          <p class="eyebrow">Contact</p>
+          <h2>Have an idea, role, or collaboration?</h2>
+          <p>
+            Send a short message. This static form opens your email app with a prepared message,
+            so it works on GitHub Pages without a backend.
+          </p>
 
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener("click", () => {
-      navLinks?.classList.remove("is-open");
-      toggle?.classList.remove("is-open");
-      toggle?.setAttribute("aria-expanded", "false");
-    });
-  });
+          <div class="contact-list" id="contactList"></div>
+        </div>
 
-  window.addEventListener("scroll", () => {
-    updateHeader();
-    updateActiveLink();
-  }, { passive: true });
+        <form class="contact-form reveal" id="contactForm">
+          <label>
+            <span>Name</span>
+            <input id="contactName" name="name" type="text" autocomplete="name" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input id="contactEmail" name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Subject</span>
+            <input id="contactSubject" name="subject" type="text" />
+          </label>
+          <label>
+            <span>Message</span>
+            <textarea id="contactMessage" name="message" rows="6" required></textarea>
+          </label>
+          <button class="button button-primary full" type="submit">Prepare Email</button>
+          <p class="form-note" id="formNote" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
 
-  updateHeader();
-  updateActiveLink();
-}
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <a class="brand footer-brand" href="#home">
+          <span class="brand-mark">N</span>
+          <span class="brand-text">
+            <strong>Nandakumar M</strong>
+            <small>Engineer / Developer / Creator</small>
+          </span>
+        </a>
+        <p>Built for GitHub Pages and designed to grow with new projects, writings, and resources.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#about">About</a>
+        <a href="#works">Works</a>
+        <a href="#writings">Writings</a>
+        <a href="#resources">Resources</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>2026 Nandakumar M. All rights reserved.</span>
+      <span>nandakumarm.dpdns.org</span>
+    </div>
+  </footer>
 
-function observeReveal() {
-  const elements = document.querySelectorAll(".reveal:not(.is-visible)");
-
-  if (!("IntersectionObserver" in window)) {
-    elements.forEach(element => element.classList.add("is-visible"));
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add("is-visible");
-      observer.unobserve(entry.target);
-    });
-  }, {
-    threshold: 0.12,
-    rootMargin: "0px 0px -30px 0px"
-  });
-
-  elements.forEach(element => observer.observe(element));
-}
-
-function initContactForm() {
-  const form = document.getElementById("contactForm");
-  const note = document.getElementById("formNote");
-  if (!form) return;
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const name = document.getElementById("contactName").value.trim();
-    const email = document.getElementById("contactEmail").value.trim();
-    const subject = document.getElementById("contactSubject").value.trim() || "Portfolio contact";
-    const message = document.getElementById("contactMessage").value.trim();
-
-    if (!name || !email || !message) {
-      if (note) note.textContent = "Please fill in your name, email, and message.";
-      return;
-    }
-
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      "",
-      message
-    ].join("\n");
-
-    const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
-
-    if (note) {
-      note.textContent = "Your email app should open now. Replace the email in script.js with your real email.";
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderSkillMatrix();
-  renderWorks();
-  renderFeatured();
-  renderWritings();
-  renderResources();
-  renderTabButtons("daily");
-  renderUpdates("daily");
-  renderContact();
-  initNavigation();
-  initContactForm();
-  observeReveal();
-});
+  <script src="script.js"></script>
+</body>
+</html>
