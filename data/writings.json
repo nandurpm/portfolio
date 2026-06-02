@@ -1,0 +1,104 @@
+{
+  "writings": [
+    {
+      "id": 1,
+      "title": "Understanding Web Performance Optimization",
+      "category": "Technical Articles",
+      "preview": "A comprehensive guide to optimizing web performance through lazy loading, code splitting, caching strategies, and more.",
+      "date": "Dec 2024",
+      "tags": ["performance", "optimization", "web"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 2,
+      "title": "The Future of Web Development",
+      "category": "Essays",
+      "preview": "Exploring emerging trends in web development including AI integration, WebAssembly, and edge computing.",
+      "date": "Nov 2024",
+      "tags": ["future", "trends", "technology"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 3,
+      "title": "Movie Review: Oppenheimer",
+      "category": "Reviews",
+      "preview": "A detailed review of Christopher Nolan's Oppenheimer, exploring its cinematography, storytelling, and historical accuracy.",
+      "date": "Nov 2024",
+      "tags": ["movie", "review", "cinema"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 4,
+      "title": "Advanced JavaScript Patterns",
+      "category": "Technical Articles",
+      "preview": "Deep dive into advanced JavaScript patterns including closures, prototypes, async/await, and design patterns.",
+      "date": "Oct 2024",
+      "tags": ["javascript", "programming", "patterns"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 5,
+      "title": "My Thoughts on Remote Work",
+      "category": "Personal Thoughts",
+      "preview": "Reflections on the benefits and challenges of remote work, and how it has changed the tech industry.",
+      "date": "Oct 2024",
+      "tags": ["remote", "work", "lifestyle"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 6,
+      "title": "Data Structures and Algorithms",
+      "category": "College Notes",
+      "preview": "Comprehensive notes on fundamental data structures and algorithms, including time complexity analysis and implementations.",
+      "date": "Sep 2024",
+      "tags": ["dsa", "algorithms", "study"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 7,
+      "title": "Book Review: Clean Code",
+      "category": "Reviews",
+      "preview": "Review of Robert C. Martin's Clean Code, discussing best practices for writing maintainable and professional code.",
+      "date": "Sep 2024",
+      "tags": ["book", "review", "coding"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 8,
+      "title": "Political Analysis: Tech Regulation",
+      "category": "Political Writings",
+      "preview": "An analysis of recent tech regulations and their impact on innovation, privacy, and the digital economy.",
+      "date": "Aug 2024",
+      "tags": ["politics", "technology", "regulation"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 9,
+      "title": "React Hooks: A Comprehensive Guide",
+      "category": "Technical Articles",
+      "preview": "Complete guide to React Hooks, covering useState, useEffect, useContext, and custom hooks with practical examples.",
+      "date": "Aug 2024",
+      "tags": ["react", "hooks", "javascript"],
+      "link": "#",
+      "content": "Full article content here..."
+    },
+    {
+      "id": 10,
+      "title": "Reflections on Learning",
+      "category": "Personal Thoughts",
+      "preview": "Thoughts on continuous learning, growth mindset, and the importance of staying updated in the tech industry.",
+      "date": "Jul 2024",
+      "tags": ["learning", "growth", "personal"],
+      "link": "#",
+      "content": "Full article content here..."
+    }
+  ]
+}

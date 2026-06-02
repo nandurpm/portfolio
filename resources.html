@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes & Resources - YourName.dev</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">&lt;/&gt;</span>
+                <span class="logo-text">YourName.dev</span>
+            </a>
+            
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">About Me</a>
+                </li>
+                <li class="nav-item">
+                    <a href="works.html" class="nav-link">My Works</a>
+                </li>
+                <li class="nav-item">
+                    <a href="writings.html" class="nav-link">My Writings</a>
+                </li>
+                <li class="nav-item">
+                    <a href="resources.html" class="nav-link active">Notes / Resources</a>
+                </li>
+                <li class="nav-item">
+                    <a href="updates.html" class="nav-link">Blog / Updates</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a href="works.html" class="nav-btn btn-primary">View My Works</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-btn btn-secondary">Contact Me</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Notes & Resources</h1>
+            <p>Study materials, notes, and useful resources</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Search and Filter Section -->
+        <section class="search-filter-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search resources..." class="search-input">
+                <span class="search-icon">🔍</span>
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="college">College Notes</button>
+                <button class="filter-btn" data-filter="technical">Technical Notes</button>
+                <button class="filter-btn" data-filter="study">Study Materials</button>
+                <button class="filter-btn" data-filter="download">Downloads</button>
+                <button class="filter-btn" data-filter="reference">Reference Links</button>
+                <button class="filter-btn" data-filter="tools">Tools</button>
+            </div>
+        </section>
+
+        <!-- Resources Grid -->
+        <section class="resources-grid" id="resourcesGrid">
+            <!-- Dynamically loaded from resources.json -->
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>YourName.dev</h3>
+                    <p>A passionate developer and designer creating digital experiences.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="about.html">About Me</a></li>
+                        <li><a href="works.html">My Works</a></li>
+                        <li><a href="writings.html">My Writings</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://github.com" target="_blank">GitHub</a></li>
+                        <li><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+                        <li><a href="https://twitter.com" target="_blank">Twitter</a></li>
+                        <li><a href="contact.html">Email</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="resources.html">Study Materials</a></li>
+                        <li><a href="updates.html">Blog</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Your Name. All rights reserved.</p>
+                <button class="back-to-top" id="backToTop">↑ Back to Top</button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadResources);
+    </script>
+</body>
+</html>

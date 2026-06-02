@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourName.dev - Personal Portfolio</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">&lt;/&gt;</span>
+                <span class="logo-text">YourName.dev</span>
+            </a>
+            
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link active">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">About Me</a>
+                </li>
+                <li class="nav-item">
+                    <a href="works.html" class="nav-link">My Works</a>
+                </li>
+                <li class="nav-item">
+                    <a href="writings.html" class="nav-link">My Writings</a>
+                </li>
+                <li class="nav-item">
+                    <a href="resources.html" class="nav-link">Notes / Resources</a>
+                </li>
+                <li class="nav-item">
+                    <a href="updates.html" class="nav-link">Blog / Updates</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a href="works.html" class="nav-btn btn-primary">View My Works</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-btn btn-secondary">Contact Me</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="animated-background">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Hi, I'm <span class="highlight">Your Name</span></h1>
+                <p class="hero-subtitle">Full-stack Developer | Designer | Tech Enthusiast</p>
+                <p class="hero-description">
+                    I create beautiful, functional digital experiences. Passionate about technology, 
+                    innovation, and solving complex problems through elegant solutions.
+                </p>
+                
+                <div class="hero-buttons">
+                    <a href="works.html" class="btn btn-primary">View My Works</a>
+                    <a href="writings.html" class="btn btn-secondary">Read My Writings</a>
+                    <a href="contact.html" class="btn btn-tertiary">Get In Touch</a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">Articles</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">5+</span>
+                        <span class="stat-label">Years Exp</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-image">
+                <div class="profile-frame">
+                    <img src="assets/images/profile.jpg" alt="Profile" class="profile-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured / Latest Updates Section -->
+    <section class="featured-section">
+        <div class="container">
+            <h2 class="section-title">Featured & Latest Updates</h2>
+            <p class="section-subtitle">Explore my recent work and thoughts</p>
+            
+            <div class="featured-grid" id="featuredGrid">
+                <!-- Dynamically loaded from featured.json -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Preview Section -->
+    <section class="skills-preview">
+        <div class="container">
+            <h2 class="section-title">Skills & Interests</h2>
+            
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-icon">💻</div>
+                    <h3>Web Development</h3>
+                    <p>React, Vue, JavaScript, HTML/CSS</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">🎨</div>
+                    <h3>UI/UX Design</h3>
+                    <p>Figma, Prototyping, User Research</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">⚙️</div>
+                    <h3>Backend</h3>
+                    <p>Node.js, Python, Databases</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">📱</div>
+                    <h3>Mobile Apps</h3>
+                    <p>React Native, Flutter, iOS/Android</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">🔧</div>
+                    <h3>DevOps</h3>
+                    <p>Docker, AWS, CI/CD, Linux</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">📊</div>
+                    <h3>Data Science</h3>
+                    <p>Python, ML, Data Analysis</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to collaborate?</h2>
+            <p>Let's create something amazing together</p>
+            <a href="contact.html" class="btn btn-primary btn-large">Start a Conversation</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>YourName.dev</h3>
+                    <p>A passionate developer and designer creating digital experiences.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="about.html">About Me</a></li>
+                        <li><a href="works.html">My Works</a></li>
+                        <li><a href="writings.html">My Writings</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://github.com" target="_blank">GitHub</a></li>
+                        <li><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+                        <li><a href="https://twitter.com" target="_blank">Twitter</a></li>
+                        <li><a href="contact.html">Email</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="resources.html">Study Materials</a></li>
+                        <li><a href="updates.html">Blog</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Your Name. All rights reserved.</p>
+                <button class="back-to-top" id="backToTop">↑ Back to Top</button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

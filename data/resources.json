@@ -1,0 +1,136 @@
+{
+  "resources": [
+    {
+      "id": 1,
+      "title": "Advanced JavaScript Concepts",
+      "category": "Technical Notes",
+      "type": "PDF",
+      "description": "Comprehensive notes covering closures, prototypes, async/await, and advanced patterns with practical examples.",
+      "date": "Dec 2024",
+      "tags": ["javascript", "programming"],
+      "downloadLink": "assets/documents/javascript-notes.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 2,
+      "title": "Data Structures and Algorithms",
+      "category": "College Notes",
+      "type": "PDF",
+      "description": "Complete study material on fundamental data structures and algorithms with implementations and complexity analysis.",
+      "date": "Nov 2024",
+      "tags": ["dsa", "algorithms", "study"],
+      "downloadLink": "assets/documents/dsa-notes.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 3,
+      "title": "Web Development Best Practices",
+      "category": "Technical Notes",
+      "type": "Document",
+      "description": "Guidelines and best practices for modern web development including performance, security, and accessibility.",
+      "date": "Nov 2024",
+      "tags": ["web", "development", "best-practices"],
+      "downloadLink": "assets/documents/web-best-practices.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 4,
+      "title": "Database Design Guide",
+      "category": "Study Materials",
+      "type": "PDF",
+      "description": "Complete guide to database design, normalization, query optimization, and performance tuning.",
+      "date": "Oct 2024",
+      "tags": ["database", "design", "sql"],
+      "downloadLink": "assets/documents/database-design.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 5,
+      "title": "MDN Web Docs",
+      "category": "Reference Links",
+      "type": "Link",
+      "description": "Comprehensive reference for web technologies including HTML, CSS, JavaScript, and Web APIs.",
+      "date": "Ongoing",
+      "tags": ["reference", "documentation", "web"],
+      "downloadLink": null,
+      "referenceLink": "https://developer.mozilla.org"
+    },
+    {
+      "id": 6,
+      "title": "React Official Documentation",
+      "category": "Reference Links",
+      "type": "Link",
+      "description": "Official React documentation with guides, API reference, and best practices.",
+      "date": "Ongoing",
+      "tags": ["react", "documentation", "javascript"],
+      "downloadLink": null,
+      "referenceLink": "https://react.dev"
+    },
+    {
+      "id": 7,
+      "title": "Python Programming Basics",
+      "category": "College Notes",
+      "type": "PDF",
+      "description": "Fundamentals of Python programming including data types, functions, OOP, and file handling.",
+      "date": "Sep 2024",
+      "tags": ["python", "programming", "basics"],
+      "downloadLink": "assets/documents/python-basics.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 8,
+      "title": "Git & GitHub Guide",
+      "category": "Technical Notes",
+      "type": "Document",
+      "description": "Complete guide to version control with Git and GitHub, including branching, merging, and collaboration workflows.",
+      "date": "Sep 2024",
+      "tags": ["git", "github", "version-control"],
+      "downloadLink": "assets/documents/git-guide.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 9,
+      "title": "Stack Overflow",
+      "category": "Reference Links",
+      "type": "Link",
+      "description": "Community-driven Q&A platform for programming questions and solutions.",
+      "date": "Ongoing",
+      "tags": ["reference", "community", "help"],
+      "downloadLink": null,
+      "referenceLink": "https://stackoverflow.com"
+    },
+    {
+      "id": 10,
+      "title": "CSS Grid & Flexbox",
+      "category": "Study Materials",
+      "type": "PDF",
+      "description": "Comprehensive guide to modern CSS layout techniques including Grid and Flexbox with practical examples.",
+      "date": "Aug 2024",
+      "tags": ["css", "layout", "design"],
+      "downloadLink": "assets/documents/css-layout.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 11,
+      "title": "VS Code Tips & Tricks",
+      "category": "Tools",
+      "type": "Document",
+      "description": "Useful tips, keyboard shortcuts, and extensions for Visual Studio Code to boost productivity.",
+      "date": "Aug 2024",
+      "tags": ["tools", "vscode", "productivity"],
+      "downloadLink": "assets/documents/vscode-tips.pdf",
+      "referenceLink": null
+    },
+    {
+      "id": 12,
+      "title": "Linux Command Reference",
+      "category": "Technical Notes",
+      "type": "PDF",
+      "description": "Quick reference guide for essential Linux commands for file management, networking, and system administration.",
+      "date": "Jul 2024",
+      "tags": ["linux", "commands", "terminal"],
+      "downloadLink": "assets/documents/linux-commands.pdf",
+      "referenceLink": null
+    }
+  ]
+}
