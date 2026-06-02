@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Daily updates, announcements, technical learning posts, project updates and study updates." />
+  <meta name="theme-color" content="#050816" />
+  <title>Nandakumar M Portfolio | Blog and Updates</title>
+  <link rel="icon" href="assets/icons/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="updates">
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+  <div class="aurora-bg" aria-hidden="true"></div>
+  
+<header class="site-header" id="top">
+  <nav class="navbar container" aria-label="Main navigation">
+    <a class="brand" href="index.html" aria-label="Go to homepage">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span class="brand-text">Nandakumar<span>.dev</span></span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-controls="navMenu" aria-expanded="false" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="nav-menu" id="navMenu">
+      <li><a data-nav="home" href="index.html">Home</a></li>
+      <li><a data-nav="about" href="about.html">About Me</a></li>
+      <li><a data-nav="works" href="works.html">My Works</a></li>
+      <li><a data-nav="writings" href="writings.html">My Writings</a></li>
+      <li><a data-nav="resources" href="resources.html">Notes / Resources</a></li>
+      <li><a data-nav="updates" href="updates.html">Blog / Updates</a></li>
+      <li><a data-nav="contact" href="contact.html">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions" aria-label="Quick actions">
+      <a class="btn btn-small btn-ghost" href="works.html">View My Works</a>
+      <a class="btn btn-small" href="contact.html">Contact Me</a>
+    </div>
+  </nav>
+</header>
+
+  <main>
+
+    <section class="page-hero section-pad">
+      <div class="container reveal">
+        <p class="eyebrow">Blog / Updates</p>
+        <h1>Daily updates, announcements, technical learning, project progress, and study updates.</h1>
+        <p>The timeline feed loads from <code>data/updates.json</code>.</p>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="container timeline update-timeline" id="updatesTimeline"></div>
+    </section>
+
+  </main>
+  
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <section class="footer-about">
+      <a class="brand footer-brand" href="index.html"><span class="brand-mark">NM</span><span class="brand-text">Nandakumar<span>.dev</span></span></a>
+      <p>Futuristic personal portfolio for works, writings, technical notes, resources, and daily updates.</p>
+      <div class="social-row" aria-label="Social links">
+        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
+        <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="mailto:your-email@example.com">Email</a>
+      </div>
+    </section>
+    <section>
+      <h2>Quick Links</h2>
+      <a href="index.html">Home</a>
+      <a href="about.html">About Me</a>
+      <a href="works.html">My Works</a>
+      <a href="writings.html">My Writings</a>
+      <a href="contact.html">Contact</a>
+    </section>
+    <section>
+      <h2>Resources</h2>
+      <a href="resources.html">College Notes</a>
+      <a href="resources.html">Technical Notes</a>
+      <a href="resources.html">Downloads</a>
+      <a href="updates.html">Daily Updates</a>
+      <a href="https://github.com/nandurpm/portfolio" target="_blank" rel="noopener">GitHub Repository</a>
+    </section>
+    <section>
+      <h2>Website</h2>
+      <a href="https://nandakumarm.dpdns.org" target="_blank" rel="noopener">Custom Domain</a>
+      <a href="assets/documents/resume-placeholder.txt" download>Resume / CV</a>
+      <a href="assets/screenshots/futuristic-architecture-reference.png">Architecture Reference</a>
+      <a href="#top" class="back-top-link">Back to Top</a>
+    </section>
+  </div>
+  <div class="footer-bottom container">
+    <p>© <span id="year"></span> Nandakumar M. All rights reserved.</p>
+    <p>Designed with neon gradients, glassmorphism, and GitHub Pages.</p>
+  </div>
+</footer>
+<button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+
+  <script src="js/script.js" defer></script>
+</body>
+</html>

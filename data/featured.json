@@ -1,0 +1,47 @@
+[
+  {
+    "type": "New Writing",
+    "icon": "✍️",
+    "title": "The Future of Technology and Society",
+    "date": "2026-06-01",
+    "description": "A featured writing card for your newest article, essay, or technical thought.",
+    "link": "writings.html",
+    "actionLabel": "Read Writing"
+  },
+  {
+    "type": "Latest Project",
+    "icon": "💻",
+    "title": "Personal Portfolio Website",
+    "date": "2026-06-01",
+    "description": "A GitHub Pages powered futuristic portfolio connected to your custom domain.",
+    "link": "works.html",
+    "actionLabel": "View Project"
+  },
+  {
+    "type": "Latest Notes",
+    "icon": "📚",
+    "title": "Electrical Testing Notes",
+    "date": "2026-05-30",
+    "description": "Quick access to your latest college notes, practical records, or technical PDFs.",
+    "link": "resources.html",
+    "actionLabel": "Download Notes"
+  },
+  {
+    "type": "Announcement",
+    "icon": "📢",
+    "title": "Website Architecture Completed",
+    "date": "2026-05-29",
+    "description": "Homepage is dynamic. Edit this section through data/featured.json anytime.",
+    "link": "updates.html",
+    "actionLabel": "Read Update"
+  },
+  {
+    "type": "Featured Work",
+    "icon": "⚡",
+    "title": "Escalator Sticker Design System",
+    "date": "2026-05-28",
+    "description": "Showcase design works, sticker concepts, diagrams, and technical visuals.",
+    "link": "works.html",
+    "actionLabel": "View Work"
+  }
+]

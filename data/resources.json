@@ -1,0 +1,86 @@
+[
+  {
+    "title": "EMI Filter Testing Notes",
+    "category": "Technical Notes",
+    "description": "Technical note placeholder for 3-phase EMI filter test procedure and readings.",
+    "fileType": "PDF / DOCX",
+    "downloadLink": "assets/documents/resume-placeholder.txt",
+    "referenceLink": "#",
+    "date": "2026-05-30",
+    "tags": [
+      "EMI",
+      "Electrical",
+      "Testing"
+    ]
+  },
+  {
+    "title": "College Notes Folder",
+    "category": "College Notes",
+    "description": "Add your Google Drive notes link or uploaded document path here.",
+    "fileType": "Google Drive / PDF",
+    "downloadLink": "#",
+    "referenceLink": "#",
+    "date": "2026-05-28",
+    "tags": [
+      "College",
+      "Notes",
+      "Study"
+    ]
+  },
+  {
+    "title": "Study Material Pack",
+    "category": "Study Materials",
+    "description": "A resource card for study PDFs, references, formulas, diagrams, or guides.",
+    "fileType": "ZIP / PDF",
+    "downloadLink": "#",
+    "referenceLink": "#",
+    "date": "2026-05-25",
+    "tags": [
+      "Study",
+      "Download",
+      "Reference"
+    ]
+  },
+  {
+    "title": "Useful Tools List",
+    "category": "Useful Tools",
+    "description": "A curated list of free tools, calculators, converters, editors, and GitHub resources.",
+    "fileType": "Web Link",
+    "downloadLink": "#",
+    "referenceLink": "#",
+    "date": "2026-05-22",
+    "tags": [
+      "Tools",
+      "Web",
+      "Learning"
+    ]
+  },
+  {
+    "title": "Reference Link Collection",
+    "category": "Reference Links",
+    "description": "Add official docs, learning websites, standards, manuals, or trusted references.",
+    "fileType": "Links",
+    "downloadLink": "#",
+    "referenceLink": "#",
+    "date": "2026-05-20",
+    "tags": [
+      "Reference",
+      "Docs",
+      "Links"
+    ]
+  },
+  {
+    "title": "Daily Learning Log",
+    "category": "Daily Learning Resources",
+    "description": "Track what you learned today and connect it to notes, posts, or projects.",
+    "fileType": "Markdown / Blog",
+    "downloadLink": "#",
+    "referenceLink": "updates.html",
+    "date": "2026-05-18",
+    "tags": [
+      "Daily",
+      "Learning",
+      "Update"
+    ]
+  }
+]
