@@ -167,11 +167,9 @@ document.querySelectorAll('.copyright-year').forEach(el => {
   el.textContent = new Date().getFullYear();
 });
 
-// Page load fade-in (transition set BEFORE opacity change)
-document.body.style.transition = 'opacity 0.4s ease';
-document.body.style.opacity = '0';
-window.addEventListener('load', () => {
-  document.body.style.opacity = '1';
+// Safe page fade-in
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.style.opacity = '1';
 });
 
 // Scroll progress bar
