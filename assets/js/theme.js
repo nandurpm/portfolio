@@ -8,8 +8,14 @@
 
   function updateButton() {
     const icon = document.querySelector(".theme-icon");
-    if (!icon) return;
-    icon.textContent = root.getAttribute("data-theme") === "light" ? "Dark" : "Light";
+    const button = document.querySelector(".theme-toggle");
+    const isLight = root.getAttribute("data-theme") === "light";
+    if (icon) {
+      icon.textContent = isLight ? "☀" : "☾";
+    }
+    if (button) {
+      button.setAttribute("aria-label", isLight ? "Switch to dark theme" : "Switch to light theme");
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {

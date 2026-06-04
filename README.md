@@ -17,8 +17,7 @@ Modern GitHub Pages portfolio website for **Nandakumar M**, a Designing and Deve
 - Animated typing effect on the home page
 - Projects page with category filters
 - Blog page with search, category filter, and pagination
-- Resume page with timeline layout and PDF download
-- Contact page with static mailto form, social links, and location map
+- About Me page with introduction video, photo, resume timeline, contact form, social links, and location map
 - SEO metadata, Open Graph tags, canonical URLs, and fast static assets
 - GitHub Pages compatible with no backend requirement
 
@@ -29,6 +28,7 @@ portfolio/
 +-- index.html
 +-- projects.html
 +-- blog.html
++-- about.html
 +-- resume.html
 +-- contact.html
 +-- assets/
@@ -42,7 +42,10 @@ portfolio/
 |   |   +-- blog.js
 |   +-- images/
 |   |   +-- profile.jpg
+|   |   +-- about-photo.jpg
 |   |   +-- projects/
+|   +-- videos/
+|   |   +-- intro.webm
 |   +-- data/
 |       +-- projects.json
 |       +-- blog.json
@@ -85,13 +88,21 @@ Supported categories:
 - Politics
 - Personal Writings
 
-### Resume PDF
+### About Me, Resume, and Contact
+
+The `about.html` page combines the professional introduction, introduction video, resume timeline, contact form, social links, and location map.
+
+The old `resume.html` and `contact.html` pages redirect to the matching sections on `about.html` so older links continue to work.
 
 Replace `assets/Nandakumar_Resume.pdf` with the latest resume file. Keep the same filename to avoid updating links.
+
+Replace `assets/videos/intro.webm` to update the introduction video.
 
 ### Profile Photo
 
 Replace `assets/images/profile.jpg` with a new profile image. Keep the same filename for automatic use across the site.
+
+Replace `assets/images/about-photo.jpg` to update the About Me page photo and intro video poster.
 
 ## GitHub Pages Deployment
 
