@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="About Nandakumar M, Designing and Development Engineer in Chennai, Tamil Nadu, India. Resume, contact details, introduction video, skills, and professional background.">
+  <meta name="description" content="About Nandakumar M, Designing and Development Engineer in Chennai, Tamil Nadu, India. Resume, contact details, autoplay portfolio presentation, skills, and professional background.">
   <meta property="og:title" content="About Me | Nandakumar M">
   <meta property="og:description" content="Introduction, resume, contact details, and professional engineering background of Nandakumar M.">
   <meta property="og:type" content="website">
@@ -50,22 +50,83 @@
       </section>
 
       <section class="section about-media-grid">
-        <article class="intro-video-card glass" data-aos="fade-up">
+        <article class="portfolio-deck glass" data-aos="fade-up" aria-label="Autoplaying portfolio presentation">
           <div class="section-heading compact-heading">
-            <p class="eyebrow">Intro Video</p>
-            <h2>Meet Nandakumar M</h2>
+            <p class="eyebrow">Portfolio Story</p>
+            <h2>Autoplaying presentation</h2>
           </div>
-          <video class="intro-video" autoplay muted loop playsinline preload="metadata" poster="assets/images/about-photo.jpg">
-            <source src="assets/videos/developer-showcase.mp4" type="video/mp4">
-          </video>
-          <div class="video-fallback">
-            <img src="assets/images/about-photo.jpg" alt="Nandakumar M introduction poster">
-            <div>
-              <span>Developer Showcase Video</span>
-              <strong>Nandakumar M</strong>
-              <p>Designing and Development Engineer | Chennai, Tamil Nadu, India</p>
-            </div>
+          <div class="deck-stage" data-slide-deck>
+            <article class="deck-slide active" data-slide>
+              <div class="slide-copy">
+                <span class="slide-kicker">01 / Introduction</span>
+                <h3>Nandakumar M</h3>
+                <p>Designing and Development Engineer focused on practical problem solving, clean execution, and reliable systems.</p>
+              </div>
+              <div class="code-panel">
+                <span class="cursor-line">const engineer = "Nandakumar M";</span>
+                <span>profile.skills.push("design", "development", "electronics");</span>
+                <span>solve(realWorldProblem);</span>
+              </div>
+            </article>
+
+            <article class="deck-slide" data-slide>
+              <div class="slide-copy">
+                <span class="slide-kicker">02 / Web Development</span>
+                <h3>Modern Web Experiences</h3>
+                <p>Responsive layouts, fast static pages, animated interfaces, and GitHub Pages-ready delivery.</p>
+              </div>
+              <div class="device-stack">
+                <div class="device desktop"><span></span></div>
+                <div class="device tablet"><span></span></div>
+                <div class="device phone"><span></span></div>
+              </div>
+              <div class="tech-strip"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+            </article>
+
+            <article class="deck-slide" data-slide>
+              <div class="slide-copy">
+                <span class="slide-kicker">03 / Projects</span>
+                <h3>Ideas Into Applications</h3>
+                <p>Project cards, dashboards, documentation, and structured repositories that make work easy to understand.</p>
+              </div>
+              <div class="git-flow">
+                <span>commit</span><i></i><span>branch</span><i></i><span>merge</span><i></i><span>deploy</span>
+              </div>
+            </article>
+
+            <article class="deck-slide" data-slide>
+              <div class="slide-copy">
+                <span class="slide-kicker">04 / Embedded Systems</span>
+                <h3>Software + Electronics</h3>
+                <p>ESP32 ideas, sensor streams, firmware thinking, and real-time data dashboards for connected devices.</p>
+              </div>
+              <div class="iot-board">
+                <span class="chip">ESP32</span>
+                <span class="signal one"></span>
+                <span class="signal two"></span>
+                <span class="signal three"></span>
+              </div>
+            </article>
+
+            <article class="deck-slide" data-slide>
+              <div class="slide-copy">
+                <span class="slide-kicker">05 / Brand</span>
+                <h3>Turning Ideas Into Code.</h3>
+                <p>Developer | Web Technologies | IoT</p>
+                <div class="slide-links">
+                  <span>nandakumarm.dpdns.org</span>
+                  <span>github.com/nandurpm</span>
+                </div>
+              </div>
+              <div class="final-mark">NM</div>
+            </article>
           </div>
+          <div class="deck-controls" aria-label="Presentation controls">
+            <button type="button" class="deck-arrow" data-slide-prev aria-label="Previous slide">&lsaquo;</button>
+            <div class="deck-dots" data-slide-dots></div>
+            <button type="button" class="deck-arrow" data-slide-next aria-label="Next slide">&rsaquo;</button>
+          </div>
+          <div class="deck-progress" aria-hidden="true"><span data-slide-progress></span></div>
         </article>
 
         <article class="glass intro-summary" data-aos="fade-up" data-aos-delay="120">

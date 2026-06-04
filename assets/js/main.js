@@ -174,6 +174,81 @@ function setupContactForm() {
   });
 }
 
+function setupSlideDeck() {
+  const deck = document.querySelector("[data-slide-deck]");
+  if (!deck) return;
+
+  const slides = [...deck.querySelectorAll("[data-slide]")];
+  const dotsWrap = document.querySelector("[data-slide-dots]");
+  const progress = document.querySelector("[data-slide-progress]");
+  const prev = document.querySelector("[data-slide-prev]");
+  const next = document.querySelector("[data-slide-next]");
+  const intervalMs = 5200;
+  let current = 0;
+  let timer;
+  let progressTimer;
+  let startedAt = Date.now();
+
+  const setProgress = () => {
+    if (!progress) return;
+    const elapsed = Date.now() - startedAt;
+    const percent = Math.min(100, (elapsed / intervalMs) * 100);
+    progress.style.width = `${percent}%`;
+  };
+
+  const render = (index) => {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("active", slideIndex === current);
+    });
+    if (dotsWrap) {
+      dotsWrap.querySelectorAll("button").forEach((dot, dotIndex) => {
+        dot.classList.toggle("active", dotIndex === current);
+      });
+    }
+    startedAt = Date.now();
+    setProgress();
+    refreshAos();
+  };
+
+  const restart = () => {
+    window.clearInterval(timer);
+    window.clearInterval(progressTimer);
+    timer = window.setInterval(() => render(current + 1), intervalMs);
+    progressTimer = window.setInterval(setProgress, 90);
+    startedAt = Date.now();
+  };
+
+  if (dotsWrap) {
+    dotsWrap.innerHTML = slides.map((_, index) => (
+      `<button type="button" aria-label="Go to slide ${index + 1}"></button>`
+    )).join("");
+    dotsWrap.querySelectorAll("button").forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        render(index);
+        restart();
+      });
+    });
+  }
+
+  if (prev) {
+    prev.addEventListener("click", () => {
+      render(current - 1);
+      restart();
+    });
+  }
+
+  if (next) {
+    next.addEventListener("click", () => {
+      render(current + 1);
+      restart();
+    });
+  }
+
+  render(0);
+  restart();
+}
+
 function refreshAos() {
   if (window.AOS) {
     window.AOS.refreshHard();
@@ -188,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupTyping();
   setupContactForm();
+  setupSlideDeck();
   renderProjects().then(refreshAos);
   renderRecentPosts().then(refreshAos);
 

@@ -729,6 +729,7 @@ p {
 }
 
 .intro-video-card,
+.portfolio-deck,
 .intro-summary {
   position: relative;
   overflow: hidden;
@@ -752,6 +753,312 @@ p {
 
 .video-fallback {
   display: none;
+}
+
+.portfolio-deck {
+  min-height: 560px;
+}
+
+.deck-stage {
+  position: relative;
+  min-height: 430px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(56, 189, 248, 0.24), transparent 32%),
+    radial-gradient(circle at 82% 75%, rgba(34, 197, 94, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(7, 17, 31, 0.94), rgba(10, 26, 45, 0.88));
+}
+
+.deck-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size: 54px 54px;
+  opacity: 0.45;
+}
+
+.deck-slide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(260px, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: clamp(24px, 4vw, 54px);
+  opacity: 0;
+  transform: translateX(30px) scale(0.98);
+  transition: opacity 520ms ease, transform 520ms ease;
+  pointer-events: none;
+}
+
+.deck-slide.active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+}
+
+.slide-copy,
+.code-panel,
+.device-stack,
+.git-flow,
+.iot-board,
+.final-mark {
+  position: relative;
+  z-index: 1;
+}
+
+.slide-kicker {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: var(--brand);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slide-copy h3 {
+  max-width: 720px;
+  font-size: clamp(2rem, 4.3vw, 4.8rem);
+  line-height: 0.98;
+  margin-bottom: 18px;
+}
+
+.slide-copy p {
+  max-width: 620px;
+  font-size: 1.04rem;
+}
+
+.code-panel {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(1, 7, 16, 0.62);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+.code-panel span {
+  display: block;
+  color: #d8e7ff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(0.8rem, 1.35vw, 1.05rem);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cursor-line::after {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 1.1em;
+  margin-left: 6px;
+  vertical-align: -0.18em;
+  background: var(--brand);
+  animation: caret 0.8s step-end infinite;
+}
+
+.device-stack {
+  min-height: 300px;
+}
+
+.device {
+  position: absolute;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 22px;
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 28px 70px rgba(0,0,0,0.28);
+}
+
+.device span {
+  position: absolute;
+  inset: 16px;
+  border-radius: 14px;
+  background:
+    linear-gradient(90deg, rgba(56,189,248,0.85) 22%, transparent 22% 28%, rgba(34,197,94,0.7) 28% 54%, transparent 54% 60%, rgba(245,158,11,0.8) 60%),
+    linear-gradient(rgba(255,255,255,0.16), rgba(255,255,255,0.04));
+}
+
+.device.desktop {
+  width: 74%;
+  height: 230px;
+  right: 4%;
+  top: 30px;
+}
+
+.device.tablet {
+  width: 32%;
+  height: 210px;
+  left: 2%;
+  bottom: 22px;
+}
+
+.device.phone {
+  width: 19%;
+  height: 250px;
+  right: 14%;
+  bottom: 0;
+}
+
+.tech-strip {
+  position: absolute;
+  left: clamp(24px, 4vw, 54px);
+  right: clamp(24px, 4vw, 54px);
+  bottom: 28px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tech-strip span,
+.slide-links span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: var(--heading);
+  background: rgba(255,255,255,0.09);
+  font-weight: 800;
+}
+
+.git-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.git-flow span {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  color: var(--heading);
+  background: rgba(255,255,255,0.1);
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+}
+
+.git-flow i {
+  width: 58px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+.iot-board {
+  min-height: 330px;
+  display: grid;
+  place-items: center;
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  width: 180px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(56,189,248,0.55);
+  border-radius: 30px;
+  color: var(--heading);
+  background: linear-gradient(135deg, rgba(56,189,248,0.26), rgba(34,197,94,0.16));
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.8rem;
+  font-weight: 800;
+  box-shadow: 0 0 70px rgba(56,189,248,0.24);
+}
+
+.signal {
+  position: absolute;
+  border: 2px solid rgba(56,189,248,0.42);
+  border-radius: 999px;
+  animation: pulse 2.6s ease-in-out infinite;
+}
+
+.signal.one { width: 270px; height: 270px; }
+.signal.two { width: 390px; height: 390px; animation-delay: 0.35s; }
+.signal.three { width: 510px; height: 510px; animation-delay: 0.7s; }
+
+.slide-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.final-mark {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: min(52vw, 280px);
+  aspect-ratio: 1;
+  border-radius: 44px;
+  color: #00111e;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(4rem, 10vw, 7rem);
+  font-weight: 800;
+  box-shadow: 0 28px 90px rgba(56,189,248,0.28);
+}
+
+.deck-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.deck-arrow {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--heading);
+  background: rgba(255,255,255,0.08);
+  text-align: center;
+  cursor: pointer;
+}
+
+.deck-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.deck-dots button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.24);
+  cursor: pointer;
+}
+
+.deck-dots button.active {
+  width: 28px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+.deck-progress {
+  height: 3px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+}
+
+.deck-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
 }
 
 .intro-summary {
@@ -848,6 +1155,10 @@ p {
   .resume-layout,
   .contact-layout,
   .cta {
+    grid-template-columns: 1fr;
+  }
+
+  .deck-slide {
     grid-template-columns: 1fr;
   }
 
