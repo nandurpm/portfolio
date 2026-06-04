@@ -1,44 +1,134 @@
-# vCard - Personal portfolio
+# Nandakumar M Portfolio
 
-![GitHub repo size](https://img.shields.io/github/repo-size/codewithsadee/vcard-personal-portfolio)
-![GitHub stars](https://img.shields.io/github/stars/codewithsadee/vcard-personal-portfolio?style=social)
-![GitHub forks](https://img.shields.io/github/forks/codewithsadee/vcard-personal-portfolio?style=social)
-[![Twitter Follow](https://img.shields.io/twitter/follow/codewithsadee_?style=social)](https://twitter.com/intent/follow?screen_name=codewithsadee_)
-[![YouTube Video Views](https://img.shields.io/youtube/views/SoxmIlgf2zM?style=social)](https://youtu.be/SoxmIlgf2zM)
+Modern GitHub Pages portfolio website for **Nandakumar M**, a Designing and Development Engineer based in Chennai, Tamil Nadu, India.
 
-vCard is a fully responsive personal portfolio website, responsive for all devices, built using HTML, CSS, and JavaScript.
+## Live Site
 
-## Demo
+- Custom domain: <https://nandakumarm.dpdns.org>
+- GitHub Pages repository: <https://github.com/nandurpm/portfolio>
 
-![vCard Desktop Demo](./website-demo-image/desktop.png "Desktop Demo")
-![vCard Mobile Demo](./website-demo-image/mobile.png "Mobile Demo")
+## Features
 
-## Prerequisites
+- Pure HTML5, CSS3, and vanilla JavaScript
+- Modern glassmorphism user interface
+- Fully responsive desktop, tablet, and mobile layouts
+- Dark and light theme toggle with local storage
+- AOS-powered smooth scroll animations
+- Animated typing effect on the home page
+- Projects page with category filters
+- Blog page with search, category filter, and pagination
+- Resume page with timeline layout and PDF download
+- Contact page with static mailto form, social links, and location map
+- SEO metadata, Open Graph tags, canonical URLs, and fast static assets
+- GitHub Pages compatible with no backend requirement
 
-Before you begin, ensure you have met the following requirements:
+## Folder Structure
 
-* [Git](https://git-scm.com/downloads "Download Git") must be installed on your operating system.
-
-## Installing vCard
-
-To install **vCard**, follow these steps:
-
-Linux and macOS:
-
-```bash
-sudo git clone https://github.com/codewithsadee/vcard-personal-portfolio.git
+```text
+portfolio/
++-- index.html
++-- projects.html
++-- blog.html
++-- resume.html
++-- contact.html
++-- assets/
+|   +-- css/
+|   |   +-- main.css
+|   |   +-- theme.css
+|   |   +-- animations.css
+|   +-- js/
+|   |   +-- main.js
+|   |   +-- theme.js
+|   |   +-- blog.js
+|   +-- images/
+|   |   +-- profile.jpg
+|   |   +-- projects/
+|   +-- data/
+|       +-- projects.json
+|       +-- blog.json
++-- README.md
 ```
 
-Windows:
+## Customize Content
 
-```bash
-git clone https://github.com/codewithsadee/vcard-personal-portfolio.git
+### Projects
+
+Edit `assets/data/projects.json` to add or update project cards.
+
+Each project supports:
+
+- `title`
+- `category`
+- `description`
+- `image`
+- `github`
+- `download`
+- `technologies`
+
+Supported categories:
+
+- Web Development
+- Embedded Systems
+- Engineering Design
+- Electronics
+
+### Blog
+
+Edit `assets/data/blog.json` to add or update blog posts.
+
+Supported categories:
+
+- Technical Articles
+- Engineering
+- Current Affairs
+- Movie Reviews
+- Politics
+- Personal Writings
+
+### Resume PDF
+
+Replace `assets/Nandakumar_Resume.pdf` with the latest resume file. Keep the same filename to avoid updating links.
+
+### Profile Photo
+
+Replace `assets/images/profile.jpg` with a new profile image. Keep the same filename for automatic use across the site.
+
+## GitHub Pages Deployment
+
+1. Push this repository to GitHub.
+2. Open the repository on GitHub.
+3. Go to **Settings** > **Pages**.
+4. Under **Build and deployment**, choose:
+   - Source: **Deploy from a branch**
+   - Branch: **main**
+   - Folder: **/** root
+5. Save the settings.
+6. GitHub Pages will publish the website.
+
+## Custom Domain
+
+The repository includes a `CNAME` file:
+
+```text
+nandakumarm.dpdns.org
 ```
 
-## Contact
+Make sure the DNS provider points the domain to GitHub Pages.
 
-If you want to contact me you can reach me at [Twitter](https://www.x.com/codewithsadee_).
+## Local Preview
+
+Because the site loads JSON files, preview it through a local server instead of opening `index.html` directly.
+
+```bash
+python -m http.server 8000
+```
+
+Then open:
+
+```text
+http://localhost:8000
+```
 
 ## License
 
-MIT
+This project is available under the MIT License.
