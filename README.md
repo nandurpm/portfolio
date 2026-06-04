@@ -45,7 +45,7 @@ portfolio/
 |   |   +-- about-photo.jpg
 |   |   +-- projects/
 |   +-- videos/
-|   |   +-- intro.webm
+|   |   +-- developer-showcase.mp4
 |   +-- data/
 |       +-- projects.json
 |       +-- blog.json
@@ -96,7 +96,7 @@ The old `resume.html` and `contact.html` pages redirect to the matching sections
 
 Replace `assets/Nandakumar_Resume.pdf` with the latest resume file. Keep the same filename to avoid updating links.
 
-Replace `assets/videos/intro.webm` to update the introduction video.
+Replace `assets/videos/developer-showcase.mp4` to update the autoplay introduction video.
 
 ### Profile Photo
 
