@@ -1,0 +1,157 @@
+/* ==========================================================================
+   Motion system - subtle, purposeful, reduced-motion aware
+   ========================================================================== */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeScale {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -220% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@keyframes floatSoft {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(124, 140, 255, 0.18);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(124, 140, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 140, 255, 0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 500ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.fade-scale {
+  animation: fadeScale 500ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.08) 50%, transparent 100%);
+  background-size: 220% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.float-soft {
+  animation: floatSoft 5s ease-in-out infinite;
+}
+
+.pulse-ring {
+  animation: pulseRing 2.6s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ===== Premium Readability Rebuild ===== */
+:root{
+ --bg:#070b14;
+ --surface:#111827;
+ --surface-2:#172033;
+ --text:#ffffff;
+ --text-muted:#cbd5e1;
+ --accent:#7c8cff;
+ --accent2:#5de0ff;
+}
+
+body{
+ background:radial-gradient(circle at top,#0d1630 0%,#070b14 60%);
+ color:var(--text) !important;
+}
+
+h1,h2,h3,h4,h5,h6{
+ color:#fff !important;
+ letter-spacing:-0.03em;
+}
+
+p,li,span{
+ color:var(--text-muted) !important;
+}
+
+.hero,.hero-content,.hero-card{
+ background:transparent !important;
+}
+
+.hero h1{
+ font-size:clamp(3.5rem,8vw,6rem) !important;
+ color:#fff !important;
+ background:none !important;
+ -webkit-text-fill-color:#fff !important;
+}
+
+nav,.navbar,header{
+ background:rgba(8,12,24,.78) !important;
+ backdrop-filter:blur(18px);
+ border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.card,.project-card,.skill-card,.timeline-card{
+ background:rgba(17,24,39,.92) !important;
+ border:1px solid rgba(255,255,255,.08) !important;
+ color:#fff !important;
+ box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.card h3,.project-card h3,.skill-card h3{
+ color:#fff !important;
+}
+
+section h2{
+ font-size:clamp(2rem,5vw,3.5rem) !important;
+ margin-bottom:1rem;
+}
+
+.btn,.button{
+ background:linear-gradient(135deg,var(--accent),var(--accent2)) !important;
+ color:#fff !important;
+ border:none !important;
+}
+
+body::after{
+ opacity:.35 !important;
+}
