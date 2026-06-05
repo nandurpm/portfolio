@@ -70,5 +70,14 @@
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
     "technologies": ["Radio", "Electronics", "Training"]
+  },
+  {
+    "title": "Diploma Notes",
+    "category": "Web Development",
+    "description": "A separate student-friendly study platform for Kerala Diploma learners with syllabus access, lesson sections, model question paper links, and organized materials.",
+    "image": "assets/images/works/project-6.png",
+    "url": "works/diploma-notes.html",
+    "github": "https://github.com/nandurpm/diploma-notes",
+    "technologies": ["HTML", "CSS", "JavaScript", "GitHub Pages"]
   }
 ]

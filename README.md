@@ -16,7 +16,6 @@ Modern GitHub Pages portfolio website for **Nandakumar M**, a Designing and Deve
 - AOS-powered smooth scroll animations
 - Animated typing effect on the home page
 - Projects page with category filters
-- Diploma Notes section with Revision 2021 and 2015 Materials pages
 - Blog page with search, category filter, and pagination
 - About Me page with autoplaying portfolio presentation, photo, resume timeline, contact form, social links, and location map
 - SEO metadata, Open Graph tags, canonical URLs, and fast static assets
@@ -29,11 +28,8 @@ portfolio/
 +-- index.html
 +-- projects.html
 +-- works.html
-+-- diploma-notes.html
 +-- blog.html
 +-- about.html
-+-- diploma-notes/
-+-- posts/
 +-- assets/
 |   +-- css/
 |   |   +-- main.css
@@ -67,6 +63,7 @@ Each project supports:
 - `image`
 - `github`
 - `download`
+- `url`
 - `technologies`
 
 Supported categories:

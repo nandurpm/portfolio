@@ -22,6 +22,9 @@ function escapeHtml(value) {
 
 function projectCard(project) {
   const tags = (project.technologies || []).map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join("");
+  const detailLink = project.url ? `<a href="${escapeHtml(project.url)}">View Project</a>` : "";
+  const githubLink = project.github ? `<a href="${escapeHtml(project.github)}" target="_blank" rel="noopener">GitHub</a>` : "";
+  const downloadLink = project.download ? `<a href="${escapeHtml(project.download)}" download>Download</a>` : "";
   return `
     <article class="project-card" data-aos="fade-up" data-category="${escapeHtml(project.category)}">
       <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}">
@@ -30,8 +33,9 @@ function projectCard(project) {
         <h3>${escapeHtml(project.title)}</h3>
         <p>${escapeHtml(project.description)}</p>
         <div class="card-actions">
-          <a href="${escapeHtml(project.github)}" target="_blank" rel="noopener">GitHub</a>
-          <a href="${escapeHtml(project.download)}" download>Download</a>
+          ${detailLink}
+          ${githubLink}
+          ${downloadLink}
         </div>
       </div>
     </article>
