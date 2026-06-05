@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="How I Think About Engineering Design Reviews">
+  <meta name="author" content="Nandakumar M">
+  <title>Engineering Design Reviews | Nandakumar M</title>
+  <link rel="icon" href="../assets/images/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header glass">
+      <a class="brand" href="../index.html" aria-label="Nandakumar M home">
+        <span class="brand-mark">NM</span>
+        <span>
+          <strong>Nandakumar M</strong>
+          <small>Designing and Development Engineer</small>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="../index.html">Home</a>
+        <a href="../works.html">Projects</a>
+        <a class="active" href="../blog.html">Blog</a>
+        <a href="../about.html">About Me</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
+        <span class="theme-icon" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <main>
+      <article class="blog-article">
+        <header class="article-header">
+          <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
+          <h1>How I Think About Engineering Design Reviews</h1>
+          <div class="article-meta">
+            <time datetime="2026-05-28">May 28, 2026</time>
+            <span>4 min read</span>
+            <span class="badge">Engineering</span>
+          </div>
+          <img src="../assets/images/blog/blog-1.jpg" alt="Engineering Design Reviews" class="article-image">
+        </header>
+
+        <div class="article-content">
+          <p>Design reviews are moments where engineering discipline meets practical reality. I approach them as systematic checkpoints, not just compliance boxes.</p>
+          
+          <h2>The Core Questions</h2>
+          <p>Every review should answer: Does the design solve the actual problem? Can it be manufactured reliably? Will it survive real-world use? What happens when someone makes a mistake during assembly or maintenance?</p>
+          
+          <h2>The Checklist Framework</h2>
+          <p>I use a practical checklist organized around design intent, manufacturability, quality risk, and field reliability. This structure keeps reviews focused and traceable.</p>
+          
+          <h3>Design Intent</h3>
+          <p>Verify the design actually addresses the original requirement. This seems obvious, but feature creep and missed specifications happen more often than you'd think.</p>
+          
+          <h3>Manufacturability</h3>
+          <p>Review with the people who will actually make it. Tool accessibility, fixture clearance, assembly sequence—these details either make manufacturing smooth or create shortcuts that damage quality.</p>
+          
+          <h3>Quality Risk</h3>
+          <p>Identify failure modes that would escape normal inspection. Where are the weak points? What warnings or instructions prevent assembly errors?</p>
+          
+          <h3>Field Reliability</h3>
+          <p>Consider maintenance, repair, and replacement scenarios. A design that's impossible to service properly is incomplete, even if it works initially.</p>
+          
+          <h2>Making It Stick</h2>
+          <p>The review is only valuable if the findings get built into production documentation. Every issue noted becomes either a design change, an inspection step, or a work instruction.</p>
+          
+          <p>Clear documentation from design review becomes institutional memory that prevents the same mistakes from repeating.</p>
+        </div>
+
+        <footer class="article-footer">
+          <a class="btn ghost" href="../blog.html">← Back to all posts</a>
+        </footer>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
+      <div>
+        <a href="mailto:nandakumarmkdpm@gmail.com">Email</a>
+        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
