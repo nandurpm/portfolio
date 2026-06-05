@@ -1,5 +1,5 @@
 const DATA_PATHS = {
-  projects: "assets/data/projects.json",
+  projects: "assets/data/works.json",
   blog: "assets/data/blog.json"
 };
 
@@ -21,7 +21,7 @@ function escapeHtml(value) {
 }
 
 function projectCard(project) {
-  const tags = project.technologies.map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join("");
+  const tags = (project.technologies || []).map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join("");
   return `
     <article class="project-card" data-aos="fade-up" data-category="${escapeHtml(project.category)}">
       <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}">

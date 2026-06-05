@@ -26,11 +26,10 @@ Modern GitHub Pages portfolio website for **Nandakumar M**, a Designing and Deve
 ```text
 portfolio/
 +-- index.html
++-- works.html
 +-- projects.html
 +-- blog.html
 +-- about.html
-+-- resume.html
-+-- contact.html
 +-- assets/
 |   +-- css/
 |   |   +-- main.css
@@ -43,9 +42,9 @@ portfolio/
 |   +-- images/
 |   |   +-- profile.jpg
 |   |   +-- about-photo.jpg
-|   |   +-- projects/
+|   |   +-- works/
 |   +-- data/
-|       +-- projects.json
+|       +-- works.json
 |       +-- blog.json
 +-- README.md
 ```
@@ -54,7 +53,7 @@ portfolio/
 
 ### Projects
 
-Edit `assets/data/projects.json` to add or update project cards.
+Edit `assets/data/works.json` to add or update project cards.
 
 Each project supports:
 
@@ -92,7 +91,7 @@ The `about.html` page combines the professional introduction, autoplaying presen
 
 The old `resume.html` and `contact.html` pages redirect to the matching sections on `about.html` so older links continue to work.
 
-Replace `assets/Nandakumar_Resume.pdf` with the latest resume file. Keep the same filename to avoid updating links.
+Replace `assets/files/resume.pdf` with the latest resume file. Keep the same filename to avoid updating links.
 
 The autoplaying presentation is built with HTML, CSS, and vanilla JavaScript, so it is lightweight and easy to edit directly in `about.html`.
 
