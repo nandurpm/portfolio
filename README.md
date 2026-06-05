@@ -26,8 +26,8 @@ Modern GitHub Pages portfolio website for **Nandakumar M**, a Designing and Deve
 ```text
 portfolio/
 +-- index.html
-+-- works.html
 +-- projects.html
++-- works.html
 +-- blog.html
 +-- about.html
 +-- assets/
@@ -53,7 +53,7 @@ portfolio/
 
 ### Projects
 
-Edit `assets/data/works.json` to add or update project cards.
+Edit `assets/data/works.json` to add or update project cards. The public projects page is `projects.html`; `works.html` redirects there for older links.
 
 Each project supports:
 

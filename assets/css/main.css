@@ -1430,8 +1430,11 @@ p {
 
 .empty-state {
   grid-column: 1 / -1;
-  padding: 28px;
-  border-radius: var(--radius-md);
+  opacity: 0.75;
+  font-size: 0.95rem;
+  padding: 1rem;
+  border-radius: 14px;
+  text-align: center;
   color: var(--muted);
   border: 1px dashed var(--border);
 }

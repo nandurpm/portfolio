@@ -26,7 +26,7 @@
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="site-nav" aria-label="Main navigation">
         <a href="index.html">Home</a>
-        <a href="works.html">Projects</a>
+        <a href="projects.html">Projects</a>
         <a class="active" href="blog.html">Blog</a>
         <a href="about.html">About Me</a>
       </nav>
@@ -56,7 +56,9 @@
             <option>Personal Writings</option>
           </select>
         </div>
-        <div class="card-grid blog-grid" id="blogList"></div>
+        <div class="card-grid blog-grid" id="blogList">
+          <p class="empty-state">Loading blog posts...</p>
+        </div>
         <div class="pagination" id="blogPagination" aria-label="Blog pagination"></div>
       </section>
     </main>

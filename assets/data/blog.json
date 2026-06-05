@@ -6,7 +6,7 @@
     "date": "2026-05-28",
     "readTime": "4 min read",
     "excerpt": "A practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release.",
-    "image": "assets/images/blog-1.jpg",
+    "image": "assets/images/blog/blog-1.jpg",
     "tags": [
       "design",
       "quality",
@@ -21,7 +21,7 @@
     "date": "2026-05-21",
     "readTime": "5 min read",
     "excerpt": "Why a pure HTML, CSS, and JavaScript portfolio is still one of the fastest and most reliable ways to publish online.",
-    "image": "assets/images/blog-2.jpg",
+    "image": "assets/images/blog/blog-2.jpg",
     "tags": [
       "github pages",
       "html",
@@ -36,7 +36,7 @@
     "date": "2026-05-12",
     "readTime": "3 min read",
     "excerpt": "Lessons from production work that continue to influence how I approach drawings, inspection, and process discipline.",
-    "image": "assets/images/blog-3.jpg",
+    "image": "assets/images/blog/blog-3.jpg",
     "tags": [
       "cnc",
       "process",
@@ -51,7 +51,7 @@
     "date": "2026-04-29",
     "readTime": "4 min read",
     "excerpt": "A reflection on how global technology trends shape local engineering careers, learning choices, and long-term opportunities.",
-    "image": "assets/images/blog-4.jpg",
+    "image": "assets/images/blog/blog-4.jpg",
     "tags": [
       "technology",
       "career",
@@ -66,7 +66,7 @@
     "date": "2026-04-16",
     "readTime": "3 min read",
     "excerpt": "Looking at storytelling, systems thinking, and the small production details that make a movie feel believable.",
-    "image": "assets/images/blog-5.jpg",
+    "image": "assets/images/blog/blog-5.jpg",
     "tags": [
       "movies",
       "review",
@@ -81,7 +81,7 @@
     "date": "2026-03-31",
     "readTime": "5 min read",
     "excerpt": "Good documentation reduces repeated mistakes, helps teams align, and makes engineering decisions easier to audit.",
-    "image": "assets/images/blog-6.jpg",
+    "image": "assets/images/blog/blog-6.jpg",
     "tags": [
       "documentation",
       "teams",
@@ -96,7 +96,7 @@
     "date": "2026-03-18",
     "readTime": "4 min read",
     "excerpt": "Thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life.",
-    "image": "assets/images/blog-4.jpg",
+    "image": "assets/images/blog/blog-4.jpg",
     "tags": [
       "infrastructure",
       "policy",
@@ -111,7 +111,7 @@
     "date": "2026-02-25",
     "readTime": "3 min read",
     "excerpt": "How I keep learning practical tools while balancing work, curiosity, and long-term professional goals.",
-    "image": "assets/images/blog-5.jpg",
+    "image": "assets/images/blog/blog-5.jpg",
     "tags": [
       "learning",
       "career",
@@ -126,7 +126,7 @@
     "date": "2026-02-08",
     "readTime": "4 min read",
     "excerpt": "A reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere.",
-    "image": "assets/images/blog-6.jpg",
+    "image": "assets/images/blog/blog-6.jpg",
     "tags": [
       "electronics",
       "basics",
