@@ -12,7 +12,7 @@
       "quality",
       "manufacturing"
     ],
-    "url": "blog.html#post-engineering-design-reviews"
+    "url": "blog/engineering-design-reviews.html"
   },
   {
     "title": "Building a Fast Static Portfolio with GitHub Pages",
@@ -27,7 +27,7 @@
       "html",
       "css"
     ],
-    "url": "blog.html#post-fast-static-portfolio"
+    "url": "blog/fast-static-portfolio.html"
   },
   {
     "title": "What CNC Operations Taught Me About Precision",
@@ -42,7 +42,7 @@
       "process",
       "inspection"
     ],
-    "url": "blog.html#post-cnc-precision"
+    "url": "blog/cnc-precision.html"
   },
   {
     "title": "Current Affairs and Technology Careers",
@@ -57,7 +57,7 @@
       "career",
       "industry"
     ],
-    "url": "blog.html#post-current-affairs-technology-careers"
+    "url": "blog/current-affairs-technology-careers.html"
   },
   {
     "title": "A Movie Review Through an Engineer's Lens",
@@ -72,7 +72,7 @@
       "review",
       "story"
     ],
-    "url": "blog.html#post-movie-review-engineers-lens"
+    "url": "blog/movie-review-engineers-lens.html"
   },
   {
     "title": "Why Documentation Is a Professional Skill",
@@ -87,7 +87,7 @@
       "teams",
       "quality"
     ],
-    "url": "blog.html#post-documentation-professional-skill"
+    "url": "blog/documentation-professional-skill.html"
   },
   {
     "title": "Politics, Infrastructure, and Everyday Engineering",
@@ -102,7 +102,7 @@
       "policy",
       "public systems"
     ],
-    "url": "blog.html#post-politics-infrastructure-engineering"
+    "url": "blog/politics-infrastructure-engineering.html"
   },
   {
     "title": "Personal Notes on Learning New Technologies",
@@ -117,7 +117,7 @@
       "career",
       "growth"
     ],
-    "url": "blog.html#post-learning-new-technologies"
+    "url": "blog/learning-new-technologies.html"
   },
   {
     "title": "Electronics Basics That Still Matter",
@@ -132,6 +132,6 @@
       "basics",
       "testing"
     ],
-    "url": "blog.html#post-electronics-basics"
+    "url": "blog/electronics-basics.html"
   }
 ]

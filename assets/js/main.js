@@ -22,39 +22,38 @@ function escapeHtml(value) {
 
 function projectCard(project) {
   const tags = (project.technologies || []).map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join("");
-  const detailLink = project.url ? `<a href="${escapeHtml(project.url)}">View Project</a>` : "";
-  const githubLink = project.github ? `<a href="${escapeHtml(project.github)}" target="_blank" rel="noopener">GitHub</a>` : "";
-  const downloadLink = project.download ? `<a href="${escapeHtml(project.download)}" download>Download</a>` : "";
+  const image = `<img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}">`;
+  const title = `<h3>${escapeHtml(project.title)}</h3>`;
+  const cardLink = project.url ? escapeHtml(project.url) : "";
+
   return `
     <article class="project-card" data-aos="fade-up" data-category="${escapeHtml(project.category)}">
-      <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}">
+      ${cardLink ? `<a href="${cardLink}" aria-label="Open ${escapeHtml(project.title)} project page">${image}</a>` : image}
       <div class="card-body">
         <div class="card-meta"><span class="pill">${escapeHtml(project.category)}</span>${tags}</div>
-        <h3>${escapeHtml(project.title)}</h3>
+        ${cardLink ? `<a href="${cardLink}">${title}</a>` : title}
         <p>${escapeHtml(project.description)}</p>
-        <div class="card-actions">
-          ${detailLink}
-          ${githubLink}
-          ${downloadLink}
-        </div>
       </div>
     </article>
   `;
 }
 
 function blogCard(post) {
+  const postUrl = escapeHtml(post.url);
   return `
     <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-aos="fade-up">
-      <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}">
+      <a href="${postUrl}" aria-label="Open ${escapeHtml(post.title)}">
+        <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}">
+      </a>
       <div class="card-body">
         <div class="card-meta">
           <span class="pill">${escapeHtml(post.category)}</span>
           <span class="pill">${escapeHtml(post.readTime)}</span>
         </div>
-        <h3>${escapeHtml(post.title)}</h3>
+        <a href="${postUrl}"><h3>${escapeHtml(post.title)}</h3></a>
         <p>${escapeHtml(post.excerpt)}</p>
         <div class="card-actions">
-          <a href="${escapeHtml(post.url)}">Read More</a>
+          <a href="${postUrl}">Read More</a>
           <span>${escapeHtml(post.date)}</span>
         </div>
       </div>

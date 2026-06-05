@@ -1,12 +1,30 @@
 [
   {
+    "title": "Diploma Notes",
+    "category": "Web Development",
+    "description": "A separate student-friendly study platform for Kerala Diploma learners with syllabus access, lesson sections, model question paper links, and organized materials.",
+    "image": "assets/images/works/project-6.png",
+    "url": "works/diploma-notes.html",
+    "github": "https://github.com/nandurpm/diploma-notes",
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "GitHub Pages"
+    ]
+  },
+  {
     "title": "Smart Portfolio Dashboard",
     "category": "Web Development",
     "description": "A responsive GitHub Pages dashboard for presenting engineering projects, resume highlights, and blog content with JSON-powered cards.",
     "image": "assets/images/works/project-1.jpg",
     "github": "https://github.com/nandurpm/portfolio",
     "download": "assets/data/works.json",
-    "technologies": ["HTML5", "CSS3", "JavaScript"]
+    "technologies": [
+      "HTML5",
+      "CSS3",
+      "JavaScript"
+    ]
   },
   {
     "title": "ESP32 Machine Monitor",
@@ -15,7 +33,11 @@
     "image": "assets/images/works/project-2.png",
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
-    "technologies": ["ESP32", "Sensors", "IoT"]
+    "technologies": [
+      "ESP32",
+      "Sensors",
+      "IoT"
+    ]
   },
   {
     "title": "Lift Component Design Notes",
@@ -24,7 +46,11 @@
     "image": "assets/images/works/project-3.jpg",
     "github": "https://github.com/nandurpm",
     "download": "assets/files/resume.pdf",
-    "technologies": ["CAD", "Documentation", "Quality"]
+    "technologies": [
+      "CAD",
+      "Documentation",
+      "Quality"
+    ]
   },
   {
     "title": "Electronics Lab Tracker",
@@ -33,7 +59,11 @@
     "image": "assets/images/works/project-4.png",
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
-    "technologies": ["Electronics", "Testing", "Reports"]
+    "technologies": [
+      "Electronics",
+      "Testing",
+      "Reports"
+    ]
   },
   {
     "title": "CNC Process Checklist",
@@ -42,7 +72,11 @@
     "image": "assets/images/works/project-5.png",
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
-    "technologies": ["CNC", "PDI", "Process"]
+    "technologies": [
+      "CNC",
+      "PDI",
+      "Process"
+    ]
   },
   {
     "title": "Sensor Data Landing Page",
@@ -51,7 +85,11 @@
     "image": "assets/images/works/project-8.jpg",
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
-    "technologies": ["Static Site", "AOS", "SEO"]
+    "technologies": [
+      "Static Site",
+      "AOS",
+      "SEO"
+    ]
   },
   {
     "title": "Arduino Safety Indicator",
@@ -60,7 +98,11 @@
     "image": "assets/images/works/project-7.png",
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
-    "technologies": ["Arduino", "LED", "Control"]
+    "technologies": [
+      "Arduino",
+      "LED",
+      "Control"
+    ]
   },
   {
     "title": "Broadcast Electronics Notes",
@@ -69,15 +111,10 @@
     "image": "assets/images/works/project-9.png",
     "github": "https://github.com/nandurpm",
     "download": "assets/data/works.json",
-    "technologies": ["Radio", "Electronics", "Training"]
-  },
-  {
-    "title": "Diploma Notes",
-    "category": "Web Development",
-    "description": "A separate student-friendly study platform for Kerala Diploma learners with syllabus access, lesson sections, model question paper links, and organized materials.",
-    "image": "assets/images/works/project-6.png",
-    "url": "works/diploma-notes.html",
-    "github": "https://github.com/nandurpm/diploma-notes",
-    "technologies": ["HTML", "CSS", "JavaScript", "GitHub Pages"]
+    "technologies": [
+      "Radio",
+      "Electronics",
+      "Training"
+    ]
   }
 ]
