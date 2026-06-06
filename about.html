@@ -54,104 +54,115 @@
         <article class="portfolio-deck glass" data-aos="fade-up" aria-label="Diploma Notes project showcase">
           <div class="section-heading compact-heading">
             <p class="eyebrow">Featured Project</p>
-            <h2>Diploma Notes</h2>
+            <h2>Diploma Notes: Study Platform</h2>
           </div>
 
           <div class="deck-stage" data-slide-deck>
             <!-- Pause hint shown on hover -->
             <span class="deck-pause-hint" aria-hidden="true">⏸ Paused</span>
 
-            <!-- Slide 1: Project Introduction -->
+            <!-- Slide 1: Welcome -->
             <article class="deck-slide active" data-slide data-slide-index="0">
               <div class="slide-copy">
-                <span class="slide-kicker">01 &mdash; What is it?</span>
+                <span class="slide-kicker">01 &mdash; Welcome</span>
                 <h3>Diploma Notes</h3>
-                <p>A focused study platform for Kerala Polytechnic and Diploma students. Organized by semester, subject, and material type with quick access to syllabi, lessons, and question papers.</p>
+                <p>Kerala Polytechnic Study Hub. Clean access to Revision 2021 syllabus, lesson areas, sample question papers, and study materials for EEE and EL departments.</p>
               </div>
-              <div class="code-panel">
-                <div class="cp-line"><span class="cp-ln">1</span><span class="cp-cm">// diploma notes platform</span></div>
-                <div class="cp-line"><span class="cp-ln">2</span><span class="cp-kw">const</span>&nbsp;<span class="cp-var">project</span>&nbsp;<span class="cp-op">=</span>&nbsp;<span class="cp-str">"Diploma Notes"</span><span class="cp-op">;</span></div>
-                <div class="cp-line"><span class="cp-ln">3</span><span class="cp-kw">const</span>&nbsp;<span class="cp-var">target</span>&nbsp;<span class="cp-op">=</span>&nbsp;<span class="cp-str">"Diploma Students"</span><span class="cp-op">;</span></div>
-                <div class="cp-line"><span class="cp-ln">4</span>&nbsp;</div>
-                <div class="cp-line"><span class="cp-ln">5</span><span class="cp-fn">features</span><span class="cp-op">.</span><span class="cp-fn">include</span><span class="cp-op">(</span></div>
-                <div class="cp-line"><span class="cp-ln">6</span>&nbsp;&nbsp;<span class="cp-str">"Syllabus"</span><span class="cp-op">,</span>&nbsp;<span class="cp-str">"Lessons"</span><span class="cp-op">,</span></div>
-                <div class="cp-line"><span class="cp-ln">7</span>&nbsp;&nbsp;<span class="cp-str">"Question Papers"</span><span class="cp-op">,</span>&nbsp;<span class="cp-str">"Materials"</span></div>
-                <div class="cp-line"><span class="cp-ln">8</span><span class="cp-op">);</span>&nbsp;<span class="cursor-blink"></span></div>
+              <div class="feature-boxes">
+                <div class="feature-box">
+                  <span class="feature-icon">📚</span>
+                  <strong>2 Departments</strong>
+                  <small>EEE, EL</small>
+                </div>
+                <div class="feature-box">
+                  <span class="feature-icon">📋</span>
+                  <strong>6 Semesters</strong>
+                  <small>Semester 1-6</small>
+                </div>
+                <div class="feature-box">
+                  <span class="feature-icon">🔗</span>
+                  <strong>4 Actions</strong>
+                  <small>Per Subject</small>
+                </div>
               </div>
             </article>
 
-            <!-- Slide 2: How to Use -->
+            <!-- Slide 2: Find Your Subject -->
             <article class="deck-slide" data-slide data-slide-index="1">
               <div class="slide-copy">
-                <span class="slide-kicker">02 &mdash; How to Use</span>
-                <h3>Quick&nbsp;Access&nbsp;Guide</h3>
-                <p>Open the website, select your department and semester, find your subject, then use action buttons to access syllabus, lesson notes, or model question papers instantly.</p>
+                <span class="slide-kicker">02 &mdash; Find Your Subject</span>
+                <h3>Use Filters & Search</h3>
+                <p>Select your revision (2021 or 2015), department (EEE, EL, or First Year), and semester. Search by subject name or course code to find exactly what you need.</p>
               </div>
-              <div class="device-stack">
-                <div class="device desktop"><div class="device-screen"></div></div>
-                <div class="device tablet"><div class="device-screen"></div></div>
-                <div class="device phone"><div class="device-screen"></div></div>
+              <div class="filter-demo">
+                <div class="filter-item">
+                  <span class="filter-label">Revision</span>
+                  <span class="filter-value">2021</span>
+                </div>
+                <div class="filter-item">
+                  <span class="filter-label">Department</span>
+                  <span class="filter-value">EEE</span>
+                </div>
+                <div class="filter-item">
+                  <span class="filter-label">Semester</span>
+                  <span class="filter-value">Sem 3</span>
+                </div>
               </div>
-              <div class="tech-strip"><span>Responsive</span><span>Fast</span><span>Clean</span></div>
             </article>
 
-            <!-- Slide 3: What's Inside -->
+            <!-- Slide 3: Departments & Materials -->
             <article class="deck-slide" data-slide data-slide-index="2">
               <div class="slide-copy">
-                <span class="slide-kicker">03 &mdash; What's Included</span>
-                <h3>Four Core&nbsp;Sections</h3>
-                <p>Syllabus access, lesson areas for notes, model question paper URLs, and study materials including first-year resources and lab manuals.</p>
+                <span class="slide-kicker">03 &mdash; Departments Included</span>
+                <h3>EEE & EL Programs</h3>
+                <p>Electrical and Electronics Engineering (EEE) and Electronics Engineering (EL) with full semester-wise subject cards. Plus First Year common subjects for both departments.</p>
               </div>
-              <div class="git-flow">
-                <div class="git-flow-row">
-                  <div class="git-node commit">SY</div>
-                  <span class="git-label">Syllabus Links</span>
+              <div class="dept-showcase">
+                <div class="dept-card">
+                  <div class="dept-badge">EEE</div>
+                  <strong>Electrical & Electronics</strong>
+                  <small>Sem 1-6</small>
                 </div>
-                <div class="git-connector"></div>
-                <div class="git-flow-row">
-                  <div class="git-node branch">LS</div>
-                  <span class="git-label">Lesson Areas</span>
+                <div class="dept-card">
+                  <div class="dept-badge">EL</div>
+                  <strong>Electronics</strong>
+                  <small>Sem 1-6</small>
                 </div>
-                <div class="git-connector"></div>
-                <div class="git-flow-row">
-                  <div class="git-node merge">QP</div>
-                  <span class="git-label">Question Papers</span>
-                </div>
-                <div class="git-connector"></div>
-                <div class="git-flow-row">
-                  <div class="git-node deploy">SM</div>
-                  <span class="git-label">Study Materials</span>
+                <div class="dept-card">
+                  <div class="dept-badge">FY</div>
+                  <strong>First Year Common</strong>
+                  <small>Sem 1-2</small>
                 </div>
               </div>
             </article>
 
-            <!-- Slide 4: Key Features -->
+            <!-- Slide 4: Access & Download -->
             <article class="deck-slide" data-slide data-slide-index="3">
               <div class="slide-copy">
-                <span class="slide-kicker">04 &mdash; Key Features</span>
-                <h3>Built for&nbsp;Students</h3>
-                <p>Department filters, subject cards, dynamic links to official SITTTR resources, responsive design, and organized navigation for quick material discovery.</p>
+                <span class="slide-kicker">04 &mdash; Access & Download</span>
+                <h3>Four Actions Per Subject</h3>
+                <p>Each subject card has action buttons: Open Syllabus (official SITTTR), View Lessons (dedicated pages), Download Notes (PDF files), and Sample QP (question papers).</p>
               </div>
-              <div class="iot-board">
-                <div class="chip">📚 Study</div>
-                <span class="signal one"></span>
-                <span class="signal two"></span>
-                <span class="signal three"></span>
+              <div class="action-buttons-demo">
+                <div class="action-btn btn-syllabus">Open Syllabus</div>
+                <div class="action-btn btn-lessons">View Lessons</div>
+                <div class="action-btn btn-notes">Download Notes</div>
+                <div class="action-btn btn-qp">Sample QP</div>
               </div>
             </article>
 
-            <!-- Slide 5: Download & Open -->
+            <!-- Slide 5: Get Started Now -->
             <article class="deck-slide slide-finale" data-slide data-slide-index="4">
               <div class="slide-copy">
                 <span class="slide-kicker">05 &mdash; Get Started</span>
-                <h3>Open&nbsp;Diploma&nbsp;Notes&nbsp;Now</h3>
-                <p>Visit the standalone Diploma Notes website. Independent repository, GitHub Pages hosted, ready for future expansion and custom domain.</p>
+                <h3>Open Diploma Notes Now</h3>
+                <p>Visit the standalone website. Browse subjects by department and semester. Download notes, access syllabi, and view question papers instantly. GitHub Pages hosted and ready for your custom domain.</p>
               </div>
               <div class="brand-finale">
                 <div class="brand-finale-mark">DN</div>
                 <div class="brand-finale-links">
-                  <span>Standalone Project</span>
-                  <span>For Diploma Students</span>
+                  <span>Kerala Polytechnic Study Hub</span>
+                  <span>For All Diploma Students</span>
                 </div>
                 <a class="brand-finale-cta" href="https://nandurpm.github.io/diploma-notes/" target="_blank" rel="noopener">Open Diploma Notes</a>
               </div>
