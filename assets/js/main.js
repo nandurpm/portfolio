@@ -164,17 +164,44 @@ function setupContactForm() {
   const form = document.querySelector("#contactForm");
   if (!form) return;
 
+  const recipient = "nandakumarmkdpm@gmail.com";
+  const sendButton = form.querySelector('button[type="submit"]');
+  if (sendButton) sendButton.setAttribute("formnovalidate", "formnovalidate");
+
+  const openMailbox = () => {
+    const data = new FormData(form);
+    const name = String(data.get("name") || "").trim();
+    const email = String(data.get("email") || "").trim();
+    const subjectText = String(data.get("subject") || "Portfolio Contact").trim() || "Portfolio Contact";
+    const message = String(data.get("message") || "").trim();
+
+    const bodyLines = [];
+    if (name) bodyLines.push(`Name: ${name}`);
+    if (email) bodyLines.push(`Email: ${email}`);
+    if (message) {
+      if (bodyLines.length) bodyLines.push("");
+      bodyLines.push(message);
+    }
+
+    const subject = encodeURIComponent(subjectText);
+    const body = encodeURIComponent(bodyLines.join("\n"));
+    window.location.href = `mailto:${recipient}?subject=${subject}${body ? `&body=${body}` : ""}`;
+
+    const note = document.querySelector("#formNote");
+    if (note) note.textContent = "Your email app should open with my address filled in.";
+  };
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const data = new FormData(form);
-    const subject = encodeURIComponent(data.get("subject"));
-    const body = encodeURIComponent(
-      `Name: ${data.get("name")}\nEmail: ${data.get("email")}\n\n${data.get("message")}`
-    );
-    window.location.href = `mailto:nandakumarmkdpm@gmail.com?subject=${subject}&body=${body}`;
-    const note = document.querySelector("#formNote");
-    if (note) note.textContent = "Your email app should open with the message prepared.";
+    openMailbox();
   });
+
+  if (sendButton) {
+    sendButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      openMailbox();
+    });
+  }
 }
 
 function setupSlideDeck() {
