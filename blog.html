@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Blog by Nandakumar M with technical articles, engineering notes, current affairs, movie reviews, politics, and personal writing.">
+  <meta name="description" content="Blog by Nandakumar M featuring technology notes, engineering ideas, current affairs, movie reviews, politics, and personal writing.">
   <meta property="og:title" content="Blog | Nandakumar M">
-  <meta property="og:description" content="Searchable portfolio blog with categories and pagination.">
+  <meta property="og:description" content="Thoughts, notes, and reviews across engineering, technology, current affairs, cinema, politics, and personal writing.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://nandakumarm.dpdns.org/blog.html">
@@ -18,9 +18,35 @@
   <link rel="stylesheet" href="assets/css/theme.css">
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .blog-hero-compact {
+      padding: clamp(18px, 3vw, 34px);
+      margin-bottom: 10px;
+    }
+    .blog-hero-compact .eyebrow {
+      margin-bottom: 6px;
+    }
+    .blog-hero-compact h1 {
+      max-width: 860px;
+      margin-bottom: 8px;
+      font-size: clamp(1.75rem, 3.8vw, 3.35rem);
+      line-height: 1.02;
+    }
+    .blog-hero-compact p {
+      max-width: 900px;
+      margin-bottom: 0;
+      line-height: 1.55;
+    }
+    .blog-page .section {
+      margin-top: 0;
+    }
+    .blog-page .blog-tools {
+      margin-bottom: 16px;
+    }
+  </style>
 </head>
 <body>
-  <div class="site-shell">
+  <div class="site-shell blog-page">
     <header class="site-header glass">
       <a class="brand" href="index.html"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Designing and Development Engineer</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -34,10 +60,10 @@
     </header>
 
     <main>
-      <section class="page-hero glass" data-aos="fade-up">
+      <section class="page-hero glass blog-hero-compact" data-aos="fade-up">
         <p class="eyebrow">Blog</p>
-        <h1>Notes on technology, engineering, and the world around us.</h1>
-        <p>Search and filter sample posts across technical articles, engineering, current affairs, movie reviews, politics, and personal writings.</p>
+        <h1>Engineering notes, reviews, and personal thoughts.</h1>
+        <p>Search posts on technology, engineering, current affairs, cinema, politics, and personal writing.</p>
       </section>
 
       <section class="section">
@@ -75,4 +101,3 @@
   <script src="assets/js/blog.js"></script>
 </body>
 </html>
-
