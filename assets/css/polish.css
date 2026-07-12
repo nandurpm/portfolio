@@ -3,6 +3,18 @@
 
 body { overflow-x: hidden; }
 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .site-shell { width: min(100% - clamp(24px, 5vw, 48px), var(--max-width)); }
 
 h1 { font-size: clamp(2.65rem, 5vw, 5.6rem); line-height: .98; text-wrap: balance; }
