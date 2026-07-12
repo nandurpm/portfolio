@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Projects by Nandakumar M across web development, embedded systems, engineering design, and electronics.">
-  <meta property="og:title" content="Projects | Nandakumar M">
-  <meta property="og:description" content="Filterable engineering and development project portfolio.">
+  <meta name="description" content="Engineering and development projects by Nandakumar M, covering escalator electrical design, electronics, embedded systems, technical tools, and web development.">
+  <meta property="og:title" content="Engineering Projects | Nandakumar M">
+  <meta property="og:description" content="Selected engineering, electronics, embedded-system, and software projects with practical outcomes and technical documentation.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nandakumarm.dpdns.org/projects.html">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://nandakumarm.dpdns.org/projects.html">
-  <title>Projects | Nandakumar M</title>
+  <title>Engineering Projects | Nandakumar M</title>
   <link rel="icon" href="assets/images/logo.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,39 +23,42 @@
 <body>
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="index.html"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Designing and Development Engineer</small></span></a>
+      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="site-nav" aria-label="Main navigation">
         <a href="index.html">Home</a>
-        <a class="active" href="projects.html">Projects</a>
+        <a class="active" href="projects.html" aria-current="page">Projects</a>
         <a href="blog.html">Blog</a>
-        <a href="about.html">About Me</a>
+        <a href="about.html">About</a>
       </nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
     <main>
       <section class="page-hero glass" data-aos="fade-up">
-        <p class="eyebrow">Project Portfolio</p>
-        <h1>Filterable engineering and development work.</h1>
-        <p>GitHub Pages-ready project cards with categories, technology tags, and focused project summaries.</p>
+        <p class="eyebrow">Engineering Portfolio</p>
+        <h1>Practical projects built to solve real technical problems.</h1>
+        <p>Explore work across electrical and electronics engineering, embedded systems, engineering documentation, automation tools, and responsive web applications.</p>
       </section>
 
-      <section class="section">
-        <div class="filter-bar glass" data-aos="fade-up" aria-label="Project filters">
-          <button class="filter-btn active" data-project-filter="all">All</button>
-          <button class="filter-btn" data-project-filter="Web Development">Web Development</button>
-          <button class="filter-btn" data-project-filter="Embedded Systems">Embedded Systems</button>
-          <button class="filter-btn" data-project-filter="Engineering Design">Engineering Design</button>
-          <button class="filter-btn" data-project-filter="Electronics">Electronics</button>
+      <section class="section" aria-labelledby="project-list-title">
+        <h2 id="project-list-title" class="visually-hidden">Project list</h2>
+        <div class="filter-bar glass" data-aos="fade-up" aria-label="Filter projects by category">
+          <button class="filter-btn active" type="button" data-project-filter="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-project-filter="Web Development" aria-pressed="false">Web Development</button>
+          <button class="filter-btn" type="button" data-project-filter="Embedded Systems" aria-pressed="false">Embedded Systems</button>
+          <button class="filter-btn" type="button" data-project-filter="Engineering Design" aria-pressed="false">Engineering Design</button>
+          <button class="filter-btn" type="button" data-project-filter="Electronics" aria-pressed="false">Electronics</button>
         </div>
-        <div class="card-grid project-grid" id="projectsGrid"></div>
+        <div class="card-grid project-grid" id="projectsGrid" aria-live="polite">
+          <p class="empty-state">Loading projects…</p>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a></div>
+      <p>&copy; <span data-year></span> Nandakumar M. Engineering portfolio.</p>
+      <div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div>
     </footer>
   </div>
 
@@ -63,4 +67,3 @@
   <script src="assets/js/main.js"></script>
 </body>
 </html>
-
