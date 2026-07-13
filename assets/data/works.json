@@ -6,115 +6,62 @@
     "image": "assets/images/works/project-6.png",
     "url": "works/diploma-notes.html",
     "github": "https://github.com/nandurpm/diploma-notes",
-    "technologies": [
-      "HTML",
-      "CSS",
-      "JavaScript",
-      "GitHub Pages"
-    ]
+    "technologies": ["HTML", "CSS", "JavaScript", "GitHub Pages"]
   },
   {
     "title": "Smart Portfolio Dashboard",
     "category": "Web Development",
-    "description": "A responsive GitHub Pages dashboard for presenting engineering projects, resume highlights, and blog content with JSON-powered cards.",
+    "description": "A responsive portfolio dashboard for presenting personal projects, resume highlights, and blog content with JSON-powered cards.",
     "image": "assets/images/works/project-1.jpg",
     "github": "https://github.com/nandurpm/portfolio",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "HTML5",
-      "CSS3",
-      "JavaScript"
-    ]
+    "technologies": ["HTML5", "CSS3", "JavaScript"]
   },
   {
     "title": "ESP32 Machine Monitor",
     "category": "Embedded Systems",
-    "description": "Sample embedded monitoring concept for reading sensor values, tracking equipment status, and publishing lightweight dashboard data.",
+    "description": "An independent embedded monitoring concept for reading sensor values, tracking equipment status, and publishing lightweight dashboard data.",
     "image": "assets/images/works/project-2.png",
     "github": "https://github.com/nandurpm",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "ESP32",
-      "Sensors",
-      "IoT"
-    ]
-  },
-  {
-    "title": "Lift Component Design Notes",
-    "category": "Engineering Design",
-    "description": "Documentation-oriented engineering design sample focused on component improvement, manufacturability, and practical review checkpoints.",
-    "image": "assets/images/works/project-3.jpg",
-    "github": "https://github.com/nandurpm",
-    "download": "assets/files/resume.pdf",
-    "technologies": [
-      "CAD",
-      "Documentation",
-      "Quality"
-    ]
+    "technologies": ["ESP32", "Sensors", "IoT"]
   },
   {
     "title": "Electronics Lab Tracker",
     "category": "Electronics",
-    "description": "A sample lab tracking system for organizing circuits, test readings, observations, and maintenance tasks for electronics workflows.",
+    "description": "A personal lab tracking concept for organizing circuits, test readings, observations, and electronics maintenance tasks.",
     "image": "assets/images/works/project-4.png",
     "github": "https://github.com/nandurpm",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "Electronics",
-      "Testing",
-      "Reports"
-    ]
+    "technologies": ["Electronics", "Testing", "Reports"]
   },
   {
-    "title": "CNC Process Checklist",
+    "title": "CNC Learning Checklist",
     "category": "Engineering Design",
-    "description": "A structured checklist concept for CNC setup, quality verification, tool condition review, and production handover.",
+    "description": "A generic learning checklist for CNC setup awareness, quality verification, tool-condition review, and production handover basics.",
     "image": "assets/images/works/project-5.png",
     "github": "https://github.com/nandurpm",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "CNC",
-      "PDI",
-      "Process"
-    ]
+    "technologies": ["CNC", "Quality", "Process"]
   },
   {
     "title": "Sensor Data Landing Page",
     "category": "Web Development",
-    "description": "A fast static landing page concept for presenting sensor analytics, system status, and technical documentation.",
+    "description": "A fast static landing-page concept for presenting sensor analytics, system status, and technical documentation.",
     "image": "assets/images/works/project-8.jpg",
     "github": "https://github.com/nandurpm",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "Static Site",
-      "AOS",
-      "SEO"
-    ]
+    "technologies": ["Static Site", "AOS", "SEO"]
   },
   {
     "title": "Arduino Safety Indicator",
     "category": "Embedded Systems",
-    "description": "Prototype concept for a safety indicator using simple inputs, LED status outputs, and readable wiring documentation.",
+    "description": "An independent prototype concept using simple inputs, LED status outputs, and readable wiring documentation.",
     "image": "assets/images/works/project-7.png",
     "github": "https://github.com/nandurpm",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "Arduino",
-      "LED",
-      "Control"
-    ]
+    "technologies": ["Arduino", "LED", "Control"]
   },
   {
     "title": "Broadcast Electronics Notes",
     "category": "Electronics",
-    "description": "A technical notes project inspired by FM radio training, covering signal chain awareness and practical maintenance observations.",
+    "description": "Personal technical notes inspired by completed FM-radio training, covering signal-chain awareness and general maintenance principles.",
     "image": "assets/images/works/project-9.png",
     "github": "https://github.com/nandurpm",
-    "download": "assets/data/works.json",
-    "technologies": [
-      "Radio",
-      "Electronics",
-      "Training"
-    ]
+    "technologies": ["Radio", "Electronics", "Training"]
   }
 ]
