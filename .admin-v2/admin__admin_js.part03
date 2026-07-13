@@ -1,0 +1,235 @@
+          ...projects.filter((file) => file.type === 'file').map((file) => ({ ...file, type: 'project' }))
+        ].filter((file) => /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name));
+      }
+      renderMedia();
+    } catch (error) {
+      el.mediaGrid.innerHTML = `<div class="empty-state surface"><svg><use href="#i-close"></use></svg><h3>Media unavailable</h3><p>${escapeHtml(error.message)}</p></div>`;
+    }
+  }
+
+  function renderMedia() {
+    const items = state.mediaFilter === 'all' ? state.media : state.media.filter((item) => item.type === state.mediaFilter);
+    el.mediaGrid.innerHTML = items.length ? items.map((item) => `
+      <article class="media-card">
+        <img src="${escapeHtml(item.download_url || `../${item.path}`)}" alt="" loading="lazy">
+        <div class="media-card-body"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.path)}</small><div class="media-card-actions"><button class="button secondary" type="button" data-copy-path="${escapeHtml(item.path)}">Copy path</button><a class="button soft" href="${escapeHtml(item.download_url || `../${item.path}`)}" target="_blank" rel="noopener noreferrer">Open</a></div></div>
+      </article>`).join('') : `<div class="empty-state surface"><svg><use href="#i-image"></use></svg><h3>No images found</h3><p>This folder does not contain supported image files.</p></div>`;
+  }
+
+  function handleFormatCommand(button) {
+    const command = button.dataset.command;
+    const value = button.dataset.value || null;
+    el.richEditor.focus();
+    if (command === 'createLink') {
+      const url = prompt('Enter the link URL');
+      if (!url) return;
+      document.execCommand('createLink', false, url);
+    } else if (command === 'formatBlock') {
+      document.execCommand('formatBlock', false, value);
+    } else {
+      document.execCommand(command, false, value);
+    }
+    updateEditorDerived();
+  }
+
+  function toggleSourceMode() {
+    state.sourceMode = !state.sourceMode;
+    if (state.sourceMode) {
+      el.sourceEditor.value = el.richEditor.innerHTML;
+      el.richEditor.hidden = true;
+      el.sourceEditor.hidden = false;
+      el.sourceToggle.classList.add('active');
+      el.sourceToggle.textContent = 'Visual';
+      el.sourceEditor.focus();
+    } else {
+      el.richEditor.innerHTML = sanitizeContent(el.sourceEditor.value);
+      el.sourceEditor.hidden = true;
+      el.richEditor.hidden = false;
+      el.sourceToggle.classList.remove('active');
+      el.sourceToggle.textContent = 'HTML';
+      el.richEditor.focus();
+    }
+    updateEditorDerived();
+  }
+
+  function findItem(type, slug) {
+    return state.content[type]?.find((item) => item.slug === slug);
+  }
+
+  function setupEvents() {
+    el.githubLoginButton.addEventListener('click', startGitHubLogin);
+    window.addEventListener('message', async (event) => {
+      if (event.origin !== location.origin || event.data?.type !== 'portfolio-github-oauth') return;
+      if (event.data.error) {
+        setStatus(el.loginStatus, event.data.error, 'error');
+        return;
+      }
+      setStatus(el.loginStatus, 'Verifying GitHub access…');
+      try {
+        await authenticate(event.data.token, 'oauth');
+        setStatus(el.loginStatus);
+      } catch (error) {
+        state.token = '';
+        safeSessionRemove(TOKEN_KEY);
+        setStatus(el.loginStatus, error.message, 'error');
+      }
+    });
+    el.loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = el.loginForm.querySelector('button');
+      button.disabled = true;
+      setStatus(el.loginStatus, 'Checking repository access…');
+      try {
+        await authenticate(el.tokenInput.value, 'token');
+        setStatus(el.loginStatus);
+      } catch (error) {
+        state.token = '';
+        safeSessionRemove(TOKEN_KEY);
+        setStatus(el.loginStatus, error.message, 'error');
+      } finally {
+        button.disabled = false;
+      }
+    });
+    [el.logoutButton, el.settingsSignOut].forEach((button) => button.addEventListener('click', showLogin));
+    el.sidebarOpen.addEventListener('click', openSidebar);
+    el.sidebarClose.addEventListener('click', closeSidebar);
+    el.sidebarBackdrop.addEventListener('click', closeSidebar);
+
+    $$('[data-view]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.view, { filter: button.dataset.filterType || 'all' })));
+    $$('[data-new]').forEach((button) => button.addEventListener('click', () => openEditor(button.dataset.new || 'blog')));
+    $$('[data-content-filter]').forEach((button) => button.addEventListener('click', () => {
+      state.contentFilter = button.dataset.contentFilter;
+      $$('[data-content-filter]').forEach((entry) => entry.classList.toggle('active', entry === button));
+      renderContentLibrary();
+    }));
+    el.contentSearch.addEventListener('input', renderContentLibrary);
+    el.contentSort.addEventListener('change', renderContentLibrary);
+    el.globalSearch.addEventListener('input', () => {
+      el.contentSearch.value = el.globalSearch.value;
+      if (el.globalSearch.value.trim()) navigate('content', { filter: 'all' });
+      renderContentLibrary();
+    });
+
+    el.contentLibrary.addEventListener('click', (event) => {
+      const action = event.target.closest('[data-action]');
+      if (!action) return;
+      const row = action.closest('[data-type][data-slug]');
+      const item = findItem(row.dataset.type, row.dataset.slug);
+      if (!item) return;
+      if (action.dataset.action === 'edit') openEditor(item.type, item);
+      if (action.dataset.action === 'duplicate') openEditor(item.type, item, true);
+      if (action.dataset.action === 'unpublish') {
+        const execute = () => unpublishItem(item);
+        if (state.settings.confirmDelete) askConfirmation({ title: `Unpublish “${item.title}”?`, message: 'The listing and public HTML page will be removed. The cover image will remain in the media library.', actionLabel: 'Unpublish', action: execute });
+        else execute();
+      }
+    });
+
+    el.draftLibrary.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-action]');
+      const card = event.target.closest('[data-draft-id]');
+      if (!button || !card) return;
+      if (button.dataset.action === 'edit-draft') openDraft(card.dataset.draftId);
+      if (button.dataset.action === 'delete-draft') deleteDraft(card.dataset.draftId);
+    });
+    el.clearDraftsButton.addEventListener('click', () => askConfirmation({ title: 'Clear all drafts?', message: 'All locally saved drafts in this browser will be removed.', actionLabel: 'Clear drafts', action: () => { writeJsonStorage(DRAFT_KEY, []); renderDrafts(); renderCounts(); toast('Drafts cleared'); } }));
+
+    $$('[data-editor-type]').forEach((button) => button.addEventListener('click', () => {
+      if (state.editingItem) return toast('Content type is locked', 'Duplicate the item to create it as another type.', 'error');
+      setEditorType(button.dataset.editorType, true);
+    }));
+    el.titleInput.addEventListener('input', updateEditorDerived);
+    el.summaryInput.addEventListener('input', updateEditorDerived);
+    el.slugInput.addEventListener('input', () => {
+      el.slugInput.dataset.manual = el.slugInput.value ? 'true' : 'false';
+      el.slugInput.value = slugify(el.slugInput.value);
+      updateEditorDerived();
+    });
+    [el.categoryInput, el.dateInput, el.tagsInput, el.technologiesInput, el.demoInput, el.githubInput, el.seoTitleInput, el.seoDescriptionInput, el.canonicalInput].forEach((input) => input.addEventListener('input', updateEditorDerived));
+    el.richEditor.addEventListener('input', updateEditorDerived);
+    el.sourceEditor.addEventListener('input', updateEditorDerived);
+    el.blockFormat.addEventListener('change', () => {
+      el.richEditor.focus();
+      document.execCommand('formatBlock', false, el.blockFormat.value);
+      updateEditorDerived();
+    });
+    $$('.editor-toolbar [data-command]').forEach((button) => button.addEventListener('click', () => handleFormatCommand(button)));
+    el.sourceToggle.addEventListener('click', toggleSourceMode);
+
+    const openFilePicker = () => el.coverInput.click();
+    el.coverDropzone.addEventListener('click', (event) => {
+      if (event.target.closest('#removeCoverButton')) return;
+      if (event.target.closest('#replaceCoverButton') || !state.coverFile && !state.existingImage) openFilePicker();
+    });
+    el.coverDropzone.addEventListener('keydown', (event) => {
+      if (['Enter', ' '].includes(event.key)) { event.preventDefault(); openFilePicker(); }
+    });
+    el.coverInput.addEventListener('change', () => selectCover(el.coverInput.files[0]));
+    ['dragenter', 'dragover'].forEach((name) => el.coverDropzone.addEventListener(name, (event) => { event.preventDefault(); el.coverDropzone.classList.add('dragging'); }));
+    ['dragleave', 'drop'].forEach((name) => el.coverDropzone.addEventListener(name, (event) => { event.preventDefault(); el.coverDropzone.classList.remove('dragging'); }));
+    el.coverDropzone.addEventListener('drop', (event) => selectCover(event.dataTransfer.files[0]));
+    el.replaceCoverButton.addEventListener('click', (event) => { event.stopPropagation(); openFilePicker(); });
+    el.removeCoverButton.addEventListener('click', (event) => { event.stopPropagation(); clearCover(); });
+
+    el.saveDraftButton.addEventListener('click', () => saveDraft(true));
+    el.previewButton.addEventListener('click', previewDocument);
+    el.editorBackButton.addEventListener('click', () => navigate('content', { filter: state.editorType }));
+    el.contentForm.addEventListener('submit', (event) => { event.preventDefault(); publishContent(); });
+
+    $$('[data-inspector-tab]').forEach((button) => button.addEventListener('click', () => {
+      $$('[data-inspector-tab]').forEach((entry) => entry.classList.toggle('active', entry === button));
+      $$('[data-inspector-panel]').forEach((panel) => { panel.hidden = panel.dataset.inspectorPanel !== button.dataset.inspectorTab; panel.classList.toggle('active', !panel.hidden); });
+    }));
+
+    el.closePreviewButton.addEventListener('click', () => el.previewDialog.close());
+    $$('[data-preview-size]').forEach((button) => button.addEventListener('click', () => {
+      $$('[data-preview-size]').forEach((entry) => entry.classList.toggle('active', entry === button));
+      el.previewDevice.className = `preview-device ${button.dataset.previewSize}`;
+    }));
+    el.previewDialog.addEventListener('click', (event) => { if (event.target === el.previewDialog) el.previewDialog.close(); });
+
+    el.confirmDialog.addEventListener('close', async () => {
+      if (el.confirmDialog.returnValue === 'confirm' && state.confirmAction) await state.confirmAction();
+      state.confirmAction = null;
+    });
+
+    $$('.media-filters [data-media-filter]').forEach((button) => button.addEventListener('click', () => {
+      state.mediaFilter = button.dataset.mediaFilter;
+      $$('.media-filters [data-media-filter]').forEach((entry) => entry.classList.toggle('active', entry === button));
+      renderMedia();
+    }));
+    el.refreshMediaButton.addEventListener('click', loadMedia);
+    el.mediaGrid.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-copy-path]');
+      if (!button) return;
+      await navigator.clipboard.writeText(button.dataset.copyPath);
+      toast('Path copied', button.dataset.copyPath);
+    });
+
+    el.autoPreviewSetting.checked = Boolean(state.settings.autoPreview);
+    el.confirmDeleteSetting.checked = Boolean(state.settings.confirmDelete);
+    el.autoPreviewSetting.addEventListener('change', () => { state.settings.autoPreview = el.autoPreviewSetting.checked; writeJsonStorage(SETTINGS_KEY, state.settings); });
+    el.confirmDeleteSetting.addEventListener('change', () => { state.settings.confirmDelete = el.confirmDeleteSetting.checked; writeJsonStorage(SETTINGS_KEY, state.settings); });
+  }
+
+  async function initialize() {
+    setupEvents();
+    resetEditor();
+    await checkOAuthAvailability();
+    if (IS_LOCAL_DEMO && !state.token) {
+      state.authMode = 'demo';
+      state.user = { login: OWNER, name: 'Nandakumar M', avatar_url: '' };
+      await showStudio(state.user);
+      return;
+    }
+    if (state.token) {
+      try {
+        await authenticate(state.token, 'token');
+      } catch {
+        showLogin();
+      }
+    }
+  }
+
+  initialize();
+})();
