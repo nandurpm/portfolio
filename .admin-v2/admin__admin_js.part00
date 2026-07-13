@@ -1,0 +1,442 @@
+(() => {
+  'use strict';
+
+  const OWNER = 'nandurpm';
+  const REPOSITORY = 'portfolio';
+  const BRANCH = 'main';
+  const API_VERSION = '2022-11-28';
+  const TOKEN_KEY = 'portfolio-admin-token-v2';
+  const DRAFT_KEY = 'portfolio-content-drafts-v2';
+  const SETTINGS_KEY = 'portfolio-content-settings-v2';
+  const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+  const BLOG_CATEGORIES = ['Technical Articles', 'Engineering', 'Current Affairs', 'Movie Reviews', 'Politics', 'Personal Writings'];
+  const PROJECT_CATEGORIES = ['Web Development', 'Embedded Systems', 'Engineering Design', 'Electronics', 'Tools', 'Other'];
+  const IS_LOCAL_DEMO = Boolean(window.__ADMIN_DEMO__) || ((['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol === 'file:') && new URLSearchParams(location.search).has('demo'));
+
+  const initialToken = safeSessionGet(TOKEN_KEY) || '';
+
+  const state = {
+    token: initialToken,
+    authMode: initialToken ? 'token' : '',
+    user: null,
+    view: 'dashboard',
+    contentFilter: 'all',
+    editorType: 'blog',
+    editingItem: null,
+    originalSlug: '',
+    currentDraftId: '',
+    coverFile: null,
+    coverDataUrl: '',
+    existingImage: '',
+    sourceMode: false,
+    oauthAvailable: false,
+    content: { blog: [], project: [] },
+    workflows: [],
+    media: [],
+    mediaFilter: 'all',
+    autosaveTimer: null,
+    statusTimer: null,
+    confirmAction: null,
+    settings: {
+      autoPreview: true,
+      confirmDelete: true,
+      ...readJsonStorage(SETTINGS_KEY, {})
+    }
+  };
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+  const el = {
+    authView: $('#authView'),
+    appView: $('#appView'),
+    githubLoginButton: $('#githubLoginButton'),
+    oauthHint: $('#oauthHint'),
+    loginForm: $('#loginForm'),
+    tokenInput: $('#tokenInput'),
+    loginStatus: $('#loginStatus'),
+    sidebar: $('#sidebar'),
+    sidebarOpen: $('#sidebarOpen'),
+    sidebarClose: $('#sidebarClose'),
+    sidebarBackdrop: $('#sidebarBackdrop'),
+    accountAvatar: $('#accountAvatar'),
+    accountName: $('#accountName'),
+    accountHandle: $('#accountHandle'),
+    logoutButton: $('#logoutButton'),
+    settingsSignOut: $('#settingsSignOut'),
+    pageEyebrow: $('#pageEyebrow'),
+    pageTitle: $('#pageTitle'),
+    globalSearch: $('#globalSearch'),
+    topNewButton: $('#topNewButton'),
+    dashboardDate: $('#dashboardDate'),
+    recentContentList: $('#recentContentList'),
+    workflowList: $('#workflowList'),
+    contentLibrary: $('#contentLibrary'),
+    contentSearch: $('#contentSearch'),
+    contentSort: $('#contentSort'),
+    draftLibrary: $('#draftLibrary'),
+    clearDraftsButton: $('#clearDraftsButton'),
+    mediaGrid: $('#mediaGrid'),
+    refreshMediaButton: $('#refreshMediaButton'),
+    contentForm: $('#contentForm'),
+    editorBackButton: $('#editorBackButton'),
+    editorModeLabel: $('#editorModeLabel'),
+    editorDocumentTitle: $('#editorDocumentTitle'),
+    autosaveStatus: $('#autosaveStatus'),
+    saveDraftButton: $('#saveDraftButton'),
+    previewButton: $('#previewButton'),
+    publishButton: $('#publishButton'),
+    publishStatus: $('#publishStatus'),
+    documentStateBadge: $('#documentStateBadge'),
+    titleInput: $('#titleInput'),
+    summaryInput: $('#summaryInput'),
+    coverDropzone: $('#coverDropzone'),
+    coverInput: $('#coverInput'),
+    coverPreview: $('#coverPreview'),
+    coverPlaceholder: $('#coverPlaceholder'),
+    coverActions: $('#coverActions'),
+    replaceCoverButton: $('#replaceCoverButton'),
+    removeCoverButton: $('#removeCoverButton'),
+    blockFormat: $('#blockFormat'),
+    richEditor: $('#richEditor'),
+    sourceEditor: $('#sourceEditor'),
+    sourceToggle: $('#sourceToggle'),
+    wordCount: $('#wordCount'),
+    readTime: $('#readTime'),
+    characterCount: $('#characterCount'),
+    slugInput: $('#slugInput'),
+    categoryInput: $('#categoryInput'),
+    dateInput: $('#dateInput'),
+    tagField: $('#tagField'),
+    tagsInput: $('#tagsInput'),
+    technologyField: $('#technologyField'),
+    technologiesInput: $('#technologiesInput'),
+    seoTitleInput: $('#seoTitleInput'),
+    seoDescriptionInput: $('#seoDescriptionInput'),
+    seoPreviewTitle: $('#seoPreviewTitle'),
+    seoPreviewDescription: $('#seoPreviewDescription'),
+    demoField: $('#demoField'),
+    demoInput: $('#demoInput'),
+    githubField: $('#githubField'),
+    githubInput: $('#githubInput'),
+    canonicalInput: $('#canonicalInput'),
+    detailType: $('#detailType'),
+    detailSaved: $('#detailSaved'),
+    detailCover: $('#detailCover'),
+    previewDialog: $('#previewDialog'),
+    closePreviewButton: $('#closePreviewButton'),
+    previewFrame: $('#previewFrame'),
+    previewDevice: $('#previewDevice'),
+    previewUrl: $('#previewUrl'),
+    confirmDialog: $('#confirmDialog'),
+    confirmTitle: $('#confirmTitle'),
+    confirmMessage: $('#confirmMessage'),
+    confirmActionButton: $('#confirmActionButton'),
+    toastStack: $('#toastStack'),
+    autoPreviewSetting: $('#autoPreviewSetting'),
+    confirmDeleteSetting: $('#confirmDeleteSetting'),
+    settingsAccount: $('#settingsAccount'),
+    settingsConnectionText: $('#settingsConnectionText')
+  };
+
+
+  function safeSessionGet(key) {
+    try { return sessionStorage.getItem(key); } catch { return ''; }
+  }
+
+  function safeSessionSet(key, value) {
+    try { sessionStorage.setItem(key, value); } catch { /* storage may be unavailable in private/embedded contexts */ }
+  }
+
+  function safeSessionRemove(key) {
+    try { sessionStorage.removeItem(key); } catch { /* storage may be unavailable in private/embedded contexts */ }
+  }
+
+  function readJsonStorage(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key));
+      return value ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function writeJsonStorage(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore storage quota/privacy errors */ }
+  }
+
+  function escapeHtml(value = '') {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function decodeBase64Utf8(value) {
+    const binary = atob(String(value).replace(/\s/g, ''));
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  function encodeBase64Utf8(value) {
+    const bytes = new TextEncoder().encode(value);
+    let binary = '';
+    bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+    return btoa(binary);
+  }
+
+  function slugify(value = '') {
+    return String(value)
+      .normalize('NFKD')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+  }
+
+  function parseList(value = '') {
+    return String(value).split(',').map((item) => item.trim()).filter(Boolean);
+  }
+
+  function formatDate(value, options = {}) {
+    if (!value) return 'Not dated';
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric', ...options }).format(date);
+  }
+
+  function formatRelativeTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hr ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+    return formatDate(date.toISOString().slice(0, 10));
+  }
+
+  function setStatus(element, message = '', type = '') {
+    element.textContent = message;
+    element.className = `status${type ? ` ${type}` : ''}`;
+  }
+
+  function showFloatingStatus(message, type = '') {
+    clearTimeout(state.statusTimer);
+    setStatus(el.publishStatus, message, type);
+    el.publishStatus.classList.add('visible');
+    state.statusTimer = setTimeout(() => el.publishStatus.classList.remove('visible'), 5000);
+  }
+
+  function toast(title, message = '', type = 'success') {
+    const node = document.createElement('div');
+    node.className = `toast ${type}`;
+    node.innerHTML = `
+      <svg><use href="#${type === 'error' ? 'i-close' : 'i-check'}"></use></svg>
+      <div><strong>${escapeHtml(title)}</strong>${message ? `<small>${escapeHtml(message)}</small>` : ''}</div>
+      <button type="button" aria-label="Dismiss">×</button>`;
+    node.querySelector('button').addEventListener('click', () => node.remove());
+    el.toastStack.append(node);
+    setTimeout(() => node.remove(), 5200);
+  }
+
+  async function githubRequest(path, options = {}) {
+    if (IS_LOCAL_DEMO && !state.token) throw Object.assign(new Error('GitHub write actions are disabled in local demo mode.'), { status: 403 });
+    const response = await fetch(`https://api.github.com${path}`, {
+      ...options,
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${state.token}`,
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': API_VERSION,
+        ...(options.headers || {})
+      }
+    });
+    if (!response.ok) {
+      let detail = '';
+      try {
+        const payload = await response.json();
+        detail = payload.message || '';
+      } catch {
+        detail = await response.text();
+      }
+      const error = new Error(detail || `GitHub request failed (${response.status}).`);
+      error.status = response.status;
+      throw error;
+    }
+    if (response.status === 204) return null;
+    return response.json();
+  }
+
+  async function authenticate(token, mode = 'token') {
+    state.token = String(token || '').trim();
+    if (!state.token) throw new Error('Enter a valid GitHub credential.');
+    const user = await githubRequest('/user');
+    if (String(user.login).toLowerCase() !== OWNER.toLowerCase()) {
+      throw new Error(`This studio accepts the ${OWNER} GitHub account only.`);
+    }
+    const repository = await githubRequest(`/repos/${OWNER}/${REPOSITORY}`);
+    const canWrite = repository.permissions?.push || repository.permissions?.admin || repository.permissions?.maintain;
+    if (!canWrite) throw new Error('This credential does not have write access to the portfolio repository.');
+    state.authMode = mode;
+    state.user = user;
+    safeSessionSet(TOKEN_KEY, state.token);
+    await showStudio(user);
+  }
+
+  async function showStudio(user) {
+    el.authView.hidden = true;
+    el.appView.hidden = false;
+    el.accountName.textContent = user.name || 'Nandakumar M';
+    el.accountHandle.textContent = `@${user.login}`;
+    el.settingsAccount.textContent = `@${user.login}`;
+    el.settingsConnectionText.textContent = `Connected through ${state.authMode === 'oauth' ? 'GitHub login' : 'repository token'}.`;
+    if (user.avatar_url) {
+      el.accountAvatar.src = user.avatar_url;
+      el.accountAvatar.hidden = false;
+      $('.account-avatar-fallback').hidden = true;
+    }
+    navigate('dashboard');
+    await Promise.allSettled([loadContent(), loadWorkflows()]);
+    renderAll();
+  }
+
+  function showLogin() {
+    state.token = '';
+    state.authMode = '';
+    state.user = null;
+    safeSessionRemove(TOKEN_KEY);
+    el.appView.hidden = true;
+    el.authView.hidden = false;
+    el.tokenInput.value = '';
+    setStatus(el.loginStatus);
+  }
+
+  async function checkOAuthAvailability() {
+    try {
+      const response = await fetch('/api/github/oauth/config', { cache: 'no-store' });
+      if (!response.ok) throw new Error('OAuth endpoint unavailable');
+      const config = await response.json();
+      state.oauthAvailable = Boolean(config.enabled);
+    } catch {
+      state.oauthAvailable = false;
+    }
+    el.githubLoginButton.classList.toggle('unavailable', !state.oauthAvailable);
+    el.oauthHint.hidden = state.oauthAvailable;
+    el.oauthHint.textContent = state.oauthAvailable ? '' : 'GitHub login is not configured on this deployment. Token access remains available.';
+  }
+
+  function startGitHubLogin() {
+    if (!state.oauthAvailable) {
+      el.oauthHint.hidden = false;
+      return;
+    }
+    const width = 620;
+    const height = 760;
+    const left = Math.max(0, (screen.width - width) / 2);
+    const top = Math.max(0, (screen.height - height) / 2);
+    const popup = window.open('/api/github/oauth/start', 'portfolio-github-login', `popup=yes,width=${width},height=${height},left=${left},top=${top}`);
+    if (!popup) setStatus(el.loginStatus, 'Allow pop-ups for this site, then try GitHub login again.', 'error');
+    else setStatus(el.loginStatus, 'Complete authorization in the GitHub window…');
+  }
+
+  async function loadContent() {
+    if (IS_LOCAL_DEMO && window.__ADMIN_DEMO_DATA__) {
+      state.content.blog = (window.__ADMIN_DEMO_DATA__.blog || []).map((item) => normalizeItem(item, 'blog'));
+      state.content.project = (window.__ADMIN_DEMO_DATA__.project || []).map((item) => normalizeItem(item, 'project'));
+      return;
+    }
+    const stamp = Date.now();
+    const [blogResponse, projectResponse] = await Promise.all([
+      fetch(`../assets/data/blog.json?v=${stamp}`, { cache: 'no-store' }),
+      fetch(`../assets/data/works.json?v=${stamp}`, { cache: 'no-store' })
+    ]);
+    if (!blogResponse.ok || !projectResponse.ok) throw new Error('Unable to load portfolio content indexes.');
+    const [blogs, projects] = await Promise.all([blogResponse.json(), projectResponse.json()]);
+    state.content.blog = blogs.map((item) => normalizeItem(item, 'blog'));
+    state.content.project = projects.map((item) => normalizeItem(item, 'project'));
+  }
+
+  function normalizeItem(item, type) {
+    const url = item.url || '';
+    const fallbackSlug = url.split('/').pop()?.replace(/\.html$/i, '') || slugify(item.title);
+    return {
+      ...item,
+      type,
+      slug: item.slug || fallbackSlug,
+      date: item.date || '',
+      status: 'live'
+    };
+  }
+
+  function allContent() {
+    return [...state.content.blog, ...state.content.project];
+  }
+
+  async function loadWorkflows() {
+    if (IS_LOCAL_DEMO && !state.token) {
+      state.workflows = [
+        { id: 1, name: 'Publish uploaded content', display_title: 'Publish blog: Sample article', status: 'completed', conclusion: 'success', created_at: new Date(Date.now() - 3600000).toISOString(), html_url: '#' },
+        { id: 2, name: 'Publish uploaded content', display_title: 'Update content studio', status: 'completed', conclusion: 'success', created_at: new Date(Date.now() - 86400000).toISOString(), html_url: '#' }
+      ];
+      return;
+    }
+    try {
+      const result = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/actions/runs?per_page=6`);
+      state.workflows = result.workflow_runs || [];
+    } catch {
+      state.workflows = [];
+    }
+  }
+
+  function renderAll() {
+    renderCounts();
+    renderDashboard();
+    renderContentLibrary();
+    renderDrafts();
+  }
+
+  function renderCounts() {
+    const drafts = getDrafts();
+    $('#blogCountBadge').textContent = state.content.blog.length;
+    $('#projectCountBadge').textContent = state.content.project.length;
+    $('#draftCountBadge').textContent = drafts.length;
+    $('#metricBlog').textContent = state.content.blog.length;
+    $('#metricProject').textContent = state.content.project.length;
+    $('#metricDraft').textContent = drafts.length;
+    $('#metricBlogDetail').textContent = state.content.blog.length ? `${state.content.blog[0].category || 'Latest'} · ${formatDate(state.content.blog[0].date)}` : 'No posts yet';
+    $('#metricProjectDetail').textContent = state.content.project.length ? `${state.content.project.length} visible on website` : 'No projects yet';
+    const latest = state.workflows[0];
+    const workflowStatus = latest ? (latest.status === 'completed' ? latest.conclusion : latest.status) : 'Unavailable';
+    $('#metricWorkflow').textContent = workflowStatus;
+    $('#metricWorkflowDetail').textContent = latest ? formatRelativeTime(latest.created_at) : 'No recent runs';
+  }
+
+  function renderDashboard() {
+    el.dashboardDate.textContent = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date());
+    const recent = allContent().sort(compareNewest).slice(0, 6);
+    el.recentContentList.innerHTML = recent.length ? recent.map((item) => contentRow(item, true)).join('') : emptyInline('No published content found.');
+    el.workflowList.innerHTML = state.workflows.length ? state.workflows.slice(0, 5).map(workflowRow).join('') : emptyInline('No workflow activity is available.');
+  }
+
+  function compareNewest(a, b) {
+    return String(b.date || '').localeCompare(String(a.date || '')) || String(a.title).localeCompare(String(b.title));
+  }
+
+  function contentRow(item, compact = false) {
+    const image = item.image ? `../${escapeHtml(item.image)}` : '';
+    const thumb = image
+      ? `<img class="content-thumb" src="${image}" alt="" loading="lazy">`
+      : `<span class="content-thumb fallback"><svg><use href="#${item.type === 'blog' ? 'i-file' : 'i-briefcase'}"></use></svg></span>`;
+    const identity = `<div class="content-identity">${thumb}<div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category || '')}</small></div></div>`;
+    if (compact) {
+      return `<div class="content-row" data-type="${item.type}" data-slug="${escapeHtml(item.slug)}">${identity}<span class="type-chip ${item.type}">${item.type === 'blog' ? 'Blog post' : 'Project'}</span><span class="row-date">${formatDate(item.date)}</span></div>`;
+    }
+    return `<div class="content-row" data-type="${item.type}" data-slug="${escapeHtml(item.slug)}">
+      ${identity}
