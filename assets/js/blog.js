@@ -3,14 +3,15 @@ const BLOG_STATE = {
   page: 1,
   perPage: 6,
   query: "",
-  category: "all"
+  category: "all",
+  source: "static"
 };
 
 function filterPosts() {
   const query = BLOG_STATE.query.trim().toLowerCase();
   return BLOG_STATE.posts.filter((post) => {
     const categoryMatch = BLOG_STATE.category === "all" || post.category === BLOG_STATE.category;
-    const searchText = `${post.title} ${post.excerpt} ${post.category} ${post.tags.join(" ")}`.toLowerCase();
+    const searchText = `${post.title} ${post.excerpt} ${post.category} ${(post.tags || []).join(" ")}`.toLowerCase();
     return categoryMatch && (!query || searchText.includes(query));
   });
 }
@@ -31,20 +32,55 @@ function renderBlogPage() {
     ? posts.map(blogCard).join("")
     : '<p class="empty-state">No blog posts match your search.</p>';
 
-  pagination.innerHTML = Array.from({ length: totalPages }, (_, index) => {
-    const page = index + 1;
-    return `<button type="button" class="${page === BLOG_STATE.page ? "active" : ""}" data-page="${page}">${page}</button>`;
-  }).join("");
+  pagination.innerHTML = totalPages > 1
+    ? Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        return `<button type="button" class="${page === BLOG_STATE.page ? "active" : ""}" data-page="${page}" aria-label="Open blog page ${page}">${page}</button>`;
+      }).join("")
+    : "";
 
   pagination.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", () => {
       BLOG_STATE.page = Number(button.dataset.page);
       renderBlogPage();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.querySelector("#blogList")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
 
   refreshAos();
+}
+
+function filterStaticCards() {
+  const list = document.querySelector("#blogList");
+  const pagination = document.querySelector("#blogPagination");
+  if (!list) return;
+  const query = BLOG_STATE.query.trim().toLowerCase();
+  const cards = [...list.querySelectorAll(".blog-card")];
+  let visibleCount = 0;
+
+  cards.forEach((card) => {
+    const categoryMatch = BLOG_STATE.category === "all" || card.dataset.category === BLOG_STATE.category;
+    const searchMatch = !query || String(card.dataset.search || card.textContent).toLowerCase().includes(query);
+    const visible = categoryMatch && searchMatch;
+    card.hidden = !visible;
+    if (visible) visibleCount += 1;
+  });
+
+  let empty = list.querySelector(".static-filter-empty");
+  if (!empty) {
+    empty = document.createElement("p");
+    empty.className = "empty-state static-filter-empty";
+    list.append(empty);
+  }
+  empty.textContent = visibleCount ? "" : "No blog posts match your search.";
+  empty.hidden = visibleCount > 0;
+  if (pagination) pagination.innerHTML = "";
+  refreshAos();
+}
+
+function applyBlogFilters() {
+  if (BLOG_STATE.source === "json") renderBlogPage();
+  else filterStaticCards();
 }
 
 async function setupBlog() {
@@ -52,30 +88,31 @@ async function setupBlog() {
   if (!list) return;
 
   try {
-    BLOG_STATE.posts = await loadJson(DATA_PATHS.blog);
-    renderBlogPage();
+    const posts = await loadJson(DATA_PATHS.blog);
+    if (posts.length) {
+      BLOG_STATE.posts = posts;
+      BLOG_STATE.source = "json";
+      renderBlogPage();
+    }
   } catch (error) {
-    list.innerHTML = `<p class="empty-state">${escapeHtml(error.message)}</p>`;
+    console.warn(error.message);
+    BLOG_STATE.source = "static";
   }
 
   const search = document.querySelector("#blogSearch");
   const category = document.querySelector("#blogCategory");
 
-  if (search) {
-    search.addEventListener("input", () => {
-      BLOG_STATE.query = search.value;
-      BLOG_STATE.page = 1;
-      renderBlogPage();
-    });
-  }
+  search?.addEventListener("input", () => {
+    BLOG_STATE.query = search.value;
+    BLOG_STATE.page = 1;
+    applyBlogFilters();
+  });
 
-  if (category) {
-    category.addEventListener("change", () => {
-      BLOG_STATE.category = category.value;
-      BLOG_STATE.page = 1;
-      renderBlogPage();
-    });
-  }
+  category?.addEventListener("change", () => {
+    BLOG_STATE.category = category.value;
+    BLOG_STATE.page = 1;
+    applyBlogFilters();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", setupBlog);
