@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Blog by Nandakumar M featuring technology notes, engineering ideas, current affairs, movie reviews, politics, and personal writing.">
+  <meta name="description" content="Technical articles and personal writing by Nandakumar M across engineering, electronics, technology, current affairs, cinema, and professional development.">
   <meta property="og:title" content="Blog | Nandakumar M">
-  <meta property="og:description" content="Thoughts, notes, and reviews across engineering, technology, current affairs, cinema, politics, and personal writing.">
+  <meta property="og:description" content="Engineering notes, technical articles, reviews, and personal writing by Nandakumar M.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nandakumarm.dpdns.org/blog.html">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://nandakumarm.dpdns.org/blog.html">
   <title>Blog | Nandakumar M</title>
@@ -19,83 +21,125 @@
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
-    .blog-hero-compact {
-      padding: clamp(18px, 3vw, 34px);
-      margin-bottom: 10px;
-    }
-    .blog-hero-compact .eyebrow {
-      margin-bottom: 6px;
-    }
-    .blog-hero-compact h1 {
-      max-width: 860px;
-      margin-bottom: 8px;
-      font-size: clamp(1.75rem, 3.8vw, 3.35rem);
-      line-height: 1.02;
-    }
-    .blog-hero-compact p {
-      max-width: 900px;
-      margin-bottom: 0;
-      line-height: 1.55;
-    }
-    .blog-page .section {
-      margin-top: 0;
-    }
-    .blog-page .blog-tools {
-      margin-bottom: 16px;
-    }
+    .blog-hero-compact { padding: clamp(18px, 3vw, 34px); margin-bottom: 10px; }
+    .blog-hero-compact .eyebrow { margin-bottom: 6px; }
+    .blog-hero-compact h1 { max-width: 860px; margin-bottom: 8px; font-size: clamp(1.75rem, 3.8vw, 3.35rem); line-height: 1.02; }
+    .blog-hero-compact p { max-width: 900px; margin-bottom: 0; line-height: 1.55; }
+    .blog-page .section { margin-top: 0; }
+    .blog-page .blog-tools { margin-bottom: 16px; }
   </style>
 </head>
 <body>
   <div class="site-shell blog-page">
     <header class="site-header glass">
-      <a class="brand" href="index.html"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation">
-        <a href="index.html">Home</a>
-        <a href="projects.html">Projects</a>
-        <a class="active" href="blog.html" aria-current="page">Blog</a>
-        <a href="about.html">About</a>
-      </nav>
+      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a class="active" href="blog.html" aria-current="page">Blog</a><a href="about.html">About Me</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
     <main>
       <section class="page-hero glass blog-hero-compact" data-aos="fade-up">
         <p class="eyebrow">Blog</p>
-        <h1>Engineering notes, reviews, and personal thoughts.</h1>
-        <p>Search posts on technology, engineering, current affairs, cinema, politics, and personal writing.</p>
+        <h1>Engineering notes, reviews, and personal writing.</h1>
+        <p>Search articles across technology, engineering, current affairs, cinema, politics, and personal learning.</p>
       </section>
 
       <section class="section">
         <div class="blog-tools glass" data-aos="fade-up">
-          <label class="search-box">
-            <span>Search posts</span>
-            <input id="blogSearch" type="search" placeholder="Search by title, tag, or excerpt">
-          </label>
-          <label class="category-box">
-            <span>Category</span>
-            <select id="blogCategory" aria-label="Filter blog category">
-              <option value="all">All Categories</option>
-              <option>Technical Articles</option>
-              <option>Engineering</option>
-              <option>Current Affairs</option>
-              <option>Movie Reviews</option>
-              <option>Politics</option>
-              <option>Personal Writings</option>
-            </select>
-          </label>
+          <label class="search-box"><span>Search posts</span><input id="blogSearch" type="search" placeholder="Search by title, tag, or excerpt"></label>
+          <label class="category-box"><span>Category</span><select id="blogCategory" aria-label="Filter blog category"><option value="all">All Categories</option><option>Technical Articles</option><option>Engineering</option><option>Current Affairs</option><option>Movie Reviews</option><option>Politics</option><option>Personal Writings</option></select></label>
         </div>
         <div class="card-grid blog-grid" id="blogList">
-          <p class="empty-state">Loading blog posts...</p>
+          <!-- BLOG_POSTS_START -->
+<article class="blog-card" id="post-engineering-design-reviews" data-category="Engineering" data-search="how i think about engineering design reviews a practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release. engineering design quality manufacturing">
+            <a href="blog/engineering-design-reviews.html" aria-label="Open How I Think About Engineering Design Reviews"><img src="assets/images/blog/blog-1.jpg" alt="How I Think About Engineering Design Reviews" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Engineering</span><span class="pill">8 min read</span></div>
+              <a href="blog/engineering-design-reviews.html"><h3>How I Think About Engineering Design Reviews</h3></a>
+              <p>A practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release.</p>
+              <div class="card-actions"><a href="blog/engineering-design-reviews.html">Read More</a><span>2026-05-28</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-fast-static-portfolio" data-category="Technical Articles" data-search="building a fast static portfolio with github pages why a pure html, css, and javascript portfolio is still one of the fastest and most reliable ways to publish online. technical articles github pages html css">
+            <a href="blog/fast-static-portfolio.html" aria-label="Open Building a Fast Static Portfolio with GitHub Pages"><img src="assets/images/blog/blog-2.jpg" alt="Building a Fast Static Portfolio with GitHub Pages" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">8 min read</span></div>
+              <a href="blog/fast-static-portfolio.html"><h3>Building a Fast Static Portfolio with GitHub Pages</h3></a>
+              <p>Why a pure HTML, CSS, and JavaScript portfolio is still one of the fastest and most reliable ways to publish online.</p>
+              <div class="card-actions"><a href="blog/fast-static-portfolio.html">Read More</a><span>2026-05-21</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-cnc-precision" data-category="Engineering" data-search="what cnc operations taught me about precision lessons from production work that continue to influence how i approach drawings, inspection, and process discipline. engineering cnc process inspection">
+            <a href="blog/cnc-precision.html" aria-label="Open What CNC Operations Taught Me About Precision"><img src="assets/images/blog/blog-3.jpg" alt="What CNC Operations Taught Me About Precision" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Engineering</span><span class="pill">7 min read</span></div>
+              <a href="blog/cnc-precision.html"><h3>What CNC Operations Taught Me About Precision</h3></a>
+              <p>Lessons from production work that continue to influence how I approach drawings, inspection, and process discipline.</p>
+              <div class="card-actions"><a href="blog/cnc-precision.html">Read More</a><span>2026-05-12</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-current-affairs-technology-careers" data-category="Current Affairs" data-search="current affairs and technology careers a reflection on how global technology trends shape local engineering careers, learning choices, and long-term opportunities. current affairs technology career industry">
+            <a href="blog/current-affairs-technology-careers.html" aria-label="Open Current Affairs and Technology Careers"><img src="assets/images/blog/blog-4.jpg" alt="Current Affairs and Technology Careers" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Current Affairs</span><span class="pill">7 min read</span></div>
+              <a href="blog/current-affairs-technology-careers.html"><h3>Current Affairs and Technology Careers</h3></a>
+              <p>A reflection on how global technology trends shape local engineering careers, learning choices, and long-term opportunities.</p>
+              <div class="card-actions"><a href="blog/current-affairs-technology-careers.html">Read More</a><span>2026-04-29</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-movie-review-engineers-lens" data-category="Movie Reviews" data-search="a movie review through an engineer&#39;s lens looking at storytelling, systems thinking, and the small production details that make a movie feel believable. movie reviews movies review story">
+            <a href="blog/movie-review-engineers-lens.html" aria-label="Open A Movie Review Through an Engineer&#39;s Lens"><img src="assets/images/blog/blog-5.jpg" alt="A Movie Review Through an Engineer&#39;s Lens" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Movie Reviews</span><span class="pill">6 min read</span></div>
+              <a href="blog/movie-review-engineers-lens.html"><h3>A Movie Review Through an Engineer&#39;s Lens</h3></a>
+              <p>Looking at storytelling, systems thinking, and the small production details that make a movie feel believable.</p>
+              <div class="card-actions"><a href="blog/movie-review-engineers-lens.html">Read More</a><span>2026-04-16</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-documentation-professional-skill" data-category="Technical Articles" data-search="why documentation is a professional skill good documentation reduces repeated mistakes, helps teams align, and makes engineering decisions easier to audit. technical articles documentation teams quality">
+            <a href="blog/documentation-professional-skill.html" aria-label="Open Why Documentation Is a Professional Skill"><img src="assets/images/blog/blog-6.jpg" alt="Why Documentation Is a Professional Skill" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">8 min read</span></div>
+              <a href="blog/documentation-professional-skill.html"><h3>Why Documentation Is a Professional Skill</h3></a>
+              <p>Good documentation reduces repeated mistakes, helps teams align, and makes engineering decisions easier to audit.</p>
+              <div class="card-actions"><a href="blog/documentation-professional-skill.html">Read More</a><span>2026-03-31</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-politics-infrastructure-engineering" data-category="Politics" data-search="politics, infrastructure, and everyday engineering thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life. politics infrastructure policy public systems">
+            <a href="blog/politics-infrastructure-engineering.html" aria-label="Open Politics, Infrastructure, and Everyday Engineering"><img src="assets/images/blog/blog-4.jpg" alt="Politics, Infrastructure, and Everyday Engineering" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Politics</span><span class="pill">7 min read</span></div>
+              <a href="blog/politics-infrastructure-engineering.html"><h3>Politics, Infrastructure, and Everyday Engineering</h3></a>
+              <p>Thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life.</p>
+              <div class="card-actions"><a href="blog/politics-infrastructure-engineering.html">Read More</a><span>2026-03-18</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-learning-new-technologies" data-category="Personal Writings" data-search="personal notes on learning new technologies how i keep learning practical tools while balancing work, curiosity, and long-term professional goals. personal writings learning career growth">
+            <a href="blog/learning-new-technologies.html" aria-label="Open Personal Notes on Learning New Technologies"><img src="assets/images/blog/blog-5.jpg" alt="Personal Notes on Learning New Technologies" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Personal Writings</span><span class="pill">7 min read</span></div>
+              <a href="blog/learning-new-technologies.html"><h3>Personal Notes on Learning New Technologies</h3></a>
+              <p>How I keep learning practical tools while balancing work, curiosity, and long-term professional goals.</p>
+              <div class="card-actions"><a href="blog/learning-new-technologies.html">Read More</a><span>2026-02-25</span></div>
+            </div>
+          </article>
+          <article class="blog-card" id="post-electronics-basics" data-category="Engineering" data-search="electronics basics that still matter a reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere. engineering electronics basics testing">
+            <a href="blog/electronics-basics.html" aria-label="Open Electronics Basics That Still Matter"><img src="assets/images/blog/blog-6.jpg" alt="Electronics Basics That Still Matter" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">Engineering</span><span class="pill">8 min read</span></div>
+              <a href="blog/electronics-basics.html"><h3>Electronics Basics That Still Matter</h3></a>
+              <p>A reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere.</p>
+              <div class="card-actions"><a href="blog/electronics-basics.html">Read More</a><span>2026-02-08</span></div>
+            </div>
+          </article>
+          <!-- BLOG_POSTS_END -->
         </div>
         <div class="pagination" id="blogPagination" aria-label="Blog pagination"></div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M.</p>
-      <div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div>
-    </footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
