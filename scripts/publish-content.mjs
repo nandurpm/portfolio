@@ -85,7 +85,17 @@ function resolveImage(uploadDir, requestedName, slug, existingImage) {
   }
 
   const candidates = [];
-  if (requestedName) candidates.push(path.basename(requestedName));
+  if (requestedName) {
+    const requestedFile = path.basename(requestedName);
+    const requestedExtension = path.extname(requestedFile).toLowerCase();
+    if (!IMAGE_EXTENSIONS.has(requestedExtension)) {
+      throw new Error(`Unsupported image type: ${requestedName}`);
+    }
+    if (slugify(path.basename(requestedFile, requestedExtension)) !== slug) {
+      throw new Error(`Image filename must match the HTML slug: ${slug}${requestedExtension}`);
+    }
+    candidates.push(requestedFile);
+  }
   for (const file of fs.readdirSync(uploadDir)) {
     const extension = path.extname(file).toLowerCase();
     if (IMAGE_EXTENSIONS.has(extension) && slugify(path.basename(file, extension)) === slug) candidates.push(file);
