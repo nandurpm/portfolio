@@ -4,13 +4,15 @@ const DATA_PATHS = {
 };
 
 async function loadJson(path) {
-  const response = await fetch(path);
+  const response = await fetch(path, { cache: "no-store" });
   if (!response.ok) throw new Error(`Unable to load ${path}`);
-  return response.json();
+  const data = await response.json();
+  if (!Array.isArray(data)) throw new Error(`${path} does not contain a valid list.`);
+  return data;
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -25,9 +27,10 @@ function projectCard(project) {
   const image = `<img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy">`;
   const title = `<h3>${escapeHtml(project.title)}</h3>`;
   const url = project.url ? escapeHtml(project.url) : "";
+  const searchText = [project.title, project.category, project.description, ...(project.technologies || [])].join(" ");
 
   return `
-    <article class="project-card" data-aos="fade-up" data-category="${escapeHtml(project.category)}">
+    <article class="project-card" data-aos="fade-up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
       ${url ? `<a href="${url}" aria-label="Open ${escapeHtml(project.title)} project page">${image}</a>` : image}
       <div class="card-body">
         <div class="card-meta"><span class="pill">${escapeHtml(project.category)}</span>${tags}</div>
@@ -39,8 +42,9 @@ function projectCard(project) {
 
 function blogCard(post) {
   const url = escapeHtml(post.url);
+  const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(" ");
   return `
-    <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-aos="fade-up">
+    <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-aos="fade-up" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
       <a href="${url}" aria-label="Open ${escapeHtml(post.title)}">
         <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy">
       </a>
@@ -53,37 +57,76 @@ function blogCard(post) {
     </article>`;
 }
 
+function setupProjectFilters(grid, projects = null) {
+  const buttons = [...document.querySelectorAll("[data-project-filter]")];
+  if (!grid || !buttons.length) return;
+
+  let activeFilter = "all";
+  let emptyState = grid.querySelector(".filter-empty-state");
+  if (!emptyState) {
+    emptyState = document.createElement("p");
+    emptyState.className = "empty-state filter-empty-state";
+    emptyState.hidden = true;
+    grid.after(emptyState);
+  }
+
+  const render = () => {
+    if (Array.isArray(projects)) {
+      const visible = activeFilter === "all"
+        ? projects
+        : projects.filter((item) => item.category === activeFilter);
+      grid.innerHTML = visible.map(projectCard).join("");
+      emptyState.hidden = visible.length > 0;
+      emptyState.textContent = visible.length ? "" : "No projects match this filter.";
+    } else {
+      const cards = [...grid.querySelectorAll(".project-card")];
+      let visibleCount = 0;
+      cards.forEach((card) => {
+        const visible = activeFilter === "all" || card.dataset.category === activeFilter;
+        card.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+      emptyState.hidden = visibleCount > 0;
+      emptyState.textContent = visibleCount ? "" : "No projects match this filter.";
+    }
+    refreshAos();
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.projectFilter || "all";
+      buttons.forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+      render();
+    });
+  });
+
+  render();
+}
+
 async function renderProjects() {
   const allGrid = document.querySelector("#projectsGrid");
   const featuredGrid = document.querySelector("#featuredProjects");
   if (!allGrid && !featuredGrid) return;
 
+  let projects = null;
   try {
-    const projects = await loadJson(DATA_PATHS.projects);
-    if (featuredGrid) {
-      const limit = Number(featuredGrid.dataset.limit || 3);
-      featuredGrid.innerHTML = projects.slice(0, limit).map(projectCard).join("");
-    }
-    if (allGrid) {
-      let activeFilter = "all";
-      const render = () => {
-        const visible = activeFilter === "all" ? projects : projects.filter((item) => item.category === activeFilter);
-        allGrid.innerHTML = visible.length ? visible.map(projectCard).join("") : '<p class="empty-state">No projects match this filter.</p>';
-        refreshAos();
-      };
-      document.querySelectorAll("[data-project-filter]").forEach((button) => {
-        button.addEventListener("click", () => {
-          activeFilter = button.dataset.projectFilter;
-          document.querySelectorAll("[data-project-filter]").forEach((item) => item.classList.remove("active"));
-          button.classList.add("active");
-          render();
-        });
-      });
-      render();
-    }
+    projects = await loadJson(DATA_PATHS.projects);
   } catch (error) {
-    const target = allGrid || featuredGrid;
-    if (target) target.innerHTML = `<p class="empty-state">${escapeHtml(error.message)}</p>`;
+    console.warn(error.message);
+  }
+
+  if (featuredGrid && projects?.length) {
+    const limit = Number(featuredGrid.dataset.limit || 3);
+    featuredGrid.innerHTML = projects.slice(0, limit).map(projectCard).join("");
+  }
+
+  if (allGrid) {
+    if (projects?.length) allGrid.innerHTML = projects.map(projectCard).join("");
+    setupProjectFilters(allGrid, projects?.length ? projects : null);
   }
 }
 
@@ -92,10 +135,12 @@ async function renderRecentPosts() {
   if (!container) return;
   try {
     const posts = await loadJson(DATA_PATHS.blog);
-    const limit = Number(container.dataset.limit || 3);
-    container.innerHTML = posts.slice(0, limit).map(blogCard).join("");
+    if (posts.length) {
+      const limit = Number(container.dataset.limit || 3);
+      container.innerHTML = posts.slice(0, limit).map(blogCard).join("");
+    }
   } catch (error) {
-    container.innerHTML = `<p class="empty-state">${escapeHtml(error.message)}</p>`;
+    console.warn(error.message);
   }
 }
 
@@ -109,6 +154,11 @@ function setupTyping() {
     return;
   }
   if (!Array.isArray(words) || !words.length) return;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    target.textContent = String(words[0]);
+    return;
+  }
 
   let wordIndex = 0;
   let charIndex = 0;
@@ -185,12 +235,13 @@ function setupSlideDeck() {
   const counter = document.querySelector("[data-slide-counter]");
   const prev = document.querySelector("[data-slide-prev]");
   const next = document.querySelector("[data-slide-next]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const intervalMs = 5200;
   let current = 0;
   let timer = 0;
   let progressTimer = 0;
   let startedAt = Date.now();
-  let paused = false;
+  let paused = reducedMotion;
 
   const updateProgress = () => {
     if (!progress || paused) return;
@@ -203,8 +254,8 @@ function setupSlideDeck() {
     const incoming = slides[current];
     if (previous !== incoming) {
       previous.classList.remove("active");
-      previous.classList.add(direction >= 0 ? "exit-left" : "exit-right");
-      incoming.classList.add(direction >= 0 ? "enter-right" : "enter-left");
+      if (!reducedMotion) previous.classList.add(direction >= 0 ? "exit-left" : "exit-right");
+      if (!reducedMotion) incoming.classList.add(direction >= 0 ? "enter-right" : "enter-left");
       incoming.getBoundingClientRect();
       incoming.classList.remove("enter-right", "enter-left");
       incoming.classList.add("active");
@@ -247,7 +298,7 @@ function setupSlideDeck() {
     if (progress) progress.style.opacity = "0.4";
   });
   deck.addEventListener("mouseleave", () => {
-    paused = false;
+    paused = reducedMotion;
     if (progress) progress.style.opacity = "";
     restart();
   });
