@@ -1,0 +1,12 @@
+.git
+.github
+.assetsignore
+functions
+scripts
+templates
+uploads
+docs
+node_modules
+wrangler.jsonc
+README.md
+LICENSE

@@ -2,34 +2,391 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
-  <meta name="theme-color" content="#07111f">
-  <title>Content Studio Unavailable | Nandakumar M</title>
+  <meta name="theme-color" content="#080d18">
+  <title>Content Studio | Nandakumar M</title>
   <link rel="icon" href="../assets/images/logo.ico">
-  <style>
-    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #07111f; color: #eef6ff; }
-    * { box-sizing: border-box; }
-    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at top, #123455 0, #07111f 48%, #030914 100%); }
-    main { width: min(680px, 100%); padding: clamp(28px, 5vw, 52px); border: 1px solid rgba(255,255,255,.14); border-radius: 28px; background: rgba(8,22,38,.88); box-shadow: 0 28px 80px rgba(0,0,0,.38); }
-    .mark { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 28px; border-radius: 18px; color: #03111c; background: linear-gradient(135deg,#75e6ff,#77ffbd); font-weight: 900; }
-    p { color: #a9bfd3; line-height: 1.7; }
-    h1 { max-width: 560px; margin: 0 0 16px; font-size: clamp(2rem, 6vw, 4rem); line-height: 1; }
-    .status { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px; color: #8fffc8; font-weight: 700; }
-    .status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 18px currentColor; }
-    a { display: inline-flex; margin-top: 16px; padding: 12px 18px; border-radius: 14px; color: #04121d; background: #8fffc8; font-weight: 800; text-decoration: none; }
-    code { color: #d8ebff; }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <main>
-    <div class="mark">NM</div>
-    <div class="status">Publishing access disabled</div>
-    <h1>Secure GitHub sign-in is required.</h1>
-    <p>The public browser-token login has been removed. Automatic publishing through the repository upload folders continues to work. This page will be restored only after a server-backed GitHub OAuth flow is configured.</p>
-    <p>Use <code>uploads/blog/</code> or <code>uploads/projects/</code> in the repository to publish content safely.</p>
-    <a href="../index.html">Return to portfolio</a>
-  </main>
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M4 7h16v12H4zM9 7V4h6v3M4 12h16M10 12v2h4v-2"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5-5 4 4 3-3 4 4"/></symbol>
+    <symbol id="i-draft" viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.6a7 7 0 0 0-.7-1.7l1-1.8-2.1-2.1-1.8 1a7 7 0 0 0-1.7-.7L11 2H8l-.6 2a7 7 0 0 0-1.7.7l-1.8-1-2.1 2.1 1 1.8A7 7 0 0 0 2.1 9L0 10v3l2 .6a7 7 0 0 0 .7 1.7l-1 1.8 2.1 2.1 1.8-1a7 7 0 0 0 1.7.7L8 21h3l.6-2a7 7 0 0 0 1.7-.7l1.8 1 2.1-2.1-1-1.8a7 7 0 0 0 .7-1.7z" transform="translate(1) scale(.92)"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.5A8 8 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5z"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7M10 20h4"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 20 4.5-1 10-10-3.5-3.5-10 10zM13.8 6.7l3.5 3.5M4 20h16"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 13v7H4V5h7"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h12l2 2v16H5zM8 3v6h8V3M8 21v-7h8v7"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-publish" viewBox="0 0 24 24"><path d="M12 16V3M7 8l5-5 5 5M5 13v7h14v-7"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.87c-2.78.6-3.37-1.18-3.37-1.18-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.54 1.03 1.54 1.03.9 1.53 2.35 1.09 2.92.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.5 9.5 0 0 1 12 6.8c.85 0 1.71.11 2.51.34 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85V21c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 15v5h16v-5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></symbol>
+    <symbol id="i-bold" viewBox="0 0 24 24"><path d="M8 4h5a4 4 0 0 1 0 8H8zM8 12h6a4 4 0 0 1 0 8H8z"/></symbol>
+    <symbol id="i-italic" viewBox="0 0 24 24"><path d="M10 4h8M6 20h8M14 4 10 20"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 5-6 7 6 7M16 5l6 7-6 7M14 3l-4 18"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 7h5v5H7a5 5 0 0 1-2 4M14 7h5v5h-3a5 5 0 0 1-2 4"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M5 12h8a6 6 0 0 1 6 6"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 7 5 5-5 5M19 12h-8a6 6 0 0 0-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 21h20zM12 9v5M12 18h.01"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M18 12a6 6 0 0 0-10-4L4 12M6 12a6 6 0 0 0 10 4l4-4"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></symbol>
+    <symbol id="i-command" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></symbol>
+  </svg>
+
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-visual">
+      <a class="auth-brand" href="../index.html" aria-label="Nandakumar M portfolio home">
+        <span class="brand-mark">NM</span>
+        <span><strong>Content Studio</strong><small>Nandakumar M</small></span>
+      </a>
+      <div class="auth-message">
+        <h1>Publish without touching code.</h1>
+        <p>Create, edit and manage your portfolio content from one secure workspace.</p>
+        <div class="auth-features" aria-label="Studio features">
+          <span><svg><use href="#i-edit"></use></svg>Rich editor</span>
+          <span><svg><use href="#i-github"></use></svg>GitHub publishing</span>
+          <span><svg><use href="#i-save"></use></svg>Automatic drafts</span>
+        </div>
+      </div>
+      <p class="auth-footer">Private publishing workspace</p>
+    </div>
+
+    <div class="auth-panel-wrap">
+      <div class="auth-panel">
+        <div class="auth-panel-heading">
+          <span class="auth-icon"><svg><use href="#i-lock"></use></svg></span>
+          <div><h2>Welcome back</h2><p>Connect the GitHub account that owns the portfolio.</p></div>
+        </div>
+
+        <button id="githubLoginButton" class="auth-primary" type="button">
+          <svg><use href="#i-github"></use></svg>
+          <span>Continue with GitHub</span>
+          <svg class="arrow"><use href="#i-chevron"></use></svg>
+        </button>
+
+        <div id="deviceFlowPanel" class="device-flow" hidden>
+          <div class="device-code-row">
+            <div><small>Verification code</small><strong id="deviceCode">—</strong></div>
+            <button id="copyDeviceCode" class="icon-button" type="button" aria-label="Copy verification code"><svg><use href="#i-copy"></use></svg></button>
+          </div>
+          <p>GitHub will open in a new tab. Enter the code above to approve access.</p>
+          <a id="openDeviceLogin" class="button secondary full" href="https://github.com/login/device" target="_blank" rel="noopener noreferrer">Open GitHub verification</a>
+        </div>
+
+        <div class="auth-divider"><span>or use a fine-grained token</span></div>
+
+        <form id="tokenLoginForm" class="token-form">
+          <label for="tokenInput">GitHub access token</label>
+          <div class="password-field">
+            <input id="tokenInput" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_..." required>
+            <button id="toggleToken" type="button" aria-label="Show or hide token"><svg><use href="#i-eye"></use></svg></button>
+          </div>
+          <button class="button secondary full" type="submit">Connect with token</button>
+        </form>
+
+        <button id="oauthSetupToggle" class="setup-link" type="button">Set GitHub OAuth Client ID</button>
+        <div id="oauthSetup" class="oauth-setup" hidden>
+          <label for="oauthClientId">OAuth Client ID</label>
+          <div class="inline-field"><input id="oauthClientId" type="text" autocomplete="off" placeholder="Iv1... or OAuth App client ID"><button id="saveOAuthClientId" class="button compact" type="button">Save</button></div>
+          <p>The Client ID is public. Do not enter a client secret.</p>
+        </div>
+
+        <p id="authStatus" class="status" role="status"></p>
+        <p class="security-line"><svg><use href="#i-lock"></use></svg>Credentials stay in this browser session.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="studioApp" class="studio-app" hidden>
+    <div id="mobileScrim" class="mobile-scrim" hidden></div>
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-head">
+        <a class="studio-brand" href="../index.html" aria-label="Portfolio home">
+          <span class="brand-mark">NM</span>
+          <span><strong>Content Studio</strong><small>Portfolio CMS</small></span>
+        </a>
+        <button id="closeSidebar" class="icon-button mobile-only" type="button" aria-label="Close navigation"><svg><use href="#i-close"></use></svg></button>
+      </div>
+
+      <button id="newContentButton" class="new-content" type="button"><svg><use href="#i-plus"></use></svg><span>Create new</span></button>
+
+      <nav class="side-nav" aria-label="Studio navigation">
+        <button class="nav-item active" type="button" data-view="dashboard"><svg><use href="#i-grid"></use></svg><span>Overview</span></button>
+        <button class="nav-item" type="button" data-view="posts"><svg><use href="#i-file"></use></svg><span>Blog posts</span><b id="postCountBadge">0</b></button>
+        <button class="nav-item" type="button" data-view="projects"><svg><use href="#i-briefcase"></use></svg><span>Projects</span><b id="projectCountBadge">0</b></button>
+        <button class="nav-item" type="button" data-view="media"><svg><use href="#i-image"></use></svg><span>Media</span></button>
+        <button class="nav-item" type="button" data-view="drafts"><svg><use href="#i-draft"></use></svg><span>Drafts</span><b id="draftCountBadge">0</b></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-item" type="button" data-view="settings"><svg><use href="#i-settings"></use></svg><span>Settings</span></button>
+        <div class="sidebar-user">
+          <img id="sidebarAvatar" alt="" src="" width="38" height="38">
+          <div><strong id="sidebarUserName">GitHub user</strong><small id="sidebarUserLogin">Connected</small></div>
+          <button id="signOutButton" class="icon-button" type="button" aria-label="Sign out"><svg><use href="#i-more"></use></svg></button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="studio-main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="openSidebar" class="icon-button mobile-only" type="button" aria-label="Open navigation"><svg><use href="#i-menu"></use></svg></button>
+          <div id="pageHeading"><h1>Overview</h1><p>Manage your portfolio content.</p></div>
+        </div>
+        <div class="topbar-actions">
+          <button id="globalSearchButton" class="search-trigger" type="button"><svg><use href="#i-search"></use></svg><span>Search content</span><kbd>⌘ K</kbd></button>
+          <button id="themeButton" class="icon-button" type="button" aria-label="Change theme"><svg class="theme-sun"><use href="#i-sun"></use></svg><svg class="theme-moon"><use href="#i-moon"></use></svg></button>
+          <button id="refreshButton" class="icon-button" type="button" aria-label="Refresh content"><svg><use href="#i-refresh"></use></svg></button>
+          <button id="topCreateButton" class="button primary top-create" type="button"><svg><use href="#i-plus"></use></svg><span>New</span></button>
+        </div>
+      </header>
+
+      <div class="view-stack">
+        <section id="dashboardView" class="app-view active" data-view-panel="dashboard">
+          <div class="welcome-row">
+            <div><h2 id="welcomeTitle">Good morning</h2><p>Your publishing workspace is ready.</p></div>
+            <div class="sync-chip"><span id="syncDot"></span><b id="syncText">Checking GitHub</b></div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card stat-primary"><div class="stat-icon"><svg><use href="#i-file"></use></svg></div><div><span>Published posts</span><strong id="dashboardPostCount">0</strong><small id="lastPostDate">No posts yet</small></div></article>
+            <article class="stat-card"><div class="stat-icon"><svg><use href="#i-briefcase"></use></svg></div><div><span>Projects</span><strong id="dashboardProjectCount">0</strong><small>Public portfolio items</small></div></article>
+            <article class="stat-card"><div class="stat-icon"><svg><use href="#i-draft"></use></svg></div><div><span>Local drafts</span><strong id="dashboardDraftCount">0</strong><small>Saved on this device</small></div></article>
+            <article class="stat-card"><div class="stat-icon"><svg><use href="#i-image"></use></svg></div><div><span>Media files</span><strong id="dashboardMediaCount">0</strong><small>Used by published content</small></div></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="surface recent-surface">
+              <div class="surface-head"><div><h3>Recent content</h3><p>Latest posts and projects.</p></div><button class="text-button" type="button" data-open-view="posts">View all <svg><use href="#i-chevron"></use></svg></button></div>
+              <div id="recentContentList" class="recent-list"></div>
+            </section>
+
+            <aside class="dashboard-rail">
+              <section class="surface quick-create">
+                <div class="surface-head"><div><h3>Quick create</h3><p>Start with the right editor.</p></div></div>
+                <button type="button" data-create-type="blog"><span class="quick-icon"><svg><use href="#i-file"></use></svg></span><span><strong>Write blog post</strong><small>Article, review or note</small></span><svg class="quick-arrow"><use href="#i-chevron"></use></svg></button>
+                <button type="button" data-create-type="project"><span class="quick-icon project"><svg><use href="#i-briefcase"></use></svg></span><span><strong>Add project</strong><small>Portfolio case study</small></span><svg class="quick-arrow"><use href="#i-chevron"></use></svg></button>
+              </section>
+
+              <section class="surface pipeline-card">
+                <div class="surface-head"><div><h3>Publishing pipeline</h3><p>Latest GitHub Actions run.</p></div><a href="https://github.com/nandurpm/portfolio/actions" target="_blank" rel="noopener noreferrer"><svg><use href="#i-external"></use></svg></a></div>
+                <div id="pipelineStatus" class="pipeline-status"><span class="pipeline-orb"><svg><use href="#i-refresh"></use></svg></span><div><strong>Checking workflow</strong><small>Please wait…</small></div></div>
+                <div class="pipeline-steps"><span class="done">Commit</span><i></i><span id="pipelineBuildStep">Build</span><i></i><span id="pipelineDeployStep">Deploy</span></div>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section id="libraryView" class="app-view" data-view-panel="library">
+          <div class="library-toolbar">
+            <div class="library-search"><svg><use href="#i-search"></use></svg><input id="librarySearch" type="search" placeholder="Search title, category or tag"></div>
+            <div class="library-tools">
+              <select id="categoryFilter" aria-label="Filter by category"><option value="">All categories</option></select>
+              <select id="sortFilter" aria-label="Sort content"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option></select>
+              <button id="libraryCreateButton" class="button primary" type="button"><svg><use href="#i-plus"></use></svg><span>Create</span></button>
+            </div>
+          </div>
+          <section class="surface content-table-wrap">
+            <div class="table-head"><span>Content</span><span>Category</span><span>Published</span><span>Status</span><span></span></div>
+            <div id="contentTable" class="content-table"></div>
+            <div id="libraryEmpty" class="empty-state" hidden><span><svg><use href="#i-search"></use></svg></span><h3>No matching content</h3><p>Change the search or filter.</p></div>
+          </section>
+        </section>
+
+        <section id="mediaView" class="app-view" data-view-panel="media">
+          <div class="section-toolbar"><div><h2>Media library</h2><p>Images available for posts and projects.</p></div><label class="button primary file-button"><svg><use href="#i-upload"></use></svg><span>Upload media</span><input id="mediaUploadInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden></label></div>
+          <div id="mediaGrid" class="media-grid"></div>
+          <div id="mediaEmpty" class="empty-state surface" hidden><span><svg><use href="#i-image"></use></svg></span><h3>No media yet</h3><p>Upload an image to start your library.</p></div>
+        </section>
+
+        <section id="draftsView" class="app-view" data-view-panel="drafts">
+          <div class="section-toolbar"><div><h2>Drafts</h2><p>Saved privately in this browser.</p></div><button id="clearDraftsButton" class="button danger-soft" type="button">Clear all drafts</button></div>
+          <div id="draftGrid" class="draft-grid"></div>
+          <div id="draftEmpty" class="empty-state surface" hidden><span><svg><use href="#i-draft"></use></svg></span><h3>No saved drafts</h3><p>Drafts are saved automatically while you write.</p></div>
+        </section>
+
+        <section id="settingsView" class="app-view" data-view-panel="settings">
+          <div class="settings-layout">
+            <section class="surface settings-card">
+              <div class="settings-heading"><span><svg><use href="#i-github"></use></svg></span><div><h3>GitHub connection</h3><p>Repository used for publishing.</p></div></div>
+              <div class="settings-grid">
+                <label>Repository<input value="nandurpm/portfolio" readonly></label>
+                <label>Branch<input value="main" readonly></label>
+                <label class="wide">OAuth Client ID<div class="inline-field"><input id="settingsOAuthClientId" type="text" placeholder="Enter GitHub OAuth Client ID"><button id="settingsSaveOAuth" class="button compact" type="button">Save</button></div></label>
+              </div>
+              <div class="settings-status"><span class="status-dot success"></span><div><strong id="connectionAccount">Connected</strong><small id="connectionPermission">Repository write access verified</small></div></div>
+            </section>
+
+            <section class="surface settings-card">
+              <div class="settings-heading"><span><svg><use href="#i-settings"></use></svg></span><div><h3>Editor preferences</h3><p>Control how the studio behaves on this device.</p></div></div>
+              <label class="toggle-row"><span><strong>Automatic draft saving</strong><small>Save editor changes every five seconds.</small></span><input id="autosaveToggle" type="checkbox" checked><i></i></label>
+              <label class="toggle-row"><span><strong>Confirm before publishing</strong><small>Show a final check before sending content to GitHub.</small></span><input id="confirmPublishToggle" type="checkbox" checked><i></i></label>
+              <label class="toggle-row"><span><strong>Compact content table</strong><small>Reduce row height when managing many posts.</small></span><input id="compactTableToggle" type="checkbox"><i></i></label>
+            </section>
+
+            <section class="surface settings-card danger-card">
+              <div class="settings-heading"><span><svg><use href="#i-trash"></use></svg></span><div><h3>Local data</h3><p>Remove browser-only data without changing GitHub.</p></div></div>
+              <div class="danger-action"><div><strong>Clear local drafts and preferences</strong><small>Published content is not affected.</small></div><button id="resetLocalDataButton" class="button danger-soft" type="button">Clear local data</button></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="editorView" class="app-view editor-view" data-view-panel="editor">
+          <div class="editor-topline">
+            <button id="editorBackButton" class="button ghost" type="button"><svg class="back-icon"><use href="#i-chevron"></use></svg><span>Back</span></button>
+            <div class="editor-title-state"><span id="editorStatusDot"></span><strong id="editorStateLabel">New draft</strong><small id="autosaveLabel">Not saved yet</small></div>
+            <div class="editor-actions">
+              <button id="saveDraftButton" class="button secondary" type="button"><svg><use href="#i-save"></use></svg><span>Save draft</span></button>
+              <button id="previewButton" class="button secondary" type="button"><svg><use href="#i-eye"></use></svg><span>Preview</span></button>
+              <button id="publishButton" class="button primary" type="button"><svg><use href="#i-publish"></use></svg><span>Publish</span></button>
+            </div>
+          </div>
+
+          <div class="editor-layout">
+            <section class="editor-canvas">
+              <div class="cover-editor">
+                <input id="coverInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+                <button id="coverDropzone" class="cover-dropzone" type="button">
+                  <img id="coverPreview" alt="" hidden>
+                  <span id="coverPlaceholder"><svg><use href="#i-image"></use></svg><strong>Add a cover image</strong><small>Click to browse or drop an image here</small></span>
+                  <span id="coverOverlay" class="cover-overlay" hidden><svg><use href="#i-upload"></use></svg>Replace cover</span>
+                </button>
+              </div>
+
+              <div class="document-editor">
+                <textarea id="editorTitle" class="title-input" rows="1" placeholder="Untitled"></textarea>
+                <textarea id="editorExcerpt" class="excerpt-input" rows="2" placeholder="Write a clear summary for cards and search results."></textarea>
+
+                <div class="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+                  <select id="formatSelect" aria-label="Text style"><option value="p">Paragraph</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option></select>
+                  <span class="toolbar-divider"></span>
+                  <button type="button" data-command="bold" aria-label="Bold"><svg><use href="#i-bold"></use></svg></button>
+                  <button type="button" data-command="italic" aria-label="Italic"><svg><use href="#i-italic"></use></svg></button>
+                  <button type="button" data-command="insertUnorderedList" aria-label="Bulleted list"><svg><use href="#i-list"></use></svg></button>
+                  <button type="button" data-action="link" aria-label="Insert link"><svg><use href="#i-link"></use></svg></button>
+                  <button type="button" data-action="quote" aria-label="Block quote"><svg><use href="#i-quote"></use></svg></button>
+                  <button type="button" data-action="code" aria-label="Code block"><svg><use href="#i-code"></use></svg></button>
+                  <span class="toolbar-divider"></span>
+                  <button type="button" data-command="undo" aria-label="Undo"><svg><use href="#i-undo"></use></svg></button>
+                  <button type="button" data-command="redo" aria-label="Redo"><svg><use href="#i-redo"></use></svg></button>
+                  <button id="sourceModeButton" class="source-toggle" type="button">HTML</button>
+                </div>
+
+                <div id="richEditor" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Start writing your story…"></div>
+                <textarea id="sourceEditor" class="source-editor" spellcheck="false" hidden></textarea>
+
+                <div class="editor-foot"><span id="wordCount">0 words</span><span id="readTime">1 min read</span><span id="characterCount">0 characters</span></div>
+              </div>
+            </section>
+
+            <aside class="editor-inspector">
+              <div class="inspector-tabs" role="tablist">
+                <button class="active" type="button" data-inspector="document">Document</button>
+                <button type="button" data-inspector="seo">SEO</button>
+                <button type="button" data-inspector="publish">Publish</button>
+              </div>
+
+              <div id="documentInspector" class="inspector-panel active" data-inspector-panel="document">
+                <div class="field-group">
+                  <label for="editorType">Content type</label>
+                  <div id="typeSwitch" class="segmented-control"><button class="active" type="button" data-type="blog">Blog post</button><button type="button" data-type="project">Project</button></div>
+                </div>
+                <div class="field-group"><label for="editorSlug">URL slug</label><div class="slug-field"><span>/blog/</span><input id="editorSlug" type="text" pattern="[a-z0-9-]+"><b>.html</b></div></div>
+                <div class="field-group"><label for="editorCategory">Category</label><select id="editorCategory"></select></div>
+                <div class="field-group"><label for="editorDate">Publication date</label><input id="editorDate" type="date"></div>
+                <div class="field-group"><label for="editorTags">Tags</label><input id="editorTags" type="text" placeholder="engineering, design, learning"><small>Separate tags with commas.</small></div>
+                <div id="projectFields" hidden>
+                  <div class="field-group"><label for="editorDemoUrl">Live project URL</label><input id="editorDemoUrl" type="url" placeholder="https://"></div>
+                  <div class="field-group"><label for="editorGithubUrl">GitHub repository URL</label><input id="editorGithubUrl" type="url" placeholder="https://github.com/"></div>
+                </div>
+                <div class="field-group"><label for="editorAltText">Cover image alt text</label><input id="editorAltText" type="text" placeholder="Describe the image"></div>
+              </div>
+
+              <div id="seoInspector" class="inspector-panel" data-inspector-panel="seo">
+                <div class="seo-score"><div class="score-ring"><strong id="seoScore">0</strong><small>/100</small></div><div><strong id="seoLabel">Needs work</strong><p id="seoSummary">Complete the title, summary and content.</p></div></div>
+                <div class="seo-preview"><small>Search preview</small><h4 id="seoPreviewTitle">Untitled | Nandakumar M</h4><span id="seoPreviewUrl">nandakumarm.dpdns.org/blog/untitled.html</span><p id="seoPreviewDescription">Add a summary to preview the search description.</p></div>
+                <ul id="seoChecklist" class="seo-checklist"></ul>
+              </div>
+
+              <div id="publishInspector" class="inspector-panel" data-inspector-panel="publish">
+                <div class="publish-check"><span id="publishReadyIcon"><svg><use href="#i-alert"></use></svg></span><div><strong id="publishReadyTitle">Complete required fields</strong><p id="publishReadyText">The studio will check your content before publishing.</p></div></div>
+                <div class="publish-details">
+                  <div><span>Destination</span><strong id="publishDestination">blog/untitled.html</strong></div>
+                  <div><span>Repository</span><strong>nandurpm/portfolio</strong></div>
+                  <div><span>Branch</span><strong>main</strong></div>
+                </div>
+                <a class="button secondary full" href="https://github.com/nandurpm/portfolio/actions" target="_blank" rel="noopener noreferrer"><svg><use href="#i-external"></use></svg>Open GitHub Actions</a>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="searchModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal="search"></div>
+    <section class="command-panel" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
+      <div class="command-search"><svg><use href="#i-search"></use></svg><input id="globalSearchInput" type="search" placeholder="Search posts, projects and actions" aria-labelledby="searchModalTitle"><kbd>ESC</kbd></div>
+      <h2 id="searchModalTitle" class="sr-only">Search content and commands</h2>
+      <div id="globalSearchResults" class="command-results"></div>
+    </section>
+  </div>
+
+  <div id="previewModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal="preview"></div>
+    <section class="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+      <header><div><h2 id="previewModalTitle">Page preview</h2><p>Desktop rendering with scripts disabled.</p></div><div class="preview-controls"><button type="button" data-preview-size="mobile">Mobile</button><button class="active" type="button" data-preview-size="desktop">Desktop</button><button class="icon-button" type="button" data-close-modal="preview" aria-label="Close preview"><svg><use href="#i-close"></use></svg></button></div></header>
+      <div class="preview-stage"><iframe id="previewFrame" title="Content preview" sandbox="allow-same-origin"></iframe></div>
+    </section>
+  </div>
+
+  <div id="confirmModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal="confirm"></div>
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <span id="confirmIcon" class="confirm-icon"><svg><use href="#i-alert"></use></svg></span>
+      <h2 id="confirmTitle">Confirm action</h2>
+      <p id="confirmMessage"></p>
+      <div class="confirm-actions"><button id="confirmCancel" class="button secondary" type="button">Cancel</button><button id="confirmAccept" class="button primary" type="button">Continue</button></div>
+    </section>
+  </div>
+
+  <div id="publishProgressModal" class="modal" hidden>
+    <div class="modal-backdrop"></div>
+    <section class="publish-dialog" role="dialog" aria-modal="true" aria-labelledby="publishProgressTitle">
+      <div class="publish-animation"><span></span><span></span><span></span></div>
+      <h2 id="publishProgressTitle">Publishing to GitHub</h2>
+      <p id="publishProgressText">Preparing files…</p>
+      <div class="progress-track"><i id="publishProgressBar"></i></div>
+      <ol class="publish-steps-list"><li id="stepValidate" class="active"><span><svg><use href="#i-check"></use></svg></span>Validate content</li><li id="stepUpload"><span><svg><use href="#i-upload"></use></svg></span>Commit files</li><li id="stepWorkflow"><span><svg><use href="#i-refresh"></use></svg></span>Run publisher</li><li id="stepComplete"><span><svg><use href="#i-check"></use></svg></span>Complete</li></ol>
+    </section>
+  </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
