@@ -1,168 +1,137 @@
 (() => {
   'use strict';
 
-  const OWNER = 'nandurpm';
-  const REPOSITORY = 'portfolio';
-  const BRANCH = 'main';
-  const API_VERSION = '2022-11-28';
-  const TOKEN_KEY = 'portfolio-admin-token-v2';
-  const DRAFT_KEY = 'portfolio-content-drafts-v2';
-  const SETTINGS_KEY = 'portfolio-content-settings-v2';
-  const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
-  const BLOG_CATEGORIES = ['Technical Articles', 'Engineering', 'Current Affairs', 'Movie Reviews', 'Politics', 'Personal Writings'];
-  const PROJECT_CATEGORIES = ['Web Development', 'Embedded Systems', 'Engineering Design', 'Electronics', 'Tools', 'Other'];
-  const IS_LOCAL_DEMO = Boolean(window.__ADMIN_DEMO__) || ((['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol === 'file:') && new URLSearchParams(location.search).has('demo'));
-
-  const initialToken = safeSessionGet(TOKEN_KEY) || '';
-
-  const state = {
-    token: initialToken,
-    authMode: initialToken ? 'token' : '',
-    user: null,
-    view: 'dashboard',
-    contentFilter: 'all',
-    editorType: 'blog',
-    editingItem: null,
-    originalSlug: '',
-    currentDraftId: '',
-    coverFile: null,
-    coverDataUrl: '',
-    existingImage: '',
-    sourceMode: false,
-    oauthAvailable: false,
-    content: { blog: [], project: [] },
-    workflows: [],
-    media: [],
-    mediaFilter: 'all',
-    autosaveTimer: null,
-    statusTimer: null,
-    confirmAction: null,
-    settings: {
-      autoPreview: true,
-      confirmDelete: true,
-      ...readJsonStorage(SETTINGS_KEY, {})
-    }
+  const CONFIG = {
+    owner: 'nandurpm',
+    repository: 'portfolio',
+    branch: 'main',
+    siteUrl: 'https://nandakumarm.dpdns.org',
+    githubClientId: '',
+    ...(window.CONTENT_STUDIO_CONFIG || {})
   };
+
+  const API_VERSION = '2022-11-28';
+  const TOKEN_KEY = 'portfolio-studio-token';
+  const OAUTH_CLIENT_KEY = 'portfolio-studio-oauth-client';
+  const DRAFT_KEY = 'portfolio-studio-drafts-v2';
+  const PREF_KEY = 'portfolio-studio-preferences-v2';
+  const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+  const IS_LOCAL_DEMO = (['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol === 'file:') && new URLSearchParams(location.search).get('demo') === '1';
+
+  const BLOG_CATEGORIES = ['Technical Articles', 'Engineering', 'Current Affairs', 'Movie Reviews', 'Politics', 'Personal Writings'];
+  const PROJECT_CATEGORIES = ['Web Development', 'Embedded Systems', 'Engineering Design', 'Electronics', 'Tools & Utilities'];
+
+  const DEMO_POSTS = [
+    { title: 'How I Think About Engineering Design Reviews', slug: 'engineering-design-reviews', category: 'Engineering', date: '2026-05-28', readTime: '4 min read', excerpt: 'A practical checklist for reviewing design intent and quality risk.', image: 'assets/images/blog/blog-1.jpg', tags: ['design', 'quality'], url: 'blog/engineering-design-reviews.html' },
+    { title: 'Building a Fast Static Portfolio with GitHub Pages', slug: 'fast-static-portfolio', category: 'Technical Articles', date: '2026-05-21', readTime: '5 min read', excerpt: 'A reliable publishing approach using HTML, CSS and JavaScript.', image: 'assets/images/blog/blog-2.jpg', tags: ['github pages', 'html'], url: 'blog/fast-static-portfolio.html' },
+    { title: 'Why Documentation Is a Professional Skill', slug: 'documentation-professional-skill', category: 'Technical Articles', date: '2026-03-31', readTime: '5 min read', excerpt: 'Good documentation reduces repeated mistakes and makes decisions easier to audit.', image: 'assets/images/blog/blog-6.jpg', tags: ['documentation'], url: 'blog/documentation-professional-skill.html' }
+  ];
+  const DEMO_PROJECTS = [
+    { title: 'Diploma Notes', slug: 'diploma-notes', category: 'Web Development', date: '2026-06-02', description: 'A student-friendly study platform with syllabus and lesson sections.', image: 'assets/images/works/project-6.png', url: 'works/diploma-notes.html', technologies: ['HTML', 'CSS', 'JavaScript'] },
+    { title: 'Smart Portfolio Dashboard', slug: 'smart-portfolio-dashboard', category: 'Web Development', date: '2026-05-18', description: 'A responsive portfolio dashboard with JSON-powered content.', image: 'assets/images/works/project-1.jpg', url: 'works/smart-portfolio-dashboard.html', technologies: ['HTML5', 'CSS3', 'JavaScript'] }
+  ];
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const el = {
-    authView: $('#authView'),
-    appView: $('#appView'),
-    githubLoginButton: $('#githubLoginButton'),
-    oauthHint: $('#oauthHint'),
-    loginForm: $('#loginForm'),
-    tokenInput: $('#tokenInput'),
-    loginStatus: $('#loginStatus'),
-    sidebar: $('#sidebar'),
-    sidebarOpen: $('#sidebarOpen'),
-    sidebarClose: $('#sidebarClose'),
-    sidebarBackdrop: $('#sidebarBackdrop'),
-    accountAvatar: $('#accountAvatar'),
-    accountName: $('#accountName'),
-    accountHandle: $('#accountHandle'),
-    logoutButton: $('#logoutButton'),
-    settingsSignOut: $('#settingsSignOut'),
-    pageEyebrow: $('#pageEyebrow'),
-    pageTitle: $('#pageTitle'),
-    globalSearch: $('#globalSearch'),
-    topNewButton: $('#topNewButton'),
-    dashboardDate: $('#dashboardDate'),
-    recentContentList: $('#recentContentList'),
-    workflowList: $('#workflowList'),
-    contentLibrary: $('#contentLibrary'),
-    contentSearch: $('#contentSearch'),
-    contentSort: $('#contentSort'),
-    draftLibrary: $('#draftLibrary'),
-    clearDraftsButton: $('#clearDraftsButton'),
-    mediaGrid: $('#mediaGrid'),
-    refreshMediaButton: $('#refreshMediaButton'),
-    contentForm: $('#contentForm'),
-    editorBackButton: $('#editorBackButton'),
-    editorModeLabel: $('#editorModeLabel'),
-    editorDocumentTitle: $('#editorDocumentTitle'),
-    autosaveStatus: $('#autosaveStatus'),
-    saveDraftButton: $('#saveDraftButton'),
-    previewButton: $('#previewButton'),
-    publishButton: $('#publishButton'),
-    publishStatus: $('#publishStatus'),
-    documentStateBadge: $('#documentStateBadge'),
-    titleInput: $('#titleInput'),
-    summaryInput: $('#summaryInput'),
-    coverDropzone: $('#coverDropzone'),
-    coverInput: $('#coverInput'),
-    coverPreview: $('#coverPreview'),
-    coverPlaceholder: $('#coverPlaceholder'),
-    coverActions: $('#coverActions'),
-    replaceCoverButton: $('#replaceCoverButton'),
-    removeCoverButton: $('#removeCoverButton'),
-    blockFormat: $('#blockFormat'),
-    richEditor: $('#richEditor'),
-    sourceEditor: $('#sourceEditor'),
-    sourceToggle: $('#sourceToggle'),
-    wordCount: $('#wordCount'),
-    readTime: $('#readTime'),
-    characterCount: $('#characterCount'),
-    slugInput: $('#slugInput'),
-    categoryInput: $('#categoryInput'),
-    dateInput: $('#dateInput'),
-    tagField: $('#tagField'),
-    tagsInput: $('#tagsInput'),
-    technologyField: $('#technologyField'),
-    technologiesInput: $('#technologiesInput'),
-    seoTitleInput: $('#seoTitleInput'),
-    seoDescriptionInput: $('#seoDescriptionInput'),
-    seoPreviewTitle: $('#seoPreviewTitle'),
-    seoPreviewDescription: $('#seoPreviewDescription'),
-    demoField: $('#demoField'),
-    demoInput: $('#demoInput'),
-    githubField: $('#githubField'),
-    githubInput: $('#githubInput'),
-    canonicalInput: $('#canonicalInput'),
-    detailType: $('#detailType'),
-    detailSaved: $('#detailSaved'),
-    detailCover: $('#detailCover'),
-    previewDialog: $('#previewDialog'),
-    closePreviewButton: $('#closePreviewButton'),
-    previewFrame: $('#previewFrame'),
-    previewDevice: $('#previewDevice'),
-    previewUrl: $('#previewUrl'),
-    confirmDialog: $('#confirmDialog'),
-    confirmTitle: $('#confirmTitle'),
-    confirmMessage: $('#confirmMessage'),
-    confirmActionButton: $('#confirmActionButton'),
-    toastStack: $('#toastStack'),
-    autoPreviewSetting: $('#autoPreviewSetting'),
-    confirmDeleteSetting: $('#confirmDeleteSetting'),
-    settingsAccount: $('#settingsAccount'),
-    settingsConnectionText: $('#settingsConnectionText')
+  const defaultPreferences = {
+    theme: 'dark',
+    autosave: true,
+    confirmPublish: true,
+    compactTable: false
   };
 
+  const state = {
+    token: sessionStorage.getItem(TOKEN_KEY) || '',
+    authMethod: '',
+    user: null,
+    activeView: 'dashboard',
+    previousView: 'dashboard',
+    libraryType: 'blog',
+    posts: [],
+    projects: [],
+    media: [],
+    workflowRuns: [],
+    drafts: loadLocalJson(DRAFT_KEY, []),
+    preferences: { ...defaultPreferences, ...loadLocalJson(PREF_KEY, {}) },
+    editor: null,
+    coverFile: null,
+    coverObjectUrl: '',
+    autosaveTimer: null,
+    sourceMode: false,
+    slugEdited: false,
+    confirmResolver: null,
+    devicePollCancelled: false
+  };
 
-  function safeSessionGet(key) {
-    try { return sessionStorage.getItem(key); } catch { return ''; }
-  }
+  const el = {
+    authScreen: $('#authScreen'),
+    studioApp: $('#studioApp'),
+    authStatus: $('#authStatus'),
+    tokenLoginForm: $('#tokenLoginForm'),
+    tokenInput: $('#tokenInput'),
+    githubLoginButton: $('#githubLoginButton'),
+    oauthClientId: $('#oauthClientId'),
+    deviceFlowPanel: $('#deviceFlowPanel'),
+    deviceCode: $('#deviceCode'),
+    sidebar: $('#sidebar'),
+    mobileScrim: $('#mobileScrim'),
+    pageHeading: $('#pageHeading'),
+    contentTable: $('#contentTable'),
+    libraryEmpty: $('#libraryEmpty'),
+    librarySearch: $('#librarySearch'),
+    categoryFilter: $('#categoryFilter'),
+    sortFilter: $('#sortFilter'),
+    recentContentList: $('#recentContentList'),
+    mediaGrid: $('#mediaGrid'),
+    mediaEmpty: $('#mediaEmpty'),
+    draftGrid: $('#draftGrid'),
+    draftEmpty: $('#draftEmpty'),
+    toastRegion: $('#toastRegion'),
+    richEditor: $('#richEditor'),
+    sourceEditor: $('#sourceEditor'),
+    editorTitle: $('#editorTitle'),
+    editorExcerpt: $('#editorExcerpt'),
+    editorSlug: $('#editorSlug'),
+    editorCategory: $('#editorCategory'),
+    editorDate: $('#editorDate'),
+    editorTags: $('#editorTags'),
+    editorDemoUrl: $('#editorDemoUrl'),
+    editorGithubUrl: $('#editorGithubUrl'),
+    editorAltText: $('#editorAltText'),
+    projectFields: $('#projectFields'),
+    coverInput: $('#coverInput'),
+    coverDropzone: $('#coverDropzone'),
+    coverPreview: $('#coverPreview'),
+    coverPlaceholder: $('#coverPlaceholder'),
+    coverOverlay: $('#coverOverlay'),
+    previewModal: $('#previewModal'),
+    previewFrame: $('#previewFrame'),
+    confirmModal: $('#confirmModal'),
+    confirmTitle: $('#confirmTitle'),
+    confirmMessage: $('#confirmMessage'),
+    confirmAccept: $('#confirmAccept'),
+    publishProgressModal: $('#publishProgressModal'),
+    publishProgressText: $('#publishProgressText'),
+    publishProgressBar: $('#publishProgressBar'),
+    searchModal: $('#searchModal'),
+    globalSearchInput: $('#globalSearchInput'),
+    globalSearchResults: $('#globalSearchResults')
+  };
 
-  function safeSessionSet(key, value) {
-    try { sessionStorage.setItem(key, value); } catch { /* storage may be unavailable in private/embedded contexts */ }
-  }
-
-  function safeSessionRemove(key) {
-    try { sessionStorage.removeItem(key); } catch { /* storage may be unavailable in private/embedded contexts */ }
-  }
-
-  function readJsonStorage(key, fallback) {
+  function loadLocalJson(key, fallback) {
     try {
-      const value = JSON.parse(localStorage.getItem(key));
-      return value ?? fallback;
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
     } catch {
       return fallback;
     }
   }
 
-  function writeJsonStorage(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore storage quota/privacy errors */ }
+  function saveLocalJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
   }
 
   function escapeHtml(value = '') {
@@ -174,19 +143,6 @@
       .replaceAll("'", '&#39;');
   }
 
-  function decodeBase64Utf8(value) {
-    const binary = atob(String(value).replace(/\s/g, ''));
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
-  }
-
-  function encodeBase64Utf8(value) {
-    const bytes = new TextEncoder().encode(value);
-    let binary = '';
-    bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-    return btoa(binary);
-  }
-
   function slugify(value = '') {
     return String(value)
       .normalize('NFKD')
@@ -196,58 +152,120 @@
       .slice(0, 80);
   }
 
-  function parseList(value = '') {
-    return String(value).split(',').map((item) => item.trim()).filter(Boolean);
+  function decodeBase64Utf8(value) {
+    const bytes = Uint8Array.from(atob(String(value).replace(/\n/g, '')), (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
   }
 
-  function formatDate(value, options = {}) {
+  function formatDate(value, options = { day: 'numeric', month: 'short', year: 'numeric' }) {
     if (!value) return 'Not dated';
     const date = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric', ...options }).format(date);
+    return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat('en-IN', options).format(date);
   }
 
-  function formatRelativeTime(value) {
-    if (!value) return '';
+  function relativeTime(value) {
+    if (!value) return 'Just now';
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
     const diff = Date.now() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'just now';
-    if (minutes < 60) return `${minutes} min ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hr ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
-    return formatDate(date.toISOString().slice(0, 10));
+    if (diff < 60_000) return 'Just now';
+    if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} min ago`;
+    if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} hr ago`;
+    return `${Math.floor(diff / 86_400_000)} days ago`;
   }
 
-  function setStatus(element, message = '', type = '') {
-    element.textContent = message;
-    element.className = `status${type ? ` ${type}` : ''}`;
+  function todayString() {
+    return new Date().toLocaleDateString('en-CA');
   }
 
-  function showFloatingStatus(message, type = '') {
-    clearTimeout(state.statusTimer);
-    setStatus(el.publishStatus, message, type);
-    el.publishStatus.classList.add('visible');
-    state.statusTimer = setTimeout(() => el.publishStatus.classList.remove('visible'), 5000);
+  function imageExtension(file) {
+    const byType = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+    return byType[file.type] || file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
   }
 
-  function toast(title, message = '', type = 'success') {
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Unable to read the selected file.'));
+      reader.onload = () => resolve(String(reader.result).split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Unable to preview the selected file.'));
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function sanitizeContent(html) {
+    const parsed = new DOMParser().parseFromString(`<div id="content-root">${html}</div>`, 'text/html');
+    const root = parsed.querySelector('#content-root');
+    root.querySelectorAll('script, iframe, object, embed, form, input, button, textarea, select, link, meta').forEach((node) => node.remove());
+    root.querySelectorAll('*').forEach((node) => {
+      [...node.attributes].forEach((attribute) => {
+        const name = attribute.name.toLowerCase();
+        const value = attribute.value.trim().toLowerCase();
+        if (name.startsWith('on') || value.startsWith('javascript:')) node.removeAttribute(attribute.name);
+      });
+    });
+    return root.innerHTML.trim();
+  }
+
+  function plainTextFromHtml(html) {
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    return (parsed.body.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function toast(title, message = '', type = 'success', timeout = 4200) {
     const node = document.createElement('div');
     node.className = `toast ${type}`;
-    node.innerHTML = `
-      <svg><use href="#${type === 'error' ? 'i-close' : 'i-check'}"></use></svg>
-      <div><strong>${escapeHtml(title)}</strong>${message ? `<small>${escapeHtml(message)}</small>` : ''}</div>
-      <button type="button" aria-label="Dismiss">×</button>`;
-    node.querySelector('button').addEventListener('click', () => node.remove());
-    el.toastStack.append(node);
-    setTimeout(() => node.remove(), 5200);
+    node.innerHTML = `<span>${icon(type === 'error' ? 'alert' : 'check')}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(message)}</small></div><button type="button" aria-label="Dismiss">${icon('close')}</button>`;
+    const remove = () => {
+      if (!node.isConnected) return;
+      node.classList.add('leaving');
+      setTimeout(() => node.remove(), 210);
+    };
+    $('button', node).addEventListener('click', remove);
+    el.toastRegion.append(node);
+    if (timeout) setTimeout(remove, timeout);
+  }
+
+  function setAuthStatus(message = '', type = '') {
+    el.authStatus.textContent = message;
+    el.authStatus.className = `status${type ? ` ${type}` : ''}`;
+  }
+
+  function openModal(node) {
+    node.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  function closeModal(node) {
+    node.hidden = true;
+    if (!$$('.modal:not([hidden])').length) document.body.classList.remove('modal-open');
+  }
+
+  function confirmAction({ title, message, confirmText = 'Continue', danger = false }) {
+    el.confirmTitle.textContent = title;
+    el.confirmMessage.textContent = message;
+    el.confirmAccept.textContent = confirmText;
+    el.confirmAccept.className = `button ${danger ? 'danger-soft' : 'primary'}`;
+    $('.confirm-dialog', el.confirmModal).classList.toggle('danger', danger);
+    openModal(el.confirmModal);
+    return new Promise((resolve) => { state.confirmResolver = resolve; });
+  }
+
+  function resolveConfirm(value) {
+    closeModal(el.confirmModal);
+    if (state.confirmResolver) state.confirmResolver(value);
+    state.confirmResolver = null;
   }
 
   async function githubRequest(path, options = {}) {
-    if (IS_LOCAL_DEMO && !state.token) throw Object.assign(new Error('GitHub write actions are disabled in local demo mode.'), { status: 403 });
+    if (IS_LOCAL_DEMO) throw new Error('GitHub requests are disabled in local demo mode.');
     const response = await fetch(`https://api.github.com${path}`, {
       ...options,
       headers: {
@@ -260,12 +278,7 @@
     });
     if (!response.ok) {
       let detail = '';
-      try {
-        const payload = await response.json();
-        detail = payload.message || '';
-      } catch {
-        detail = await response.text();
-      }
+      try { detail = (await response.json()).message || ''; } catch { detail = await response.text(); }
       const error = new Error(detail || `GitHub request failed (${response.status}).`);
       error.status = response.status;
       throw error;
@@ -274,1103 +287,1235 @@
     return response.json();
   }
 
-  async function authenticate(token, mode = 'token') {
+  async function readRepoText(path) {
+    const payload = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/contents/${encodeRepoPath(path)}?ref=${encodeURIComponent(CONFIG.branch)}`);
+    return { text: decodeBase64Utf8(payload.content), sha: payload.sha };
+  }
+
+  async function readRepoJson(path, fallback = []) {
+    try {
+      const result = await readRepoText(path);
+      return { value: JSON.parse(result.text), sha: result.sha };
+    } catch (error) {
+      if (error.status === 404) return { value: fallback, sha: '' };
+      throw error;
+    }
+  }
+
+  function encodeRepoPath(path) {
+    return path.split('/').map(encodeURIComponent).join('/');
+  }
+
+  async function commitFiles(files, message, attempt = 0) {
+    if (IS_LOCAL_DEMO) {
+      await sleep(850);
+      return { sha: `demo${Date.now().toString(16)}` };
+    }
+    const reference = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/git/ref/heads/${encodeURIComponent(CONFIG.branch)}`);
+    const headSha = reference.object.sha;
+    const headCommit = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/git/commits/${headSha}`);
+    const tree = [];
+    for (const file of files) {
+      if (file.delete) {
+        tree.push({ path: file.path, mode: '100644', type: 'blob', sha: null });
+        continue;
+      }
+      const blob = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/git/blobs`, {
+        method: 'POST',
+        body: JSON.stringify({ content: file.content, encoding: file.encoding || 'utf-8' })
+      });
+      tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.sha });
+    }
+    const nextTree = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/git/trees`, {
+      method: 'POST',
+      body: JSON.stringify({ base_tree: headCommit.tree.sha, tree })
+    });
+    const nextCommit = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/git/commits`, {
+      method: 'POST',
+      body: JSON.stringify({ message, tree: nextTree.sha, parents: [headSha] })
+    });
+    try {
+      await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/git/refs/heads/${encodeURIComponent(CONFIG.branch)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ sha: nextCommit.sha, force: false })
+      });
+      return nextCommit;
+    } catch (error) {
+      if (attempt === 0 && [409, 422].includes(error.status)) return commitFiles(files, message, 1);
+      throw error;
+    }
+  }
+
+  async function authenticate(token, method = 'token') {
     state.token = String(token || '').trim();
     if (!state.token) throw new Error('Enter a valid GitHub credential.');
     const user = await githubRequest('/user');
-    if (String(user.login).toLowerCase() !== OWNER.toLowerCase()) {
-      throw new Error(`This studio accepts the ${OWNER} GitHub account only.`);
+    if (String(user.login).toLowerCase() !== String(CONFIG.owner).toLowerCase()) {
+      throw new Error(`This studio accepts the @${CONFIG.owner} GitHub account only.`);
     }
-    const repository = await githubRequest(`/repos/${OWNER}/${REPOSITORY}`);
-    const canWrite = repository.permissions?.push || repository.permissions?.admin || repository.permissions?.maintain;
-    if (!canWrite) throw new Error('This credential does not have write access to the portfolio repository.');
-    state.authMode = mode;
+    const repository = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}`);
+    const canPush = repository.permissions?.push || repository.permissions?.admin || repository.permissions?.maintain;
+    if (!canPush) throw new Error('This credential does not have repository write access.');
+    sessionStorage.setItem(TOKEN_KEY, state.token);
+    state.authMethod = method;
     state.user = user;
-    safeSessionSet(TOKEN_KEY, state.token);
-    await showStudio(user);
+    await enterStudio();
   }
 
-  async function showStudio(user) {
-    el.authView.hidden = true;
-    el.appView.hidden = false;
-    el.accountName.textContent = user.name || 'Nandakumar M';
-    el.accountHandle.textContent = `@${user.login}`;
-    el.settingsAccount.textContent = `@${user.login}`;
-    el.settingsConnectionText.textContent = `Connected through ${state.authMode === 'oauth' ? 'GitHub login' : 'repository token'}.`;
-    if (user.avatar_url) {
-      el.accountAvatar.src = user.avatar_url;
-      el.accountAvatar.hidden = false;
-      $('.account-avatar-fallback').hidden = true;
-    }
-    navigate('dashboard');
-    await Promise.allSettled([loadContent(), loadWorkflows()]);
-    renderAll();
-  }
-
-  function showLogin() {
+  function signOut() {
+    state.devicePollCancelled = true;
     state.token = '';
-    state.authMode = '';
     state.user = null;
-    safeSessionRemove(TOKEN_KEY);
-    el.appView.hidden = true;
-    el.authView.hidden = false;
+    sessionStorage.removeItem(TOKEN_KEY);
+    el.studioApp.hidden = true;
+    el.authScreen.hidden = false;
     el.tokenInput.value = '';
-    setStatus(el.loginStatus);
+    el.deviceFlowPanel.hidden = true;
+    setAuthStatus();
   }
 
-  async function checkOAuthAvailability() {
+  async function oauthPost(url, params) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params)
+    });
+    if (!response.ok) throw new Error(`GitHub sign-in failed (${response.status}).`);
+    return response.json();
+  }
+
+  function getOAuthClientId() {
+    return localStorage.getItem(OAUTH_CLIENT_KEY) || CONFIG.githubClientId || '';
+  }
+
+  async function startGitHubDeviceLogin() {
+    const clientId = getOAuthClientId().trim();
+    if (!clientId) {
+      $('#oauthSetup').hidden = false;
+      el.oauthClientId.focus();
+      setAuthStatus('Add your GitHub OAuth Client ID to enable direct sign-in.', 'error');
+      return;
+    }
+    state.devicePollCancelled = false;
+    el.githubLoginButton.disabled = true;
+    const authWindow = window.open('about:blank', 'github-device-auth');
+    setAuthStatus('Requesting a GitHub verification code…');
     try {
-      const response = await fetch('/api/github/oauth/config', { cache: 'no-store' });
-      if (!response.ok) throw new Error('OAuth endpoint unavailable');
-      const config = await response.json();
-      state.oauthAvailable = Boolean(config.enabled);
-    } catch {
-      state.oauthAvailable = false;
+      const device = await oauthPost('https://github.com/login/device/code', { client_id: clientId, scope: 'public_repo' });
+      if (device.error) throw new Error(device.error_description || device.error);
+      el.deviceCode.textContent = device.user_code;
+      $('#openDeviceLogin').href = device.verification_uri || 'https://github.com/login/device';
+      el.deviceFlowPanel.hidden = false;
+      setAuthStatus('Approve access in GitHub. This page will connect automatically.');
+      if (authWindow && !authWindow.closed) authWindow.location.href = device.verification_uri || 'https://github.com/login/device';
+      let interval = Math.max(5, Number(device.interval) || 5);
+      const expiresAt = Date.now() + (Number(device.expires_in) || 900) * 1000;
+      while (!state.devicePollCancelled && Date.now() < expiresAt) {
+        await sleep(interval * 1000);
+        const result = await oauthPost('https://github.com/login/oauth/access_token', {
+          client_id: clientId,
+          device_code: device.device_code,
+          grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+        });
+        if (result.access_token) {
+          setAuthStatus('GitHub approved. Opening the studio…', 'success');
+          await authenticate(result.access_token, 'github');
+          return;
+        }
+        if (result.error === 'authorization_pending') continue;
+        if (result.error === 'slow_down') { interval += 5; continue; }
+        if (result.error === 'access_denied') throw new Error('GitHub access was cancelled.');
+        if (result.error === 'expired_token') throw new Error('The GitHub verification code expired. Try again.');
+        if (result.error) throw new Error(result.error_description || result.error);
+      }
+      if (!state.devicePollCancelled) throw new Error('The GitHub verification code expired. Try again.');
+    } catch (error) {
+      if (authWindow && !authWindow.closed) authWindow.close();
+      setAuthStatus(`${error.message} You can still use a fine-grained token below.`, 'error');
+    } finally {
+      el.githubLoginButton.disabled = false;
     }
-    el.githubLoginButton.classList.toggle('unavailable', !state.oauthAvailable);
-    el.oauthHint.hidden = state.oauthAvailable;
-    el.oauthHint.textContent = state.oauthAvailable ? '' : 'GitHub login is not configured on this deployment. Token access remains available.';
   }
 
-  function startGitHubLogin() {
-    if (!state.oauthAvailable) {
-      el.oauthHint.hidden = false;
-      return;
-    }
-    const width = 620;
-    const height = 760;
-    const left = Math.max(0, (screen.width - width) / 2);
-    const top = Math.max(0, (screen.height - height) / 2);
-    const popup = window.open('/api/github/oauth/start', 'portfolio-github-login', `popup=yes,width=${width},height=${height},left=${left},top=${top}`);
-    if (!popup) setStatus(el.loginStatus, 'Allow pop-ups for this site, then try GitHub login again.', 'error');
-    else setStatus(el.loginStatus, 'Complete authorization in the GitHub window…');
+  async function enterStudio() {
+    el.authScreen.hidden = true;
+    el.studioApp.hidden = false;
+    updateUserInterface();
+    applyPreferences();
+    switchView('dashboard');
+    await loadStudioData();
+    startAutosaveLoop();
   }
 
-  async function loadContent() {
-    if (IS_LOCAL_DEMO && window.__ADMIN_DEMO_DATA__) {
-      state.content.blog = (window.__ADMIN_DEMO_DATA__.blog || []).map((item) => normalizeItem(item, 'blog'));
-      state.content.project = (window.__ADMIN_DEMO_DATA__.project || []).map((item) => normalizeItem(item, 'project'));
-      return;
-    }
-    const stamp = Date.now();
-    const [blogResponse, projectResponse] = await Promise.all([
-      fetch(`../assets/data/blog.json?v=${stamp}`, { cache: 'no-store' }),
-      fetch(`../assets/data/works.json?v=${stamp}`, { cache: 'no-store' })
-    ]);
-    if (!blogResponse.ok || !projectResponse.ok) throw new Error('Unable to load portfolio content indexes.');
-    const [blogs, projects] = await Promise.all([blogResponse.json(), projectResponse.json()]);
-    state.content.blog = blogs.map((item) => normalizeItem(item, 'blog'));
-    state.content.project = projects.map((item) => normalizeItem(item, 'project'));
+  function updateUserInterface() {
+    const user = state.user || { login: CONFIG.owner, name: 'Nandakumar M', avatar_url: 'https://github.com/nandurpm.png' };
+    $('#sidebarAvatar').src = user.avatar_url || `https://github.com/${user.login}.png`;
+    $('#sidebarAvatar').alt = `${user.login} GitHub avatar`;
+    $('#sidebarUserName').textContent = user.name || user.login;
+    $('#sidebarUserLogin').textContent = `@${user.login}`;
+    $('#connectionAccount').textContent = `Connected as @${user.login}`;
+    $('#connectionPermission').textContent = `Write access verified via ${state.authMethod === 'github' ? 'GitHub sign-in' : 'access token'}`;
   }
 
-  function normalizeItem(item, type) {
-    const url = item.url || '';
-    const fallbackSlug = url.split('/').pop()?.replace(/\.html$/i, '') || slugify(item.title);
-    return {
+  async function loadStudioData(showFeedback = false) {
+    setSyncState('loading', 'Syncing with GitHub');
+    try {
+      if (IS_LOCAL_DEMO) {
+        state.posts = [...DEMO_POSTS];
+        state.projects = [...DEMO_PROJECTS];
+        state.media = [];
+        state.workflowRuns = [{ status: 'completed', conclusion: 'success', name: 'Publish uploaded content', updated_at: new Date().toISOString(), html_url: '#' }];
+      } else {
+        const [blog, projects, media, runs] = await Promise.all([
+          readRepoJson('assets/data/blog.json', []),
+          readRepoJson('assets/data/works.json', []),
+          readRepoJson('assets/data/media.json', []),
+          githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/actions/runs?branch=${encodeURIComponent(CONFIG.branch)}&per_page=8`).catch(() => ({ workflow_runs: [] }))
+        ]);
+        state.posts = Array.isArray(blog.value) ? blog.value : [];
+        state.projects = Array.isArray(projects.value) ? projects.value : [];
+        state.media = Array.isArray(media.value) ? media.value : [];
+        state.workflowRuns = runs.workflow_runs || [];
+      }
+      normalizeContent();
+      renderAll();
+      setSyncState('success', 'GitHub synced');
+      if (showFeedback) toast('Content refreshed', 'Latest repository data is loaded.');
+    } catch (error) {
+      setSyncState('error', 'Sync failed');
+      toast('Unable to sync', error.message, 'error', 7000);
+      if (error.status === 401) signOut();
+    }
+  }
+
+  function normalizeContent() {
+    state.posts = state.posts.map((item) => ({
       ...item,
-      type,
-      slug: item.slug || fallbackSlug,
-      date: item.date || '',
-      status: 'live'
-    };
+      slug: item.slug || slugFromUrl(item.url) || slugify(item.title),
+      type: 'blog',
+      summary: item.excerpt || '',
+      tags: Array.isArray(item.tags) ? item.tags : []
+    }));
+    state.projects = state.projects.map((item) => ({
+      ...item,
+      slug: item.slug || slugFromUrl(item.url) || slugify(item.title),
+      type: 'project',
+      summary: item.description || '',
+      tags: Array.isArray(item.technologies) ? item.technologies : [],
+      date: item.date || ''
+    }));
   }
 
-  function allContent() {
-    return [...state.content.blog, ...state.content.project];
+  function slugFromUrl(url = '') {
+    return String(url).split('/').pop()?.replace(/\.html?$/i, '') || '';
   }
 
-  async function loadWorkflows() {
-    if (IS_LOCAL_DEMO && !state.token) {
-      state.workflows = [
-        { id: 1, name: 'Publish uploaded content', display_title: 'Publish blog: Sample article', status: 'completed', conclusion: 'success', created_at: new Date(Date.now() - 3600000).toISOString(), html_url: '#' },
-        { id: 2, name: 'Publish uploaded content', display_title: 'Update content studio', status: 'completed', conclusion: 'success', created_at: new Date(Date.now() - 86400000).toISOString(), html_url: '#' }
-      ];
-      return;
-    }
-    try {
-      const result = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/actions/runs?per_page=6`);
-      state.workflows = result.workflow_runs || [];
-    } catch {
-      state.workflows = [];
-    }
+  function setSyncState(type, text) {
+    const dot = $('#syncDot');
+    dot.className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+    $('#syncText').textContent = text;
   }
 
   function renderAll() {
-    renderCounts();
-    renderDashboard();
-    renderContentLibrary();
+    const combinedMedia = getCombinedMedia();
+    $('#postCountBadge').textContent = state.posts.length;
+    $('#projectCountBadge').textContent = state.projects.length;
+    $('#draftCountBadge').textContent = state.drafts.length;
+    $('#dashboardPostCount').textContent = state.posts.length;
+    $('#dashboardProjectCount').textContent = state.projects.length;
+    $('#dashboardDraftCount').textContent = state.drafts.length;
+    $('#dashboardMediaCount').textContent = combinedMedia.length;
+    const latestPost = [...state.posts].sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
+    $('#lastPostDate').textContent = latestPost ? `Latest ${formatDate(latestPost.date, { day: 'numeric', month: 'short' })}` : 'No posts yet';
+    renderWelcome();
+    renderRecentContent();
+    renderPipeline();
+    renderLibrary();
+    renderMedia();
     renderDrafts();
   }
 
-  function renderCounts() {
-    const drafts = getDrafts();
-    $('#blogCountBadge').textContent = state.content.blog.length;
-    $('#projectCountBadge').textContent = state.content.project.length;
-    $('#draftCountBadge').textContent = drafts.length;
-    $('#metricBlog').textContent = state.content.blog.length;
-    $('#metricProject').textContent = state.content.project.length;
-    $('#metricDraft').textContent = drafts.length;
-    $('#metricBlogDetail').textContent = state.content.blog.length ? `${state.content.blog[0].category || 'Latest'} · ${formatDate(state.content.blog[0].date)}` : 'No posts yet';
-    $('#metricProjectDetail').textContent = state.content.project.length ? `${state.content.project.length} visible on website` : 'No projects yet';
-    const latest = state.workflows[0];
-    const workflowStatus = latest ? (latest.status === 'completed' ? latest.conclusion : latest.status) : 'Unavailable';
-    $('#metricWorkflow').textContent = workflowStatus;
-    $('#metricWorkflowDetail').textContent = latest ? formatRelativeTime(latest.created_at) : 'No recent runs';
+  function renderWelcome() {
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    $('#welcomeTitle').textContent = `${greeting}, ${state.user?.name?.split(' ')[0] || 'Nandakumar'}`;
   }
 
-  function renderDashboard() {
-    el.dashboardDate.textContent = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date());
-    const recent = allContent().sort(compareNewest).slice(0, 6);
-    el.recentContentList.innerHTML = recent.length ? recent.map((item) => contentRow(item, true)).join('') : emptyInline('No published content found.');
-    el.workflowList.innerHTML = state.workflows.length ? state.workflows.slice(0, 5).map(workflowRow).join('') : emptyInline('No workflow activity is available.');
+  function getAllContent() {
+    return [...state.posts, ...state.projects];
   }
 
-  function compareNewest(a, b) {
-    return String(b.date || '').localeCompare(String(a.date || '')) || String(a.title).localeCompare(String(b.title));
+  function renderRecentContent() {
+    const items = getAllContent()
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+      .slice(0, 6);
+    el.recentContentList.innerHTML = items.length ? items.map((item) => `
+      <button class="recent-item" type="button" data-edit-type="${item.type}" data-edit-slug="${escapeHtml(item.slug)}">
+        <img class="recent-thumb" src="../${escapeHtml(item.image || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+        <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category || 'Uncategorized')} · ${formatDate(item.date)}</small></span>
+        <span class="recent-type">${item.type === 'blog' ? 'Post' : 'Project'}</span>
+      </button>`).join('') : '<div class="empty-state"><p>No published content yet.</p></div>';
   }
 
-  function contentRow(item, compact = false) {
-    const image = item.image ? `../${escapeHtml(item.image)}` : '';
-    const thumb = image
-      ? `<img class="content-thumb" src="${image}" alt="" loading="lazy">`
-      : `<span class="content-thumb fallback"><svg><use href="#${item.type === 'blog' ? 'i-file' : 'i-briefcase'}"></use></svg></span>`;
-    const identity = `<div class="content-identity">${thumb}<div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category || '')}</small></div></div>`;
-    if (compact) {
-      return `<div class="content-row" data-type="${item.type}" data-slug="${escapeHtml(item.slug)}">${identity}<span class="type-chip ${item.type}">${item.type === 'blog' ? 'Blog post' : 'Project'}</span><span class="row-date">${formatDate(item.date)}</span></div>`;
+  function renderPipeline() {
+    const run = state.workflowRuns[0];
+    const orb = $('.pipeline-orb');
+    orb.className = 'pipeline-orb';
+    if (!run) {
+      $('#pipelineStatus strong').textContent = 'No workflow runs';
+      $('#pipelineStatus small').textContent = 'Publish content to start the pipeline.';
+      return;
     }
-    return `<div class="content-row" data-type="${item.type}" data-slug="${escapeHtml(item.slug)}">
-      ${identity}
-      <span class="type-chip ${item.type}">${item.type === 'blog' ? 'Blog post' : 'Project'}</span>
-      <span class="row-date">${formatDate(item.date)}</span>
-      <span class="status-chip live">Live</span>
-      <div class="row-actions">
-        <button class="icon-button" type="button" data-action="edit" title="Edit"><svg><use href="#i-edit"></use></svg></button>
-        <button class="icon-button" type="button" data-action="duplicate" title="Duplicate"><svg><use href="#i-copy"></use></svg></button>
-        <a class="icon-button" href="../${escapeHtml(item.url || '')}" target="_blank" rel="noopener noreferrer" title="Open live"><svg><use href="#i-external"></use></svg></a>
-        <button class="icon-button" type="button" data-action="unpublish" title="Unpublish"><svg><use href="#i-trash"></use></svg></button>
-      </div>
-    </div>`;
+    const running = run.status !== 'completed';
+    const success = run.conclusion === 'success';
+    orb.classList.add(running ? 'running' : success ? 'success' : 'failure');
+    orb.innerHTML = icon(running ? 'refresh' : success ? 'check' : 'alert');
+    $('#pipelineStatus strong').textContent = running ? 'Publishing in progress' : success ? 'Last publish succeeded' : 'Last publish failed';
+    $('#pipelineStatus small').textContent = `${run.name || 'GitHub Actions'} · ${relativeTime(run.updated_at || run.created_at)}`;
+    $('#pipelineBuildStep').classList.toggle('done', success || running);
+    $('#pipelineDeployStep').classList.toggle('done', success);
   }
 
-  function workflowRow(run) {
-    const statusClass = run.status !== 'completed' ? 'progress' : run.conclusion === 'success' ? 'success' : 'failure';
-    const label = run.display_title || run.name || 'Workflow run';
-    return `<a class="workflow-item" href="${escapeHtml(run.html_url || '#')}" target="_blank" rel="noopener noreferrer">
-      <span class="workflow-dot ${statusClass}"></span>
-      <div><strong>${escapeHtml(label)}</strong><small>${escapeHtml(run.name || 'GitHub Actions')}</small></div>
-      <time>${escapeHtml(formatRelativeTime(run.created_at))}</time>
-    </a>`;
+  function libraryItems() {
+    return state.libraryType === 'blog' ? state.posts : state.projects;
   }
 
-  function emptyInline(message) {
-    return `<div class="empty-inline">${escapeHtml(message)}</div>`;
+  function renderLibrary() {
+    const query = el.librarySearch.value.trim().toLowerCase();
+    const category = el.categoryFilter.value;
+    const sort = el.sortFilter.value;
+    let items = [...libraryItems()];
+    if (query) items = items.filter((item) => [item.title, item.category, item.summary, ...(item.tags || [])].join(' ').toLowerCase().includes(query));
+    if (category) items = items.filter((item) => item.category === category);
+    items.sort((a, b) => {
+      if (sort === 'title') return String(a.title).localeCompare(String(b.title));
+      if (sort === 'oldest') return String(a.date || '').localeCompare(String(b.date || ''));
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+
+    const categories = [...new Set(libraryItems().map((item) => item.category).filter(Boolean))].sort();
+    const previousCategory = el.categoryFilter.value;
+    el.categoryFilter.innerHTML = '<option value="">All categories</option>' + categories.map((value) => `<option${value === previousCategory ? ' selected' : ''}>${escapeHtml(value)}</option>`).join('');
+
+    el.contentTable.innerHTML = items.map((item) => `
+      <article class="content-row" data-content-type="${item.type}" data-content-slug="${escapeHtml(item.slug)}">
+        <div class="content-main">
+          <img src="../${escapeHtml(item.image || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+          <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml((item.summary || '').slice(0, 96))}</small></div>
+        </div>
+        <span class="content-category">${escapeHtml(item.category || 'Uncategorized')}</span>
+        <time class="content-date">${formatDate(item.date)}</time>
+        <span class="status-pill">Published</span>
+        <div class="row-menu-wrap">
+          <button class="icon-button row-menu-button" type="button" aria-label="Content actions">${icon('more')}</button>
+          <div class="row-menu" hidden>
+            <button type="button" data-row-action="edit">${icon('edit')}Edit</button>
+            <a href="../${escapeHtml(item.url || '')}" target="_blank" rel="noopener noreferrer">${icon('external')}Open page</a>
+            <button class="danger" type="button" data-row-action="delete">${icon('trash')}Delete</button>
+          </div>
+        </div>
+      </article>`).join('');
+    el.libraryEmpty.hidden = items.length > 0;
   }
 
-  function renderContentLibrary() {
-    const query = String(el.contentSearch.value || '').trim().toLowerCase();
-    let items = allContent();
-    if (state.contentFilter !== 'all') items = items.filter((item) => item.type === state.contentFilter);
-    if (query) {
-      items = items.filter((item) => [item.title, item.category, item.description, item.excerpt, ...(item.tags || []), ...(item.technologies || [])].join(' ').toLowerCase().includes(query));
+  function getCombinedMedia() {
+    const map = new Map();
+    for (const item of [...state.posts, ...state.projects]) {
+      if (!item.image) continue;
+      map.set(item.image, { path: item.image, name: item.image.split('/').pop(), source: 'Published content', used: true });
     }
-    const sort = el.contentSort.value;
-    if (sort === 'title') items.sort((a, b) => String(a.title).localeCompare(String(b.title)));
-    else if (sort === 'oldest') items.sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
-    else items.sort(compareNewest);
-    el.contentLibrary.innerHTML = items.length ? items.map((item) => contentRow(item)).join('') : `<div class="empty-state"><svg><use href="#i-search"></use></svg><h3>No matching content</h3><p>Try a different search or content filter.</p></div>`;
+    for (const item of state.media) {
+      if (!item.path) continue;
+      map.set(item.path, { ...item, source: item.source || 'Media library', used: map.has(item.path) });
+    }
+    return [...map.values()];
   }
 
-  function getDrafts() {
-    return readJsonStorage(DRAFT_KEY, []).sort((a, b) => String(b.savedAt).localeCompare(String(a.savedAt)));
+  function renderMedia() {
+    const media = getCombinedMedia();
+    el.mediaGrid.innerHTML = media.map((item) => `
+      <article class="media-card" data-media-path="${escapeHtml(item.path)}">
+        <div class="media-card-image"><img src="../${escapeHtml(item.path)}" alt="" loading="lazy"></div>
+        <div class="media-card-body"><div><strong>${escapeHtml(item.name || item.path.split('/').pop())}</strong><small>${escapeHtml(item.source || 'Media library')}</small></div><button class="icon-button" type="button" data-copy-media aria-label="Copy media path">${icon('copy')}</button></div>
+      </article>`).join('');
+    el.mediaEmpty.hidden = media.length > 0;
   }
 
   function renderDrafts() {
-    const drafts = getDrafts();
-    el.draftLibrary.innerHTML = drafts.length ? drafts.map((draft) => `
+    state.drafts.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    el.draftGrid.innerHTML = state.drafts.map((draft) => `
       <article class="draft-card" data-draft-id="${escapeHtml(draft.id)}">
-        <div class="draft-card-head"><span class="type-chip ${draft.type}">${draft.type === 'blog' ? 'Blog post' : 'Project'}</span><span class="status-chip draft">Draft</span></div>
-        <div><h4>${escapeHtml(draft.title || 'Untitled content')}</h4><p>${escapeHtml(draft.summary || 'No summary added yet.')}</p></div>
-        <div class="draft-card-footer"><span>Saved ${escapeHtml(formatRelativeTime(draft.savedAt))}</span><div><button class="icon-button small" type="button" data-action="edit-draft" title="Open draft"><svg><use href="#i-edit"></use></svg></button><button class="icon-button small" type="button" data-action="delete-draft" title="Delete draft"><svg><use href="#i-trash"></use></svg></button></div></div>
-      </article>`).join('') : `<div class="empty-state"><svg><use href="#i-save"></use></svg><h3>No saved drafts</h3><p>Start a post or project and it will autosave in this browser.</p></div>`;
+        <div class="draft-card-top"><span class="draft-kind">${draft.type === 'blog' ? 'Blog post' : 'Project'}</span><span>${icon('more')}</span></div>
+        <h3>${escapeHtml(draft.title || 'Untitled')}</h3>
+        <p>${escapeHtml((draft.excerpt || plainTextFromHtml(draft.content || '') || 'Empty draft').slice(0, 120))}</p>
+        <div class="draft-meta"><span>${relativeTime(draft.updatedAt)}</span><div class="draft-actions"><button type="button" data-draft-action="edit">Open</button><button class="danger" type="button" data-draft-action="delete">Delete</button></div></div>
+      </article>`).join('');
+    el.draftEmpty.hidden = state.drafts.length > 0;
+    $('#draftCountBadge').textContent = state.drafts.length;
+    $('#dashboardDraftCount').textContent = state.drafts.length;
   }
 
-  function navigate(view, options = {}) {
-    state.view = view;
-    $$('.app-view').forEach((section) => {
-      const active = section.id === `${view}View`;
-      section.hidden = !active;
-      section.classList.toggle('active-view', active);
-    });
-    $$('.nav-item').forEach((button) => button.classList.remove('active'));
-    const titles = {
-      dashboard: ['Workspace', 'Dashboard'],
-      content: ['Library', options.filter === 'blog' ? 'Blog posts' : options.filter === 'project' ? 'Projects' : 'All content'],
-      drafts: ['Library', 'Drafts'],
-      editor: ['Editor', state.editorType === 'blog' ? 'Blog post editor' : 'Project editor'],
-      media: ['Assets', 'Media library'],
-      settings: ['System', 'Settings']
-    };
-    const [eyebrow, title] = titles[view] || ['', 'Content Studio'];
-    el.pageEyebrow.textContent = eyebrow;
-    el.pageTitle.textContent = title;
-    if (view === 'content') {
-      state.contentFilter = options.filter || state.contentFilter || 'all';
-      $$('[data-content-filter]').forEach((button) => button.classList.toggle('active', button.dataset.contentFilter === state.contentFilter));
-      renderContentLibrary();
-      const navSelector = state.contentFilter === 'blog' ? '[data-view="content"][data-filter-type="blog"]' : state.contentFilter === 'project' ? '[data-view="content"][data-filter-type="project"]' : null;
-      if (navSelector) $(navSelector)?.classList.add('active');
-    } else if (view !== 'editor') {
-      $(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+  function switchView(view) {
+    if (view !== 'editor') state.previousView = view;
+    state.activeView = view;
+    $$('.app-view').forEach((panel) => panel.classList.remove('active'));
+    const panelName = ['posts', 'projects'].includes(view) ? 'library' : view;
+    $(`[data-view-panel="${panelName}"]`)?.classList.add('active');
+    $$('.nav-item[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === view));
+    const meta = {
+      dashboard: ['Overview', 'Manage your portfolio content.'],
+      posts: ['Blog posts', 'Create, edit and publish articles.'],
+      projects: ['Projects', 'Manage public portfolio projects.'],
+      media: ['Media', 'Browse and upload reusable images.'],
+      drafts: ['Drafts', 'Private drafts saved in this browser.'],
+      settings: ['Settings', 'GitHub connection and editor preferences.'],
+      editor: ['Editor', 'Create and publish content.']
+    }[view];
+    el.pageHeading.innerHTML = `<h1>${meta[0]}</h1><p>${meta[1]}</p>`;
+    if (view === 'posts' || view === 'projects') {
+      state.libraryType = view === 'posts' ? 'blog' : 'project';
+      el.librarySearch.value = '';
+      el.categoryFilter.value = '';
+      $('#libraryCreateButton span').textContent = state.libraryType === 'blog' ? 'New post' : 'New project';
+      renderLibrary();
     }
-    if (view === 'media') loadMedia();
-    if (view === 'drafts') renderDrafts();
     closeSidebar();
   }
 
   function openSidebar() {
     el.sidebar.classList.add('open');
-    el.sidebarBackdrop.hidden = false;
+    el.mobileScrim.hidden = false;
   }
 
   function closeSidebar() {
     el.sidebar.classList.remove('open');
-    el.sidebarBackdrop.hidden = true;
+    el.mobileScrim.hidden = true;
   }
 
-  function setEditorType(type, preserve = false) {
-    state.editorType = type;
-    $$('[data-editor-type]').forEach((button) => button.classList.toggle('active', button.dataset.editorType === type));
-    el.tagField.hidden = type !== 'blog';
-    el.technologyField.hidden = type !== 'project';
-    el.demoField.hidden = type !== 'project';
-    el.githubField.hidden = type !== 'project';
-    el.detailType.textContent = type === 'blog' ? 'Blog post' : 'Project';
-    el.editorModeLabel.textContent = state.editingItem ? `Editing ${type}` : `New ${type}`;
-    el.publishButton.querySelector('span').textContent = state.editingItem ? 'Update' : 'Publish';
+  function setEditorType(type, resetCategory = true) {
+    state.editor.type = type;
+    $$('#typeSwitch button').forEach((button) => button.classList.toggle('active', button.dataset.type === type));
+    el.projectFields.hidden = type !== 'project';
     const categories = type === 'blog' ? BLOG_CATEGORIES : PROJECT_CATEGORIES;
-    const previous = preserve ? el.categoryInput.value : '';
-    el.categoryInput.innerHTML = categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
-    if (previous && categories.includes(previous)) el.categoryInput.value = previous;
-    if (!preserve) {
-      el.summaryInput.placeholder = type === 'blog' ? 'Write a short description for cards and search results' : 'Describe what the project does and why it matters';
-    }
-    updateEditorDerived();
+    const current = el.editorCategory.value;
+    el.editorCategory.innerHTML = categories.map((category) => `<option>${escapeHtml(category)}</option>`).join('');
+    if (!resetCategory && categories.includes(current)) el.editorCategory.value = current;
+    $('.slug-field span').textContent = type === 'blog' ? '/blog/' : '/works/';
+    el.editorTags.placeholder = type === 'blog' ? 'engineering, design, learning' : 'HTML, CSS, JavaScript';
+    updateEditorMetrics();
   }
 
-  function resetEditor() {
-    clearTimeout(state.autosaveTimer);
-    state.editingItem = null;
-    state.originalSlug = '';
-    state.currentDraftId = crypto.randomUUID ? crypto.randomUUID() : `draft-${Date.now()}`;
+  function newEditor(type = 'blog') {
     state.coverFile = null;
-    state.coverDataUrl = '';
-    state.existingImage = '';
+    state.slugEdited = false;
     state.sourceMode = false;
-    el.contentForm.reset();
+    state.editor = {
+      id: `draft-${Date.now()}`,
+      type,
+      originalSlug: '',
+      existingImage: '',
+      existingUrl: '',
+      isPublished: false,
+      dirty: false
+    };
+    clearCoverPreview();
+    el.editorTitle.value = '';
+    el.editorExcerpt.value = '';
+    el.editorSlug.value = '';
+    el.editorDate.value = todayString();
+    el.editorTags.value = '';
+    el.editorDemoUrl.value = '';
+    el.editorGithubUrl.value = '';
+    el.editorAltText.value = '';
     el.richEditor.innerHTML = '';
     el.sourceEditor.value = '';
-    el.sourceEditor.hidden = true;
-    el.richEditor.hidden = false;
-    el.sourceToggle.classList.remove('active');
-    el.sourceToggle.textContent = 'HTML';
-    el.dateInput.value = new Date().toLocaleDateString('en-CA');
-    el.slugInput.disabled = false;
-    el.documentStateBadge.textContent = 'Draft';
-    el.editorDocumentTitle.textContent = 'Untitled content';
-    el.detailSaved.textContent = 'Not saved';
-    setCoverPreview('', '');
-    setEditorType('blog');
-    updateEditorDerived();
-  }
-
-  async function openEditor(type = 'blog', item = null, duplicate = false) {
-    resetEditor();
-    state.editingItem = duplicate ? null : item;
-    state.originalSlug = duplicate ? '' : item?.slug || '';
     setEditorType(type);
-    navigate('editor');
-    if (!item) {
-      el.editorModeLabel.textContent = `New ${type}`;
-      el.documentStateBadge.textContent = 'Draft';
-      return;
-    }
-    el.editorModeLabel.textContent = duplicate ? `Duplicate ${type}` : `Editing ${type}`;
-    el.documentStateBadge.textContent = duplicate ? 'Draft' : 'Live';
-    el.editorDocumentTitle.textContent = duplicate ? `${item.title} copy` : item.title;
-    showFloatingStatus('Loading source from GitHub…');
+    setSourceMode(false);
+    setEditorSaveState('New draft', 'Not saved yet', false);
+    switchView('editor');
+    setTimeout(() => el.editorTitle.focus(), 80);
+  }
+
+  async function editPublished(type, slug) {
+    const item = (type === 'blog' ? state.posts : state.projects).find((entry) => entry.slug === slug);
+    if (!item) return;
+    toast('Loading editor', item.title, 'success', 1600);
     try {
-      const source = await loadSourceDocument(item);
-      const parsed = parseSourceDocument(source, type, item);
-      const title = duplicate ? `${parsed.title || item.title} Copy` : parsed.title || item.title;
-      el.titleInput.value = title;
-      el.summaryInput.value = parsed.summary || item.excerpt || item.description || '';
-      el.slugInput.value = duplicate ? `${slugify(title)}-copy` : item.slug;
-      el.slugInput.disabled = !duplicate;
-      el.categoryInput.value = parsed.category || item.category || el.categoryInput.options[0]?.value;
-      el.dateInput.value = parsed.date || item.date || new Date().toLocaleDateString('en-CA');
-      el.tagsInput.value = (parsed.tags || item.tags || []).join(', ');
-      el.technologiesInput.value = (parsed.technologies || item.technologies || []).join(', ');
-      el.demoInput.value = parsed.demo || item.demo || '';
-      el.githubInput.value = parsed.github || item.github || '';
-      el.seoTitleInput.value = parsed.seoTitle || '';
-      el.seoDescriptionInput.value = parsed.seoDescription || '';
-      el.canonicalInput.value = parsed.canonical || '';
-      el.richEditor.innerHTML = parsed.content || '';
-      state.existingImage = parsed.image || item.image || '';
-      setCoverPreview(state.existingImage ? `../${state.existingImage}` : '', state.existingImage);
-      updateEditorDerived();
-      setAutosaveState('Loaded', true);
+      let values;
+      if (IS_LOCAL_DEMO) {
+        values = {
+          title: item.title,
+          excerpt: item.summary,
+          slug: item.slug,
+          category: item.category,
+          date: item.date || todayString(),
+          tags: (item.tags || []).join(', '),
+          content: `<h2>Overview</h2><p>${escapeHtml(item.summary || '')}</p><p>Continue editing this content in the studio.</p>`,
+          demo: item.demo || '',
+          github: item.github || '',
+          alt: item.title
+        };
+      } else if (item.url) {
+        const page = await readRepoText(item.url);
+        values = parsePublishedPage(page.text, type, item);
+      } else {
+        values = {
+          title: item.title,
+          excerpt: item.summary || item.description || '',
+          slug: item.slug,
+          category: item.category,
+          date: item.date || todayString(),
+          tags: (item.tags || item.technologies || []).join(', '),
+          content: item.summary || item.description
+            ? `<h2>Overview</h2><p>${escapeHtml(item.summary || item.description)}</p>`
+            : '<h2>Overview</h2><p></p>',
+          demo: item.demo || '',
+          github: item.github || '',
+          alt: item.title
+        };
+      }
+      state.coverFile = null;
+      state.slugEdited = true;
+      state.sourceMode = false;
+      state.editor = {
+        id: `${type}:${item.slug}`,
+        type,
+        originalSlug: item.slug,
+        existingImage: item.image || '',
+        existingUrl: item.url || '',
+        isPublished: true,
+        dirty: false
+      };
+      el.editorTitle.value = values.title;
+      el.editorExcerpt.value = values.excerpt;
+      el.editorSlug.value = values.slug;
+      el.editorDate.value = values.date || todayString();
+      el.editorTags.value = values.tags;
+      el.editorDemoUrl.value = values.demo;
+      el.editorGithubUrl.value = values.github;
+      el.editorAltText.value = values.alt || values.title;
+      el.richEditor.innerHTML = values.content;
+      el.sourceEditor.value = values.content;
+      setEditorType(type);
+      if ([...el.editorCategory.options].some((option) => option.value === values.category)) el.editorCategory.value = values.category;
+      setCoverPreview(`../${item.image}`, item.image);
+      setSourceMode(false);
+      setEditorSaveState('Published content', 'Loaded from GitHub', true);
+      switchView('editor');
+      updateEditorMetrics();
     } catch (error) {
-      showFloatingStatus(error.message, 'error');
+      toast('Unable to open content', error.message, 'error', 7000);
     }
   }
 
-  async function loadSourceDocument(item) {
-    if (IS_LOCAL_DEMO && !state.token) {
-      const response = await fetch(`../${item.url}`);
-      if (!response.ok) return '';
-      return response.text();
+  function parsePublishedPage(html, type, fallback) {
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    const meta = (name) => parsed.querySelector(`meta[name="${name}"]`)?.content || '';
+    const prefix = type === 'blog' ? 'post' : 'project';
+    const contentNode = parsed.querySelector('.article-content');
+    let content = contentNode?.innerHTML.trim() || '';
+    const excerpt = type === 'blog' ? meta('post-excerpt') || fallback.excerpt : meta('project-description') || fallback.description;
+    if (type === 'project' && contentNode?.firstElementChild?.tagName === 'P' && contentNode.firstElementChild.textContent.trim() === excerpt.trim()) {
+      contentNode.firstElementChild.remove();
+      content = contentNode.innerHTML.trim();
     }
-    const file = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/contents/${encodePath(item.url)}?ref=${encodeURIComponent(BRANCH)}`);
-    return decodeBase64Utf8(file.content);
-  }
-
-  function encodePath(value) {
-    return String(value).split('/').map(encodeURIComponent).join('/');
-  }
-
-  function parseSourceDocument(html, type, fallback) {
-    if (!html) return { title: fallback.title, summary: fallback.excerpt || fallback.description, content: '' };
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const meta = (name) => doc.querySelector(`meta[name="${name}"]`)?.getAttribute('content') || '';
-    const root = doc.querySelector('.article-content')?.cloneNode(true);
-    if (type === 'project' && root?.firstElementChild?.tagName === 'P') {
-      const firstText = root.firstElementChild.textContent.trim();
-      const description = meta('project-description') || fallback.description || '';
-      if (firstText === description.trim()) root.firstElementChild.remove();
-    }
-    return type === 'blog' ? {
-      title: meta('post-title') || fallback.title,
-      category: meta('post-category') || fallback.category,
-      date: meta('post-date') || fallback.date,
-      summary: meta('post-excerpt') || fallback.excerpt,
-      tags: parseList(meta('post-tags')),
-      image: normalizeImageMetadata(meta('post-image'), 'blog', fallback.slug),
-      seoTitle: doc.querySelector('meta[property="og:title"]')?.content || '',
-      seoDescription: doc.querySelector('meta[name="description"]')?.content || '',
-      canonical: doc.querySelector('link[rel="canonical"]')?.href || '',
-      content: root?.innerHTML.trim() || ''
-    } : {
-      title: meta('project-title') || fallback.title,
-      category: meta('project-category') || fallback.category,
-      date: meta('project-date') || fallback.date,
-      summary: meta('project-description') || fallback.description,
-      technologies: parseList(meta('project-technologies')),
-      image: normalizeImageMetadata(meta('project-image'), 'project', fallback.slug),
+    return {
+      title: meta(`${prefix}-title`) || fallback.title,
+      slug: meta(`${prefix}-slug`) || fallback.slug,
+      category: meta(`${prefix}-category`) || fallback.category,
+      date: meta(`${prefix}-date`) || fallback.date || todayString(),
+      excerpt,
+      tags: meta(type === 'blog' ? 'post-tags' : 'project-technologies') || (fallback.tags || []).join(', '),
+      content,
       demo: meta('project-demo') || fallback.demo || '',
       github: meta('project-github') || fallback.github || '',
-      seoTitle: doc.querySelector('meta[property="og:title"]')?.content || '',
-      seoDescription: doc.querySelector('meta[name="description"]')?.content || '',
-      canonical: doc.querySelector('link[rel="canonical"]')?.href || '',
-      content: root?.innerHTML.trim() || ''
+      alt: parsed.querySelector('.article-image')?.alt || fallback.title
     };
-  }
-
-  function normalizeImageMetadata(value, type, slug) {
-    if (!value) return '';
-    if (value.startsWith('assets/')) return value;
-    return `assets/images/${type === 'blog' ? 'blog' : 'works'}/${value || `${slug}.jpg`}`;
-  }
-
-  function collectEditorValues() {
-    if (state.sourceMode) el.richEditor.innerHTML = el.sourceEditor.value;
-    return {
-      title: el.titleInput.value.trim(),
-      slug: slugify(el.slugInput.value || el.titleInput.value),
-      summary: el.summaryInput.value.trim(),
-      category: el.categoryInput.value,
-      date: el.dateInput.value,
-      tags: el.tagsInput.value.trim(),
-      technologies: el.technologiesInput.value.trim(),
-      demo: el.demoInput.value.trim(),
-      github: el.githubInput.value.trim(),
-      seoTitle: el.seoTitleInput.value.trim(),
-      seoDescription: el.seoDescriptionInput.value.trim(),
-      canonical: el.canonicalInput.value.trim(),
-      content: sanitizeContent(el.richEditor.innerHTML)
-    };
-  }
-
-  function validateEditor(requireCover = true) {
-    const values = collectEditorValues();
-    if (!values.title) throw new Error('Add a title.');
-    if (!values.slug) throw new Error('Add a valid URL slug.');
-    if (!values.summary) throw new Error(state.editorType === 'blog' ? 'Add an excerpt.' : 'Add a project summary.');
-    if (!values.category) throw new Error('Choose a category.');
-    if (!values.date) throw new Error('Choose a publication date.');
-    if (!values.content || !stripHtml(values.content)) throw new Error('Write the page content before publishing.');
-    if (requireCover && !state.coverFile && !state.existingImage) throw new Error('Add a cover image.');
-    if (state.coverFile && state.coverFile.size > MAX_IMAGE_BYTES) throw new Error('The cover image must be smaller than 8 MB.');
-    return values;
-  }
-
-  function sanitizeContent(html) {
-    const documentValue = new DOMParser().parseFromString(`<div id="content-root">${html}</div>`, 'text/html');
-    const root = documentValue.querySelector('#content-root');
-    root.querySelectorAll('script, iframe, object, embed, form, input, button, style, link').forEach((node) => node.remove());
-    root.querySelectorAll('*').forEach((node) => {
-      [...node.attributes].forEach((attribute) => {
-        const name = attribute.name.toLowerCase();
-        const value = attribute.value.trim().toLowerCase();
-        if (name.startsWith('on') || value.startsWith('javascript:') || name === 'style') node.removeAttribute(attribute.name);
-      });
-      if (node.tagName === 'A') {
-        node.setAttribute('rel', 'noopener noreferrer');
-        if (/^https?:/i.test(node.getAttribute('href') || '')) node.setAttribute('target', '_blank');
-      }
-    });
-    return root.innerHTML.trim();
-  }
-
-  function stripHtml(html) {
-    return new DOMParser().parseFromString(html, 'text/html').body.textContent.replace(/\s+/g, ' ').trim();
-  }
-
-  function updateEditorDerived() {
-    const title = el.titleInput.value.trim();
-    if (!state.editingItem && el.slugInput.dataset.manual !== 'true') el.slugInput.value = slugify(title);
-    el.editorDocumentTitle.textContent = title || `Untitled ${state.editorType === 'blog' ? 'blog post' : 'project'}`;
-    const text = stripHtml(state.sourceMode ? el.sourceEditor.value : el.richEditor.innerHTML);
-    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-    el.wordCount.textContent = `${words} word${words === 1 ? '' : 's'}`;
-    el.readTime.textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
-    el.characterCount.textContent = `${text.length} characters`;
-    el.seoPreviewTitle.textContent = el.seoTitleInput.value.trim() || title || 'Untitled content';
-    el.seoPreviewDescription.textContent = el.seoDescriptionInput.value.trim() || el.summaryInput.value.trim() || 'Add a summary to preview the search result description.';
-    el.detailCover.textContent = state.coverFile ? 'New image' : state.existingImage ? 'Existing image' : 'Required';
-    el.previewUrl.textContent = `nandakumarm.dpdns.org/${state.editorType === 'blog' ? 'blog' : 'works'}/${el.slugInput.value || 'untitled'}.html`;
-    scheduleAutosave();
-  }
-
-  function scheduleAutosave() {
-    if (state.view !== 'editor') return;
-    clearTimeout(state.autosaveTimer);
-    setAutosaveState('Saving…');
-    state.autosaveTimer = setTimeout(() => saveDraft(false), 900);
-  }
-
-  function setAutosaveState(label, saved = false) {
-    el.autosaveStatus.innerHTML = `<svg><use href="#${saved ? 'i-check' : 'i-refresh'}"></use></svg>${escapeHtml(label)}`;
-  }
-
-  function saveDraft(showMessage = true) {
-    try {
-      const values = collectEditorValues();
-      if (!values.title && !values.summary && !stripHtml(values.content)) {
-        setAutosaveState('Not saved');
-        return;
-      }
-      const drafts = getDrafts().filter((draft) => draft.id !== state.currentDraftId);
-      const draft = {
-        id: state.currentDraftId,
-        type: state.editorType,
-        title: values.title,
-        slug: values.slug,
-        summary: values.summary,
-        category: values.category,
-        date: values.date,
-        tags: values.tags,
-        technologies: values.technologies,
-        demo: values.demo,
-        github: values.github,
-        seoTitle: values.seoTitle,
-        seoDescription: values.seoDescription,
-        canonical: values.canonical,
-        content: values.content,
-        existingImage: state.existingImage,
-        originalSlug: state.originalSlug,
-        editingItem: state.editingItem,
-        savedAt: new Date().toISOString()
-      };
-      drafts.unshift(draft);
-      writeJsonStorage(DRAFT_KEY, drafts.slice(0, 30));
-      el.detailSaved.textContent = 'Just now';
-      setAutosaveState('Saved', true);
-      renderCounts();
-      if (showMessage) toast('Draft saved', 'Stored in this browser.');
-    } catch (error) {
-      setAutosaveState('Save failed');
-      if (showMessage) toast('Draft not saved', error.message, 'error');
-    }
   }
 
   function openDraft(id) {
-    const draft = getDrafts().find((item) => item.id === id);
+    const draft = state.drafts.find((item) => item.id === id);
     if (!draft) return;
-    resetEditor();
-    state.currentDraftId = draft.id;
-    state.editingItem = draft.editingItem || null;
-    state.originalSlug = draft.originalSlug || '';
-    state.existingImage = draft.existingImage || '';
-    setEditorType(draft.type);
-    el.titleInput.value = draft.title || '';
-    el.slugInput.value = draft.slug || '';
-    el.slugInput.disabled = Boolean(state.editingItem && !draft.slug?.endsWith('-copy'));
-    el.summaryInput.value = draft.summary || '';
-    el.categoryInput.value = draft.category || el.categoryInput.options[0]?.value;
-    el.dateInput.value = draft.date || new Date().toLocaleDateString('en-CA');
-    el.tagsInput.value = draft.tags || '';
-    el.technologiesInput.value = draft.technologies || '';
-    el.demoInput.value = draft.demo || '';
-    el.githubInput.value = draft.github || '';
-    el.seoTitleInput.value = draft.seoTitle || '';
-    el.seoDescriptionInput.value = draft.seoDescription || '';
-    el.canonicalInput.value = draft.canonical || '';
+    state.coverFile = null;
+    state.slugEdited = Boolean(draft.slug);
+    state.sourceMode = false;
+    state.editor = {
+      id: draft.id,
+      type: draft.type,
+      originalSlug: draft.originalSlug || '',
+      existingImage: draft.existingImage || '',
+      existingUrl: draft.existingUrl || '',
+      isPublished: Boolean(draft.isPublished),
+      dirty: false
+    };
+    el.editorTitle.value = draft.title || '';
+    el.editorExcerpt.value = draft.excerpt || '';
+    el.editorSlug.value = draft.slug || '';
+    el.editorDate.value = draft.date || todayString();
+    el.editorTags.value = draft.tags || '';
+    el.editorDemoUrl.value = draft.demo || '';
+    el.editorGithubUrl.value = draft.github || '';
+    el.editorAltText.value = draft.alt || '';
     el.richEditor.innerHTML = draft.content || '';
-    setCoverPreview(state.existingImage ? `../${state.existingImage}` : '', state.existingImage);
-    el.documentStateBadge.textContent = state.editingItem ? 'Live edit' : 'Draft';
-    navigate('editor');
-    updateEditorDerived();
-    setAutosaveState('Loaded', true);
+    el.sourceEditor.value = draft.content || '';
+    setEditorType(draft.type);
+    if ([...el.editorCategory.options].some((option) => option.value === draft.category)) el.editorCategory.value = draft.category;
+    if (draft.existingImage) setCoverPreview(`../${draft.existingImage}`, draft.existingImage); else clearCoverPreview();
+    setSourceMode(false);
+    setEditorSaveState('Saved draft', `Saved ${relativeTime(draft.updatedAt)}`, true);
+    switchView('editor');
+    updateEditorMetrics();
   }
 
-  function deleteDraft(id) {
-    writeJsonStorage(DRAFT_KEY, getDrafts().filter((draft) => draft.id !== id));
+  function serializeEditor() {
+    if (!state.editor) return null;
+    return {
+      id: state.editor.id,
+      type: state.editor.type,
+      originalSlug: state.editor.originalSlug,
+      existingImage: state.editor.existingImage,
+      existingUrl: state.editor.existingUrl,
+      isPublished: state.editor.isPublished,
+      title: el.editorTitle.value.trim(),
+      excerpt: el.editorExcerpt.value.trim(),
+      slug: slugify(el.editorSlug.value || el.editorTitle.value),
+      category: el.editorCategory.value,
+      date: el.editorDate.value,
+      tags: el.editorTags.value.trim(),
+      content: getEditorContent(),
+      demo: el.editorDemoUrl.value.trim(),
+      github: el.editorGithubUrl.value.trim(),
+      alt: el.editorAltText.value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function saveCurrentDraft(manual = false) {
+    if (!state.editor || state.activeView !== 'editor') return;
+    const draft = serializeEditor();
+    const hasContent = draft.title || draft.excerpt || plainTextFromHtml(draft.content);
+    if (!hasContent) {
+      if (manual) toast('Nothing to save', 'Add a title or some content first.', 'error');
+      return;
+    }
+    const index = state.drafts.findIndex((item) => item.id === draft.id);
+    if (index >= 0) state.drafts[index] = draft; else state.drafts.unshift(draft);
+    saveLocalJson(DRAFT_KEY, state.drafts);
+    state.editor.dirty = false;
+    setEditorSaveState('Draft saved', `Saved ${relativeTime(draft.updatedAt)}`, true);
     renderDrafts();
-    renderCounts();
-    toast('Draft deleted');
+    if (manual) toast('Draft saved', 'Stored privately in this browser.');
+  }
+
+  function removeDraft(id) {
+    state.drafts = state.drafts.filter((draft) => draft.id !== id);
+    saveLocalJson(DRAFT_KEY, state.drafts);
+    renderDrafts();
+  }
+
+  function startAutosaveLoop() {
+    clearInterval(state.autosaveTimer);
+    state.autosaveTimer = setInterval(() => {
+      if (state.preferences.autosave && state.editor?.dirty && state.activeView === 'editor') saveCurrentDraft(false);
+    }, 5000);
+  }
+
+  function markEditorDirty() {
+    if (!state.editor) return;
+    state.editor.dirty = true;
+    setEditorSaveState(state.editor.isPublished ? 'Unsaved changes' : 'Editing draft', 'Autosave pending', false);
+    updateEditorMetrics();
+  }
+
+  function setEditorSaveState(title, subtitle, saved) {
+    $('#editorStateLabel').textContent = title;
+    $('#autosaveLabel').textContent = subtitle;
+    $('#editorStatusDot').classList.toggle('saved', saved);
+  }
+
+  function getEditorContent() {
+    return sanitizeContent(state.sourceMode ? el.sourceEditor.value : el.richEditor.innerHTML);
+  }
+
+  function setSourceMode(enabled) {
+    state.sourceMode = enabled;
+    $('#sourceModeButton').classList.toggle('active', enabled);
+    if (enabled) {
+      el.sourceEditor.value = sanitizeContent(el.richEditor.innerHTML);
+      el.sourceEditor.hidden = false;
+      el.richEditor.hidden = true;
+    } else {
+      if (!el.sourceEditor.hidden) el.richEditor.innerHTML = sanitizeContent(el.sourceEditor.value);
+      el.sourceEditor.hidden = true;
+      el.richEditor.hidden = false;
+    }
+    updateEditorMetrics();
+  }
+
+  function autoResizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 44), 180)}px`;
+  }
+
+  function updateEditorMetrics() {
+    if (!state.editor) return;
+    const content = getEditorContent();
+    const text = plainTextFromHtml(content);
+    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+    const chars = text.length;
+    $('#wordCount').textContent = `${words} word${words === 1 ? '' : 's'}`;
+    $('#readTime').textContent = `${Math.max(1, Math.ceil(words / 200))} min read`;
+    $('#characterCount').textContent = `${chars} character${chars === 1 ? '' : 's'}`;
+    const slug = slugify(el.editorSlug.value || el.editorTitle.value) || 'untitled';
+    const folder = state.editor.type === 'blog' ? 'blog' : 'works';
+    $('#seoPreviewTitle').textContent = `${el.editorTitle.value.trim() || 'Untitled'} | Nandakumar M`;
+    $('#seoPreviewUrl').textContent = `nandakumarm.dpdns.org/${folder}/${slug}.html`;
+    $('#seoPreviewDescription').textContent = el.editorExcerpt.value.trim() || 'Add a summary to preview the search description.';
+    $('#publishDestination').textContent = `${folder}/${slug}.html`;
+    $('.slug-field span').textContent = `/${folder}/`;
+    updateSeoScore(words);
+    updatePublishReadiness();
+    autoResizeTextarea(el.editorTitle);
+    autoResizeTextarea(el.editorExcerpt);
+  }
+
+  function updateSeoScore(words) {
+    const title = el.editorTitle.value.trim();
+    const excerpt = el.editorExcerpt.value.trim();
+    const slug = slugify(el.editorSlug.value);
+    const checks = [
+      { pass: title.length >= 20 && title.length <= 65, text: 'Title is between 20 and 65 characters.' },
+      { pass: excerpt.length >= 80 && excerpt.length <= 180, text: 'Summary is between 80 and 180 characters.' },
+      { pass: Boolean(slug) && slug.length <= 70, text: 'URL slug is clear and readable.' },
+      { pass: words >= 150, text: 'Content contains at least 150 words.' },
+      { pass: Boolean(state.coverFile || state.editor.existingImage), text: 'A cover image is selected.' },
+      { pass: Boolean(el.editorAltText.value.trim()), text: 'Cover image has alternative text.' }
+    ];
+    const score = Math.round((checks.filter((check) => check.pass).length / checks.length) * 100);
+    $('#seoScore').textContent = score;
+    $('.score-ring').style.setProperty('--score', `${score}%`);
+    $('#seoLabel').textContent = score >= 85 ? 'Excellent' : score >= 65 ? 'Good foundation' : 'Needs work';
+    $('#seoSummary').textContent = score >= 85 ? 'Ready for search and social sharing.' : 'Complete the remaining checks.';
+    $('#seoChecklist').innerHTML = checks.map((check) => `<li class="${check.pass ? 'pass' : ''}"><span>${icon(check.pass ? 'check' : 'close')}</span>${escapeHtml(check.text)}</li>`).join('');
+  }
+
+  function validateEditor(showMessage = false) {
+    const content = getEditorContent();
+    const values = serializeEditor();
+    const errors = [];
+    if (!values.title) errors.push('Add a title.');
+    if (!values.slug) errors.push('Add a valid URL slug.');
+    if (!values.category) errors.push('Choose a category.');
+    if (!values.date) errors.push('Choose a publication date.');
+    if (!values.excerpt) errors.push(state.editor.type === 'blog' ? 'Add a post summary.' : 'Add a project summary.');
+    if (!plainTextFromHtml(content)) errors.push('Add page content.');
+    if (!state.coverFile && !state.editor.existingImage) errors.push('Add a cover image.');
+    if (state.coverFile && state.coverFile.size > MAX_IMAGE_BYTES) errors.push('Cover image must be smaller than 8 MB.');
+    if (showMessage && errors.length) toast('Content is not ready', errors[0], 'error');
+    return { valid: errors.length === 0, errors, values: { ...values, content } };
+  }
+
+  function updatePublishReadiness() {
+    const result = validateEditor(false);
+    const box = $('.publish-check');
+    box.classList.toggle('ready', result.valid);
+    $('#publishReadyIcon').innerHTML = icon(result.valid ? 'check' : 'alert');
+    $('#publishReadyTitle').textContent = result.valid ? 'Ready to publish' : 'Complete required fields';
+    $('#publishReadyText').textContent = result.valid ? 'All required content and media are present.' : result.errors[0] || 'The studio will check your content before publishing.';
+  }
+
+  async function setCoverFile(file) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast('Invalid image', 'Choose a JPG, PNG, WebP or GIF file.', 'error');
+    if (file.size > MAX_IMAGE_BYTES) return toast('Image is too large', 'The maximum cover image size is 8 MB.', 'error');
+    state.coverFile = file;
+    if (state.coverObjectUrl) URL.revokeObjectURL(state.coverObjectUrl);
+    state.coverObjectUrl = URL.createObjectURL(file);
+    setCoverPreview(state.coverObjectUrl, 'New upload');
+    if (!el.editorAltText.value.trim()) el.editorAltText.value = el.editorTitle.value.trim();
+    markEditorDirty();
   }
 
   function setCoverPreview(src, label = '') {
-    if (src) {
-      el.coverPreview.src = src;
-      el.coverPreview.hidden = false;
-      el.coverPlaceholder.hidden = true;
-      el.coverActions.hidden = false;
-      el.coverPreview.alt = label ? `Cover preview: ${label}` : 'Cover preview';
-    } else {
-      el.coverPreview.removeAttribute('src');
-      el.coverPreview.hidden = true;
-      el.coverPlaceholder.hidden = false;
-      el.coverActions.hidden = true;
-      el.coverPreview.alt = '';
-    }
-    updateEditorDerived();
+    el.coverPreview.src = src;
+    el.coverPreview.hidden = false;
+    el.coverPlaceholder.hidden = true;
+    el.coverOverlay.hidden = false;
+    el.coverDropzone.dataset.imagePath = label;
   }
 
-  function selectCover(file) {
-    if (!file) return;
-    if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
-      toast('Unsupported image', 'Use PNG, JPG, WebP or GIF.', 'error');
-      return;
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      toast('Image is too large', 'Use an image smaller than 8 MB.', 'error');
-      return;
-    }
-    state.coverFile = file;
-    const reader = new FileReader();
-    reader.onload = () => {
-      state.coverDataUrl = String(reader.result);
-      setCoverPreview(state.coverDataUrl, file.name);
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function clearCover() {
-    state.coverFile = null;
-    state.coverDataUrl = '';
-    state.existingImage = '';
-    el.coverInput.value = '';
-    setCoverPreview('', '');
-  }
-
-  function imageExtension(file) {
-    const map = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
-    return map[file.type] || slugify(file.name.split('.').pop()) || 'jpg';
-  }
-
-  function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error('Unable to read the selected image.'));
-      reader.onload = () => resolve(String(reader.result).split(',')[1]);
-      reader.readAsDataURL(file);
-    });
+  function clearCoverPreview() {
+    if (state.coverObjectUrl) URL.revokeObjectURL(state.coverObjectUrl);
+    state.coverObjectUrl = '';
+    el.coverPreview.removeAttribute('src');
+    el.coverPreview.hidden = true;
+    el.coverPlaceholder.hidden = false;
+    el.coverOverlay.hidden = true;
+    delete el.coverDropzone.dataset.imagePath;
   }
 
   function siteHeader(active) {
     const item = (href, label, key) => `<a${active === key ? ' class="active" aria-current="page"' : ''} href="${href}">${label}</a>`;
-    return `<header class="site-header glass">
-      <a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation">${item('../index.html', 'Home', 'home')}${item('../projects.html', 'Projects', 'projects')}${item('../blog.html', 'Blog', 'blog')}${item('../about.html', 'About', 'about')}</nav>
-      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
-    </header>`;
+    return `<header class="site-header glass"><a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a><button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" aria-label="Main navigation">${item('../index.html','Home','home')}${item('../projects.html','Projects','projects')}${item('../blog.html','Blog','blog')}${item('../about.html','About','about')}</nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>`;
   }
 
   function siteFooter() {
     return `<footer class="site-footer"><p>&copy; <span data-year></span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>`;
   }
 
-  function documentShell({ title, description, metadata, canonical, active, body }) {
-    const safeTitle = escapeHtml(title);
-    const safeDescription = escapeHtml(description);
+  function jsonLd(value) {
+    return JSON.stringify(value).replace(/</g, '\\u003c');
+  }
+
+  function documentShell({ title, description, metadata, active, body, canonical, image, schema }) {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="${safeDescription}">
+  <meta name="description" content="${escapeHtml(description)}">
   <meta name="author" content="Nandakumar M">
-  <meta property="og:title" content="${safeTitle}">
-  <meta property="og:description" content="${safeDescription}">
+  <link rel="canonical" href="${escapeHtml(canonical)}">
   <meta property="og:type" content="article">
-  ${canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}">` : ''}
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:url" content="${escapeHtml(canonical)}">
+  <meta property="og:image" content="${escapeHtml(image)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(title)}">
+  <meta name="twitter:description" content="${escapeHtml(description)}">
+  <meta name="twitter:image" content="${escapeHtml(image)}">
 ${metadata}
-  <title>${safeTitle} | Nandakumar M</title>
+  <script type="application/ld+json">${jsonLd(schema)}</script>
+  <title>${escapeHtml(title)} | Nandakumar M</title>
   <link rel="icon" href="../assets/images/logo.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
   <link rel="stylesheet" href="../assets/css/animations.css">
   <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-  <div class="site-shell">${siteHeader(active)}<main>${body}</main>${siteFooter()}</div>
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <div class="site-shell">
+    ${siteHeader(active)}
+    <main>${body}</main>
+    ${siteFooter()}
+  </div>
   <script src="../assets/js/theme.js"></script>
   <script src="../assets/js/main.js"></script>
 </body>
 </html>`;
   }
 
-  function buildDocument(values, imageMeta, pageImageSrc) {
-    const seoTitle = values.seoTitle || values.title;
-    const seoDescription = values.seoDescription || values.summary;
+  function buildContentDocument(values, imageMeta, imageDisplaySrc) {
+    const type = state.editor.type;
+    const isBlog = type === 'blog';
+    const folder = isBlog ? 'blog' : 'works';
+    const canonical = `${CONFIG.siteUrl}/${folder}/${values.slug}.html`;
+    const publicImage = imageMeta.startsWith('assets/') ? `${CONFIG.siteUrl}/${imageMeta}` : `${CONFIG.siteUrl}/assets/images/${isBlog ? 'blog' : 'works'}/${imageMeta}`;
+    const tags = values.tags.split(',').map((item) => item.trim()).filter(Boolean);
     const content = sanitizeContent(values.content);
-    if (state.editorType === 'blog') {
-      const metadata = `  <meta name="post-title" content="${escapeHtml(values.title)}">
+    const metadata = isBlog ? `  <meta name="post-title" content="${escapeHtml(values.title)}">
   <meta name="post-slug" content="${escapeHtml(values.slug)}">
   <meta name="post-category" content="${escapeHtml(values.category)}">
   <meta name="post-date" content="${escapeHtml(values.date)}">
-  <meta name="post-excerpt" content="${escapeHtml(values.summary)}">
-  <meta name="post-tags" content="${escapeHtml(values.tags || '')}">
-  <meta name="post-image" content="${escapeHtml(imageMeta)}">`;
-      const body = `<article class="blog-article">
-        <header class="article-header"><p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span></div><img src="${escapeHtml(pageImageSrc)}" alt="${escapeHtml(values.title)}" class="article-image"></header>
-        <div class="article-content">${content}</div>
-        <footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
-      </article>`;
-      return documentShell({ title: seoTitle, description: seoDescription, metadata, canonical: values.canonical, active: 'blog', body });
-    }
-    const buttons = [
-      values.demo ? `<a class="btn primary" href="${escapeHtml(values.demo)}" target="_blank" rel="noopener noreferrer">Open live project</a>` : '',
-      values.github ? `<a class="btn ghost" href="${escapeHtml(values.github)}" target="_blank" rel="noopener noreferrer">View source</a>` : ''
-    ].filter(Boolean).join('');
-    const metadata = `  <meta name="project-title" content="${escapeHtml(values.title)}">
+  <meta name="post-excerpt" content="${escapeHtml(values.excerpt)}">
+  <meta name="post-tags" content="${escapeHtml(values.tags)}">
+  <meta name="post-image" content="${escapeHtml(imageMeta)}">` : `  <meta name="project-title" content="${escapeHtml(values.title)}">
   <meta name="project-slug" content="${escapeHtml(values.slug)}">
   <meta name="project-category" content="${escapeHtml(values.category)}">
   <meta name="project-date" content="${escapeHtml(values.date)}">
-  <meta name="project-description" content="${escapeHtml(values.summary)}">
-  <meta name="project-technologies" content="${escapeHtml(values.technologies || '')}">
+  <meta name="project-description" content="${escapeHtml(values.excerpt)}">
+  <meta name="project-technologies" content="${escapeHtml(values.tags)}">
   <meta name="project-image" content="${escapeHtml(imageMeta)}">
   <meta name="project-demo" content="${escapeHtml(values.demo || '')}">
   <meta name="project-github" content="${escapeHtml(values.github || '')}">`;
-    const body = `<article class="blog-article">
-      <header class="article-header"><p class="eyebrow"><a href="../projects.html">← Back to Projects</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span></div><img src="${escapeHtml(pageImageSrc)}" alt="${escapeHtml(values.title)}" class="article-image"></header>
-      <div class="article-content"><p>${escapeHtml(values.summary)}</p>${content}</div>
-      ${buttons ? `<footer class="article-footer"><div class="button-row">${buttons}</div></footer>` : ''}
-    </article>`;
-    return documentShell({ title: seoTitle, description: seoDescription, metadata, canonical: values.canonical, active: 'projects', body });
+    const buttons = !isBlog ? [
+      values.demo ? `<a class="btn primary" href="${escapeHtml(values.demo)}" target="_blank" rel="noopener noreferrer">Open live project</a>` : '',
+      values.github ? `<a class="btn ghost" href="${escapeHtml(values.github)}" target="_blank" rel="noopener noreferrer">View source</a>` : ''
+    ].filter(Boolean).join('') : '';
+    const body = `<article class="blog-article"><header class="article-header"><p class="eyebrow"><a href="../${isBlog ? 'blog' : 'projects'}.html">← Back to ${isBlog ? 'Blog' : 'Projects'}</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span><span>${Math.max(1, Math.ceil(plainTextFromHtml(content).split(/\s+/).filter(Boolean).length / 200))} min read</span></div><img src="${escapeHtml(imageDisplaySrc)}" alt="${escapeHtml(values.alt || values.title)}" class="article-image"></header><div class="article-content">${!isBlog ? `<p>${escapeHtml(values.excerpt)}</p>` : ''}${content}</div>${tags.length ? `<div class="article-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>` : ''}<footer class="article-footer">${buttons ? `<div class="button-row">${buttons}</div>` : `<a class="btn ghost" href="../blog.html">← Back to all posts</a>`}</footer></article>`;
+    const schema = isBlog ? {
+      '@context': 'https://schema.org', '@type': 'BlogPosting', headline: values.title, description: values.excerpt, datePublished: values.date, dateModified: values.date, image: [publicImage], author: { '@type': 'Person', name: 'Nandakumar M', url: CONFIG.siteUrl }, mainEntityOfPage: canonical, keywords: tags.join(', ')
+    } : {
+      '@context': 'https://schema.org', '@type': 'CreativeWork', name: values.title, description: values.excerpt, datePublished: values.date, image: publicImage, author: { '@type': 'Person', name: 'Nandakumar M', url: CONFIG.siteUrl }, url: canonical, keywords: tags.join(', ')
+    };
+    return documentShell({ title: values.title, description: values.excerpt, metadata, active: isBlog ? 'blog' : 'projects', body, canonical, image: publicImage, schema });
   }
 
-  function previewDocument() {
-    try {
-      const values = validateEditor(false);
-      const folder = state.editorType === 'blog' ? 'blog' : 'works';
-      let imageMeta = state.existingImage;
-      let pageImageSrc = state.existingImage ? `../${state.existingImage}` : '';
-      if (state.coverFile) {
-        const imageName = `${values.slug}.${imageExtension(state.coverFile)}`;
-        imageMeta = imageName;
-        pageImageSrc = state.coverDataUrl;
-      }
-      if (!pageImageSrc) pageImageSrc = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"><rect width="100%" height="100%" fill="#122338"/></svg>');
-      const html = buildDocument(values, imageMeta || `assets/images/${folder}/${values.slug}.jpg`, pageImageSrc);
-      el.previewFrame.srcdoc = html;
-      if (!el.previewDialog.open) el.previewDialog.showModal();
-    } catch (error) {
-      showFloatingStatus(error.message, 'error');
-    }
+  async function previewCurrent() {
+    const result = validateEditor(true);
+    if (!result.valid) return;
+    const imageMeta = state.coverFile ? `${result.values.slug}.${imageExtension(state.coverFile)}` : state.editor.existingImage;
+    const imageSrc = state.coverFile ? await fileToDataUrl(state.coverFile) : `../${state.editor.existingImage}`;
+    el.previewFrame.srcdoc = buildContentDocument(result.values, imageMeta, imageSrc);
+    el.previewFrame.classList.remove('mobile');
+    $$('.preview-controls [data-preview-size]').forEach((button) => button.classList.toggle('active', button.dataset.previewSize === 'desktop'));
+    openModal(el.previewModal);
   }
 
-  async function commitChanges(changes, message, attempt = 0) {
-    const reference = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/git/ref/heads/${encodeURIComponent(BRANCH)}`);
-    const headSha = reference.object.sha;
-    const commit = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/git/commits/${headSha}`);
-    const tree = [];
-    for (const change of changes) {
-      if (change.delete) {
-        tree.push({ path: change.path, mode: '100644', type: 'blob', sha: null });
-        continue;
-      }
-      const blob = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/git/blobs`, {
-        method: 'POST',
-        body: JSON.stringify({ content: change.content, encoding: change.encoding || 'utf-8' })
-      });
-      tree.push({ path: change.path, mode: '100644', type: 'blob', sha: blob.sha });
+  async function publishCurrent() {
+    const result = validateEditor(true);
+    if (!result.valid) return;
+    if (state.preferences.confirmPublish) {
+      const approved = await confirmAction({ title: `Publish ${state.editor.type === 'blog' ? 'blog post' : 'project'}?`, message: `This will commit “${result.values.title}” to the main branch and start GitHub Actions.`, confirmText: 'Publish now' });
+      if (!approved) return;
     }
-    const nextTree = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/git/trees`, {
-      method: 'POST',
-      body: JSON.stringify({ base_tree: commit.tree.sha, tree })
-    });
-    const nextCommit = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/git/commits`, {
-      method: 'POST',
-      body: JSON.stringify({ message, tree: nextTree.sha, parents: [headSha] })
-    });
-    try {
-      await githubRequest(`/repos/${OWNER}/${REPOSITORY}/git/refs/heads/${encodeURIComponent(BRANCH)}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ sha: nextCommit.sha, force: false })
-      });
-      return nextCommit;
-    } catch (error) {
-      if (attempt === 0 && [409, 422].includes(error.status)) return commitChanges(changes, message, 1);
-      throw error;
-    }
-  }
-
-  async function publishContent() {
-    const values = validateEditor(true);
-    const type = state.editorType;
+    const values = result.values;
+    const type = state.editor.type;
     const uploadFolder = type === 'blog' ? 'blog' : 'projects';
     const imageFolder = type === 'blog' ? 'blog' : 'works';
-    let imageMeta = state.existingImage;
-    let pageImageSrc = state.existingImage ? `../${state.existingImage}` : '';
-    const changes = [];
-    if (state.coverFile) {
-      const imageName = `${values.slug}.${imageExtension(state.coverFile)}`;
-      imageMeta = imageName;
-      pageImageSrc = `../assets/images/${imageFolder}/${imageName}`;
-      changes.push({ path: `uploads/${uploadFolder}/${imageName}`, content: await readFileAsBase64(state.coverFile), encoding: 'base64' });
-    }
-    const html = buildDocument(values, imageMeta, pageImageSrc);
-    changes.unshift({ path: `uploads/${uploadFolder}/${values.slug}.html`, content: html, encoding: 'utf-8' });
-    el.publishButton.disabled = true;
-    showFloatingStatus('Uploading content to GitHub…');
+    const imageName = state.coverFile ? `${values.slug}.${imageExtension(state.coverFile)}` : state.editor.existingImage;
+    const articleImageSrc = state.coverFile ? `../assets/images/${imageFolder}/${imageName}` : `../${state.editor.existingImage}`;
+    const html = buildContentDocument(values, imageName, articleImageSrc);
+    const files = [{ path: `uploads/${uploadFolder}/${values.slug}.html`, content: html, encoding: 'utf-8' }];
+    if (state.coverFile) files.push({ path: `uploads/${uploadFolder}/${imageName}`, content: await fileToBase64(state.coverFile), encoding: 'base64' });
+    openModal(el.publishProgressModal);
+    updatePublishProgress(12, 'Validating content…', 'stepValidate');
+    await sleep(350);
+    updatePublishProgress(34, 'Preparing the GitHub commit…', 'stepUpload');
     try {
-      const commit = await commitChanges(changes, `${state.editingItem ? 'Update' : 'Upload'} ${type}: ${values.title}`);
-      removeCurrentDraft();
-      toast(state.editingItem ? 'Update submitted' : 'Publish submitted', `GitHub Actions started from ${commit.sha.slice(0, 7)}.`);
-      showFloatingStatus('Uploaded. GitHub Actions is publishing the page.', 'success');
-      await loadWorkflows();
-      renderCounts();
-      setTimeout(() => navigate('dashboard'), 900);
+      const commit = await commitFiles(files, `Publish ${type}: ${values.title}`);
+      updatePublishProgress(62, 'Files committed. Starting the publisher…', 'stepWorkflow');
+      const workflow = await waitForWorkflow(commit.sha);
+      if (workflow?.conclusion === 'failure') throw new Error('The publishing workflow failed. Open GitHub Actions for details.');
+      updatePublishProgress(100, workflow ? 'Published successfully.' : 'Upload committed. GitHub Actions is processing it.', 'stepComplete');
+      removeDraft(state.editor.id);
+      state.editor.dirty = false;
+      await sleep(900);
+      closeModal(el.publishProgressModal);
+      toast('Published to GitHub', workflow ? 'The website content is ready.' : 'The publisher workflow has started.');
+      if (!IS_LOCAL_DEMO) await sleep(2200);
+      await loadStudioData(false);
+      switchView(type === 'blog' ? 'posts' : 'projects');
     } catch (error) {
-      if (error.status === 401) showLogin();
-      showFloatingStatus(error.message, 'error');
-      toast('Publishing failed', error.message, 'error');
-    } finally {
-      el.publishButton.disabled = false;
+      closeModal(el.publishProgressModal);
+      toast('Publishing failed', error.message, 'error', 8000);
+      if (error.status === 401) signOut();
     }
   }
 
-  function removeCurrentDraft() {
-    writeJsonStorage(DRAFT_KEY, getDrafts().filter((draft) => draft.id !== state.currentDraftId));
-    renderDrafts();
+  function updatePublishProgress(percent, text, activeStep) {
+    el.publishProgressBar.style.width = `${percent}%`;
+    el.publishProgressText.textContent = text;
+    const order = ['stepValidate', 'stepUpload', 'stepWorkflow', 'stepComplete'];
+    const activeIndex = order.indexOf(activeStep);
+    order.forEach((id, index) => {
+      const item = $(`#${id}`);
+      item.classList.toggle('active', index === activeIndex);
+      item.classList.toggle('done', index < activeIndex || (id === 'stepComplete' && percent === 100));
+    });
   }
 
-  async function unpublishItem(item) {
-    if (IS_LOCAL_DEMO && !state.token) {
-      state.content[item.type] = state.content[item.type].filter((entry) => entry.slug !== item.slug);
-      renderAll();
-      toast('Content removed in demo mode');
-      return;
+  async function waitForWorkflow(headSha) {
+    if (IS_LOCAL_DEMO) { await sleep(1200); return { conclusion: 'success' }; }
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      await sleep(attempt === 0 ? 1800 : 3000);
+      const payload = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}/actions/runs?head_sha=${encodeURIComponent(headSha)}&per_page=5`).catch(() => ({ workflow_runs: [] }));
+      const run = payload.workflow_runs?.[0];
+      if (!run) continue;
+      if (run.status === 'completed') return run;
+      el.publishProgressText.textContent = 'GitHub Actions is publishing the content…';
     }
-    const dataPath = item.type === 'blog' ? 'assets/data/blog.json' : 'assets/data/works.json';
-    showFloatingStatus(`Unpublishing ${item.title}…`);
+    return null;
+  }
+
+  async function deleteContent(type, item) {
+    const approved = await confirmAction({ title: `Delete “${item.title}”?`, message: 'The page and its content index entry will be removed from GitHub. This can be restored from commit history.', confirmText: 'Delete content', danger: true });
+    if (!approved) return;
     try {
-      const dataFile = await githubRequest(`/repos/${OWNER}/${REPOSITORY}/contents/${encodePath(dataPath)}?ref=${encodeURIComponent(BRANCH)}`);
-      const items = JSON.parse(decodeBase64Utf8(dataFile.content));
-      const filtered = items.filter((entry) => {
-        const entrySlug = entry.slug || String(entry.url || '').split('/').pop()?.replace(/\.html$/i, '');
-        return entrySlug !== item.slug;
-      });
-      const changes = [{ path: dataPath, content: `${JSON.stringify(filtered, null, 2)}\n`, encoding: 'utf-8' }];
-      try {
-        await githubRequest(`/repos/${OWNER}/${REPOSITORY}/contents/${encodePath(item.url)}?ref=${encodeURIComponent(BRANCH)}`);
-        changes.push({ path: item.url, delete: true });
-      } catch (error) {
-        if (error.status !== 404) throw error;
-      }
-      await commitChanges(changes, `Unpublish ${item.type}: ${item.title}`);
-      state.content[item.type] = state.content[item.type].filter((entry) => entry.slug !== item.slug);
-      renderAll();
-      showFloatingStatus('Content unpublished.', 'success');
-      toast('Content unpublished', 'The page and listing entry were removed.');
-    } catch (error) {
-      showFloatingStatus(error.message, 'error');
-      toast('Unable to unpublish', error.message, 'error');
-    }
-  }
-
-  function askConfirmation({ title, message, actionLabel = 'Confirm', action }) {
-    state.confirmAction = action;
-    el.confirmTitle.textContent = title;
-    el.confirmMessage.textContent = message;
-    el.confirmActionButton.textContent = actionLabel;
-    el.confirmDialog.showModal();
-  }
-
-  async function loadMedia() {
-    el.mediaGrid.innerHTML = `<div class="empty-state surface"><svg><use href="#i-image"></use></svg><h3>Loading media</h3><p>Images will appear here after GitHub responds.</p></div>`;
-    try {
-      if (IS_LOCAL_DEMO && !state.token) {
-        const unique = new Map();
-        allContent().filter((item) => item.image).forEach((item) => unique.set(item.image, { name: item.image.split('/').pop(), path: item.image, download_url: `../${item.image}`, type: item.type }));
-        state.media = [...unique.values()];
-      } else {
-        const [blog, projects] = await Promise.all([
-          githubRequest(`/repos/${OWNER}/${REPOSITORY}/contents/assets/images/blog?ref=${encodeURIComponent(BRANCH)}`),
-          githubRequest(`/repos/${OWNER}/${REPOSITORY}/contents/assets/images/works?ref=${encodeURIComponent(BRANCH)}`)
-        ]);
-        state.media = [
-          ...blog.filter((file) => file.type === 'file').map((file) => ({ ...file, type: 'blog' })),
-          ...projects.filter((file) => file.type === 'file').map((file) => ({ ...file, type: 'project' }))
-        ].filter((file) => /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name));
-      }
-      renderMedia();
-    } catch (error) {
-      el.mediaGrid.innerHTML = `<div class="empty-state surface"><svg><use href="#i-close"></use></svg><h3>Media unavailable</h3><p>${escapeHtml(error.message)}</p></div>`;
-    }
-  }
-
-  function renderMedia() {
-    const items = state.mediaFilter === 'all' ? state.media : state.media.filter((item) => item.type === state.mediaFilter);
-    el.mediaGrid.innerHTML = items.length ? items.map((item) => `
-      <article class="media-card">
-        <img src="${escapeHtml(item.download_url || `../${item.path}`)}" alt="" loading="lazy">
-        <div class="media-card-body"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.path)}</small><div class="media-card-actions"><button class="button secondary" type="button" data-copy-path="${escapeHtml(item.path)}">Copy path</button><a class="button soft" href="${escapeHtml(item.download_url || `../${item.path}`)}" target="_blank" rel="noopener noreferrer">Open</a></div></div>
-      </article>`).join('') : `<div class="empty-state surface"><svg><use href="#i-image"></use></svg><h3>No images found</h3><p>This folder does not contain supported image files.</p></div>`;
-  }
-
-  function handleFormatCommand(button) {
-    const command = button.dataset.command;
-    const value = button.dataset.value || null;
-    el.richEditor.focus();
-    if (command === 'createLink') {
-      const url = prompt('Enter the link URL');
-      if (!url) return;
-      document.execCommand('createLink', false, url);
-    } else if (command === 'formatBlock') {
-      document.execCommand('formatBlock', false, value);
-    } else {
-      document.execCommand(command, false, value);
-    }
-    updateEditorDerived();
-  }
-
-  function toggleSourceMode() {
-    state.sourceMode = !state.sourceMode;
-    if (state.sourceMode) {
-      el.sourceEditor.value = el.richEditor.innerHTML;
-      el.richEditor.hidden = true;
-      el.sourceEditor.hidden = false;
-      el.sourceToggle.classList.add('active');
-      el.sourceToggle.textContent = 'Visual';
-      el.sourceEditor.focus();
-    } else {
-      el.richEditor.innerHTML = sanitizeContent(el.sourceEditor.value);
-      el.sourceEditor.hidden = true;
-      el.richEditor.hidden = false;
-      el.sourceToggle.classList.remove('active');
-      el.sourceToggle.textContent = 'HTML';
-      el.richEditor.focus();
-    }
-    updateEditorDerived();
-  }
-
-  function findItem(type, slug) {
-    return state.content[type]?.find((item) => item.slug === slug);
-  }
-
-  function setupEvents() {
-    el.githubLoginButton.addEventListener('click', startGitHubLogin);
-    window.addEventListener('message', async (event) => {
-      if (event.origin !== location.origin || event.data?.type !== 'portfolio-github-oauth') return;
-      if (event.data.error) {
-        setStatus(el.loginStatus, event.data.error, 'error');
+      if (IS_LOCAL_DEMO) {
+        if (type === 'blog') state.posts = state.posts.filter((entry) => entry.slug !== item.slug);
+        else state.projects = state.projects.filter((entry) => entry.slug !== item.slug);
+        renderAll();
+        toast('Content deleted', 'Demo content was removed locally.');
         return;
       }
-      setStatus(el.loginStatus, 'Verifying GitHub access…');
-      try {
-        await authenticate(event.data.token, 'oauth');
-        setStatus(el.loginStatus);
-      } catch (error) {
-        state.token = '';
-        safeSessionRemove(TOKEN_KEY);
-        setStatus(el.loginStatus, error.message, 'error');
-      }
-    });
-    el.loginForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const button = el.loginForm.querySelector('button');
-      button.disabled = true;
-      setStatus(el.loginStatus, 'Checking repository access…');
-      try {
-        await authenticate(el.tokenInput.value, 'token');
-        setStatus(el.loginStatus);
-      } catch (error) {
-        state.token = '';
-        safeSessionRemove(TOKEN_KEY);
-        setStatus(el.loginStatus, error.message, 'error');
-      } finally {
-        button.disabled = false;
-      }
-    });
-    [el.logoutButton, el.settingsSignOut].forEach((button) => button.addEventListener('click', showLogin));
-    el.sidebarOpen.addEventListener('click', openSidebar);
-    el.sidebarClose.addEventListener('click', closeSidebar);
-    el.sidebarBackdrop.addEventListener('click', closeSidebar);
-
-    $$('[data-view]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.view, { filter: button.dataset.filterType || 'all' })));
-    $$('[data-new]').forEach((button) => button.addEventListener('click', () => openEditor(button.dataset.new || 'blog')));
-    $$('[data-content-filter]').forEach((button) => button.addEventListener('click', () => {
-      state.contentFilter = button.dataset.contentFilter;
-      $$('[data-content-filter]').forEach((entry) => entry.classList.toggle('active', entry === button));
-      renderContentLibrary();
-    }));
-    el.contentSearch.addEventListener('input', renderContentLibrary);
-    el.contentSort.addEventListener('change', renderContentLibrary);
-    el.globalSearch.addEventListener('input', () => {
-      el.contentSearch.value = el.globalSearch.value;
-      if (el.globalSearch.value.trim()) navigate('content', { filter: 'all' });
-      renderContentLibrary();
-    });
-
-    el.contentLibrary.addEventListener('click', (event) => {
-      const action = event.target.closest('[data-action]');
-      if (!action) return;
-      const row = action.closest('[data-type][data-slug]');
-      const item = findItem(row.dataset.type, row.dataset.slug);
-      if (!item) return;
-      if (action.dataset.action === 'edit') openEditor(item.type, item);
-      if (action.dataset.action === 'duplicate') openEditor(item.type, item, true);
-      if (action.dataset.action === 'unpublish') {
-        const execute = () => unpublishItem(item);
-        if (state.settings.confirmDelete) askConfirmation({ title: `Unpublish “${item.title}”?`, message: 'The listing and public HTML page will be removed. The cover image will remain in the media library.', actionLabel: 'Unpublish', action: execute });
-        else execute();
-      }
-    });
-
-    el.draftLibrary.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-action]');
-      const card = event.target.closest('[data-draft-id]');
-      if (!button || !card) return;
-      if (button.dataset.action === 'edit-draft') openDraft(card.dataset.draftId);
-      if (button.dataset.action === 'delete-draft') deleteDraft(card.dataset.draftId);
-    });
-    el.clearDraftsButton.addEventListener('click', () => askConfirmation({ title: 'Clear all drafts?', message: 'All locally saved drafts in this browser will be removed.', actionLabel: 'Clear drafts', action: () => { writeJsonStorage(DRAFT_KEY, []); renderDrafts(); renderCounts(); toast('Drafts cleared'); } }));
-
-    $$('[data-editor-type]').forEach((button) => button.addEventListener('click', () => {
-      if (state.editingItem) return toast('Content type is locked', 'Duplicate the item to create it as another type.', 'error');
-      setEditorType(button.dataset.editorType, true);
-    }));
-    el.titleInput.addEventListener('input', updateEditorDerived);
-    el.summaryInput.addEventListener('input', updateEditorDerived);
-    el.slugInput.addEventListener('input', () => {
-      el.slugInput.dataset.manual = el.slugInput.value ? 'true' : 'false';
-      el.slugInput.value = slugify(el.slugInput.value);
-      updateEditorDerived();
-    });
-    [el.categoryInput, el.dateInput, el.tagsInput, el.technologiesInput, el.demoInput, el.githubInput, el.seoTitleInput, el.seoDescriptionInput, el.canonicalInput].forEach((input) => input.addEventListener('input', updateEditorDerived));
-    el.richEditor.addEventListener('input', updateEditorDerived);
-    el.sourceEditor.addEventListener('input', updateEditorDerived);
-    el.blockFormat.addEventListener('change', () => {
-      el.richEditor.focus();
-      document.execCommand('formatBlock', false, el.blockFormat.value);
-      updateEditorDerived();
-    });
-    $$('.editor-toolbar [data-command]').forEach((button) => button.addEventListener('click', () => handleFormatCommand(button)));
-    el.sourceToggle.addEventListener('click', toggleSourceMode);
-
-    const openFilePicker = () => el.coverInput.click();
-    el.coverDropzone.addEventListener('click', (event) => {
-      if (event.target.closest('#removeCoverButton')) return;
-      if (event.target.closest('#replaceCoverButton') || !state.coverFile && !state.existingImage) openFilePicker();
-    });
-    el.coverDropzone.addEventListener('keydown', (event) => {
-      if (['Enter', ' '].includes(event.key)) { event.preventDefault(); openFilePicker(); }
-    });
-    el.coverInput.addEventListener('change', () => selectCover(el.coverInput.files[0]));
-    ['dragenter', 'dragover'].forEach((name) => el.coverDropzone.addEventListener(name, (event) => { event.preventDefault(); el.coverDropzone.classList.add('dragging'); }));
-    ['dragleave', 'drop'].forEach((name) => el.coverDropzone.addEventListener(name, (event) => { event.preventDefault(); el.coverDropzone.classList.remove('dragging'); }));
-    el.coverDropzone.addEventListener('drop', (event) => selectCover(event.dataTransfer.files[0]));
-    el.replaceCoverButton.addEventListener('click', (event) => { event.stopPropagation(); openFilePicker(); });
-    el.removeCoverButton.addEventListener('click', (event) => { event.stopPropagation(); clearCover(); });
-
-    el.saveDraftButton.addEventListener('click', () => saveDraft(true));
-    el.previewButton.addEventListener('click', previewDocument);
-    el.editorBackButton.addEventListener('click', () => navigate('content', { filter: state.editorType }));
-    el.contentForm.addEventListener('submit', (event) => { event.preventDefault(); publishContent(); });
-
-    $$('[data-inspector-tab]').forEach((button) => button.addEventListener('click', () => {
-      $$('[data-inspector-tab]').forEach((entry) => entry.classList.toggle('active', entry === button));
-      $$('[data-inspector-panel]').forEach((panel) => { panel.hidden = panel.dataset.inspectorPanel !== button.dataset.inspectorTab; panel.classList.toggle('active', !panel.hidden); });
-    }));
-
-    el.closePreviewButton.addEventListener('click', () => el.previewDialog.close());
-    $$('[data-preview-size]').forEach((button) => button.addEventListener('click', () => {
-      $$('[data-preview-size]').forEach((entry) => entry.classList.toggle('active', entry === button));
-      el.previewDevice.className = `preview-device ${button.dataset.previewSize}`;
-    }));
-    el.previewDialog.addEventListener('click', (event) => { if (event.target === el.previewDialog) el.previewDialog.close(); });
-
-    el.confirmDialog.addEventListener('close', async () => {
-      if (el.confirmDialog.returnValue === 'confirm' && state.confirmAction) await state.confirmAction();
-      state.confirmAction = null;
-    });
-
-    $$('.media-filters [data-media-filter]').forEach((button) => button.addEventListener('click', () => {
-      state.mediaFilter = button.dataset.mediaFilter;
-      $$('.media-filters [data-media-filter]').forEach((entry) => entry.classList.toggle('active', entry === button));
-      renderMedia();
-    }));
-    el.refreshMediaButton.addEventListener('click', loadMedia);
-    el.mediaGrid.addEventListener('click', async (event) => {
-      const button = event.target.closest('[data-copy-path]');
-      if (!button) return;
-      await navigator.clipboard.writeText(button.dataset.copyPath);
-      toast('Path copied', button.dataset.copyPath);
-    });
-
-    el.autoPreviewSetting.checked = Boolean(state.settings.autoPreview);
-    el.confirmDeleteSetting.checked = Boolean(state.settings.confirmDelete);
-    el.autoPreviewSetting.addEventListener('change', () => { state.settings.autoPreview = el.autoPreviewSetting.checked; writeJsonStorage(SETTINGS_KEY, state.settings); });
-    el.confirmDeleteSetting.addEventListener('change', () => { state.settings.confirmDelete = el.confirmDeleteSetting.checked; writeJsonStorage(SETTINGS_KEY, state.settings); });
+      const dataPath = type === 'blog' ? 'assets/data/blog.json' : 'assets/data/works.json';
+      const data = await readRepoJson(dataPath, []);
+      const remaining = data.value.filter((entry) => (entry.slug || slugFromUrl(entry.url) || slugify(entry.title)) !== item.slug);
+      const files = [{ path: dataPath, content: `${JSON.stringify(remaining, null, 2)}\n`, encoding: 'utf-8' }];
+      if (item.url) files.push({ path: item.url, delete: true });
+      const imageUsedElsewhere = getAllContent().some((entry) => entry.slug !== item.slug && entry.image === item.image);
+      const imageIsOwnedByItem = Boolean(item.image) && (
+        item.image.startsWith('assets/images/uploads/') ||
+        item.image.includes(`/${item.slug}.`)
+      );
+      if (imageIsOwnedByItem && !imageUsedElsewhere) files.push({ path: item.image, delete: true });
+      await commitFiles(files, `Delete ${type}: ${item.title}`);
+      toast('Content deleted', 'GitHub history can restore it if needed.');
+      await loadStudioData(false);
+    } catch (error) {
+      toast('Delete failed', error.message, 'error', 7000);
+    }
   }
 
-  async function initialize() {
-    setupEvents();
-    resetEditor();
-    await checkOAuthAvailability();
-    if (IS_LOCAL_DEMO && !state.token) {
-      state.authMode = 'demo';
-      state.user = { login: OWNER, name: 'Nandakumar M', avatar_url: '' };
-      await showStudio(state.user);
+  async function uploadMedia(file) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast('Invalid media', 'Choose an image file.', 'error');
+    if (file.size > MAX_IMAGE_BYTES) return toast('Image is too large', 'Maximum file size is 8 MB.', 'error');
+    const base = slugify(file.name.replace(/\.[^.]+$/, '')) || 'image';
+    const extension = imageExtension(file);
+    const path = `assets/images/uploads/${Date.now()}-${base}.${extension}`;
+    const nextMedia = [...state.media, { name: file.name, path, uploadedAt: new Date().toISOString(), source: 'Media library' }];
+    try {
+      await commitFiles([
+        { path, content: await fileToBase64(file), encoding: 'base64' },
+        { path: 'assets/data/media.json', content: `${JSON.stringify(nextMedia, null, 2)}\n`, encoding: 'utf-8' }
+      ], `Upload media: ${file.name}`);
+      state.media = nextMedia;
+      renderMedia();
+      toast('Media uploaded', 'The image is available in the media library.');
+    } catch (error) {
+      toast('Upload failed', error.message, 'error', 7000);
+    }
+  }
+
+  function applyPreferences() {
+    document.documentElement.dataset.theme = state.preferences.theme;
+    document.body.classList.toggle('compact-table', state.preferences.compactTable);
+    $('#autosaveToggle').checked = state.preferences.autosave;
+    $('#confirmPublishToggle').checked = state.preferences.confirmPublish;
+    $('#compactTableToggle').checked = state.preferences.compactTable;
+    $('#settingsOAuthClientId').value = getOAuthClientId();
+    el.oauthClientId.value = getOAuthClientId();
+  }
+
+  function savePreferences() {
+    saveLocalJson(PREF_KEY, state.preferences);
+    applyPreferences();
+  }
+
+  function toggleTheme() {
+    state.preferences.theme = state.preferences.theme === 'dark' ? 'light' : 'dark';
+    savePreferences();
+  }
+
+  function saveOAuthClientId(value) {
+    const clientId = String(value || '').trim();
+    if (clientId) localStorage.setItem(OAUTH_CLIENT_KEY, clientId); else localStorage.removeItem(OAUTH_CLIENT_KEY);
+    el.oauthClientId.value = clientId;
+    $('#settingsOAuthClientId').value = clientId;
+    toast('OAuth Client ID saved', clientId ? 'GitHub direct sign-in is configured on this device.' : 'Direct sign-in configuration was cleared.');
+  }
+
+  function openSearch() {
+    renderGlobalSearch('');
+    openModal(el.searchModal);
+    setTimeout(() => el.globalSearchInput.focus(), 50);
+  }
+
+  function renderGlobalSearch(query) {
+    const term = query.trim().toLowerCase();
+    const actions = [
+      { title: 'Create blog post', subtitle: 'Open a blank article editor', icon: 'file', action: 'new-blog' },
+      { title: 'Create project', subtitle: 'Open a blank project editor', icon: 'briefcase', action: 'new-project' },
+      { title: 'Open media library', subtitle: 'Browse uploaded images', icon: 'image', action: 'view-media' },
+      { title: 'Open settings', subtitle: 'GitHub and editor preferences', icon: 'settings', action: 'view-settings' }
+    ].filter((item) => !term || `${item.title} ${item.subtitle}`.toLowerCase().includes(term));
+    const content = getAllContent().filter((item) => !term || `${item.title} ${item.category} ${item.summary}`.toLowerCase().includes(term)).slice(0, 8);
+    el.globalSearchResults.innerHTML = `${actions.length ? `<div class="command-section-label">Actions</div>${actions.map((item) => `<button class="command-item" type="button" data-command-action="${item.action}"><span>${icon(item.icon)}</span><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.subtitle)}</small></span>${icon('chevron')}</button>`).join('')}` : ''}${content.length ? `<div class="command-section-label">Content</div>${content.map((item) => `<button class="command-item" type="button" data-command-content="${item.type}:${escapeHtml(item.slug)}"><span>${icon(item.type === 'blog' ? 'file' : 'briefcase')}</span><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category || '')}</small></span>${icon('chevron')}</button>`).join('')}` : ''}${!actions.length && !content.length ? '<div class="empty-state"><p>No results found.</p></div>' : ''}`;
+  }
+
+  function executeCommand(action) {
+    closeModal(el.searchModal);
+    if (action === 'new-blog') newEditor('blog');
+    if (action === 'new-project') newEditor('project');
+    if (action === 'view-media') switchView('media');
+    if (action === 'view-settings') switchView('settings');
+  }
+
+  function handleToolbarAction(button) {
+    el.richEditor.focus();
+    if (button.dataset.command) document.execCommand(button.dataset.command, false);
+    if (button.dataset.action === 'link') {
+      const url = prompt('Enter a link URL');
+      if (url) document.execCommand('createLink', false, url);
+    }
+    if (button.dataset.action === 'quote') document.execCommand('formatBlock', false, 'blockquote');
+    if (button.dataset.action === 'code') document.execCommand('formatBlock', false, 'pre');
+    markEditorDirty();
+  }
+
+  function setupEventListeners() {
+    el.tokenLoginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = $('button[type="submit"]', el.tokenLoginForm);
+      button.disabled = true;
+      setAuthStatus('Verifying repository access…');
+      try { await authenticate(el.tokenInput.value, 'token'); setAuthStatus(); }
+      catch (error) { state.token = ''; sessionStorage.removeItem(TOKEN_KEY); setAuthStatus(error.message, 'error'); }
+      finally { button.disabled = false; }
+    });
+
+    el.githubLoginButton.addEventListener('click', startGitHubDeviceLogin);
+    $('#toggleToken').addEventListener('click', () => { el.tokenInput.type = el.tokenInput.type === 'password' ? 'text' : 'password'; });
+    $('#oauthSetupToggle').addEventListener('click', () => { $('#oauthSetup').hidden = !$('#oauthSetup').hidden; });
+    $('#saveOAuthClientId').addEventListener('click', () => saveOAuthClientId(el.oauthClientId.value));
+    $('#copyDeviceCode').addEventListener('click', async () => { await navigator.clipboard.writeText(el.deviceCode.textContent); toast('Code copied', 'Paste it into GitHub verification.'); });
+
+    $$('.nav-item[data-view]').forEach((button) => button.addEventListener('click', () => switchView(button.dataset.view)));
+    $('#newContentButton').addEventListener('click', () => newEditor('blog'));
+    $('#topCreateButton').addEventListener('click', () => newEditor(state.libraryType || 'blog'));
+    $('#libraryCreateButton').addEventListener('click', () => newEditor(state.libraryType));
+    $$('[data-create-type]').forEach((button) => button.addEventListener('click', () => newEditor(button.dataset.createType)));
+    $$('[data-open-view]').forEach((button) => button.addEventListener('click', () => switchView(button.dataset.openView)));
+    $('#editorBackButton').addEventListener('click', async () => {
+      if (state.editor?.dirty && plainTextFromHtml(getEditorContent())) saveCurrentDraft(false);
+      switchView(state.editor?.type === 'project' ? 'projects' : 'posts');
+    });
+    $('#openSidebar').addEventListener('click', openSidebar);
+    $('#closeSidebar').addEventListener('click', closeSidebar);
+    el.mobileScrim.addEventListener('click', closeSidebar);
+    $('#signOutButton').addEventListener('click', signOut);
+    $('#themeButton').addEventListener('click', toggleTheme);
+    $('#refreshButton').addEventListener('click', () => loadStudioData(true));
+    $('#globalSearchButton').addEventListener('click', openSearch);
+
+    el.librarySearch.addEventListener('input', renderLibrary);
+    el.categoryFilter.addEventListener('change', renderLibrary);
+    el.sortFilter.addEventListener('change', renderLibrary);
+
+    el.contentTable.addEventListener('click', (event) => {
+      const row = event.target.closest('.content-row');
+      if (!row) return;
+      const menuButton = event.target.closest('.row-menu-button');
+      if (menuButton) {
+        const menu = $('.row-menu', row);
+        $$('.row-menu').forEach((other) => { if (other !== menu) other.hidden = true; });
+        menu.hidden = !menu.hidden;
+        return;
+      }
+      const action = event.target.closest('[data-row-action]')?.dataset.rowAction;
+      if (!action) return;
+      const type = row.dataset.contentType;
+      const item = (type === 'blog' ? state.posts : state.projects).find((entry) => entry.slug === row.dataset.contentSlug);
+      if (action === 'edit') editPublished(type, item.slug);
+      if (action === 'delete') deleteContent(type, item);
+    });
+
+    el.recentContentList.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-edit-slug]');
+      if (target) editPublished(target.dataset.editType, target.dataset.editSlug);
+    });
+
+    el.draftGrid.addEventListener('click', async (event) => {
+      const card = event.target.closest('[data-draft-id]');
+      const action = event.target.closest('[data-draft-action]')?.dataset.draftAction;
+      if (!card || !action) return;
+      if (action === 'edit') openDraft(card.dataset.draftId);
+      if (action === 'delete') {
+        const approved = await confirmAction({ title: 'Delete this draft?', message: 'This removes the browser-only draft. Published content is not affected.', confirmText: 'Delete draft', danger: true });
+        if (approved) { removeDraft(card.dataset.draftId); toast('Draft deleted'); }
+      }
+    });
+
+    $('#clearDraftsButton').addEventListener('click', async () => {
+      if (!state.drafts.length) return;
+      const approved = await confirmAction({ title: 'Clear all drafts?', message: 'This removes every browser-only draft on this device.', confirmText: 'Clear drafts', danger: true });
+      if (approved) { state.drafts = []; saveLocalJson(DRAFT_KEY, []); renderDrafts(); toast('Drafts cleared'); }
+    });
+
+    $('#mediaUploadInput').addEventListener('change', (event) => { uploadMedia(event.target.files[0]); event.target.value = ''; });
+    el.mediaGrid.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-copy-media]');
+      const card = event.target.closest('[data-media-path]');
+      if (button && card) { await navigator.clipboard.writeText(card.dataset.mediaPath); toast('Media path copied', card.dataset.mediaPath); }
+    });
+
+    $('#saveDraftButton').addEventListener('click', () => saveCurrentDraft(true));
+    $('#previewButton').addEventListener('click', previewCurrent);
+    $('#publishButton').addEventListener('click', publishCurrent);
+    el.coverDropzone.addEventListener('click', () => el.coverInput.click());
+    el.coverInput.addEventListener('change', (event) => { setCoverFile(event.target.files[0]); event.target.value = ''; });
+    ['dragenter', 'dragover'].forEach((name) => el.coverDropzone.addEventListener(name, (event) => { event.preventDefault(); el.coverDropzone.classList.add('dragging'); }));
+    ['dragleave', 'drop'].forEach((name) => el.coverDropzone.addEventListener(name, (event) => { event.preventDefault(); el.coverDropzone.classList.remove('dragging'); }));
+    el.coverDropzone.addEventListener('drop', (event) => setCoverFile(event.dataTransfer.files[0]));
+
+    [el.editorTitle, el.editorExcerpt, el.editorSlug, el.editorCategory, el.editorDate, el.editorTags, el.editorDemoUrl, el.editorGithubUrl, el.editorAltText, el.richEditor, el.sourceEditor].forEach((input) => input.addEventListener('input', markEditorDirty));
+    el.editorTitle.addEventListener('input', () => {
+      if (!state.slugEdited) el.editorSlug.value = slugify(el.editorTitle.value);
+      if (!el.editorAltText.value.trim()) el.editorAltText.value = el.editorTitle.value.trim();
+    });
+    el.editorSlug.addEventListener('input', () => { state.slugEdited = Boolean(el.editorSlug.value); el.editorSlug.value = slugify(el.editorSlug.value); });
+    $$('#typeSwitch button').forEach((button) => button.addEventListener('click', () => setEditorType(button.dataset.type, false)));
+    $$('.inspector-tabs button').forEach((button) => button.addEventListener('click', () => {
+      $$('.inspector-tabs button').forEach((item) => item.classList.toggle('active', item === button));
+      $$('.inspector-panel').forEach((panel) => panel.classList.toggle('active', panel.dataset.inspectorPanel === button.dataset.inspector));
+    }));
+    $$('.editor-toolbar button[data-command], .editor-toolbar button[data-action]').forEach((button) => button.addEventListener('click', () => handleToolbarAction(button)));
+    $('#formatSelect').addEventListener('change', (event) => { el.richEditor.focus(); document.execCommand('formatBlock', false, event.target.value); markEditorDirty(); });
+    $('#sourceModeButton').addEventListener('click', () => setSourceMode(!state.sourceMode));
+
+    $('#autosaveToggle').addEventListener('change', (event) => { state.preferences.autosave = event.target.checked; savePreferences(); });
+    $('#confirmPublishToggle').addEventListener('change', (event) => { state.preferences.confirmPublish = event.target.checked; savePreferences(); });
+    $('#compactTableToggle').addEventListener('change', (event) => { state.preferences.compactTable = event.target.checked; savePreferences(); renderLibrary(); });
+    $('#settingsSaveOAuth').addEventListener('click', () => saveOAuthClientId($('#settingsOAuthClientId').value));
+    $('#resetLocalDataButton').addEventListener('click', async () => {
+      const approved = await confirmAction({ title: 'Clear local studio data?', message: 'Drafts, OAuth Client ID and preferences will be removed from this browser. GitHub content is unchanged.', confirmText: 'Clear local data', danger: true });
+      if (!approved) return;
+      [DRAFT_KEY, PREF_KEY, OAUTH_CLIENT_KEY].forEach((key) => localStorage.removeItem(key));
+      state.drafts = [];
+      state.preferences = { ...defaultPreferences };
+      applyPreferences();
+      renderDrafts();
+      toast('Local data cleared');
+    });
+
+    $('#confirmCancel').addEventListener('click', () => resolveConfirm(false));
+    el.confirmAccept.addEventListener('click', () => resolveConfirm(true));
+    $$('[data-close-modal="confirm"]').forEach((node) => node.addEventListener('click', () => resolveConfirm(false)));
+    $$('[data-close-modal="preview"]').forEach((node) => node.addEventListener('click', () => closeModal(el.previewModal)));
+    $$('[data-close-modal="search"]').forEach((node) => node.addEventListener('click', () => closeModal(el.searchModal)));
+    $$('.preview-controls [data-preview-size]').forEach((button) => button.addEventListener('click', () => {
+      $$('.preview-controls [data-preview-size]').forEach((item) => item.classList.toggle('active', item === button));
+      el.previewFrame.classList.toggle('mobile', button.dataset.previewSize === 'mobile');
+    }));
+
+    el.globalSearchInput.addEventListener('input', () => renderGlobalSearch(el.globalSearchInput.value));
+    el.globalSearchResults.addEventListener('click', (event) => {
+      const action = event.target.closest('[data-command-action]')?.dataset.commandAction;
+      const content = event.target.closest('[data-command-content]')?.dataset.commandContent;
+      if (action) executeCommand(action);
+      if (content) { closeModal(el.searchModal); const [type, slug] = content.split(':'); editPublished(type, slug); }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.row-menu-wrap')) $$('.row-menu').forEach((menu) => { menu.hidden = true; });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const mod = event.ctrlKey || event.metaKey;
+      if (mod && event.key.toLowerCase() === 'k' && !el.studioApp.hidden) { event.preventDefault(); openSearch(); }
+      if (mod && event.key.toLowerCase() === 's' && state.activeView === 'editor') { event.preventDefault(); saveCurrentDraft(true); }
+      if (mod && event.key === 'Enter' && state.activeView === 'editor') { event.preventDefault(); publishCurrent(); }
+      if (event.key === 'Escape') {
+        if (!el.searchModal.hidden) closeModal(el.searchModal);
+        else if (!el.previewModal.hidden) closeModal(el.previewModal);
+        else if (!el.confirmModal.hidden) resolveConfirm(false);
+        else closeSidebar();
+      }
+    });
+  }
+
+  async function bootstrap() {
+    applyPreferences();
+    setupEventListeners();
+    el.oauthClientId.value = getOAuthClientId();
+    $('#settingsOAuthClientId').value = getOAuthClientId();
+    if (IS_LOCAL_DEMO) {
+      state.user = { login: 'nandurpm', name: 'Nandakumar M', avatar_url: 'https://github.com/nandurpm.png' };
+      state.authMethod = 'demo';
+      await enterStudio();
       return;
     }
     if (state.token) {
-      try {
-        await authenticate(state.token, 'token');
-      } catch {
-        showLogin();
-      }
+      setAuthStatus('Restoring your GitHub session…');
+      try { await authenticate(state.token, 'token'); }
+      catch { signOut(); setAuthStatus('Your previous session expired. Sign in again.', 'error'); }
     }
   }
 
-  initialize();
+  bootstrap();
 })();
