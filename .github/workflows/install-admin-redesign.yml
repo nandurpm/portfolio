@@ -1,0 +1,52 @@
+name: Install advanced Content Studio
+
+on:
+  push:
+    branches: [agent/advanced-content-studio]
+    paths:
+      - "scripts/install-admin-redesign.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: advanced-content-studio-installer
+  cancel-in-progress: true
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out redesign branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/advanced-content-studio
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install advanced Content Studio files
+        run: node scripts/install-admin-redesign.mjs
+
+      - name: Validate JavaScript
+        run: |
+          node --check admin/admin.js
+          node --check scripts/process-scheduled-content.mjs
+
+      - name: Commit redesign
+        shell: bash
+        run: |
+          rm -f scripts/install-admin-redesign.mjs .github/workflows/install-admin-redesign.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin scripts/process-scheduled-content.mjs .github/workflows/publish-content.yml scripts/install-admin-redesign.mjs .github/workflows/install-admin-redesign.yml
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No redesign changes to commit."
+            exit 0
+          fi
+          git commit -m "Redesign Content Studio with advanced publishing tools"
+          git push origin HEAD:agent/advanced-content-studio
