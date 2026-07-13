@@ -92,6 +92,7 @@
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${state.token}`,
+        'Content-Type': 'application/json',
         'X-GitHub-Api-Version': API_VERSION,
         ...(options.headers || {})
       }
