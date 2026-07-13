@@ -16,7 +16,8 @@
   --radius-lg: 28px;
   --radius-md: 18px;
   --radius-sm: 12px;
-  --max-width: 1680px;
+  --max-width: 100%;
+  --page-gutter: clamp(16px, 2.5vw, 36px);
   --header-height: 78px;
 }
 
@@ -35,4 +36,42 @@
   --accent: #c2410c;
   --danger: #be123c;
   --shadow: 0 24px 80px rgba(29, 78, 130, 0.16);
+}
+
+/* Full-screen layout at normal browser zoom. */
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.site-shell {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding-inline: var(--page-gutter);
+}
+
+.site-shell > main {
+  width: 100%;
+  flex: 1 0 auto;
+}
+
+.site-shell > .site-footer {
+  width: 100%;
+  margin-top: auto;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --page-gutter: 12px;
+  }
 }
