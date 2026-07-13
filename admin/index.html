@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07111f">
+  <title>Content Studio | Nandakumar M</title>
+  <link rel="icon" href="../assets/images/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-header">
+      <a class="admin-brand" href="../index.html" aria-label="Return to portfolio">
+        <span class="admin-mark">NM</span>
+        <span><strong>Content Studio</strong><small>Portfolio publishing</small></span>
+      </a>
+      <div class="account-area">
+        <span id="accountLabel" class="account-label" hidden></span>
+        <button id="logoutButton" class="button secondary" type="button" hidden>Sign out</button>
+      </div>
+    </header>
+
+    <section id="loginPanel" class="login-panel panel">
+      <div>
+        <h1>Sign in with GitHub access</h1>
+        <p>Use a fine-grained token limited to the <strong>nandurpm/portfolio</strong> repository with Contents read and write permission.</p>
+      </div>
+      <form id="loginForm" class="login-form">
+        <label>
+          GitHub token
+          <input id="tokenInput" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_..." required>
+        </label>
+        <button class="button primary" type="submit">Connect</button>
+      </form>
+      <p class="security-note">The token is kept only in this browser tab session and is never added to the website files.</p>
+      <p id="loginStatus" class="status" role="status"></p>
+    </section>
+
+    <section id="editorPanel" class="editor-panel" hidden>
+      <nav class="editor-tabs" aria-label="Content type">
+        <button class="tab active" type="button" data-tab="blog" aria-selected="true">Blog post</button>
+        <button class="tab" type="button" data-tab="project" aria-selected="false">Project</button>
+      </nav>
+
+      <div class="workspace">
+        <section class="panel form-panel">
+          <form id="blogForm" class="content-form" data-form="blog">
+            <div class="form-heading">
+              <h1>New blog post</h1>
+              <p>Complete the fields, preview the page, then publish.</p>
+            </div>
+            <div class="form-grid two-columns">
+              <label>Title<input name="title" type="text" required></label>
+              <label>Slug<input name="slug" type="text" pattern="[a-z0-9-]+" required></label>
+              <label>Category
+                <select name="category" required>
+                  <option>Technical Articles</option>
+                  <option>Engineering</option>
+                  <option>Current Affairs</option>
+                  <option>Movie Reviews</option>
+                  <option>Politics</option>
+                  <option>Personal Writings</option>
+                </select>
+              </label>
+              <label>Publication date<input name="date" type="date" required></label>
+              <label>Tags<input name="tags" type="text" placeholder="engineering, electronics, learning"></label>
+              <label>Cover image<input name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif" required></label>
+            </div>
+            <label>Excerpt<textarea name="excerpt" rows="3" maxlength="280" required></textarea></label>
+            <label>Article content (HTML)
+              <textarea name="content" class="code-editor" rows="18" required placeholder="<h2>Section heading</h2>&#10;<p>Write the article here.</p>"></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="button secondary preview-button" type="button">Preview</button>
+              <button class="button primary publish-button" type="submit">Publish blog post</button>
+            </div>
+          </form>
+
+          <form id="projectForm" class="content-form" data-form="project" hidden>
+            <div class="form-heading">
+              <h1>New project</h1>
+              <p>Add a project page and make it appear in the Projects section.</p>
+            </div>
+            <div class="form-grid two-columns">
+              <label>Project title<input name="title" type="text" required></label>
+              <label>Slug<input name="slug" type="text" pattern="[a-z0-9-]+" required></label>
+              <label>Category
+                <select name="category" required>
+                  <option>Web Development</option>
+                  <option>Embedded Systems</option>
+                  <option>Engineering Design</option>
+                  <option>Electronics</option>
+                </select>
+              </label>
+              <label>Publication date<input name="date" type="date" required></label>
+              <label>Technologies<input name="technologies" type="text" placeholder="HTML, CSS, JavaScript"></label>
+              <label>Cover image<input name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif" required></label>
+              <label>Live demo URL<input name="demo" type="url" placeholder="https://example.com"></label>
+              <label>GitHub URL<input name="github" type="url" placeholder="https://github.com/..."></label>
+            </div>
+            <label>Project summary<textarea name="description" rows="3" maxlength="320" required></textarea></label>
+            <label>Project page content (HTML)
+              <textarea name="content" class="code-editor" rows="18" required placeholder="<h2>Overview</h2>&#10;<p>Describe the project.</p>"></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="button secondary preview-button" type="button">Preview</button>
+              <button class="button primary publish-button" type="submit">Publish project</button>
+            </div>
+          </form>
+          <p id="publishStatus" class="status" role="status"></p>
+        </section>
+
+        <aside class="panel preview-panel">
+          <div class="preview-heading">
+            <div><strong>Preview</strong><small>Scripts are disabled in preview</small></div>
+            <a href="https://github.com/nandurpm/portfolio/actions" target="_blank" rel="noopener noreferrer">View publishing status</a>
+          </div>
+          <iframe id="previewFrame" title="Content preview" sandbox="allow-same-origin"></iframe>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
