@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Building a Fast Static Portfolio with GitHub Pages - Blog Post">
+  <meta name="description" content="A practical explanation of how a fast static portfolio works, how to structure it, and how to publish content reliably with GitHub.">
   <meta name="author" content="Nandakumar M">
   <title>Building a Fast Static Portfolio with GitHub Pages | Nandakumar M</title>
   <link rel="icon" href="../assets/images/logo.ico">
@@ -18,25 +18,10 @@
 <body>
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="../index.html" aria-label="Nandakumar M home">
-        <span class="brand-mark">NM</span>
-        <span>
-          <strong>Nandakumar M</strong>
-          <small>Designing and Development Engineer</small>
-        </span>
-      </a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <nav class="site-nav" aria-label="Main navigation">
-        <a href="../index.html">Home</a>
-        <a href="../projects.html">Projects</a>
-        <a class="active" href="../blog.html">Blog</a>
-        <a href="../about.html">About Me</a>
-      </nav>
-      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
-        <span class="theme-icon" aria-hidden="true"></span>
-      </button>
+      <a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a class="active" href="../blog.html" aria-current="page">Blog</a><a href="../about.html">About</a></nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
     <main>
@@ -44,35 +29,66 @@
         <header class="article-header">
           <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
           <h1>Building a Fast Static Portfolio with GitHub Pages</h1>
-          <div class="article-meta">
-            <time datetime="2026-05-21">2026-05-21</time>
-            <span>5 min read</span>
-          </div>
-          <img src="../assets/images/blog/blog-2.jpg" alt="Building a Fast Static Portfolio with GitHub Pages" class="article-image">
+          <div class="article-meta"><time datetime="2026-05-21">May 21, 2026</time><span>8 min read</span><span>Technical Articles</span></div>
+          <img src="../assets/images/blog/blog-2.jpg" alt="Web design workspace for a static portfolio" class="article-image">
         </header>
 
         <div class="article-content">
-          <p>A pure HTML, CSS, and JavaScript portfolio remains one of the fastest and most reliable ways to publish online.</p><h2>Why Static?</h2><p>No server overhead, no database queries, no deployment complexity. Your site loads instantly from global CDN edge servers.</p><h2>GitHub Pages Advantage</h2><p>Free hosting, version control built-in, and automatic HTTPS. Perfect for engineers who want to focus on content, not infrastructure.</p><h2>Performance Benefits</h2><p>Static sites can serve thousands of concurrent users without scaling concerns. A single cheap domain and GitHub Pages account gets you global reach.</p><h2>Development Workflow</h2><p>Write HTML, commit to GitHub, and your portfolio automatically publishes. No build steps required unless you want them.</p><h2>When to Use</h2><p>Static sites work brilliantly for portfolios, documentation, blogs, and project showcases. Add JSON data loading for dynamic content without the server complexity.</p>
+          <p>A static portfolio is one of the simplest ways to publish professional work online. The browser receives ready-made HTML, CSS, JavaScript, images, and documents. There is no database query for every page, no server-side rendering requirement, and no application server that must remain healthy. That simplicity is the main reason static websites can be fast, inexpensive, and reliable.</p>
+
+          <p>Static does not mean primitive. A modern static site can include searchable content, filters, theme switching, interactive forms, animations, downloadable documents, dynamic cards loaded from JSON, and automated publishing through GitHub Actions. The difference is that the content is prepared before the visitor opens the page.</p>
+
+          <h2>Why the architecture is fast</h2>
+          <p>When a visitor opens a static page, the hosting platform can serve the file directly from a content delivery network. The response does not wait for application code to connect to a database and assemble the page. Fewer moving parts generally mean fewer failure points and lower loading time.</p>
+
+          <p>Performance still depends on discipline. A static site can become slow when it includes oversized images, several font files, unnecessary animation libraries, uncompressed video, or blocking scripts. The architecture gives a strong starting point, but the developer still has to manage assets carefully.</p>
+
+          <h2>A practical folder structure</h2>
+          <p>A maintainable portfolio should separate content, presentation, and data. One possible structure is:</p>
+          <ul>
+            <li><strong>HTML pages</strong> for Home, Projects, Blog, About, and individual articles.</li>
+            <li><strong>CSS files</strong> for theme variables, shared layout, page-specific styling, and motion.</li>
+            <li><strong>JavaScript modules</strong> for navigation, filters, search, forms, and data rendering.</li>
+            <li><strong>JSON files</strong> containing project and blog-card metadata.</li>
+            <li><strong>Asset folders</strong> for images, downloadable files, icons, and media.</li>
+          </ul>
+
+          <p>This structure prevents every page from becoming a separate disconnected design. Shared components and data formats keep the site consistent while allowing each page to have its own purpose.</p>
+
+          <h2>Use JSON for lists, HTML for full content</h2>
+          <p>A useful pattern is to keep card information in JSON and full articles in HTML. The JSON entry stores the title, excerpt, date, category, image, tags, and URL. JavaScript loads the file and creates the listing automatically. The HTML article remains a normal page that search engines and visitors can open directly.</p>
+
+          <p>This approach is better than placing the entire article inside JSON. Long HTML content inside JSON becomes difficult to edit, review, and validate. It is also better than scanning folders in the browser because a static website cannot reliably list repository directories at runtime.</p>
+
+          <h2>Automate repetitive publishing work</h2>
+          <p>Manual publishing is acceptable for a small portfolio, but daily blogging quickly becomes repetitive. A publishing workflow can read metadata from an uploaded HTML file, validate the matching image, move both files to the correct folders, update the JSON index, sort entries by date, and commit the result.</p>
+
+          <blockquote>Automation should remove repetitive file maintenance, not hide errors. A good workflow validates the post and stops when required metadata or images are missing.</blockquote>
+
+          <p>A browser editor can generate the same structured HTML and upload it to GitHub. Authentication must remain private. A repository token must never be embedded inside public JavaScript. Keeping credentials in a temporary browser session and limiting the token to one repository reduces risk.</p>
+
+          <h2>Design for mobile before adding effects</h2>
+          <p>A portfolio is often opened from a phone, a small laptop, or inside an in-app browser. Large headings, fixed-width cards, and complex navigation can look impressive on a wide monitor and fail on common screens. Responsive design should be tested at normal 100% browser zoom, not only by shrinking a desktop window until it looks acceptable.</p>
+
+          <p>Important checks include readable line length, card wrapping, menu access, form controls, image cropping, focus states, touch target size, and whether the page uses the available width without creating horizontal scrolling.</p>
+
+          <h2>Keep content credible</h2>
+          <p>A portfolio should show real work and clear capability. Placeholder projects, copied marketing text, fake statistics, and empty article pages reduce trust. A smaller site with complete project explanations and readable posts is stronger than a large site filled with generic cards.</p>
+
+          <p>For every project, explain the problem, the approach, the tools used, the result, and what was learned. For every article, provide enough detail that a reader gains something useful. The website design attracts attention, but the content determines whether the visitor believes the work.</p>
+
+          <h2>When a static portfolio is the right choice</h2>
+          <p>A static architecture is a strong fit for portfolios, documentation, blogs, landing pages, study platforms, and project showcases where content changes through controlled publishing rather than user accounts and live transactions. A backend becomes necessary when the website needs private user data, complex permissions, payments, live collaboration, or server-side processing.</p>
+
+          <p>For a personal portfolio and blog, static hosting provides an excellent balance: fast pages, simple deployment, version history, low maintenance, and enough flexibility to automate daily publishing without introducing a full content-management server.</p>
         </div>
 
-        <footer class="article-footer">
-          <a class="btn ghost" href="../blog.html">← Back to all posts</a>
-        </footer>
+        <footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
       </article>
     </main>
 
-    <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div>
-        <a href="mailto:nandakumarmkdpm@gmail.com">Email</a>
-        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </footer>
+    <footer class="site-footer"><p>&copy; <span data-year></span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
-
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="../assets/js/theme.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script><script src="../assets/js/theme.js"></script><script src="../assets/js/main.js"></script>
 </body>
 </html>
-
