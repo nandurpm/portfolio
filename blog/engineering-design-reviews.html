@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="How I Think About Engineering Design Reviews">
+  <meta name="description" content="A practical guide to engineering design reviews, covering design intent, manufacturability, quality risk, documentation, testing, and field reliability.">
   <meta name="author" content="Nandakumar M">
-  <title>Engineering Design Reviews | Nandakumar M</title>
+  <title>How I Think About Engineering Design Reviews | Nandakumar M</title>
   <link rel="icon" href="../assets/images/logo.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,25 +18,10 @@
 <body>
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="../index.html" aria-label="Nandakumar M home">
-        <span class="brand-mark">NM</span>
-        <span>
-          <strong>Nandakumar M</strong>
-          <small>Designing and Development Engineer</small>
-        </span>
-      </a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <nav class="site-nav" aria-label="Main navigation">
-        <a href="../index.html">Home</a>
-        <a href="../projects.html">Projects</a>
-        <a class="active" href="../blog.html">Blog</a>
-        <a href="../about.html">About Me</a>
-      </nav>
-      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
-        <span class="theme-icon" aria-hidden="true"></span>
-      </button>
+      <a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a class="active" href="../blog.html" aria-current="page">Blog</a><a href="../about.html">About</a></nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
     <main>
@@ -44,59 +29,63 @@
         <header class="article-header">
           <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
           <h1>How I Think About Engineering Design Reviews</h1>
-          <div class="article-meta">
-            <time datetime="2026-05-28">May 28, 2026</time>
-            <span>4 min read</span>
-            <span class="badge">Engineering</span>
-          </div>
-          <img src="../assets/images/blog/blog-1.jpg" alt="Engineering Design Reviews" class="article-image">
+          <div class="article-meta"><time datetime="2026-05-28">May 28, 2026</time><span>8 min read</span><span>Engineering</span></div>
+          <img src="../assets/images/blog/blog-1.jpg" alt="Engineering design review notes and checklist" class="article-image">
         </header>
 
         <div class="article-content">
-          <p>Design reviews are moments where engineering discipline meets practical reality. I approach them as systematic checkpoints, not just compliance boxes.</p>
-          
-          <h2>The Core Questions</h2>
-          <p>Every review should answer: Does the design solve the actual problem? Can it be manufactured reliably? Will it survive real-world use? What happens when someone makes a mistake during assembly or maintenance?</p>
-          
-          <h2>The Checklist Framework</h2>
-          <p>I use a practical checklist organized around design intent, manufacturability, quality risk, and field reliability. This structure keeps reviews focused and traceable.</p>
-          
-          <h3>Design Intent</h3>
-          <p>Verify the design actually addresses the original requirement. This seems obvious, but feature creep and missed specifications happen more often than you'd think.</p>
-          
-          <h3>Manufacturability</h3>
-          <p>Review with the people who will actually make it. Tool accessibility, fixture clearance, assembly sequence—these details either make manufacturing smooth or create shortcuts that damage quality.</p>
-          
-          <h3>Quality Risk</h3>
-          <p>Identify failure modes that would escape normal inspection. Where are the weak points? What warnings or instructions prevent assembly errors?</p>
-          
-          <h3>Field Reliability</h3>
-          <p>Consider maintenance, repair, and replacement scenarios. A design that's impossible to service properly is incomplete, even if it works initially.</p>
-          
-          <h2>Making It Stick</h2>
-          <p>The review is only valuable if the findings get built into production documentation. Every issue noted becomes either a design change, an inspection step, or a work instruction.</p>
-          
-          <p>Clear documentation from design review becomes institutional memory that prevents the same mistakes from repeating.</p>
+          <p>A design review is not a ceremonial meeting held only because a procedure requires one. It is the point where an idea is challenged before it becomes an expensive drawing revision, a production delay, a field complaint, or a safety risk. A useful review does not ask only whether the design looks complete. It asks whether the design can be built, tested, inspected, installed, maintained, and understood by people who were not part of the original discussion.</p>
+
+          <p>I prefer a review process that is structured enough to prevent omissions but practical enough to support real engineering work. The objective is not to create the longest checklist. The objective is to expose uncertainty while changes are still cheap.</p>
+
+          <h2>Start with the actual requirement</h2>
+          <p>The first question is simple: <strong>what problem is this design expected to solve?</strong> A drawing can be technically neat and still solve the wrong problem. Before reviewing dimensions, wiring, materials, or software logic, the team should confirm the operating requirement, interfaces, environmental conditions, acceptance criteria, and constraints.</p>
+
+          <p>Requirements should be written in a way that can later be verified. “The unit should be reliable” is not testable. “The connector shall remain secure after the defined vibration and pull test” is testable. Every important requirement should have a clear method of verification: inspection, calculation, measurement, simulation, or physical test.</p>
+
+          <h2>Review the complete system, not isolated parts</h2>
+          <p>Many failures occur at interfaces. A mechanical part may be correct by itself, an electrical drawing may be correct by itself, and the assembly can still fail because the two were never reviewed together. A system review should examine power, signal, mounting, routing, accessibility, heat, movement, environmental exposure, tolerances, and service access.</p>
+
+          <ul>
+            <li>Are connector locations accessible during assembly and service?</li>
+            <li>Can wiring be routed without sharp bends, rubbing, tension, or accidental contact with moving parts?</li>
+            <li>Are labels and terminal references consistent across drawings, BOMs, and test documents?</li>
+            <li>Can dimensional variation create interference or reduce required clearance?</li>
+            <li>Does one failure create another unsafe or difficult-to-diagnose condition?</li>
+          </ul>
+
+          <h2>Check manufacturability and assembly sequence</h2>
+          <p>A design is incomplete when production can build it only by improvising. The review should consider the order of assembly, tool access, fixture requirements, handling risks, inspection visibility, and the possibility of human error. A component that can be installed in the wrong orientation needs a prevention method, not only an instruction telling the operator to be careful.</p>
+
+          <p>Good design reduces dependence on memory. Clear markings, keyed connectors, controlled wire lengths, accessible fasteners, standardized hardware, and logical routing reduce variation. The best engineering change is often one that removes a possible mistake instead of adding another inspection step.</p>
+
+          <h2>Identify quality risks before release</h2>
+          <p>Quality checks must be linked to realistic failure modes. A review should ask what can go wrong, how the failure can be detected, and whether the detection happens before the product reaches the next stage. Visual inspection alone is weak for faults that are hidden after assembly. Critical electrical connections may require continuity checks, torque confirmation, insulation tests, or controlled functional testing.</p>
+
+          <blockquote>A review finding is useful only when it becomes a design change, a verified control, or an assigned action with a clear owner and completion date.</blockquote>
+
+          <h2>Make drawings and documents agree</h2>
+          <p>Release documents form one system. Drawings, wiring schedules, BOMs, part numbers, labels, software versions, work instructions, test sheets, and revision records must tell the same story. A mismatch between two documents creates uncertainty on the shop floor, and uncertainty is normally resolved by assumption.</p>
+
+          <p>I check reference designations, terminal numbers, wire sizes, lengths, colours, connector names, revision levels, quantities, and notes across related documents. Repeated information should preferably come from one controlled source or formula rather than being typed separately in several locations.</p>
+
+          <h2>Consider testing and fault diagnosis</h2>
+          <p>A design should make verification possible. Test points, status indications, accessible terminals, diagnostic messages, and clear signal references reduce troubleshooting time. During review, it is worth asking how a technician will distinguish between a power fault, wiring fault, sensor fault, configuration issue, and controller fault.</p>
+
+          <p>Testing should cover normal operation, boundary conditions, incorrect inputs, loss of supply, disconnected devices, and recovery after a fault. The aim is not merely to demonstrate that the system works once. The aim is to understand how it behaves when conditions are imperfect.</p>
+
+          <h2>Close the review properly</h2>
+          <p>A meeting without action control is only a discussion. Each issue should be recorded with its impact, owner, target date, and verification method. Major findings should be closed with evidence: an updated drawing, calculation, test result, photo, inspection record, or approved technical decision.</p>
+
+          <p>The review is complete when the released design is consistent, buildable, testable, traceable, and suitable for its intended use. That standard is more demanding than “no one found another comment,” but it is also what prevents repeated problems later.</p>
         </div>
 
-        <footer class="article-footer">
-          <a class="btn ghost" href="../blog.html">← Back to all posts</a>
-        </footer>
+        <footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
       </article>
     </main>
 
-    <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div>
-        <a href="mailto:nandakumarmkdpm@gmail.com">Email</a>
-        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </footer>
+    <footer class="site-footer"><p>&copy; <span data-year></span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
-
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="../assets/js/theme.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script><script src="../assets/js/theme.js"></script><script src="../assets/js/main.js"></script>
 </body>
 </html>
-

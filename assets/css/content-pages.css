@@ -1,0 +1,217 @@
+/* Project, blog listing, and long-form article presentation */
+
+.projects-page .page-hero {
+  padding: clamp(24px, 4vw, 48px);
+}
+
+.projects-page .page-hero h1 {
+  max-width: 980px;
+  margin-bottom: 14px;
+  font-size: clamp(2rem, 3.6vw, 3.65rem);
+  line-height: 1.08;
+}
+
+.projects-page .page-hero > p:last-child {
+  max-width: 760px;
+  margin-bottom: 0;
+}
+
+.blog-page .blog-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 14px;
+  align-items: end;
+  padding: 14px;
+}
+
+.blog-page .search-box,
+.blog-page .category-box {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.blog-page .category-box select {
+  width: 100%;
+  max-width: none;
+  min-height: 48px;
+}
+
+.blog-card {
+  cursor: pointer;
+}
+
+.blog-card:focus-within {
+  border-color: var(--brand);
+}
+
+.blog-article {
+  width: min(100%, 1180px);
+  margin: 0 auto 32px;
+}
+
+.article-header {
+  overflow: hidden;
+  padding: clamp(24px, 4vw, 54px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(22px);
+}
+
+.article-header .eyebrow {
+  margin-bottom: 16px;
+}
+
+.article-header h1 {
+  max-width: 1000px;
+  margin-bottom: 18px;
+  font-size: clamp(2.15rem, 4.8vw, 4.8rem);
+  line-height: 1.02;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.article-meta > * {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.article-image {
+  width: 100%;
+  max-height: 560px;
+  aspect-ratio: 16 / 8;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+}
+
+.article-content {
+  width: min(100% - 32px, 900px);
+  margin: -18px auto 0;
+  padding: clamp(26px, 4vw, 54px);
+  position: relative;
+  z-index: 2;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+.article-content > :first-child {
+  margin-top: 0;
+}
+
+.article-content > :last-child {
+  margin-bottom: 0;
+}
+
+.article-content p,
+.article-content li {
+  color: var(--text);
+  font-size: clamp(1rem, 1.25vw, 1.1rem);
+  line-height: 1.88;
+}
+
+.article-content p {
+  margin-bottom: 1.35em;
+}
+
+.article-content h2 {
+  margin: 2.15em 0 0.7em;
+  font-size: clamp(1.55rem, 2.7vw, 2.35rem);
+  line-height: 1.18;
+}
+
+.article-content h3 {
+  margin: 1.8em 0 0.55em;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.28;
+}
+
+.article-content ul,
+.article-content ol {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 1.6em;
+  padding-left: 1.4em;
+}
+
+.article-content strong {
+  color: var(--heading);
+}
+
+.article-content blockquote {
+  margin: 1.8em 0;
+  padding: 18px 20px;
+  border-left: 4px solid var(--brand);
+  border-radius: 0 16px 16px 0;
+  color: var(--heading);
+  background: rgba(56, 189, 248, 0.09);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.article-content a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.article-footer {
+  width: min(100% - 32px, 900px);
+  margin: 22px auto 0;
+}
+
+@media (max-width: 760px) {
+  .projects-page .page-hero h1 {
+    font-size: clamp(1.85rem, 9vw, 2.75rem);
+  }
+
+  .blog-page .blog-tools {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .article-header {
+    padding: 22px 18px;
+  }
+
+  .article-header h1 {
+    font-size: clamp(2rem, 10.5vw, 3.2rem);
+  }
+
+  .article-image {
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+  }
+
+  .article-content,
+  .article-footer {
+    width: calc(100% - 12px);
+  }
+
+  .article-content {
+    margin-top: 12px;
+    padding: 24px 19px;
+    border-radius: 20px;
+  }
+}

@@ -3,76 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="What CNC Operations Taught Me About Precision - Blog Post">
+  <meta name="description" content="Lessons from CNC work about precision, process control, measurement, traceability, and disciplined engineering decisions.">
   <meta name="author" content="Nandakumar M">
   <title>What CNC Operations Taught Me About Precision | Nandakumar M</title>
   <link rel="icon" href="../assets/images/logo.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-  <link rel="stylesheet" href="../assets/css/theme.css">
-  <link rel="stylesheet" href="../assets/css/animations.css">
-  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"><link rel="stylesheet" href="../assets/css/theme.css"><link rel="stylesheet" href="../assets/css/animations.css"><link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-  <div class="site-shell">
-    <header class="site-header glass">
-      <a class="brand" href="../index.html" aria-label="Nandakumar M home">
-        <span class="brand-mark">NM</span>
-        <span>
-          <strong>Nandakumar M</strong>
-          <small>Designing and Development Engineer</small>
-        </span>
-      </a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <nav class="site-nav" aria-label="Main navigation">
-        <a href="../index.html">Home</a>
-        <a href="../projects.html">Projects</a>
-        <a class="active" href="../blog.html">Blog</a>
-        <a href="../about.html">About Me</a>
-      </nav>
-      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
-        <span class="theme-icon" aria-hidden="true"></span>
-      </button>
-    </header>
-
-    <main>
-      <article class="blog-article">
-        <header class="article-header">
-          <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
-          <h1>What CNC Operations Taught Me About Precision</h1>
-          <div class="article-meta">
-            <time datetime="2026-05-12">2026-05-12</time>
-            <span>5 min read</span>
-          </div>
-          <img src="../assets/images/blog/blog-3.jpg" alt="What CNC Operations Taught Me About Precision" class="article-image">
-        </header>
-
-        <div class="article-content">
-          <p>Working on CNC machines taught me that precision isn't just about numbers—it's about process discipline, verification, and humble attention to detail.</p><h2>Tolerance Stack-Up</h2><p>Individual part tolerances compound across assemblies. You learn quickly that tight tolerances on the wrong dimension create impossible assembly conditions.</p><h2>Tool Wear and Compensation</h2><p>Tools change the part dimensions as they wear. Tracking tool life, predicting wear rates, and compensating before failure becomes a practiced skill.</p><h2>First-Piece Verification</h2><p>Before running a production batch, you measure every critical dimension on the first completed part. This discipline catches setup errors before they cost money.</p><h2>Documentation as Insurance</h2><p>Detailed setup sheets and inspection records protect both quality and your credibility. When problems arise, documentation shows you followed procedure.</p><h2>The Engineering Connection</h2><p>CNC experience directly influences how I draw parts and specify tolerances. Understanding what manufacturing can and cannot reliably achieve makes me a better designer.</p>
-        </div>
-
-        <footer class="article-footer">
-          <a class="btn ghost" href="../blog.html">← Back to all posts</a>
-        </footer>
-      </article>
-    </main>
-
-    <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div>
-        <a href="mailto:nandakumarmkdpm@gmail.com">Email</a>
-        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </footer>
-  </div>
-
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="../assets/js/theme.js"></script>
-  <script src="../assets/js/main.js"></script>
-</body>
-</html>
-
+<div class="site-shell">
+<header class="site-header glass"><a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a><button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a class="active" href="../blog.html" aria-current="page">Blog</a><a href="../about.html">About</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+<main><article class="blog-article">
+<header class="article-header"><p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p><h1>What CNC Operations Taught Me About Precision</h1><div class="article-meta"><time datetime="2026-05-12">May 12, 2026</time><span>7 min read</span><span>Engineering</span></div><img src="../assets/images/blog/blog-3.jpg" alt="Precision manufacturing tools and process controls" class="article-image"></header>
+<div class="article-content">
+<p>Precision is often described as a property of a machine or drawing, but real precision is a property of the complete process. A capable machine cannot produce consistent parts when the setup, tool condition, measurement method, material control, and operator decisions are unstable. CNC work made that relationship very clear to me.</p>
+<p>The most important lesson was that small deviations usually have a cause. They are not random events to be ignored until a dimension crosses the rejection limit. A trend in size, surface finish, burr formation, cycle behaviour, or tool sound can be an early warning that the process is moving away from control.</p>
+<h2>Accuracy and repeatability are different</h2>
+<p>A process can repeat the same wrong dimension. That is repeatability without accuracy. It can also produce an average dimension close to target while individual parts vary widely. That is poor repeatability. Good production needs both: the process must be centred on the required value and stable enough to remain there.</p>
+<p>This distinction applies beyond machining. In electrical testing, software, drawing preparation, and documentation, a repeatable method is valuable only when the method itself is correct. Standardisation should preserve good decisions, not reproduce an unnoticed mistake.</p>
+<h2>Setup determines the result</h2>
+<p>Before the first production cycle, the setup already controls many possible outcomes. Workholding must locate the part consistently without distortion. The correct datum must be used. Tool offsets, program selection, material orientation, fixture cleanliness, and clamping condition must all be verified.</p>
+<ul><li>Confirm the drawing revision and operation sequence.</li><li>Check the correct program, fixture, jaws, and cutting tools.</li><li>Verify reference surfaces are clean and properly seated.</li><li>Inspect the first component completely before continuing production.</li><li>Record adjustments rather than relying on memory.</li></ul>
+<p>A rushed setup creates problems that later inspection can only detect, not prevent. Time spent establishing a controlled starting condition is normally cheaper than sorting, rework, and repeated adjustment.</p>
+<h2>Measurement must be trustworthy</h2>
+<p>A measurement is useful only when the instrument, method, location, temperature, and operator technique are suitable. Measuring a feature at different points or with inconsistent pressure can create conflicting results. The process must define what is measured, where it is measured, how frequently it is checked, and what action is required when the trend changes.</p>
+<p>It is also important to understand instrument resolution. A tolerance should not be controlled using a device that cannot clearly distinguish meaningful variation. Calibration status matters, but calibration alone does not guarantee a correct measurement method.</p>
+<h2>Tool wear should be managed as a trend</h2>
+<p>Cutting tools change gradually. Edges wear, heat increases, chips change, and dimensions begin to drift. Waiting for a tool to fail visibly is poor control. A better approach combines planned tool-life limits with observations from the process and measurement data.</p>
+<blockquote>The best correction is made before the process produces a defective part, not after a defect proves that the correction was necessary.</blockquote>
+<p>Offset changes should be controlled and recorded. Large or repeated compensation may indicate that the actual issue is tool damage, fixture movement, material variation, or an incorrect setup. Adjustment without diagnosis can hide the real cause temporarily.</p>
+<h2>Cleanliness is a technical requirement</h2>
+<p>Chips, dust, oil, and burrs can prevent proper seating, affect measurement, damage surfaces, and reduce fixture consistency. Cleanliness is not cosmetic housekeeping; it directly affects location accuracy and process stability. The same principle applies to electrical assembly, where contamination can affect contacts, insulation, cooling, and long-term reliability.</p>
+<h2>Traceability improves problem solving</h2>
+<p>When a deviation is found, useful records shorten the investigation. Program revision, machine, tool batch, operator, material batch, inspection results, and adjustment history can reveal whether the issue is isolated or systematic. Without traceability, the team often has to inspect everything because it cannot identify the affected range.</p>
+<h2>Precision is a habit</h2>
+<p>The habits learned around CNC work transfer directly to engineering design: verify the source information, control revisions, use measurable acceptance criteria, check interfaces, record changes, and investigate trends before they become failures. Precision is not produced by being careful once. It is produced by a process that makes the correct action normal and the incorrect action difficult.</p>
+<p>That is the practical meaning of quality control: not merely separating good parts from bad parts, but building a process that repeatedly produces the intended result and provides early warning when conditions begin to change.</p>
+</div>
+<footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
+</article></main>
+<footer class="site-footer"><p>&copy; <span data-year></span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+</div><script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script><script src="../assets/js/theme.js"></script><script src="../assets/js/main.js"></script>
+</body></html>

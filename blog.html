@@ -48,13 +48,13 @@
 <body>
   <div class="site-shell blog-page">
     <header class="site-header glass">
-      <a class="brand" href="index.html"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Designing and Development Engineer</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="site-nav" aria-label="Main navigation">
         <a href="index.html">Home</a>
         <a href="projects.html">Projects</a>
-        <a class="active" href="blog.html">Blog</a>
-        <a href="about.html">About Me</a>
+        <a class="active" href="blog.html" aria-current="page">Blog</a>
+        <a href="about.html">About</a>
       </nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
@@ -72,15 +72,18 @@
             <span>Search posts</span>
             <input id="blogSearch" type="search" placeholder="Search by title, tag, or excerpt">
           </label>
-          <select id="blogCategory" aria-label="Filter blog category">
-            <option value="all">All Categories</option>
-            <option>Technical Articles</option>
-            <option>Engineering</option>
-            <option>Current Affairs</option>
-            <option>Movie Reviews</option>
-            <option>Politics</option>
-            <option>Personal Writings</option>
-          </select>
+          <label class="category-box">
+            <span>Category</span>
+            <select id="blogCategory" aria-label="Filter blog category">
+              <option value="all">All Categories</option>
+              <option>Technical Articles</option>
+              <option>Engineering</option>
+              <option>Current Affairs</option>
+              <option>Movie Reviews</option>
+              <option>Politics</option>
+              <option>Personal Writings</option>
+            </select>
+          </label>
         </div>
         <div class="card-grid blog-grid" id="blogList">
           <p class="empty-state">Loading blog posts...</p>
@@ -90,8 +93,8 @@
     </main>
 
     <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a></div>
+      <p>&copy; <span data-year></span> Nandakumar M.</p>
+      <div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div>
     </footer>
   </div>
 
@@ -99,5 +102,6 @@
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/blog.js"></script>
+  <script src="assets/js/blog-card-navigation.js"></script>
 </body>
 </html>
