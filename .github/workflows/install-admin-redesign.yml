@@ -41,9 +41,10 @@ jobs:
         shell: bash
         run: |
           rm -f scripts/install-admin-redesign.mjs .github/workflows/install-admin-redesign.yml
+          rm -rf scripts/admin-redesign-parts
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add admin scripts/process-scheduled-content.mjs .github/workflows/publish-content.yml scripts/install-admin-redesign.mjs .github/workflows/install-admin-redesign.yml
+          git add -A admin scripts .github/workflows
           if [[ -z "$(git status --porcelain)" ]]; then
             echo "No redesign changes to commit."
             exit 0
