@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="About Nandakumar M, an Electrical and Electronics Design Engineer with experience in engineering drawings, electronics, manufacturing, quality inspection, testing, and technical documentation.">
-  <meta property="og:title" content="About Me | Nandakumar M">
-  <meta property="og:description" content="Professional background, education, technical strengths, selected personal work, and contact information for Nandakumar M.">
-  <meta property="og:type" content="profile">
-  <meta property="og:url" content="https://nandakumarm.dpdns.org/about.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/about-photo.jpg">
+  <meta name="description" content="POLY PMNA is a Kerala diploma study platform for lessons, revision resources, question papers, quizzes, tools, and learning support across official curriculum revisions.">
+  <meta name="keywords" content="POLY PMNA, Kerala diploma, revision 2026, revision 2021, revision 2015, daily quiz, ask poly, question papers, study notes">
+  <meta name="author" content="POLY PMNA">
+  <link rel="canonical" href="https://polypmna.dpdns.org/about.html">
+  <meta property="og:title" content="About POLY PMNA">
+  <meta property="og:description" content="A concise overview of POLY PMNA, its study resources, supported revisions, and how to use the site.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://polypmna.dpdns.org/about.html">
+  <meta property="og:image" content="https://polypmna.dpdns.org/assets/images/og-about.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://nandakumarm.dpdns.org/about.html">
-  <title>About Me | Nandakumar M</title>
+  <meta name="twitter:title" content="About POLY PMNA">
+  <meta name="twitter:description" content="Learn what POLY PMNA offers, who it is for, and how to use the revision and study resources.">
+  <meta name="twitter:image" content="https://polypmna.dpdns.org/assets/images/og-about.jpg">
+  <title>About POLY PMNA | Kerala Diploma Study Platform</title>
   <link rel="icon" href="assets/images/logo.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,131 +26,247 @@
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
-    .about-page .about-hero { min-height: min(700px, calc(100vh - 150px)); }
-    .about-page .about-copy h1 { max-width: 860px; font-size: clamp(2.5rem, 5vw, 5.2rem); }
-    .about-page .about-copy > p:not(.eyebrow) { max-width: 760px; font-size: 1.05rem; }
-    .about-page .about-photo { position: relative; }
-    .about-page .about-photo::after { content: "Electrical • Electronics • Documentation"; position: absolute; left: 18px; right: 18px; bottom: 18px; padding: 12px 16px; border: 1px solid rgba(255,255,255,.18); border-radius: 16px; color: #fff; background: rgba(0,10,20,.68); backdrop-filter: blur(14px); font: 700 .78rem/1.4 "JetBrains Mono", monospace; }
-    .about-page .about-photo img { height: min(68vh, 680px); min-height: 440px; }
-    .about-page .profile-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); gap: 28px; align-items: stretch; }
-    .about-page .summary-card, .about-page .focus-card, .about-page .featured-card { padding: clamp(24px, 3vw, 38px); border-radius: var(--radius-lg); }
-    .about-page .focus-list { display: grid; gap: 14px; margin: 24px 0 0; padding: 0; list-style: none; }
-    .about-page .focus-list li { display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start; padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,.04); }
-    .about-page .focus-list strong, .about-page .focus-list span { display: block; }
-    .about-page .focus-list span { margin-top: 4px; color: var(--muted); font-size: .9rem; line-height: 1.55; }
-    .about-page .focus-number { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; color: #00111e; background: linear-gradient(135deg, var(--brand), var(--brand-2)); font: 800 .78rem "JetBrains Mono", monospace; }
-    .about-page .featured-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: center; }
-    .about-page .featured-card p { max-width: 800px; margin-bottom: 0; }
-    .about-page .project-metrics { display: grid; grid-template-columns: repeat(3, minmax(100px, 1fr)); gap: 10px; min-width: 360px; }
-    .about-page .project-metrics div { padding: 16px 12px; text-align: center; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,.05); }
-    .about-page .project-metrics strong, .about-page .project-metrics span { display: block; }
-    .about-page .project-metrics strong { color: var(--heading); font-size: 1.1rem; }
-    .about-page .project-metrics span { margin-top: 4px; color: var(--muted); font-size: .75rem; }
-    .about-page .timeline-item p { margin-bottom: 0; }
-    .about-page .contact-card a { overflow-wrap: anywhere; }
+    .page-hero { padding: 26px; }
+    .page-hero h1 { font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; max-width: 14ch; margin-bottom: 14px; }
+    .page-hero p { max-width: 760px; }
+    .content-grid { display: grid; gap: 22px; }
+    .section-heading { margin-bottom: 18px; }
+    .info-grid, .feature-grid, .revision-grid, .steps-grid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .info-card, .feature-card, .revision-card, .step-card { padding: 22px; border-radius: var(--radius-lg); }
+    .info-card h3, .feature-card h3, .revision-card h3, .step-card h3 { margin-bottom: 10px; }
+    .info-card p, .feature-card p, .revision-card p, .step-card p { margin-bottom: 0; }
+    .step-index { display: inline-grid; place-items: center; width: 34px; height: 34px; margin-bottom: 12px; border-radius: 12px; background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #00111e; font-family: "JetBrains Mono", monospace; font-weight: 800; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .button-row { margin: 18px 0 0; }
+    .small-note { font-size: 0.92rem; }
+    .compact-list { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.8; }
+    .compact-list li + li { margin-top: 6px; }
+    .breadcrumb { margin-bottom: 0; }
+    .breadcrumb a { color: var(--muted); }
+    .breadcrumb a:hover { color: var(--heading); }
+    .toolbar-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .contact-strip { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    .contact-strip p { margin: 0; }
+    .contact-strip .button-row { margin: 0; }
+    .language-switch { display: inline-flex; gap: 6px; padding: 6px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.06); }
+    .language-switch button { min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 0; background: transparent; color: var(--muted); font-weight: 800; cursor: pointer; }
+    .language-switch button.active { background: linear-gradient(135deg, rgba(56,189,248,.24), rgba(34,197,94,.16)); color: var(--heading); }
     @media (max-width: 980px) {
-      .about-page .about-hero, .about-page .profile-grid, .about-page .featured-card { grid-template-columns: 1fr; }
-      .about-page .about-hero { min-height: auto; }
-      .about-page .about-photo img { height: min(70vh, 620px); }
-      .about-page .project-metrics { min-width: 0; }
+      .info-grid, .feature-grid, .revision-grid, .steps-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 620px) {
-      .about-page .about-copy h1 { font-size: clamp(2.25rem, 11vw, 3.6rem); line-height: 1; }
-      .about-page .about-photo img { min-height: 360px; }
-      .about-page .about-photo::after { font-size: .68rem; }
-      .about-page .project-metrics { grid-template-columns: 1fr; }
-      .about-page .project-metrics div { display: flex; align-items: center; justify-content: space-between; text-align: left; }
+      .page-hero { padding: 20px; }
+      .page-hero h1 { font-size: 1.9rem; }
+      .info-grid, .feature-grid, .revision-grid, .steps-grid { grid-template-columns: 1fr; }
+      .contact-strip { align-items: flex-start; }
+      .language-switch { width: 100%; justify-content: center; }
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "POLY PMNA",
+        "url": "https://polypmna.dpdns.org/",
+        "logo": "https://polypmna.dpdns.org/assets/images/logo.ico"
+      },
+      {
+        "@type": "WebSite",
+        "name": "POLY PMNA",
+        "url": "https://polypmna.dpdns.org/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://polypmna.dpdns.org/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
-<body class="about-page">
+<body>
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <a class="brand" href="index.html" aria-label="POLY PMNA home">
+        <span class="brand-mark">PP</span>
+        <span><strong>POLY PMNA</strong><small>Kerala Diploma Study Platform</small></span>
+      </a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="blog.html">Blog</a><a class="active" href="about.html" aria-current="page">About Me</a></nav>
-      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="revision-2026.html">Revision 2026</a>
+        <a href="revision-2021.html">Revision 2021</a>
+        <a href="daily-quiz.html">Daily Quiz</a>
+        <a href="ask-poly.html">Ask POLY</a>
+        <a href="tools.html">Tools</a>
+        <a href="contact.html">Contact</a>
+        <a class="active" href="about.html" aria-current="page">About</a>
+      </nav>
+      <div class="toolbar-row">
+        <div class="language-switch" aria-label="Language switch">
+          <button class="active" type="button" aria-pressed="true">English</button>
+          <button type="button" aria-pressed="false">മലയാളം</button>
+        </div>
+        <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
+      </div>
     </header>
 
     <main>
-      <section class="about-hero section">
-        <div class="about-copy" data-aos="fade-up">
-          <p class="eyebrow">About Me</p>
-          <h1>Electrical design, electronics, and practical engineering execution.</h1>
-          <p>I am Nandakumar M, an Electrical and Electronics Design Engineer based in Chennai. My background combines engineering drawings, product-development support, testing awareness, technical documentation, electronics, manufacturing, and quality inspection.</p>
-          <div class="button-row"><a class="btn primary" href="#contact">Contact Me</a><a class="btn ghost" href="assets/files/resume.pdf" download>Download Resume</a><a class="btn ghost" href="projects.html">View Projects</a></div>
+      <section class="section page-hero glass" data-aos="fade-up">
+        <nav class="breadcrumb small-note" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> / <span aria-current="page">About</span>
+        </nav>
+        <p class="eyebrow">About POLY PMNA</p>
+        <h1>Study resources for Kerala diploma learners.</h1>
+        <p>POLY PMNA is a learning platform built for students who need structured revision, lesson access, quiz practice, and quick study support across supported semester pages and curriculum revisions.</p>
+        <div class="button-row">
+          <a class="btn primary" href="revision-2026.html">Explore Revision 2026</a>
+          <a class="btn ghost" href="index.html">Return Home</a>
+          <a class="btn ghost" href="contact.html">Contact</a>
         </div>
-        <figure class="about-photo glass" data-aos="zoom-in" data-aos-delay="100"><img src="assets/images/about-photo.jpg" alt="Portrait of Nandakumar M" width="1200" height="1500" fetchpriority="high"></figure>
       </section>
 
-      <section class="section profile-grid">
-        <article class="summary-card glass" data-aos="fade-up">
-          <p class="eyebrow">Professional Profile</p>
-          <h2>Clear drawings, controlled information, and buildable results.</h2>
-          <p>I focus on engineering outputs that can be understood, reviewed, manufactured, tested, and maintained. Production and quality experience helps me evaluate more than appearance: dimensions, wiring information, revision control, assembly practicality, inspection needs, and documentation clarity all matter.</p>
-          <div class="about-highlights" aria-label="Core skills"><span>Electrical Drawings</span><span>Electronics</span><span>GstarCAD</span><span>Excel</span><span>Technical Documentation</span><span>Testing Support</span><span>Quality Inspection</span><span>Manufacturing Awareness</span></div>
-        </article>
-
-        <aside class="focus-card glass" data-aos="fade-up" data-aos-delay="100">
-          <p class="eyebrow">Engineering Priorities</p>
-          <h2>How I approach technical work.</h2>
-          <ol class="focus-list">
-            <li><span class="focus-number">01</span><div><strong>Clarity</strong><span>Drawings, labels, tables, and instructions should be unambiguous.</span></div></li>
-            <li><span class="focus-number">02</span><div><strong>Traceability</strong><span>Changes should be controlled, reviewable, and easy to verify.</span></div></li>
-            <li><span class="focus-number">03</span><div><strong>Practicality</strong><span>A design must work for production, testing, installation, and service.</span></div></li>
-          </ol>
-        </aside>
-      </section>
-
-      <section class="section">
-        <article class="featured-card glass" data-aos="fade-up">
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
           <div>
-            <p class="eyebrow">Selected Personal Project</p>
-            <h2>Diploma Notes Study Platform</h2>
-            <p>A responsive learning platform that organizes syllabus links, lesson pages, downloadable notes, and question-paper resources for diploma students. It demonstrates information architecture, static-site development, responsive design, and long-term content maintenance.</p>
-            <div class="button-row"><a class="btn primary" href="https://polypmna.dpdns.org" target="_blank" rel="noopener noreferrer">Open Platform</a><a class="btn ghost" href="works/diploma-notes.html">Project Details</a></div>
+            <p class="eyebrow">Overview</p>
+            <h2>What POLY PMNA is</h2>
           </div>
-          <div class="project-metrics" aria-label="Project strengths"><div><strong>Structured</strong><span>Content</span></div><div><strong>Responsive</strong><span>Layout</span></div><div><strong>Maintainable</strong><span>Publishing</span></div></div>
+        </div>
+        <div class="info-grid">
+          <article class="info-card glass">
+            <h3>For students</h3>
+            <p>Designed for Kerala diploma students who need fast access to lessons, practice material, and revision support without hunting across disconnected pages.</p>
+          </article>
+          <article class="info-card glass">
+            <h3>For self-study</h3>
+            <p>Useful for revision, exam preparation, and topic-wise practice when you need a clean workflow instead of random scattered notes.</p>
+          </article>
+          <article class="info-card glass">
+            <h3>For quick reference</h3>
+            <p>Built for direct navigation to subjects, question papers, quizzes, tools, and guidance pages with minimal friction.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Mission</p>
+            <h2>Clear study access, not noise</h2>
+          </div>
+        </div>
+        <article class="info-card glass">
+          <p class="small-note">The goal is simple: reduce friction between a student and the material they actually need. The site should behave like a practical study tool, not a flashy landing page.</p>
         </article>
       </section>
 
-      <section class="resume-layout section" id="resume">
-        <div class="timeline-column" data-aos="fade-up">
-          <p class="eyebrow">Experience</p>
-          <h2>Professional background</h2>
-          <article class="timeline-item glass"><span>Current</span><h3>Electrical &amp; Electronics Design Engineer</h3><p>Engineering drawings, development documentation, testing support, technical coordination, and continuous-improvement work.</p></article>
-          <article class="timeline-item glass"><span>Previous</span><h3>Quality, Assembly, and Manufacturing</h3><p>PDI inspection, assembly support, CNC operation, defect identification, process observation, and production discipline.</p></article>
-          <article class="timeline-item glass"><span>Earlier</span><h3>Video Editing</h3><p>Digital-media editing and visual communication experience.</p></article>
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Features</p>
+            <h2>What students can do</h2>
+          </div>
         </div>
-
-        <aside class="resume-panel glass" data-aos="fade-up" data-aos-delay="100">
-          <h2>Education</h2>
-          <ul class="resume-list"><li><strong>Diploma in Electronics Engineering</strong><span>Govt. Polytechnic College, Perinthalmanna</span></li><li><strong>Plus Two</strong><span>Govt. HSS Kadungapuram — 79%</span></li><li><strong>SSLC</strong><span>Govt. HSS Kadungapuram — 95%</span></li></ul>
-          <h2>Tools &amp; Skills</h2>
-          <div class="tag-cloud"><span>Electrical Design</span><span>Electronics</span><span>GstarCAD</span><span>Excel</span><span>Technical Documentation</span><span>Arduino</span><span>ESP32</span><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
-          <h2>Training</h2>
-          <ul class="resume-list"><li><strong>Industrial Training</strong><span>All India Radio, Manjeri FM</span></li></ul>
-        </aside>
+        <div class="feature-grid">
+          <article class="feature-card glass"><h3>Study notes</h3><p>Open topic-wise notes and concise explanations for revision.</p></article>
+          <article class="feature-card glass"><h3>Lessons</h3><p>Move through subject lessons in a structured, semester-friendly way.</p></article>
+          <article class="feature-card glass"><h3>Question papers</h3><p>Use past papers and practice sets to prepare for exams properly.</p></article>
+          <article class="feature-card glass"><h3>Official syllabus</h3><p>Check curriculum structure before you start a subject or revision block.</p></article>
+          <article class="feature-card glass"><h3>Daily Quiz</h3><p>Practice short, repeatable questions to reinforce memory.</p></article>
+          <article class="feature-card glass"><h3>Ask POLY</h3><p>Use the helper flow for fast study guidance and navigation support.</p></article>
+          <article class="feature-card glass"><h3>Downloads</h3><p>Get supporting files and study resources in one place.</p></article>
+          <article class="feature-card glass"><h3>Practice questions</h3><p>Use short exercises to check understanding before revision ends.</p></article>
+          <article class="feature-card glass"><h3>Revision resources</h3><p>Jump directly to revision-specific content without extra searching.</p></article>
+        </div>
       </section>
 
-      <section class="contact-layout section" id="contact">
-        <form class="contact-form glass" id="contactForm" data-aos="fade-up">
-          <p class="eyebrow">Contact</p><h2>Discuss an opportunity or collaboration.</h2>
-          <div class="form-row"><label>Full Name<input name="name" type="text" autocomplete="name" placeholder="Your name" required></label><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label></div>
-          <label>Subject<input name="subject" type="text" placeholder="Professional enquiry" required></label>
-          <label>Message<textarea name="message" rows="6" placeholder="Write your message" required></textarea></label>
-          <button class="btn primary" type="submit">Prepare Email</button>
-          <p class="form-note" id="formNote">Your default email application will open with the message prepared.</p>
-        </form>
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Revision support</p>
+            <h2>Supported curriculum revisions</h2>
+          </div>
+        </div>
+        <div class="revision-grid">
+          <article class="revision-card glass"><h3>Revision 2015</h3><p>Legacy reference material for older curriculum batches and archived study needs.</p></article>
+          <article class="revision-card glass"><h3>Revision 2021</h3><p>Main support page for the current active revision set and common study flow.</p></article>
+          <article class="revision-card glass"><h3>Revision 2026</h3><p>Latest revision path for updated subjects, navigation, and newer content structure.</p></article>
+        </div>
+      </section>
 
-        <aside class="contact-panel" data-aos="fade-up" data-aos-delay="100">
-          <article class="glass contact-card"><h2>Contact Info</h2><a href="mailto:nandakumarmkdpm@gmail.com">nandakumarmkdpm@gmail.com</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">github.com/nandurpm</a><a href="https://in.linkedin.com/in/nandakumar-m-365bb9107" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a><p>Chennai, Tamil Nadu, India</p></article>
-          <article class="glass map-card"><iframe title="Map showing Chennai, Tamil Nadu" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Chennai,Tamil%20Nadu,India&amp;output=embed"></iframe></article>
-        </aside>
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">How to use</p>
+            <h2>A simple study workflow</h2>
+          </div>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card glass"><span class="step-index">1</span><h3>Choose revision</h3><p>Open the correct revision page before anything else.</p></article>
+          <article class="step-card glass"><span class="step-index">2</span><h3>Select department</h3><p>Move to the department that matches your course.</p></article>
+          <article class="step-card glass"><span class="step-index">3</span><h3>Choose semester</h3><p>Go directly to the semester you need to study.</p></article>
+          <article class="step-card glass"><span class="step-index">4</span><h3>Open subject</h3><p>Enter the subject page and review the lesson structure.</p></article>
+          <article class="step-card glass"><span class="step-index">5</span><h3>Study lessons</h3><p>Read lessons first. Do not skip the base content.</p></article>
+          <article class="step-card glass"><span class="step-index">6</span><h3>Practice and download</h3><p>Use quizzes, questions, and downloads to close gaps.</p></article>
+        </div>
+      </section>
+
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Sources</p>
+            <h2>Content sources and references</h2>
+          </div>
+        </div>
+        <article class="info-card glass">
+          <ul class="compact-list">
+            <li>SITTTR Kerala</li>
+            <li>DTE Kerala</li>
+            <li>Official curriculum documents</li>
+            <li>Official model question papers</li>
+            <li>Government publications</li>
+            <li>College resources</li>
+          </ul>
+          <p class="small-note" style="margin-top:14px;">Unofficial study notes are prepared only for learning support and do not replace official documents.</p>
+        </article>
+      </section>
+
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Disclaimer</p>
+            <h2>Important notice</h2>
+          </div>
+        </div>
+        <article class="info-card glass">
+          <p>Educational use only. No copyright infringement intended. Official documents belong to their respective owners. POLY PMNA provides educational guidance and study support, not legal or official certification.</p>
+        </article>
+      </section>
+
+      <section class="section content-grid" data-aos="fade-up">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Contact</p>
+            <h2>Need help navigating the site?</h2>
+          </div>
+        </div>
+        <article class="info-card glass contact-strip">
+          <p>Use the contact page for site feedback, corrections, or study-resource requests.</p>
+          <div class="button-row">
+            <a class="btn primary" href="contact.html">Open Contact</a>
+            <a class="btn ghost" href="index.html">Return Home</a>
+          </div>
+        </article>
       </section>
     </main>
 
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+    <footer class="site-footer">
+      <p>&copy; <span data-year>2026</span> POLY PMNA.</p>
+      <div><a href="contact.html">Contact</a><a href="about.html">About</a></div>
+    </footer>
   </div>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
