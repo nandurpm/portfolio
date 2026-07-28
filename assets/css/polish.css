@@ -94,5 +94,5 @@ h2, h3 { text-wrap: balance; }
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
-  [data-aos] { opacity: 1 !important; transform: none !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
 }

@@ -47,7 +47,7 @@ function renderBlogPage() {
     });
   });
 
-  refreshAos();
+  notifyContentRendered(document);
 }
 
 function filterStaticCards() {
@@ -75,7 +75,7 @@ function filterStaticCards() {
   empty.textContent = visibleCount ? "" : "No blog posts match your search.";
   empty.hidden = visibleCount > 0;
   if (pagination) pagination.innerHTML = "";
-  refreshAos();
+  notifyContentRendered(document);
 }
 
 function applyBlogFilters() {
