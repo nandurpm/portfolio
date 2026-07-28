@@ -21,7 +21,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
   <link rel="stylesheet" href="assets/css/theme.css">
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
@@ -547,6 +546,7 @@
     ]
   }
   </script>
+  <link rel="stylesheet" href="/assets/css/reveal.css">
 </head>
 <body>
   <div class="site-shell">
@@ -572,7 +572,7 @@
     </header>
 
     <main>
-      <section class="section page-hero glass" data-aos="fade-up">
+      <section class="section page-hero glass" data-reveal="up">
         <div class="page-hero-content">
           <nav class="breadcrumb small-note" aria-label="Breadcrumb">
             <a href="index.html">Home</a> <span>/</span> <span aria-current="page">About</span>
@@ -583,7 +583,7 @@
         </div>
       </section>
 
-      <section class="section hero-profile-section" data-aos="fade-up">
+      <section class="section hero-profile-section" data-reveal="up">
         <div class="profile-image-wrapper">
           <img src="assets/images/about-photo.jpg" alt="Nandakumar M - Electrical and Electronics Design Engineer">
         </div>
@@ -617,7 +617,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Current Focus</p>
@@ -652,7 +652,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Featured Work</p>
@@ -675,7 +675,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Engineering Philosophy</p>
@@ -698,7 +698,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Technical Stack</p>
@@ -733,25 +733,25 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Experience</p>
             <h2>Professional background</h2>
           </div>
         </div>
-        <div class="timeline">
-          <article class="timeline-item">
+        <div class="timeline" data-stagger>
+          <article class="timeline-item" data-reveal="up">
             <span>Current</span>
             <h3>Electrical &amp; Electronics Design Engineer</h3>
             <p>Escalator electrical design, development documentation, drawings, coordination, and engineering support at Johnson Lifts &amp; Escalators.</p>
           </article>
-          <article class="timeline-item">
+          <article class="timeline-item" data-reveal="up">
             <span>Previous</span>
             <h3>Manufacturing, Quality, and Inspection Exposure</h3>
             <p>Practical experience that improved my understanding of production discipline, inspection, assembly constraints, and real-world build quality.</p>
           </article>
-          <article class="timeline-item">
+          <article class="timeline-item" data-reveal="up">
             <span>Continuous</span>
             <h3>Software and Web Development</h3>
             <p>Building tools, websites, and automation systems alongside engineering work so ideas become usable products.</p>
@@ -759,7 +759,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">How I Work</p>
@@ -800,7 +800,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Impact</p>
@@ -831,7 +831,7 @@
         </div>
       </section>
 
-      <section class="section content-grid" data-aos="fade-up">
+      <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Beyond Work</p>
@@ -843,7 +843,7 @@
         </div>
       </section>
 
-      <section class="section content-grid cta glass" data-aos="fade-up">
+      <section class="section content-grid cta glass" data-reveal="up">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Let's Connect</p>
@@ -866,16 +866,8 @@
     </footer>
   </div>
 
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/main.js"></script>
-  <script>
-    AOS.init({
-      duration: 800,
-      easing: 'ease-in-out-cubic',
-      once: true,
-      offset: 100
-    });
-  </script>
+  <script src="/assets/js/reveal.js"></script>
 </body>
 </html>

@@ -30,7 +30,7 @@ function projectCard(project) {
   const searchText = [project.title, project.category, project.description, ...(project.technologies || [])].join(" ");
 
   return `
-    <article class="project-card" data-aos="fade-up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
+    <article class="project-card" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
       ${url ? `<a href="${url}" aria-label="Open ${escapeHtml(project.title)} project page">${image}</a>` : image}
       <div class="card-body">
         <div class="card-meta"><span class="pill">${escapeHtml(project.category)}</span>${tags}</div>
@@ -44,7 +44,7 @@ function blogCard(post) {
   const url = escapeHtml(post.url);
   const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(" ");
   return `
-    <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-aos="fade-up" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
+    <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-reveal="up" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
       <a href="${url}" aria-label="Open ${escapeHtml(post.title)}">
         <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy">
       </a>
@@ -89,7 +89,7 @@ function setupProjectFilters(grid, projects = null) {
       emptyState.hidden = visibleCount > 0;
       emptyState.textContent = visibleCount ? "" : "No projects match this filter.";
     }
-    refreshAos();
+    notifyContentRendered(document);
   };
 
   buttons.forEach((button) => {
@@ -306,8 +306,8 @@ function setupSlideDeck() {
   restart();
 }
 
-function refreshAos() {
-  if (window.AOS) window.AOS.refresh();
+function notifyContentRendered(target = document) {
+  target.dispatchEvent(new CustomEvent("portfolio:content-rendered", { bubbles: true }));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -318,12 +318,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTyping();
   setupContactForm();
   setupSlideDeck();
-  renderProjects().then(refreshAos);
-  renderRecentPosts().then(refreshAos);
-
-  if (window.AOS) {
-    window.AOS.init({ duration: 700, easing: "ease-out-cubic", once: true, offset: 80 });
-  }
+  renderProjects().then(() => notifyContentRendered(document));
+  renderRecentPosts().then(() => notifyContentRendered(document));
 
   if (window.location.hash) {
     const tryScroll = (attempt = 0) => {

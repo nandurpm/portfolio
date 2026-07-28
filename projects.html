@@ -16,10 +16,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
   <link rel="stylesheet" href="assets/css/theme.css">
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/reveal.css">
 </head>
 <body class="projects-page">
   <div class="site-shell">
@@ -31,7 +31,7 @@
     </header>
 
     <main>
-      <section class="page-hero glass" data-aos="fade-up">
+      <section class="page-hero glass" data-reveal="up">
         <p class="eyebrow">Selected Work</p>
         <h1>Projects built through learning, experimentation, and practical problem solving.</h1>
         <p>Explore selected web applications, electronics concepts, embedded-system experiments, and technical tools.</p>
@@ -39,16 +39,16 @@
 
       <section class="section" aria-labelledby="project-list-title">
         <h2 id="project-list-title" class="visually-hidden">Project list</h2>
-        <div class="filter-bar glass" data-aos="fade-up" aria-label="Filter projects by category">
+        <div class="filter-bar glass" data-reveal="up" aria-label="Filter projects by category">
           <button class="filter-btn active" type="button" data-project-filter="all" aria-pressed="true">All</button>
           <button class="filter-btn" type="button" data-project-filter="Web Development" aria-pressed="false">Web Development</button>
           <button class="filter-btn" type="button" data-project-filter="Embedded Systems" aria-pressed="false">Embedded Systems</button>
           <button class="filter-btn" type="button" data-project-filter="Engineering Design" aria-pressed="false">Engineering Design</button>
           <button class="filter-btn" type="button" data-project-filter="Electronics" aria-pressed="false">Electronics</button>
         </div>
-        <div class="card-grid project-grid" id="projectsGrid" aria-live="polite">
+        <div class="card-grid project-grid" data-stagger id="projectsGrid" aria-live="polite">
           <!-- PROJECTS_START -->
-<article class="project-card" data-category="Web Development" data-search="diploma notes web development a student-friendly study platform for kerala diploma learners with syllabus access, lesson pages, downloadable notes, and organized question-paper resources. html css javascript github pages">
+<article class="project-card" data-reveal="up" data-category="Web Development" data-search="diploma notes web development a student-friendly study platform for kerala diploma learners with syllabus access, lesson pages, downloadable notes, and organized question-paper resources. html css javascript github pages">
             <a href="works/diploma-notes.html" aria-label="Open Diploma Notes project page"><img src="assets/images/works/project-6.png" alt="Diploma Notes" loading="lazy"></a>
             <div class="card-body">
               <div class="card-meta"><span class="pill">Web Development</span><span class="pill">HTML</span><span class="pill">CSS</span><span class="pill">JavaScript</span><span class="pill">GitHub Pages</span></div>
@@ -64,8 +64,8 @@
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
 
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/main.js"></script>
+  <script src="/assets/js/reveal.js"></script>
 </body>
 </html>
