@@ -1,143 +1,112 @@
 # Nandakumar M Portfolio
 
-Modern GitHub Pages portfolio website for **Nandakumar M**, a Designing and Development Engineer based in Chennai, Tamil Nadu, India.
+This repository contains the static portfolio website for **Nandakumar M**, a designing and development engineer. It is intentionally implemented with HTML, CSS, and browser-native JavaScript so the public site can be deployed as static assets while still supporting interactive themes, content indexes, publishing automation, and a protected GitHub-backed Content Studio.
 
 ## Live Site
 
-- Custom domain: <https://nandakumarm.dpdns.org>
-- GitHub Pages repository: <https://github.com/nandurpm/portfolio>
+The production site is available at <https://nandakumarm.dpdns.org>. The repository is hosted at <https://github.com/nandurpm/portfolio>.
+
+## What This Project Does
+
+The site presents professional background information, engineering and software projects, technical writing, downloadable resume material, and contact information. Projects and articles are represented as static HTML pages and JSON indexes. A browser-based Content Studio can stage new content, while GitHub Actions validates uploads, publishes pages, and regenerates the public indexes.
 
 ## Features
 
-- Pure HTML5, CSS3, and vanilla JavaScript
-- Modern glassmorphism user interface
-- Fully responsive desktop, tablet, and mobile layouts
-- Dark and light theme toggle with local storage
-- AOS-powered smooth scroll animations
-- Animated typing effect on the home page
-- Projects page with category filters
-- Blog page with search, category filter, and pagination
-- About Me page with autoplaying portfolio presentation, photo, resume timeline, contact form, social links, and location map
-- SEO metadata, Open Graph tags, canonical URLs, and fast static assets
-- GitHub Pages compatible with no backend requirement
+The public experience includes responsive layouts, dark/light theme persistence, scroll-reveal animation, project filtering, blog search/filtering/pagination, SEO and social metadata, project detail pages, a resume download, and legacy route redirects. The repository also contains Cloudflare-compatible configuration and a server-side GitHub OAuth route for the Content Studio.
 
-## Folder Structure
+## Technology Stack
 
-```text
-portfolio/
-+-- index.html
-+-- projects.html
-+-- works.html
-+-- blog.html
-+-- about.html
-+-- assets/
-|   +-- css/
-|   |   +-- main.css
-|   |   +-- theme.css
-|   |   +-- animations.css
-|   +-- js/
-|   |   +-- main.js
-|   |   +-- theme.js
-|   |   +-- blog.js
-|   +-- images/
-|   |   +-- profile.jpg
-|   |   +-- about-photo.jpg
-|   |   +-- works/
-|   +-- data/
-|       +-- works.json
-|       +-- blog.json
-+-- README.md
-```
+| Area | Implementation |
+| --- | --- |
+| Public site | Static HTML5, CSS3, and vanilla JavaScript |
+| Content indexes | JSON files under `assets/data/` |
+| Publishing automation | Node.js scripts under `scripts/` and GitHub Actions |
+| Content authoring | HTML templates under `templates/` and Content Studio under `admin/` |
+| Server-side integration | Cloudflare Pages Function for GitHub OAuth |
+| Deployment configuration | `CNAME`, `_redirects`, and `wrangler.jsonc` |
+| Validation | `tools/audit_links.py` |
 
-## Customize Content
+## Repository Structure
 
-### Projects
+| Path | Responsibility |
+| --- | --- |
+| `*.html` | Public entry pages and redirects at the site root |
+| `assets/` | Shared CSS, JavaScript, data indexes, files, and images |
+| `blog/` | Published article pages |
+| `works/` | Published project pages |
+| `admin/` | Browser-based Content Studio |
+| `uploads/` | Incoming blog/project content waiting for publication |
+| `scripts/` | Upload validation and static content generation |
+| `templates/` | New article and project authoring templates |
+| `tools/` | Read-only link and metadata checks |
+| `functions/` | Deployed server-side API routes |
+| `docs/` | Architecture and operational notes |
+| `.github/workflows/` | Automated content publication workflow |
 
-Edit `assets/data/works.json` to add or update project cards. The public projects page is `projects.html`; `works.html` redirects there for older links.
-
-Each project supports:
-
-- `title`
-- `category`
-- `description`
-- `image`
-- `github`
-- `download`
-- `url`
-- `technologies`
-
-Supported categories:
-
-- Web Development
-- Embedded Systems
-- Engineering Design
-- Electronics
-
-### Blog
-
-Edit `assets/data/blog.json` to add or update blog posts.
-
-Supported categories:
-
-- Technical Articles
-- Engineering
-- Current Affairs
-- Movie Reviews
-- Politics
-- Personal Writings
-
-### About Me, Resume, and Contact
-
-The `about.html` page combines the professional introduction, autoplaying presentation deck, resume timeline, contact form, social links, and location map.
-
-The old `resume.html` and `contact.html` pages redirect to the matching sections on `about.html` so older links continue to work.
-
-Replace `assets/files/resume.pdf` with the latest resume file. Keep the same filename to avoid updating links.
-
-The autoplaying presentation is built with HTML, CSS, and vanilla JavaScript, so it is lightweight and easy to edit directly in `about.html`.
-
-### Profile Photo
-
-Replace `assets/images/profile.jpg` with a new profile image. Keep the same filename for automatic use across the site.
-
-Replace `assets/images/about-photo.jpg` to update the About Me page photo.
-
-## GitHub Pages Deployment
-
-1. Push this repository to GitHub.
-2. Open the repository on GitHub.
-3. Go to **Settings** > **Pages**.
-4. Under **Build and deployment**, choose:
-   - Source: **Deploy from a branch**
-   - Branch: **main**
-   - Folder: **/** root
-5. Save the settings.
-6. GitHub Pages will publish the website.
-
-## Custom Domain
-
-The repository includes a `CNAME` file:
-
-```text
-nandakumarm.dpdns.org
-```
-
-Make sure the DNS provider points the domain to GitHub Pages.
+Each meaningful directory has its own `README.md`. Those files describe the directory’s actual responsibility, important contents, and boundaries.
 
 ## Local Preview
 
-Because the site loads JSON files, preview it through a local server instead of opening `index.html` directly.
+This is a static site, but pages load JSON indexes and local assets. Serve the repository through an HTTP server rather than opening `index.html` directly.
 
 ```bash
 python -m http.server 8000
 ```
 
-Then open:
+Open <http://localhost:8000> after the server starts.
 
-```text
-http://localhost:8000
+## Content Management
+
+For direct maintenance, edit the JSON indexes and published HTML pages according to the guidance in `assets/data/`, `blog/`, and `works/`. For the automated flow, use the templates in `templates/`, upload complete HTML/image pairs to `uploads/blog/` or `uploads/projects/`, and allow `.github/workflows/publish-content.yml` to validate and publish them. The detailed process is documented in `CONTENT_PUBLISHING.md`.
+
+The Content Studio is served from `/admin/`. Its browser-side configuration may contain a public OAuth client ID, but OAuth client secrets and access tokens must never be committed. See `admin/README.md` and `docs/content-studio-oauth.md`.
+
+## Validation
+
+Run the repository’s deterministic static audit from the repository root:
+
+```bash
+python3 tools/audit_links.py
 ```
+
+The audit checks local HTML references, duplicate IDs, page titles, and meta descriptions. When changing content, also preview affected pages through the local server and inspect the generated JSON/index changes before committing.
+
+## Deployment
+
+The repository includes a `CNAME` file for the custom domain, `_redirects` for route compatibility, and `wrangler.jsonc` for Cloudflare asset deployment. The content publishing workflow runs on pushes that change `uploads/blog/**` or `uploads/projects/**`, validates the staged content, renders static cards, and commits generated website files. Confirm the active deployment settings in the hosting provider before changing deployment configuration.
+
+## Important Files
+
+| File | Purpose |
+| --- | --- |
+| `index.html` | Main portfolio landing page |
+| `about.html` | About, presentation, resume, and contact sections |
+| `projects.html` | Project index and filtering interface |
+| `blog.html` | Blog index and search/filter interface |
+| `assets/js/main.js` | Shared page initialization and interaction behavior |
+| `assets/js/theme.js` | Theme selection and persistence |
+| `assets/data/works.json` | Project metadata consumed by the project interface |
+| `assets/data/blog.json` | Blog metadata consumed by the blog interface |
+| `scripts/publish-content.mjs` | Validates and publishes staged content |
+| `scripts/render-static-content.mjs` | Regenerates static content cards/indexes |
+| `tools/audit_links.py` | Static link and metadata audit |
+| `.github/workflows/publish-content.yml` | Automated upload publication pipeline |
+
+## Documentation Map
+
+| Documentation | Scope |
+| --- | --- |
+| `CONTENT_PUBLISHING.md` | End-to-end content publishing process |
+| `admin/README.md` | Content Studio authentication and operation |
+| `uploads/README.md` | Upload inbox format and staging rules |
+| `docs/content-studio-oauth.md` | OAuth integration notes |
+| `tools/README.md` | Validation utility guidance |
+| Folder `README.md` files | Directory-specific responsibilities and conventions |
+
+## Security
+
+Never commit OAuth client secrets, personal access tokens, session credentials, private keys, or production-only environment values. The browser editor may temporarily hold credentials in session storage, but that does not make them safe to place in source files. Review `.gitignore` and deployment secrets before publishing changes.
 
 ## License
 
-This project is available under the MIT License.
+This project is available under the MIT License. See `LICENSE`.

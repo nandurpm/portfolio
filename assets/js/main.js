@@ -1,3 +1,8 @@
+/*
+ * FILE: main.js
+ * FILE PURPOSE: Shared portfolio-page initialization and interaction behavior used by the public static site.
+ */
+
 const DATA_PATHS = {
   projects: "assets/data/works.json",
   blog: "assets/data/blog.json"

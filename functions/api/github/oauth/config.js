@@ -1,3 +1,8 @@
+/*
+ * FILE: config.js
+ * FILE PURPOSE: Deployment configuration reader for the GitHub OAuth integration; secrets remain in runtime environment variables.
+ */
+
 export async function onRequestGet({ env }) {
   const enabled = Boolean(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET);
   return Response.json(

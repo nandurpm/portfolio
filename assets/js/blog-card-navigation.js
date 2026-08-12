@@ -1,3 +1,8 @@
+/*
+ * FILE: blog-card-navigation.js
+ * FILE PURPOSE: Navigation helper for making rendered blog cards and their interactive regions open the intended article.
+ */
+
 (() => {
   const list = document.querySelector("#blogList");
   if (!list) return;

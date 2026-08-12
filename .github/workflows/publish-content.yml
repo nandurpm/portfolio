@@ -1,3 +1,5 @@
+# FILE PURPOSE: Validates staged blog/project uploads and publishes generated static portfolio content on pushes to the main branch.
+
 name: Publish uploaded content
 
 on:

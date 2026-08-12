@@ -1,3 +1,8 @@
+/*
+ * FILE: callback.js
+ * FILE PURPOSE: GitHub OAuth callback handler that exchanges the authorization result for the Content Studio session response.
+ */
+
 const COOKIE_PATH = '/api/github/oauth';
 
 function parseCookies(header = '') {

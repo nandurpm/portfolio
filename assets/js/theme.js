@@ -1,3 +1,8 @@
+/*
+ * FILE: theme.js
+ * FILE PURPOSE: Theme preference controller that applies and persists the portfolio’s light/dark visual mode.
+ */
+
 (function () {
   const root = document.documentElement;
   const storedTheme = localStorage.getItem("portfolio-theme");

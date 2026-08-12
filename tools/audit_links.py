@@ -1,3 +1,6 @@
+# FILE: audit_links.py
+# FILE PURPOSE: Read-only static-site audit that checks local references, duplicate IDs, page titles, and meta descriptions across HTML files.
+
 from __future__ import annotations
 
 from html.parser import HTMLParser

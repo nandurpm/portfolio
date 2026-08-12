@@ -1,3 +1,8 @@
+/*
+ * FILE: polish.css
+ * FILE PURPOSE: Stylesheet containing reusable polish rules for the portfolio interface.
+ */
+
 /* Portfolio audit improvements: accessibility, responsive typography and clearer interaction states */
 :root { color-scheme: dark light; }
 

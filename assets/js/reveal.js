@@ -1,3 +1,8 @@
+/*
+ * FILE: reveal.js
+ * FILE PURPOSE: Scroll-reveal behavior that progressively animates marked content blocks as they enter the viewport.
+ */
+
 (() => {
   const selector = '[data-reveal]';
   const validReveals = new Set(['fade', 'up', 'down', 'left', 'right', 'zoom', 'zoom-up', 'zoom-down']);

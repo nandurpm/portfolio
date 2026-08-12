@@ -1,3 +1,8 @@
+/*
+ * FILE: admin.js
+ * FILE PURPOSE: Browser-side Content Studio editor for authenticating with GitHub, editing drafts, previewing content, and staging publishable files.
+ */
+
 (() => {
   'use strict';
 

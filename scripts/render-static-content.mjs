@@ -1,3 +1,8 @@
+/*
+ * FILE: render-static-content.mjs
+ * FILE PURPOSE: Repository automation that regenerates static project and blog cards from the published content indexes.
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 

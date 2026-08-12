@@ -1,3 +1,8 @@
+/*
+ * FILE: blog.js
+ * FILE PURPOSE: Blog index renderer that loads article metadata, applies search/filter/pagination state, and builds article cards.
+ */
+
 const BLOG_STATE = {
   posts: [],
   page: 1,

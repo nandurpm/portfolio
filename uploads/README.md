@@ -1,15 +1,17 @@
-# Content upload inbox
+# Uploads
 
-Upload complete HTML files and their matching cover images into one of these folders:
+## Purpose
 
-- `uploads/blog/`
-- `uploads/projects/`
+Staging area for content awaiting automated publication.
 
-The HTML filename and image should use the same slug, for example:
+## Contents
 
-- `uploads/blog/my-article.html`
-- `uploads/blog/my-article.jpg`
+`blog/` and `projects/` inboxes plus this folder’s publishing guidance.
 
-The GitHub Action validates the metadata, copies the page and image into the public website, updates the JSON index, and removes the processed upload files.
+## Responsibilities
 
-Templates are available in the `templates/` folder. The browser editor is available at `/admin/` after deployment.
+Only complete upload pairs and temporary staging markers belong here; published output is moved into `blog/`, `works/`, and the data indexes.
+
+## Important Notes
+
+The `publish-content.yml` workflow watches these inboxes and removes processed files.

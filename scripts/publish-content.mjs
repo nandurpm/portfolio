@@ -1,3 +1,8 @@
+/*
+ * FILE: publish-content.mjs
+ * FILE PURPOSE: Repository automation that validates staged blog/project uploads, copies approved content into the published tree, and updates indexes.
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 

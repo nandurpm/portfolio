@@ -1,3 +1,8 @@
+/*
+ * FILE: start.js
+ * FILE PURPOSE: GitHub OAuth initiation handler that creates the provider authorization redirect for Content Studio.
+ */
+
 const COOKIE_PATH = '/api/github/oauth';
 
 function randomUrlSafe(bytes = 32) {
