@@ -63,7 +63,9 @@
     sourceMode: false,
     slugEdited: false,
     confirmResolver: null,
-    devicePollCancelled: false
+    devicePollCancelled: false,
+    oauthWindow: null,
+    oauthWatch: 0
   };
 
   const el = {
@@ -388,12 +390,82 @@
     return localStorage.getItem(OAUTH_CLIENT_KEY) || CONFIG.githubClientId || '';
   }
 
+  function stopOAuthPopup() {
+    window.clearTimeout(state.oauthWatch);
+    state.oauthWatch = 0;
+    if (state.oauthWindow && !state.oauthWindow.closed) state.oauthWindow.close();
+    state.oauthWindow = null;
+  }
+
+  function watchOAuthPopup(startedAt) {
+    if (!state.oauthWindow || state.oauthWindow.closed) {
+      state.oauthWindow = null;
+      el.githubLoginButton.disabled = false;
+      setAuthStatus('GitHub sign-in was closed before it finished.', 'error');
+      return;
+    }
+    if (Date.now() - startedAt > 10 * 60 * 1000) {
+      stopOAuthPopup();
+      el.githubLoginButton.disabled = false;
+      setAuthStatus('GitHub sign-in timed out. Try again.', 'error');
+      return;
+    }
+    state.oauthWatch = window.setTimeout(() => watchOAuthPopup(startedAt), 500);
+  }
+
+  async function handleOAuthMessage(event) {
+    if (event.origin !== window.location.origin || event.data?.type !== 'portfolio-github-oauth') return;
+    if (state.oauthWindow && event.source !== state.oauthWindow) return;
+    const payload = event.data;
+    if (payload.error) {
+      stopOAuthPopup();
+      el.githubLoginButton.disabled = false;
+      setAuthStatus(`${payload.error} You can still use a fine-grained token below.`, 'error');
+      return;
+    }
+    if (!payload.token) return;
+    try {
+      setAuthStatus('GitHub approved. Opening the studio…', 'success');
+      await authenticate(payload.token, 'github');
+    } catch (error) {
+      state.token = '';
+      sessionStorage.removeItem(TOKEN_KEY);
+      setAuthStatus(error.message, 'error');
+    } finally {
+      stopOAuthPopup();
+      el.githubLoginButton.disabled = false;
+    }
+  }
+
+  async function startGitHubLogin() {
+    if (IS_LOCAL_DEMO) return;
+    el.githubLoginButton.disabled = true;
+    try {
+      const response = await fetch('/api/github/oauth/config', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+      const config = response.ok ? await response.json() : null;
+      if (!config?.enabled) {
+        await startGitHubDeviceLogin();
+        return;
+      }
+      const popup = window.open('/api/github/oauth/start', 'portfolio-github-oauth', 'popup,width=520,height=720');
+      if (!popup) throw new Error('Allow pop-ups for this site to continue with GitHub.');
+      state.oauthWindow = popup;
+      setAuthStatus('Complete GitHub sign-in in the new window…');
+      watchOAuthPopup(Date.now());
+    } catch (error) {
+      stopOAuthPopup();
+      el.githubLoginButton.disabled = false;
+      setAuthStatus(`${error.message} You can still use a fine-grained token below.`, 'error');
+    }
+  }
+
   async function startGitHubDeviceLogin() {
     const clientId = getOAuthClientId().trim();
     if (!clientId) {
       $('#oauthSetup').hidden = false;
       el.oauthClientId.focus();
-      setAuthStatus('Add your GitHub OAuth Client ID to enable direct sign-in.', 'error');
+      setAuthStatus('Server-backed GitHub sign-in is unavailable. Add an OAuth Client ID to use the fallback.', 'error');
+      el.githubLoginButton.disabled = false;
       return;
     }
     state.devicePollCancelled = false;
@@ -1122,7 +1194,8 @@ ${metadata}
   <meta name="post-date" content="${escapeHtml(values.date)}">
   <meta name="post-excerpt" content="${escapeHtml(values.excerpt)}">
   <meta name="post-tags" content="${escapeHtml(values.tags)}">
-  <meta name="post-image" content="${escapeHtml(imageMeta)}">` : `  <meta name="project-title" content="${escapeHtml(values.title)}">
+  <meta name="post-image" content="${escapeHtml(imageMeta)}">
+  <meta name="post-original-slug" content="${escapeHtml(state.editor.originalSlug || '')}">` : `  <meta name="project-title" content="${escapeHtml(values.title)}">
   <meta name="project-slug" content="${escapeHtml(values.slug)}">
   <meta name="project-category" content="${escapeHtml(values.category)}">
   <meta name="project-date" content="${escapeHtml(values.date)}">
@@ -1130,12 +1203,13 @@ ${metadata}
   <meta name="project-technologies" content="${escapeHtml(values.tags)}">
   <meta name="project-image" content="${escapeHtml(imageMeta)}">
   <meta name="project-demo" content="${escapeHtml(values.demo || '')}">
-  <meta name="project-github" content="${escapeHtml(values.github || '')}">`;
+  <meta name="project-github" content="${escapeHtml(values.github || '')}">
+  <meta name="project-original-slug" content="${escapeHtml(state.editor.originalSlug || '')}">`;
     const buttons = !isBlog ? [
       values.demo ? `<a class="btn primary" href="${escapeHtml(values.demo)}" target="_blank" rel="noopener noreferrer">Open live project</a>` : '',
       values.github ? `<a class="btn ghost" href="${escapeHtml(values.github)}" target="_blank" rel="noopener noreferrer">View source</a>` : ''
     ].filter(Boolean).join('') : '';
-    const body = `<article class="blog-article"><header class="article-header"><p class="eyebrow"><a href="../${isBlog ? 'blog' : 'projects'}.html">← Back to ${isBlog ? 'Blog' : 'Projects'}</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span><span>${Math.max(1, Math.ceil(plainTextFromHtml(content).split(/\s+/).filter(Boolean).length / 200))} min read</span></div><img src="${escapeHtml(imageDisplaySrc)}" alt="${escapeHtml(values.alt || values.title)}" class="article-image"></header><div class="article-content">${!isBlog ? `<p>${escapeHtml(values.excerpt)}</p>` : ''}${content}</div>${tags.length ? `<div class="article-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>` : ''}<footer class="article-footer">${buttons ? `<div class="button-row">${buttons}</div>` : `<a class="btn ghost" href="../blog.html">← Back to all posts</a>`}</footer></article>`;
+    const body = `<article class="blog-article"><header class="article-header"><p class="eyebrow"><a href="../${isBlog ? 'blog' : 'projects'}.html">← Back to ${isBlog ? 'Blog' : 'Projects'}</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span><span>${Math.max(1, Math.ceil(plainTextFromHtml(content).split(/\s+/).filter(Boolean).length / 200))} min read</span></div><img src="${escapeHtml(imageDisplaySrc)}" alt="${escapeHtml(values.alt || values.title)}" class="article-image"></header><div class="article-content">${!isBlog ? `<p>${escapeHtml(values.excerpt)}</p>` : ''}${content}</div>${tags.length ? `<div class="article-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>` : ''}<footer class="article-footer">${buttons ? `<div class="button-row">${buttons}</div>` : `<a class="btn ghost" href="../${isBlog ? 'blog' : 'projects'}.html">← Back to all ${isBlog ? 'posts' : 'projects'}</a>`}</footer></article>`;
     const schema = isBlog ? {
       '@context': 'https://schema.org', '@type': 'BlogPosting', headline: values.title, description: values.excerpt, datePublished: values.date, dateModified: values.date, image: [publicImage], author: { '@type': 'Person', name: 'Nandakumar M', url: CONFIG.siteUrl }, mainEntityOfPage: canonical, keywords: tags.join(', ')
     } : {
@@ -1349,7 +1423,8 @@ ${metadata}
       finally { button.disabled = false; }
     });
 
-    el.githubLoginButton.addEventListener('click', startGitHubDeviceLogin);
+    el.githubLoginButton.addEventListener('click', startGitHubLogin);
+    window.addEventListener('message', handleOAuthMessage);
     $('#toggleToken').addEventListener('click', () => { el.tokenInput.type = el.tokenInput.type === 'password' ? 'text' : 'password'; });
     $('#oauthSetupToggle').addEventListener('click', () => { $('#oauthSetup').hidden = !$('#oauthSetup').hidden; });
     $('#saveOAuthClientId').addEventListener('click', () => saveOAuthClientId(el.oauthClientId.value));

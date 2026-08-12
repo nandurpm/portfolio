@@ -148,6 +148,12 @@ function processBlog() {
 
     const slug = slugify(meta['post-slug'] || path.basename(file, path.extname(file)) || meta['post-title']);
     if (!slug) throw new Error(`${file}: unable to create a valid slug.`);
+    const originalSlug = slugify(meta['post-original-slug'] || '');
+    if (originalSlug && originalSlug !== slug) {
+      const oldIndex = posts.findIndex((post) => post.slug === originalSlug);
+      if (oldIndex >= 0) posts.splice(oldIndex, 1);
+      fs.rmSync(path.join(ROOT, 'blog', `${originalSlug}.html`), { force: true });
+    }
     const existing = posts.find((post) => post.slug === slug);
     const image = resolveImage(uploadDir, meta['post-image'], slug, existing?.image);
     const imagePath = copyImage(image, 'assets/images/blog', slug);
@@ -189,6 +195,12 @@ function processProjects() {
 
     const slug = slugify(meta['project-slug'] || path.basename(file, path.extname(file)) || meta['project-title']);
     if (!slug) throw new Error(`${file}: unable to create a valid slug.`);
+    const originalSlug = slugify(meta['project-original-slug'] || '');
+    if (originalSlug && originalSlug !== slug) {
+      const oldIndex = projects.findIndex((project) => project.slug === originalSlug || project.url === `works/${originalSlug}.html`);
+      if (oldIndex >= 0) projects.splice(oldIndex, 1);
+      fs.rmSync(path.join(ROOT, 'works', `${originalSlug}.html`), { force: true });
+    }
     const existing = projects.find((project) => project.slug === slug || project.url === `works/${slug}.html`);
     const image = resolveImage(uploadDir, meta['project-image'], slug, existing?.image);
     const imagePath = copyImage(image, 'assets/images/works', slug);

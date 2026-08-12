@@ -40,7 +40,7 @@ function projectCard(project) {
   const title = `<h3>${escapeHtml(project.title)}</h3>`;
   const url = project.url ? escapeHtml(project.url) : '';
   const searchText = [project.title, project.category, project.description, ...(project.technologies || [])].join(' ').toLowerCase();
-  return `          <article class="project-card" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText)}">
+  return `          <article class="project-card" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText)}">
             ${url ? `<a href="${url}" aria-label="Open ${escapeHtml(project.title)} project page">${image}</a>` : image}
             <div class="card-body">
               <div class="card-meta"><span class="pill">${escapeHtml(project.category)}</span>${tags}</div>
@@ -53,7 +53,7 @@ function projectCard(project) {
 function blogCard(post) {
   const url = escapeHtml(post.url);
   const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(' ').toLowerCase();
-  return `          <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText)}">
+  return `          <article class="blog-card" data-reveal="up" id="post-${escapeHtml(post.slug)}" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText)}">
             <a href="${url}" aria-label="Open ${escapeHtml(post.title)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy"></a>
             <div class="card-body">
               <div class="card-meta"><span class="pill">${escapeHtml(post.category)}</span><span class="pill">${escapeHtml(post.readTime)}</span></div>
