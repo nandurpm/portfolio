@@ -1,0 +1,516 @@
+/*
+ * FILE: independence-day.css
+ * FILE PURPOSE: Annual Indian Independence Day visual system activated by theme.js.
+ * The event theme is isolated behind [data-event-theme="independence-day"] so the
+ * default portfolio palette is restored automatically outside 15 August.
+ */
+
+:root[data-event-theme="independence-day"] {
+  color-scheme: dark;
+  --bg: #07131f;
+  --bg-soft: #10283d;
+  --surface: rgba(13, 29, 49, 0.78);
+  --surface-strong: rgba(17, 38, 63, 0.92);
+  --border: rgba(183, 204, 224, 0.22);
+  --text: #eef6ff;
+  --muted: #b7c8da;
+  --heading: #ffffff;
+  --brand: #ff9933;
+  --brand-2: #138808;
+  --accent: #2d5f9d;
+  --danger: #fb7185;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  --event-saffron: #ff9933;
+  --event-white: #fffaf2;
+  --event-green: #138808;
+  --event-navy: #174a7e;
+  --event-saffron-soft: rgba(255, 153, 51, 0.16);
+  --event-white-soft: rgba(255, 250, 242, 0.08);
+  --event-green-soft: rgba(19, 136, 8, 0.15);
+  --event-navy-soft: rgba(23, 74, 126, 0.24);
+  --event-chrome: #07131f;
+}
+
+:root[data-theme="light"][data-event-theme="independence-day"] {
+  color-scheme: light;
+  --bg: #fffaf2;
+  --bg-soft: #edf6f1;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: rgba(255, 255, 255, 0.95);
+  --border: rgba(23, 74, 126, 0.18);
+  --text: #203047;
+  --muted: #586b7f;
+  --heading: #0e2038;
+  --brand: #d96d05;
+  --brand-2: #11730a;
+  --accent: #174a7e;
+  --shadow: 0 24px 80px rgba(23, 74, 126, 0.16);
+  --event-saffron-soft: rgba(255, 153, 51, 0.14);
+  --event-white-soft: rgba(255, 255, 255, 0.66);
+  --event-green-soft: rgba(19, 136, 8, 0.12);
+  --event-navy-soft: rgba(23, 74, 126, 0.11);
+  --event-chrome: #fffaf2;
+}
+
+html[data-event-theme="independence-day"] body {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 8% 0%, var(--event-saffron-soft), transparent 32rem),
+    radial-gradient(circle at 94% 20%, var(--event-green-soft), transparent 30rem),
+    linear-gradient(135deg, var(--bg), var(--bg-soft));
+}
+
+html[data-event-theme="independence-day"] body::before {
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(23, 74, 126, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 74, 126, 0.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+html[data-event-theme="independence-day"] body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 8% -15% auto;
+  height: 38vh;
+  pointer-events: none;
+  opacity: 0.45;
+  background:
+    radial-gradient(circle at 20% 50%, var(--event-saffron-soft), transparent 18%),
+    radial-gradient(circle at 50% 46%, var(--event-white-soft), transparent 16%),
+    radial-gradient(circle at 80% 50%, var(--event-green-soft), transparent 18%);
+  filter: blur(22px);
+  animation: independence-gradient-drift 18s ease-in-out infinite alternate;
+}
+
+html[data-event-theme="independence-day"] .site-shell > .site-header {
+  position: sticky;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(90deg, var(--event-saffron-soft), transparent 34%, transparent 66%, var(--event-green-soft)),
+    var(--surface-strong);
+}
+
+html[data-event-theme="independence-day"] .site-shell > .site-header::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--event-saffron), var(--event-white) 50%, var(--event-green));
+  opacity: 0.9;
+}
+
+html[data-event-theme="independence-day"] .brand-mark {
+  color: var(--event-navy);
+  background: linear-gradient(180deg, var(--event-saffron) 0 33%, var(--event-white) 33% 66%, var(--event-green) 66% 100%);
+  box-shadow: 0 8px 24px rgba(255, 153, 51, 0.18), 0 8px 24px rgba(19, 136, 8, 0.12);
+}
+
+html[data-event-theme="independence-day"] .site-nav {
+  background: linear-gradient(90deg, var(--event-saffron-soft), var(--event-white-soft), var(--event-green-soft));
+}
+
+html[data-event-theme="independence-day"] .site-nav a:hover,
+html[data-event-theme="independence-day"] .site-nav a.active,
+html[data-event-theme="independence-day"] .filter-btn:hover,
+html[data-event-theme="independence-day"] .filter-btn.active,
+html[data-event-theme="independence-day"] .pagination button.active {
+  color: var(--heading);
+  background: linear-gradient(135deg, var(--event-saffron-soft), var(--event-navy-soft) 48%, var(--event-green-soft));
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+html[data-event-theme="independence-day"] .theme-toggle,
+html[data-event-theme="independence-day"] .nav-toggle,
+html[data-event-theme="independence-day"] .btn.ghost,
+html[data-event-theme="independence-day"] .filter-bar,
+html[data-event-theme="independence-day"] .blog-tools {
+  background: linear-gradient(135deg, var(--event-saffron-soft), var(--event-navy-soft) 48%, var(--event-green-soft)), var(--surface-strong);
+}
+
+html[data-event-theme="independence-day"] .btn.primary {
+  color: #10243b;
+  background: linear-gradient(110deg, var(--event-saffron), #ffd39f 48%, var(--event-green));
+  box-shadow: 0 10px 26px rgba(255, 153, 51, 0.17);
+}
+
+html[data-event-theme="independence-day"] .btn.primary:hover {
+  box-shadow: 0 14px 30px rgba(19, 136, 8, 0.18), 0 14px 30px rgba(255, 153, 51, 0.16);
+}
+
+html[data-event-theme="independence-day"] .eyebrow,
+html[data-event-theme="independence-day"] .text-link,
+html[data-event-theme="independence-day"] .skill-card span,
+html[data-event-theme="independence-day"] .timeline-item span {
+  color: var(--event-saffron);
+}
+
+html[data-event-theme="independence-day"] .typing-line {
+  color: var(--event-white);
+}
+
+html[data-event-theme="independence-day"] .glass,
+html[data-event-theme="independence-day"] .project-card,
+html[data-event-theme="independence-day"] .blog-card,
+html[data-event-theme="independence-day"] .skill-card,
+html[data-event-theme="independence-day"] .resume-panel,
+html[data-event-theme="independence-day"] .contact-form,
+html[data-event-theme="independence-day"] .contact-card,
+html[data-event-theme="independence-day"] .map-card,
+html[data-event-theme="independence-day"] .page-hero,
+html[data-event-theme="independence-day"] .cta,
+html[data-event-theme="independence-day"] .timeline-item,
+html[data-event-theme="independence-day"] .intro-video-card,
+html[data-event-theme="independence-day"] .portfolio-deck,
+html[data-event-theme="independence-day"] .intro-summary,
+html[data-event-theme="independence-day"] .empty-state,
+html[data-event-theme="independence-day"] dialog,
+html[data-event-theme="independence-day"] [role="dialog"],
+html[data-event-theme="independence-day"] .toast,
+html[data-event-theme="independence-day"] .notification,
+html[data-event-theme="independence-day"] .alert {
+  background-image: linear-gradient(135deg, var(--event-saffron-soft), transparent 42%, var(--event-green-soft));
+}
+
+html[data-event-theme="independence-day"] .project-card::after,
+html[data-event-theme="independence-day"] .blog-card::after,
+html[data-event-theme="independence-day"] .skill-card::after,
+html[data-event-theme="independence-day"] .page-hero::after,
+html[data-event-theme="independence-day"] .cta::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--event-saffron), var(--event-white) 50%, var(--event-green));
+  opacity: 0.72;
+}
+
+html[data-event-theme="independence-day"] .project-card,
+html[data-event-theme="independence-day"] .blog-card,
+html[data-event-theme="independence-day"] .skill-card,
+html[data-event-theme="independence-day"] .page-hero,
+html[data-event-theme="independence-day"] .cta {
+  isolation: isolate;
+}
+
+html[data-event-theme="independence-day"] .project-card:hover,
+html[data-event-theme="independence-day"] .blog-card:hover,
+html[data-event-theme="independence-day"] .skill-card:hover {
+  border-color: color-mix(in srgb, var(--event-saffron) 52%, var(--event-green));
+  box-shadow: 0 18px 56px rgba(23, 74, 126, 0.2), 0 0 0 1px var(--event-navy-soft);
+}
+
+html[data-event-theme="independence-day"] .pill,
+html[data-event-theme="independence-day"] .tag-cloud span,
+html[data-event-theme="independence-day"] .hero-stats span {
+  background: linear-gradient(90deg, var(--event-saffron-soft), var(--event-white-soft), var(--event-green-soft));
+  border-color: var(--border);
+}
+
+html[data-event-theme="independence-day"] .hero-visual .profile-frame,
+html[data-event-theme="independence-day"] .profile-orbit {
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--event-saffron), var(--event-white) 48%, var(--event-green)) border-box;
+}
+
+html[data-event-theme="independence-day"] .profile-orbit::before {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border: 1px dashed var(--event-navy);
+  border-radius: 50%;
+  opacity: 0.55;
+  animation: independence-chakra-spin 28s linear infinite;
+}
+
+html[data-event-theme="independence-day"] .profile-orbit img {
+  border-color: rgba(255, 250, 242, 0.32);
+}
+
+html[data-event-theme="independence-day"] .orbit-dot.one,
+html[data-event-theme="independence-day"] .orbit-dot.three {
+  background: var(--event-saffron);
+  color: var(--event-saffron);
+}
+
+html[data-event-theme="independence-day"] .orbit-dot.two {
+  background: var(--event-green);
+  color: var(--event-green);
+}
+
+html[data-event-theme="independence-day"] .timeline-item::before {
+  background: linear-gradient(var(--event-saffron), var(--event-white), var(--event-green));
+}
+
+html[data-event-theme="independence-day"] .blog-tools input,
+html[data-event-theme="independence-day"] .blog-tools select,
+html[data-event-theme="independence-day"] .contact-form input,
+html[data-event-theme="independence-day"] .contact-form textarea {
+  background: var(--event-white-soft);
+}
+
+html[data-event-theme="independence-day"] .blog-tools input:focus,
+html[data-event-theme="independence-day"] .blog-tools select:focus,
+html[data-event-theme="independence-day"] .contact-form input:focus,
+html[data-event-theme="independence-day"] .contact-form textarea:focus {
+  border-color: var(--event-saffron);
+  box-shadow: 0 0 0 3px var(--event-saffron-soft);
+}
+
+html[data-event-theme="independence-day"] .article-content blockquote {
+  border-left-color: var(--event-saffron);
+  background: linear-gradient(90deg, var(--event-saffron-soft), transparent);
+}
+
+html[data-event-theme="independence-day"] .site-footer {
+  background: linear-gradient(90deg, var(--event-saffron-soft), transparent 38%, transparent 62%, var(--event-green-soft));
+}
+
+html[data-event-theme="independence-day"] .deck-stage,
+html[data-event-theme="independence-day"] .intro-video {
+  border-color: var(--event-navy-soft);
+  background: linear-gradient(135deg, rgba(23, 74, 126, 0.95), rgba(10, 30, 48, 0.96));
+}
+
+/* Compact annual banner inserted before the page's main content. */
+.independence-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 0 0 clamp(18px, 2vw, 28px);
+  padding: 14px clamp(16px, 2.2vw, 28px);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  background:
+    linear-gradient(90deg, var(--event-saffron-soft), transparent 36%, transparent 64%, var(--event-green-soft)),
+    var(--surface);
+  box-shadow: 0 16px 40px rgba(23, 74, 126, 0.12);
+  backdrop-filter: blur(20px) saturate(125%);
+  animation: independence-banner-entry 600ms ease both;
+}
+
+.independence-banner::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--event-saffron), var(--event-white) 50%, var(--event-green));
+}
+
+.independence-banner__flag {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: linear-gradient(180deg, var(--event-saffron) 0 33%, var(--event-white) 33% 66%, var(--event-green) 66% 100%);
+  box-shadow: 0 6px 18px rgba(23, 74, 126, 0.16);
+}
+
+.independence-banner__chakra {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--event-navy);
+  border-radius: 50%;
+  animation: independence-chakra-spin 14s linear infinite;
+}
+
+.independence-banner__copy {
+  min-width: 0;
+}
+
+.independence-banner__eyebrow,
+.independence-banner__title,
+.independence-banner__message {
+  display: block;
+  margin: 0;
+}
+
+.independence-banner__eyebrow {
+  color: var(--event-saffron);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.independence-banner__title {
+  margin-top: 3px;
+  color: var(--heading);
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  font-weight: 850;
+}
+
+.independence-banner__message {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.independence-banner__seal {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--event-navy-soft);
+  border-radius: 50%;
+  color: var(--event-navy);
+  background: var(--event-white-soft);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+@keyframes independence-gradient-drift {
+  from { transform: translate3d(-2%, 0, 0) scale(0.98); }
+  to { transform: translate3d(2%, 4%, 0) scale(1.04); }
+}
+
+@keyframes independence-banner-entry {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes independence-chakra-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 680px) {
+  .independence-banner {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .independence-banner__seal {
+    display: none;
+  }
+
+  .independence-banner__message {
+    font-size: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-event-theme="independence-day"] body::after,
+  html[data-event-theme="independence-day"] .profile-orbit::before,
+  .independence-banner,
+  .independence-banner__chakra {
+    animation: none !important;
+  }
+}
+
+/* About page custom surfaces use local CSS, so give them explicit event tokens too. */
+html[data-event-theme="independence-day"] .page-hero::before {
+  background: radial-gradient(circle, var(--event-saffron-soft), transparent 68%);
+}
+
+html[data-event-theme="independence-day"] .page-hero h1 {
+  background: linear-gradient(135deg, var(--heading), var(--event-saffron) 58%, var(--event-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+html[data-event-theme="independence-day"] .hero-profile-section,
+html[data-event-theme="independence-day"] .info-card,
+html[data-event-theme="independence-day"] .feature-card,
+html[data-event-theme="independence-day"] .revision-card,
+html[data-event-theme="independence-day"] .step-card,
+html[data-event-theme="independence-day"] .stack-card,
+html[data-event-theme="independence-day"] .quote-card,
+html[data-event-theme="independence-day"] .stat-card {
+  background-image: linear-gradient(135deg, var(--event-saffron-soft), transparent 42%, var(--event-green-soft));
+}
+
+html[data-event-theme="independence-day"] .profile-image-wrapper img {
+  border-color: var(--event-navy-soft);
+  box-shadow: 0 20px 60px rgba(23, 74, 126, 0.2);
+}
+
+html[data-event-theme="independence-day"] .stat-item {
+  background: linear-gradient(135deg, var(--event-saffron-soft), var(--event-navy-soft), var(--event-green-soft));
+  border-color: var(--border);
+}
+
+html[data-event-theme="independence-day"] .stat-item:hover,
+html[data-event-theme="independence-day"] .info-card:hover,
+html[data-event-theme="independence-day"] .feature-card:hover,
+html[data-event-theme="independence-day"] .revision-card:hover,
+html[data-event-theme="independence-day"] .step-card:hover,
+html[data-event-theme="independence-day"] .stack-card:hover,
+html[data-event-theme="independence-day"] .stat-card:hover {
+  border-color: color-mix(in srgb, var(--event-saffron) 52%, var(--event-green));
+}
+
+html[data-event-theme="independence-day"] .info-card::before,
+html[data-event-theme="independence-day"] .feature-card::before,
+html[data-event-theme="independence-day"] .revision-card::before,
+html[data-event-theme="independence-day"] .step-card::before,
+html[data-event-theme="independence-day"] .stack-card::before {
+  background: linear-gradient(90deg, var(--event-saffron), var(--event-white), var(--event-green));
+}
+
+html[data-event-theme="independence-day"] .step-index {
+  color: var(--event-navy);
+  background: linear-gradient(110deg, var(--event-saffron), var(--event-white) 50%, var(--event-green));
+}
+
+html[data-event-theme="independence-day"] .language-switch {
+  background: linear-gradient(90deg, var(--event-saffron-soft), var(--event-green-soft));
+}
+
+html[data-event-theme="independence-day"] .language-switch button.active {
+  background: linear-gradient(135deg, var(--event-saffron-soft), var(--event-navy-soft), var(--event-green-soft));
+}
+
+html[data-event-theme="independence-day"] .pill-row span {
+  background: var(--event-white-soft);
+}
+
+html[data-event-theme="independence-day"] .pill-row span:hover {
+  color: var(--event-saffron);
+  background: var(--event-saffron-soft);
+  border-color: var(--event-saffron);
+}
+
+html[data-event-theme="independence-day"] .quote-card,
+html[data-event-theme="independence-day"] .timeline-item {
+  border-left-color: var(--event-saffron);
+}
+
+html[data-event-theme="independence-day"] .timeline-item:hover {
+  border-left-color: var(--event-green);
+}
+
+html[data-event-theme="independence-day"] .stat-card strong {
+  color: var(--event-saffron);
+}
+
+html[data-event-theme="independence-day"] .btn.ghost:hover {
+  color: var(--event-saffron);
+  background: var(--event-saffron-soft);
+  border-color: var(--event-saffron);
+}

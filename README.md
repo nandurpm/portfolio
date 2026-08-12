@@ -12,7 +12,7 @@ The site presents professional background information, engineering and software 
 
 ## Features
 
-The public experience includes responsive layouts, dark/light theme persistence, scroll-reveal animation, project filtering, blog search/filtering/pagination, SEO and social metadata, project detail pages, a resume download, and legacy route redirects. The repository also contains Cloudflare-compatible configuration and a server-side GitHub OAuth route for the Content Studio.
+The public experience includes responsive layouts, dark/light theme persistence, scroll-reveal animation, project filtering, blog search/filtering/pagination, SEO and social metadata, project detail pages, a resume download, legacy route redirects, and an annual Independence Day visual edition that activates on the user’s local 15 August date. The repository also contains Cloudflare-compatible configuration and a server-side GitHub OAuth route for the Content Studio.
 
 ## Technology Stack
 
@@ -84,7 +84,8 @@ The repository includes a `CNAME` file for the custom domain, `_redirects` for r
 | `projects.html` | Project index and filtering interface |
 | `blog.html` | Blog index and search/filter interface |
 | `assets/js/main.js` | Shared page initialization and interaction behavior |
-| `assets/js/theme.js` | Theme selection and persistence |
+| `assets/js/theme.js` | Theme selection, persistence, and local-date Independence Day activation |
+| `assets/css/independence-day.css` | Isolated tricolour event palette, responsive banner, and reduced-motion-safe annual theme styles |
 | `assets/data/works.json` | Project metadata consumed by the project interface |
 | `assets/data/blog.json` | Blog metadata consumed by the blog interface |
 | `scripts/publish-content.mjs` | Validates and publishes staged content |
