@@ -1,4 +1,13 @@
-[
+[{
+    "title": "25-Project Engineering & Software Archive",
+    "slug": "archive-tool-suite",
+    "category": "Engineering Software",
+    "description": "A detailed public archive of 25 local-first engineering, electronics, diagnostic, documentation, and calculator tools, including 20 responsive live report services and verified source repositories.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html",
+    "github": "https://github.com/nandurpm",
+    "technologies": ["Node.js", "Static Reports", "Render", "GitHub", "Local-first"]
+  },
   {
     "title": "Diploma Notes",
     "slug": "diploma-notes",
