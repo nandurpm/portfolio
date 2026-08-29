@@ -102,6 +102,8 @@ The repository includes a `CNAME` file for the custom domain, `_redirects` for r
 | `uploads/README.md` | Upload inbox format and staging rules |
 | `docs/content-studio-oauth.md` | OAuth integration notes |
 | `tools/README.md` | Validation utility guidance |
+| `.github/README.md` | Automated publishing configuration and security boundary |
+| `.github/workflows/README.md` | Static-content publishing workflow stages |
 | Folder `README.md` files | Directory-specific responsibilities and conventions |
 
 ## Security

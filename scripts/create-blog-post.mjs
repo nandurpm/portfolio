@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+/*
+ * ============================================================
+ * FILE: create-blog-post.mjs
+ * PURPOSE: Validates blog metadata and stages a complete static
+ *          article plus optional cover image for publication.
+ * ============================================================
+ */
+
 /**
  * Create a staged blog post for the portfolio publishing workflow.
  *

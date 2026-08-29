@@ -1,3 +1,12 @@
+/*
+ * ============================================================
+ * FILE: admin.css
+ * PURPOSE: Defines the responsive authentication, navigation,
+ *          editor, content table, modal, and theme presentation
+ *          for the portfolio Content Studio.
+ * ============================================================
+ */
+
 * { box-sizing: border-box; }
 
 :root {

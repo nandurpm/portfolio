@@ -2,16 +2,20 @@
 
 ## Purpose
 
-Authoring templates for new portfolio content.
+Contains hand-maintained HTML starting points for portfolio authors who stage content without the Content Studio or generation script.
 
 ## Contents
 
-HTML templates for blog posts and project pages.
+- `blog-upload-template.html` — Blog metadata contract, article structure, styles, and browser scripts.
+- `project-upload-template.html` — Project metadata contract, overview structure, styles, and browser scripts.
+- `BLOG_UPLOAD_INSTRUCTIONS.md` — Required blog fields and staging procedure.
 
 ## Responsibilities
 
-Start new content from a matching template, then replace placeholder metadata and content before uploading.
+Keep templates aligned with the publisher's required metadata and the public site's shared assets. Replace every placeholder before moving a file into `uploads/`.
 
 ## Important Notes
 
-Placeholder references are intentionally ignored by link-audit tooling until a real slug is supplied.
+- Placeholder URLs and slugs are intentionally not valid published content.
+- Image filenames must match the final slug and use a supported extension.
+- Update the publishing validator and this guide together if required metadata changes.
