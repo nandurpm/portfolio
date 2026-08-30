@@ -1,6 +1,6 @@
 /*
  * FILE: animations.css
- * FILE PURPOSE: Stylesheet containing reusable animations rules for the portfolio interface.
+ * FILE PURPOSE: Defines reusable typing/orbit animations and reduced-motion fallbacks, while loading shared content-page styles.
  */
 
 @import url("content-pages.css");

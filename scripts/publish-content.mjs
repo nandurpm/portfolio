@@ -6,6 +6,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+// -----------------------------------------------------------------------------
+// FILE, JSON, AND METADATA HELPERS
+// -----------------------------------------------------------------------------
+
 const ROOT = process.cwd();
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg']);
 
@@ -82,6 +86,10 @@ function isValidDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 }
 
+// -----------------------------------------------------------------------------
+// COVER IMAGE RESOLUTION AND STAGING CLEANUP
+// -----------------------------------------------------------------------------
+
 function resolveImage(uploadDir, requestedName, slug, existingImage) {
   if (requestedName?.startsWith('assets/')) {
     const existingPath = path.join(ROOT, requestedName);
@@ -137,6 +145,14 @@ function upsert(items, key, entry) {
   else items.push(entry);
 }
 
+// -----------------------------------------------------------------------------
+// BLOG AND PROJECT PUBLICATION
+// -----------------------------------------------------------------------------
+
+/**
+ * Publishes every staged blog HTML file and matching image, upserts the blog
+ * index, and removes successfully processed inbox files.
+ */
 function processBlog() {
   const uploadDir = path.join(ROOT, 'uploads/blog');
   if (!fs.existsSync(uploadDir)) return 0;
@@ -185,6 +201,10 @@ function processBlog() {
   return files.length;
 }
 
+/**
+ * Publishes every staged project HTML file and matching image, upserts the
+ * project index, and removes successfully processed inbox files.
+ */
 function processProjects() {
   const uploadDir = path.join(ROOT, 'uploads/projects');
   if (!fs.existsSync(uploadDir)) return 0;
@@ -236,6 +256,10 @@ function processProjects() {
   writeJson('assets/data/works.json', projects);
   return files.length;
 }
+
+// -----------------------------------------------------------------------------
+// COMMAND-LINE ENTRY POINT
+// -----------------------------------------------------------------------------
 
 try {
   const published = processBlog() + processProjects();

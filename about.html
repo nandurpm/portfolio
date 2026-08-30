@@ -1,6 +1,6 @@
 <!--
 FILE: about.html
-FILE PURPOSE: About page containing the professional profile, presentation, resume timeline, and contact sections.
+FILE PURPOSE: About page covering the professional profile, current work, technical stack, experience, working method, and contact call to action.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +29,7 @@ FILE PURPOSE: About page containing the professional profile, presentation, resu
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
-    /* Enhanced About Page Styling */
+    /* Page hero and professional profile */
     
     .page-hero { 
       padding: clamp(24px, 4vw, 42px);
@@ -162,6 +162,7 @@ FILE PURPOSE: About page containing the professional profile, presentation, resu
       font-weight: 600;
     }
     
+    /* Reusable content grids and information cards */
     .content-grid { 
       display: grid; 
       gap: clamp(24px, 3vw, 36px);
@@ -258,6 +259,7 @@ FILE PURPOSE: About page containing the professional profile, presentation, resu
       margin-top: 8px; 
     }
     
+    /* Page navigation, language controls, and supporting UI */
     .breadcrumb { 
       margin-bottom: 16px;
       display: flex;
@@ -365,6 +367,7 @@ FILE PURPOSE: About page containing the professional profile, presentation, resu
       color: var(--heading);
     }
     
+    /* Experience timeline and impact statistics */
     .timeline { 
       display: grid; 
       gap: 16px; 
@@ -465,6 +468,7 @@ FILE PURPOSE: About page containing the professional profile, presentation, resu
       color: var(--brand);
     }
     
+    /* Responsive layout adjustments */
     @media (max-width: 1100px) {
       .hero-profile-section {
         grid-template-columns: 1fr;

@@ -33,6 +33,10 @@ function errorPage(message, status = 500) {
   });
 }
 
+/**
+ * Start OAuth by creating short-lived state/PKCE cookies and redirecting the
+ * browser to the configured GitHub OAuth App.
+ */
 export async function onRequestGet({ request, env }) {
   if (!env.GITHUB_CLIENT_ID || !env.GITHUB_CLIENT_SECRET) {
     return errorPage('OAuth environment variables have not been configured for this deployment.', 503);

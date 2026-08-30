@@ -1,17 +1,19 @@
-# Oauth
+# OAuth
 
 ## Purpose
 
-GitHub OAuth callback and token-exchange endpoint for Content Studio.
+Server-side portion of Content Studio's GitHub OAuth authorization-code flow.
 
 ## Contents
 
-The server-side handler that keeps the OAuth client secret out of the browser.
+- `config.js` — Reports whether the required OAuth runtime configuration is available and returns only browser-safe values.
+- `start.js` — Derives the configured callback URL, creates state and PKCE values, stores short-lived secure cookies, and redirects to GitHub authorization.
+- `callback.js` — Validates the callback/cookies, exchanges the code using the deployment secret, verifies the GitHub identity, and returns the token to the originating studio window.
 
 ## Responsibilities
 
-Only GitHub authentication exchange logic belongs here; editor state and publishing UI remain in `admin/`.
+Only route-specific GitHub authentication and token-exchange logic belongs here. Editor state and publishing UI remain in `admin/`; generated-content publication remains in `scripts/` and `.github/workflows/`.
 
 ## Important Notes
 
-Changes must preserve the callback route and deployment environment variable contract.
+Changes must preserve `/api/github/oauth/config`, `/start`, and `/callback`, plus the `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `SITE_ORIGIN`, `GITHUB_OWNER`, and `GITHUB_REPOSITORY` environment contract. Never log or document runtime secret/token values. See `docs/content-studio-oauth.md` for deployment setup.

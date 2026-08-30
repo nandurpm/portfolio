@@ -1,17 +1,17 @@
-# Github
+# GitHub API Routes
 
 ## Purpose
 
-GitHub-related API route namespace.
+Provider-specific API namespace for server-side GitHub integrations used by the portfolio.
 
 ## Contents
 
-GitHub integration endpoints used by the portfolio publishing tools.
+- `oauth/` — OAuth configuration, authorization redirect, callback validation, code exchange, and popup response endpoints.
 
 ## Responsibilities
 
-Place GitHub provider handlers here and keep token exchange or provider-specific logic close to its route.
+Place only GitHub-provider request handlers and their route-local helpers here. General browser state stays in `admin/`, while content publication logic stays in `scripts/` and GitHub Actions.
 
 ## Important Notes
 
-Do not commit OAuth secrets or long-lived access tokens.
+Do not commit OAuth secrets or access tokens. Provider endpoints must preserve the configured popup target origin, state/PKCE validation, secure cookie behavior, and the configured repository/account boundary.

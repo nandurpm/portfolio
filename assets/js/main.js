@@ -3,6 +3,10 @@
  * FILE PURPOSE: Shared portfolio-page initialization and interaction behavior used by the public static site.
  */
 
+// -----------------------------------------------------------------------------
+// CONTENT LOADING, ESCAPING, AND CARD RENDERING
+// -----------------------------------------------------------------------------
+
 const DATA_PATHS = {
   projects: "assets/data/works.json",
   blog: "assets/data/blog.json"
@@ -148,6 +152,10 @@ async function renderRecentPosts() {
     console.warn(error.message);
   }
 }
+
+// -----------------------------------------------------------------------------
+// PAGE INTERACTIONS
+// -----------------------------------------------------------------------------
 
 function setupTyping() {
   const target = document.querySelector("[data-typing]");
@@ -310,6 +318,10 @@ function setupSlideDeck() {
   render(0);
   restart();
 }
+
+// -----------------------------------------------------------------------------
+// DYNAMIC-CONTENT SIGNALING AND PAGE INITIALIZATION
+// -----------------------------------------------------------------------------
 
 function notifyContentRendered(target = document) {
   target.dispatchEvent(new CustomEvent("portfolio:content-rendered", { bubbles: true }));

@@ -1,3 +1,9 @@
+/*
+ * FILE: admin.css
+ * FILE PURPOSE: Defines the complete Content Studio interface, including
+ * authentication, dashboard, content library, editor, dialogs, and responsive states.
+ */
+
 * { box-sizing: border-box; }
 
 :root {

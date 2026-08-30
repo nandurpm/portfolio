@@ -1,6 +1,6 @@
 /*
  * FILE: reveal.css
- * FILE PURPOSE: Stylesheet containing reusable reveal rules for the portfolio interface.
+ * FILE PURPOSE: Visual states, directions, timing variables, and reduced-motion behavior used by the scroll-reveal controller.
  */
 
 :root {

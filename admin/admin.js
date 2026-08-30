@@ -6,6 +6,10 @@
 (() => {
   'use strict';
 
+  // ---------------------------------------------------------------------------
+  // APPLICATION CONFIGURATION, DEMO DATA, STATE, AND DOM REFERENCES
+  // ---------------------------------------------------------------------------
+
   const CONFIG = {
     owner: 'nandurpm',
     repository: 'portfolio',
@@ -128,6 +132,10 @@
     globalSearchResults: $('#globalSearchResults')
   };
 
+  // ---------------------------------------------------------------------------
+  // STORAGE, ENCODING, SANITIZATION, AND GENERAL UI HELPERS
+  // ---------------------------------------------------------------------------
+
   function loadLocalJson(key, fallback) {
     try {
       const value = localStorage.getItem(key);
@@ -207,6 +215,11 @@
     });
   }
 
+  /**
+   * Removes executable or unsafe markup before article HTML is previewed or
+   * committed. This browser-side safeguard does not make externally supplied
+   * HTML trusted; only owner-reviewed content should enter the upload inbox.
+   */
   function sanitizeContent(html) {
     const parsed = new DOMParser().parseFromString(`<div id="content-root">${html}</div>`, 'text/html');
     const root = parsed.querySelector('#content-root');
@@ -271,6 +284,14 @@
     state.confirmResolver = null;
   }
 
+  // ---------------------------------------------------------------------------
+  // GITHUB API ACCESS AND AUTHENTICATION
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Sends an authenticated GitHub API request with the repository editor's
+   * session credential and normalizes unsuccessful responses into errors.
+   */
   async function githubRequest(path, options = {}) {
     if (IS_LOCAL_DEMO) throw new Error('GitHub requests are disabled in local demo mode.');
     const response = await fetch(`https://api.github.com${path}`, {
@@ -313,6 +334,10 @@
     return path.split('/').map(encodeURIComponent).join('/');
   }
 
+  /**
+   * Creates blobs, a tree, and a commit, then advances the configured branch.
+   * A single retry handles a concurrent non-fast-forward update.
+   */
   async function commitFiles(files, message, attempt = 0) {
     if (IS_LOCAL_DEMO) {
       await sleep(850);
@@ -514,6 +539,10 @@
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // STUDIO DATA LOADING, NORMALIZATION, AND DASHBOARD RENDERING
+  // ---------------------------------------------------------------------------
+
   async function enterStudio() {
     el.authScreen.hidden = true;
     el.studioApp.hidden = false;
@@ -534,6 +563,10 @@
     $('#connectionPermission').textContent = `Write access verified via ${state.authMethod === 'github' ? 'GitHub sign-in' : 'access token'}`;
   }
 
+  /**
+   * Loads published indexes, media records, and recent workflow runs from the
+   * configured repository before normalizing them for the dashboard views.
+   */
   async function loadStudioData(showFeedback = false) {
     setSyncState('loading', 'Syncing with GitHub');
     try {
@@ -768,6 +801,10 @@
     el.sidebar.classList.remove('open');
     el.mobileScrim.hidden = true;
   }
+
+  // ---------------------------------------------------------------------------
+  // EDITOR STATE, DRAFTS, VALIDATION, AND COVER MEDIA
+  // ---------------------------------------------------------------------------
 
   function setEditorType(type, resetCategory = true) {
     state.editor.type = type;
@@ -1131,6 +1168,10 @@
     delete el.coverDropzone.dataset.imagePath;
   }
 
+  // ---------------------------------------------------------------------------
+  // PUBLISHED PAGE GENERATION
+  // ---------------------------------------------------------------------------
+
   function siteHeader(active) {
     const item = (href, label, key) => `<a${active === key ? ' class="active" aria-current="page"' : ''} href="${href}">${label}</a>`;
     return `<header class="site-header glass"><a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a><button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" aria-label="Main navigation">${item('../index.html','Home','home')}${item('../projects.html','Projects','projects')}${item('../blog.html','Blog','blog')}${item('../about.html','About','about')}</nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>`;
@@ -1144,8 +1185,12 @@
     return JSON.stringify(value).replace(/</g, '\\u003c');
   }
 
-  function documentShell({ title, description, metadata, active, body, canonical, image, schema }) {
-    return `<!DOCTYPE html>
+  function documentShell({ fileName, title, description, metadata, active, body, canonical, image, schema }) {
+    return `<!--
+FILE: ${fileName}
+FILE PURPOSE: Generated published ${active === 'blog' ? 'blog article' : 'portfolio project page'} managed by Content Studio.
+-->
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1220,8 +1265,12 @@ ${metadata}
     } : {
       '@context': 'https://schema.org', '@type': 'CreativeWork', name: values.title, description: values.excerpt, datePublished: values.date, image: publicImage, author: { '@type': 'Person', name: 'Nandakumar M', url: CONFIG.siteUrl }, url: canonical, keywords: tags.join(', ')
     };
-    return documentShell({ title: values.title, description: values.excerpt, metadata, active: isBlog ? 'blog' : 'projects', body, canonical, image: publicImage, schema });
+    return documentShell({ fileName: `${values.slug}.html`, title: values.title, description: values.excerpt, metadata, active: isBlog ? 'blog' : 'projects', body, canonical, image: publicImage, schema });
   }
+
+  // ---------------------------------------------------------------------------
+  // PREVIEW, PUBLICATION, WORKFLOW MONITORING, AND CONTENT REMOVAL
+  // ---------------------------------------------------------------------------
 
   async function previewCurrent() {
     const result = validateEditor(true);
@@ -1234,6 +1283,10 @@ ${metadata}
     openModal(el.previewModal);
   }
 
+  /**
+   * Commits a validated staging page and optional cover image, then monitors
+   * the publishing workflow that moves them into the public content tree.
+   */
   async function publishCurrent() {
     const result = validateEditor(true);
     if (!result.valid) return;
@@ -1351,6 +1404,10 @@ ${metadata}
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // PREFERENCES, GLOBAL SEARCH, COMMANDS, AND EDITOR TOOLBAR
+  // ---------------------------------------------------------------------------
+
   function applyPreferences() {
     document.documentElement.dataset.theme = state.preferences.theme;
     document.body.classList.toggle('compact-table', state.preferences.compactTable);
@@ -1416,6 +1473,10 @@ ${metadata}
     if (button.dataset.action === 'code') document.execCommand('formatBlock', false, 'pre');
     markEditorDirty();
   }
+
+  // ---------------------------------------------------------------------------
+  // EVENT WIRING AND APPLICATION INITIALIZATION
+  // ---------------------------------------------------------------------------
 
   function setupEventListeners() {
     el.tokenLoginForm.addEventListener('submit', async (event) => {
