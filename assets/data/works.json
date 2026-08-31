@@ -1,21 +1,422 @@
-[{
-    "title": "25-Project Engineering & Software Archive",
-    "slug": "archive-tool-suite",
+[
+  {
+    "title": "Electrical Troubleshooter",
+    "slug": "electrical-troubleshooter",
     "category": "Engineering Software",
-    "description": "A detailed public archive of 25 local-first engineering, electronics, diagnostic, documentation, and calculator tools, including 20 responsive live report services and verified source repositories.",
+    "description": "Guides users through a safety-first electrical decision tree for recording observations and choosing escalation paths. It translates practical diagnostic reasoning into a consistent, inspectable workflow.",
     "image": "assets/images/archive-engineering-hero.png",
-    "url": "works/archive-tool-suite.html",
-    "github": "https://github.com/nandurpm",
-    "technologies": ["Node.js", "Static Reports", "Render", "GitHub", "Local-first"]
+    "url": "works/archive-tool-suite.html#electrical-troubleshooter",
+    "github": "https://github.com/nandurpm/electrical-troubleshooter",
+    "technologies": [
+      "Node.js",
+      "Electrical Engineering",
+      "Decision Trees"
+    ],
+    "demo": "https://electrical-troubleshooter.onrender.com"
+  },
+  {
+    "title": "Internet Time Machine",
+    "slug": "internet-time-machine",
+    "category": "Monitoring & Diagnostics",
+    "description": "Turns network-quality history into provenance-aware trends and optional user-triggered summaries. It demonstrates clear data-source labeling and separates deterministic reporting from optional assistance.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#internet-time-machine",
+    "github": "https://github.com/nandurpm/internet-time-machine",
+    "technologies": [
+      "Node.js",
+      "Data Visualization",
+      "Local-first"
+    ],
+    "demo": "https://timemachine-alxsadqu.manus.space"
   },
   {
     "title": "Diploma Notes",
     "slug": "diploma-notes",
-    "category": "Web Development",
-    "description": "A student-friendly study platform for Kerala Diploma learners with syllabus access, lesson pages, downloadable notes, and organized question-paper resources.",
+    "category": "Learning Tools",
+    "description": "Helps Kerala Diploma learners reach syllabus links, lesson material, notes, and question-paper resources from one organized study platform. It demonstrates information architecture and accessible static-web delivery for a focused student audience.",
     "image": "assets/images/works/project-6.png",
     "url": "works/diploma-notes.html",
     "github": "https://github.com/nandurpm/diploma-notes",
-    "technologies": ["HTML", "CSS", "JavaScript", "GitHub Pages"]
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "GitHub Pages"
+    ]
+  },
+  {
+    "title": "Digital Life Dashboard",
+    "slug": "digital-life-dashboard",
+    "category": "Productivity Tools",
+    "description": "Organizes browser-held notes, preferences, and personal insights in a local-first dashboard. It demonstrates responsive information design without requiring unnecessary collection of personal data.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#digital-life-dashboard",
+    "github": "https://github.com/nandurpm/digital-life-dashboard",
+    "technologies": [
+      "Node.js",
+      "Responsive UI",
+      "Local-first"
+    ],
+    "demo": "https://digital-life-dashboard.onrender.com"
+  },
+  {
+    "title": "System Change Tracker",
+    "slug": "system-change-tracker",
+    "category": "Monitoring & Diagnostics",
+    "description": "Presents system changes as a read-only timeline with comparison views and explicit synthetic-data boundaries. It demonstrates audit-friendly reporting without implying hidden access to a visitor’s computer.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#system-change-tracker",
+    "github": "https://github.com/nandurpm/system-change-tracker",
+    "technologies": [
+      "Node.js",
+      "Timeline",
+      "Read-only"
+    ],
+    "demo": "https://system-change-tracker.onrender.com"
+  },
+  {
+    "title": "Question Machine",
+    "slug": "question-machine",
+    "category": "Learning Tools",
+    "description": "Provides a progressive learning tree with deterministic assessment and optional server-side semantic feedback. It demonstrates structured educational UX while keeping the dependable assessment path understandable.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#question-machine",
+    "github": "https://github.com/nandurpm/question-machine",
+    "technologies": [
+      "Node.js",
+      "Education",
+      "AI-assisted"
+    ],
+    "demo": "https://question-machine.onrender.com"
+  },
+  {
+    "title": "Boot Inspector",
+    "slug": "boot-inspector",
+    "category": "Monitoring & Diagnostics",
+    "description": "Turns synthetic boot diagnostic records into an interactive report for reviewing startup events and likely investigation areas. It demonstrates diagnostic presentation while clearly avoiding claims of direct access to the visitor’s machine.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#boot-inspector",
+    "github": "https://github.com/nandurpm/boot-inspector",
+    "technologies": [
+      "Node.js",
+      "Diagnostics",
+      "Synthetic Data"
+    ],
+    "demo": "https://boot-inspector.onrender.com"
+  },
+  {
+    "title": "Folder Archaeologist",
+    "slug": "folder-archaeologist",
+    "category": "Monitoring & Diagnostics",
+    "description": "Explores a filtered file inventory through a readable report built from local or synthetic samples. It demonstrates how large directory information can be reduced into reviewable structure without uploading private files.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#folder-archaeologist",
+    "github": "https://github.com/nandurpm/folder-archaeologist",
+    "technologies": [
+      "Node.js",
+      "File Inventory",
+      "Privacy-aware"
+    ],
+    "demo": "https://folder-archaeologist.onrender.com"
+  },
+  {
+    "title": "LAN Map",
+    "slug": "lan-map",
+    "category": "Monitoring & Diagnostics",
+    "description": "Visualizes a read-only network topology report with its local-network limits stated directly. It demonstrates topology communication and responsible handling of network-scan expectations.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#lan-map",
+    "github": "https://github.com/nandurpm/lan-map",
+    "technologies": [
+      "Node.js",
+      "Network Topology",
+      "Read-only"
+    ],
+    "demo": "https://lan-map.onrender.com"
+  },
+  {
+    "title": "WiFi Heatmap",
+    "slug": "wifi-heatmap",
+    "category": "Monitoring & Diagnostics",
+    "description": "Models a local wireless survey as a simulated coverage heatmap. It demonstrates spatial data visualization and survey interpretation without presenting sample measurements as a live scan.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#wifi-heatmap",
+    "github": "https://github.com/nandurpm/wifi-heatmap",
+    "technologies": [
+      "Node.js",
+      "Wireless",
+      "Data Visualization"
+    ],
+    "demo": "https://wifi-heatmap.onrender.com"
+  },
+  {
+    "title": "Energy Monitor",
+    "slug": "energy-monitor",
+    "category": "Engineering Software",
+    "description": "Maintains a local appliance-energy ledger with readable totals, summaries, and trends. It demonstrates practical electrical data organization for understanding consumption patterns.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#energy-monitor",
+    "github": "https://github.com/nandurpm/energy-monitor",
+    "technologies": [
+      "Node.js",
+      "Energy",
+      "Local-first"
+    ],
+    "demo": "https://energy-monitor-3ckp.onrender.com"
+  },
+  {
+    "title": "Component Vault",
+    "slug": "component-vault",
+    "category": "Electronics Tools",
+    "description": "Provides an offline component reference organized for quick practical lookup. It demonstrates electronics knowledge organization and resilient access without a required remote service.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#component-vault",
+    "github": "https://github.com/nandurpm/component-vault",
+    "technologies": [
+      "Node.js",
+      "Electronics",
+      "Offline-first"
+    ],
+    "demo": "https://component-vault.onrender.com"
+  },
+  {
+    "title": "Resistor Vision",
+    "slug": "resistor-vision",
+    "category": "Electronics Tools",
+    "description": "Combines a manual resistor color-code calculator with a compact reference workflow. It demonstrates dependable input-to-value calculation and accessible electronics guidance.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#resistor-vision",
+    "github": "https://github.com/nandurpm/resistor-vision",
+    "technologies": [
+      "Node.js",
+      "Electronics",
+      "Calculator"
+    ],
+    "demo": "https://resistor-vision-artu.onrender.com"
+  },
+  {
+    "title": "PCB Component Finder",
+    "slug": "pcb-component-finder",
+    "category": "Electronics Tools",
+    "description": "Provides a manual annotation workspace for exploring and identifying PCB components. It demonstrates visual technical documentation while keeping identification decisions under user control.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#pcb-component-finder",
+    "github": "https://github.com/nandurpm/pcb-component-finder",
+    "technologies": [
+      "Node.js",
+      "PCB",
+      "Annotation"
+    ],
+    "demo": "https://pcb-component-finder.onrender.com"
+  },
+  {
+    "title": "Signal Lab",
+    "slug": "signal-lab",
+    "category": "Electronics Tools",
+    "description": "Presents a signal-analysis workflow behind its own controlled sign-in surface. It demonstrates electronics-focused analysis and deliberate access boundaries for a hosted tool.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#signal-lab",
+    "github": "https://github.com/nandurpm/signal-lab",
+    "technologies": [
+      "Node.js",
+      "Signal Analysis",
+      "Access Control"
+    ],
+    "demo": "https://signal-lab.onrender.com"
+  },
+  {
+    "title": "Motor Toolbox",
+    "slug": "motor-toolbox",
+    "category": "Engineering Software",
+    "description": "Collects engineering calculators for motor and electrical scenarios in one report-oriented interface. It demonstrates repeatable calculation workflows that make assumptions and results easier to review.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#motor-toolbox",
+    "github": "https://github.com/nandurpm/motor-toolbox",
+    "technologies": [
+      "Node.js",
+      "Motors",
+      "Calculator"
+    ],
+    "demo": "https://motor-toolbox.onrender.com"
+  },
+  {
+    "title": "Machine Logbook",
+    "slug": "machine-logbook",
+    "category": "Documentation Tools",
+    "description": "Provides a local-first maintenance logbook with documentation-oriented views. It demonstrates structured maintenance history and practical record keeping without making a remote account mandatory.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#machine-logbook",
+    "github": "https://github.com/nandurpm/machine-logbook",
+    "technologies": [
+      "Node.js",
+      "Maintenance",
+      "Local-first"
+    ],
+    "demo": "https://machine-logbook-a949.onrender.com"
+  },
+  {
+    "title": "Screen Explainer",
+    "slug": "screen-explainer",
+    "category": "Documentation Tools",
+    "description": "Supports privacy-first local image exploration and annotation. It demonstrates how screenshots can become clearer technical evidence while keeping image handling close to the user.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#screen-explainer",
+    "github": "https://github.com/nandurpm/screen-explainer",
+    "technologies": [
+      "Node.js",
+      "Annotation",
+      "Privacy-first"
+    ],
+    "demo": "https://screen-explainer.onrender.com"
+  },
+  {
+    "title": "Diagram Script",
+    "slug": "diagram-script",
+    "category": "Documentation Tools",
+    "description": "Generates validated technical flowcharts through an offline workflow. It demonstrates reproducible diagramming and validation rather than relying on manually redrawn process maps.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#diagram-script",
+    "github": "https://github.com/nandurpm/diagram-script",
+    "technologies": [
+      "Node.js",
+      "Flowcharts",
+      "Offline-first"
+    ],
+    "demo": "https://diagram-script.onrender.com"
+  },
+  {
+    "title": "Tech Calc",
+    "slug": "tech-calc",
+    "category": "Engineering Software",
+    "description": "Groups reusable technical calculators and engineering helpers into a focused library. It demonstrates consistent input handling and repeatable calculation support across common scenarios.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#tech-calc",
+    "github": "https://github.com/nandurpm/tech-calc",
+    "technologies": [
+      "Node.js",
+      "Engineering",
+      "Calculator"
+    ],
+    "demo": "https://tech-calc.onrender.com"
+  },
+  {
+    "title": "Mini Tool Factory",
+    "slug": "mini-tool-factory",
+    "category": "Engineering Software",
+    "description": "Provides a controlled workspace for defining and using small calculators. It demonstrates reusable tool configuration while keeping calculator behavior explicit and reviewable.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#mini-tool-factory",
+    "github": "https://github.com/nandurpm/mini-tool-factory",
+    "technologies": [
+      "Node.js",
+      "Tooling",
+      "Calculator"
+    ],
+    "demo": "https://mini-tool-factory.onrender.com"
+  },
+  {
+    "title": "Command Center",
+    "slug": "command-center",
+    "category": "Productivity Tools",
+    "description": "Combines portable dashboard views with browser-local preferences. It demonstrates configurable personal tooling that remains useful without a centralized profile service.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#command-center",
+    "github": "https://github.com/nandurpm/command-center",
+    "technologies": [
+      "Node.js",
+      "Dashboard",
+      "Local-first"
+    ],
+    "demo": "https://command-center-3dwl.onrender.com"
+  },
+  {
+    "title": "Storage Forensics",
+    "slug": "storage-forensics",
+    "category": "Monitoring & Diagnostics",
+    "description": "Presents a read-only storage inventory for structured review. It demonstrates forensic-style reporting while clearly separating report exploration from direct access to a visitor’s disks.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#storage-forensics",
+    "github": "https://github.com/nandurpm/storage-forensics",
+    "technologies": [
+      "Node.js",
+      "Storage",
+      "Read-only"
+    ],
+    "demo": "https://storage-forensics.onrender.com"
+  },
+  {
+    "title": "Privacy Inspector",
+    "slug": "privacy-inspector",
+    "category": "Monitoring & Diagnostics",
+    "description": "Organizes a masked, read-only privacy review into an inspectable report. It demonstrates privacy-aware presentation and avoids exposing sensitive sample values unnecessarily.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#privacy-inspector",
+    "github": "https://github.com/nandurpm/privacy-inspector",
+    "technologies": [
+      "Node.js",
+      "Privacy",
+      "Read-only"
+    ],
+    "demo": "https://privacy-inspector.onrender.com"
+  },
+  {
+    "title": "Repo Time Machine",
+    "slug": "repo-time-machine",
+    "category": "Documentation Tools",
+    "description": "Turns Git history and repository metadata into a read-only timeline. It demonstrates software-change traceability and makes project evolution easier to inspect.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#repo-time-machine",
+    "github": "https://github.com/nandurpm/repo-time-machine",
+    "technologies": [
+      "Node.js",
+      "Git",
+      "Timeline"
+    ],
+    "demo": "https://repo-time-machine.onrender.com"
+  },
+  {
+    "title": "Project Digital Twin",
+    "slug": "project-digital-twin",
+    "category": "Documentation Tools",
+    "description": "Maps a technical project’s architecture into a read-only view of components and relationships. It demonstrates systems thinking, documentation discipline, and maintainability-focused tooling.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html#project-digital-twin",
+    "github": "https://github.com/nandurpm/project-digital-twin",
+    "technologies": [
+      "Node.js",
+      "Architecture",
+      "Documentation"
+    ],
+    "demo": "https://project-digital-twin.onrender.com"
+  },
+  {
+    "title": "USB Device Historian",
+    "slug": "usb-device-historian",
+    "category": "Monitoring & Diagnostics",
+    "description": "Reviews USB device history locally because meaningful analysis requires operating-system records, hardware context, and user-granted permissions. It demonstrates the engineering judgment to keep hardware-dependent inspection outside a misleading hosted demo.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#usb-device-historian",
+    "github": "https://github.com/nandurpm/usb-device-historian",
+    "technologies": [
+      "Local Tool",
+      "USB",
+      "System History"
+    ]
+  },
+  {
+    "title": "Portfolio & Content Studio",
+    "slug": "portfolio",
+    "category": "Web Development",
+    "description": "Combines a fast static portfolio with a GitHub-backed Content Studio and automated publishing pipeline. It demonstrates dependency-free front-end engineering, secure OAuth boundaries, and maintainable content automation.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/engineering-projects.html",
+    "github": "https://github.com/nandurpm/portfolio",
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Cloudflare",
+      "GitHub Actions"
+    ]
   }
 ]
