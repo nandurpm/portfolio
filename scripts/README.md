@@ -8,7 +8,7 @@ Dependency-free Node.js automation for staging, validating, publishing, and rend
 
 - `create-blog-post.mjs` — Validates metadata/body/image inputs and creates a complete HTML/image pair in `uploads/blog/`.
 - `publish-content.mjs` — Validates staged blog/project metadata and matching images, publishes pages/assets, upserts JSON indexes, and removes processed staging files.
-- `render-static-content.mjs` — Reads the JSON indexes and replaces the named generated-card blocks in `index.html`, `projects.html`, and `blog.html`.
+- `render-static-content.mjs` — Reads the JSON indexes, replaces the named generated-card blocks in `index.html`, `projects.html`, and `blog.html`, and rebuilds `sitemap.xml` from published pages.
 
 ## Responsibilities
 
@@ -16,4 +16,4 @@ Use this directory for deterministic repository transformations that must run bo
 
 ## Important Notes
 
-The scripts use only built-in Node.js modules and are run from the repository root. The workflow runs `publish-content.mjs` before `render-static-content.mjs`, then commits generated outputs. Preserve JSON array schemas, upload metadata names, and the `*_START`/`*_END` HTML markers. Review diffs because the publisher intentionally moves/removes staging files.
+The scripts use only built-in Node.js modules and are run from the repository root. The workflow runs `publish-content.mjs` before `render-static-content.mjs`, then commits generated outputs. Preserve JSON array schemas, upload metadata names, and the `*_START`/`*_END` HTML markers. Sitemap generation combines index URLs with published HTML under `works/` and `blog/`, removes fragments and duplicates, and deliberately excludes the legacy root `diploma-notes.html` redirect. Review diffs because the publisher intentionally moves/removes staging files.

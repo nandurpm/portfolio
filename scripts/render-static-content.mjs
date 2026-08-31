@@ -39,6 +39,31 @@ function replaceBlock(relativePath, startName, endName, markup) {
   fs.writeFileSync(fullPath, updated);
 }
 
+function listPublishedHtml(directory) {
+  return fs.readdirSync(path.join(ROOT, directory), { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.html'))
+    .map((entry) => `${directory}/${entry.name}`);
+}
+
+function renderSitemap(projects, posts) {
+  const siteUrl = `https://${fs.readFileSync(path.join(ROOT, 'CNAME'), 'utf8').trim()}`;
+  const topLevelPages = ['', 'about.html', 'projects.html', 'blog.html', 'resume.html', 'contact.html', 'works.html'];
+  const indexedContent = [...projects.map((project) => project.url), ...posts.map((post) => post.url)]
+    .filter((url) => typeof url === 'string' && !/^[a-z]+:\/\//i.test(url))
+    .map((url) => url.split('#')[0].split('?')[0]);
+  const publishedContent = [...listPublishedHtml('works'), ...listPublishedHtml('blog')];
+  const paths = [...new Set([...topLevelPages, ...indexedContent, ...publishedContent])];
+  const postDates = new Map(posts.map((post) => [post.url, post.date]));
+  const urls = paths.map((relativePath) => {
+    const loc = relativePath ? `${siteUrl}/${relativePath}` : `${siteUrl}/`;
+    const lastModified = postDates.get(relativePath);
+    const lastmod = lastModified ? `<lastmod>${escapeHtml(lastModified)}</lastmod>` : '';
+    return `  <url><loc>${escapeHtml(loc)}</loc>${lastmod}</url>`;
+  });
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap);
+}
+
 function projectCard(project) {
   const tags = (project.technologies || []).map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join('');
   const image = `<img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy">`;
@@ -81,5 +106,6 @@ replaceBlock('projects.html', 'PROJECTS_START', 'PROJECTS_END', projectMarkup);
 replaceBlock('index.html', 'FEATURED_PROJECTS_START', 'FEATURED_PROJECTS_END', featuredMarkup);
 replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', blogMarkup);
 replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', recentMarkup);
+renderSitemap(projects, posts);
 
-console.log(`Rendered ${projects.length} projects and ${posts.length} blog posts into static HTML.`);
+console.log(`Rendered ${projects.length} projects, ${posts.length} blog posts, and sitemap.xml.`);

@@ -1,0 +1,105 @@
+<!--
+FILE: honest-software-boundaries.html
+FILE PURPOSE: Static HTML page for the published blog article represented by the slug `honest-software-boundaries`.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Practical lessons from publishing 26 engineering tools with clear boundaries around local data, synthetic reports, hosted demos, and hardware access.">
+  <meta name="author" content="Nandakumar M">
+  <meta name="post-title" content="What 26 Engineering Tools Taught Me About Honest Software Boundaries">
+  <meta name="post-slug" content="honest-software-boundaries">
+  <meta name="post-category" content="Technical Articles">
+  <meta name="post-date" content="2026-08-31">
+  <meta name="post-read-time" content="7 min read">
+  <meta name="post-excerpt" content="Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.">
+  <meta name="post-tags" content="engineering software, local-first, validation">
+  <meta name="post-image" content="../archive-engineering-hero.png">
+  <title>What 26 Engineering Tools Taught Me About Honest Software Boundaries | Nandakumar M</title>
+  <link rel="icon" href="../assets/images/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/reveal.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header glass">
+      <a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a class="active" href="../blog.html" aria-current="page">Blog</a><a href="../about.html">About</a></nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
+    </header>
+
+    <main>
+      <article class="blog-article">
+        <header class="article-header">
+          <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
+          <h1>What 26 Engineering Tools Taught Me About Honest Software Boundaries</h1>
+          <div class="article-meta"><time datetime="2026-08-31">August 31, 2026</time><span>7 min read</span><span>Technical Articles</span></div>
+          <img src="../assets/images/archive-engineering-hero.png" alt="Engineering desk with electronics, test equipment, documentation, and a laptop" class="article-image">
+        </header>
+
+        <div class="article-content">
+          <p>Building one useful tool is mostly a question of solving a problem. Publishing a collection of 26 engineering and diagnostic tools raised a second question: how do I show what each tool can do without suggesting that a web page has access it does not actually have?</p>
+
+          <p>The archive includes calculators, electronics references, maintenance and documentation tools, network reports, privacy reviews, and system diagnostics. Some work entirely with browser-held information. Some present controlled sample data. One needs direct access to a local computer. Treating all of them as ordinary hosted applications would have made the demonstrations simpler, but it would also have made their claims less accurate.</p>
+
+          <h2>A useful demonstration still needs a boundary</h2>
+          <p>A hosted network report cannot inspect a visitor's private LAN simply because it has a dashboard labelled “LAN Map.” A storage report cannot read a visitor's disks, and a privacy inspector should not imply that it has silently collected account or device information. For these projects, the hosted pages use synthetic or deliberately supplied data so the interface and reporting workflow can be inspected safely.</p>
+
+          <p>This distinction became part of the product rather than a disclaimer added at the end. Report introductions state where the data comes from. Labels distinguish demonstrations from local analysis. Descriptions avoid words such as “live scan” when no live scan is taking place. Clear language is a technical control because it prevents the interface from promising more than the program can deliver.</p>
+
+          <h2>Local-first is an engineering decision</h2>
+          <p>Several tools keep notes, preferences, histories, or calculations in the browser or in local files. That choice reduces unnecessary data movement and keeps the user close to the source information. It also changes the design work: storage limits, exports, resets, sample records, and recovery behaviour must be understandable without depending on a remote account.</p>
+
+          <p>Local-first does not mean that every application must avoid a server. It means the data path should match the job. A static calculator and a personal dashboard can remain local. A hosted report can provide a safe demonstration. Optional AI feedback can be user-triggered and separated from deterministic assessment. The correct boundary is different for each tool, but it should never be hidden.</p>
+
+          <h2>Hardware access cannot be simulated honestly</h2>
+          <p>USB Device Historian is intentionally local-only. Meaningful USB history depends on the operating system, device records, permissions, and the computer being examined. A hosted browser cannot reproduce that access safely or accurately.</p>
+
+          <p>The easy portfolio decision would have been to create another attractive report and call it a working USB analyzer. The better engineering decision was to keep the source and local instructions public while stating why there is no equivalent hosted scan. A limitation explained clearly is more credible than a feature demonstrated with the wrong data.</p>
+
+          <h2>Deployment should not change the claim</h2>
+          <p>The web-capable repositories use a Node host to run their demonstration workflow, bind to the assigned port, and serve a responsive report. That hosting layer makes the output easier to review, but it does not give the underlying analyzer new access to a visitor's files, network, hardware, or accounts.</p>
+
+          <p>I treated production-style start probes as part of the validation. A repository that passes a local check but cannot start correctly in its deployed environment is not finished. At the same time, a successful HTTP response proves only that the report is available; it does not prove that every statement inside the report is based on real external data. Availability and provenance need separate checks.</p>
+
+          <h2>Optional intelligence should remain optional</h2>
+          <p>Internet Time Machine can provide user-triggered summaries, and Question Machine can add semantic feedback around a deterministic learning flow. In both cases, the dependable path should remain understandable without the optional layer. Trends need visible provenance. Assessment rules need predictable behaviour. A generated explanation should support the workflow rather than silently replace it.</p>
+
+          <blockquote>A polished interface should make the source and limits of its information clearer, not make uncertainty easier to overlook.</blockquote>
+
+          <h2>Small tools benefit from the same review discipline</h2>
+          <p>The archive covers very different subjects, but the review questions became consistent:</p>
+          <ul>
+            <li>What information does the tool actually receive?</li>
+            <li>Which results are calculated, imported, synthetic, or generated?</li>
+            <li>Can the hosted version perform the same work as the local version?</li>
+            <li>What happens when data is absent, invalid, or incomplete?</li>
+            <li>Does the interface describe those conditions before the user relies on the result?</li>
+          </ul>
+
+          <p>These are familiar engineering questions. A drawing identifies its revision. A measurement identifies its method and tolerance. A test report identifies its sample and conditions. Software should identify its data source and operational boundary with the same discipline.</p>
+
+          <h2>What I would carry into the next project</h2>
+          <p>The main lesson from this collection is not that every idea needs a large application. A focused tool can be useful when its input, purpose, and limits are clear. The work becomes stronger when the README, interface, local workflow, hosted demonstration, and portfolio description all make the same claim.</p>
+
+          <p>For future projects, I would define that claim before designing the dashboard: what runs locally, what can be demonstrated online, what needs permission, what is optional, and what must remain outside scope. That decision makes testing more direct and documentation more accurate. It also produces software that is easier to trust because the boundary is visible from the beginning.</p>
+        </div>
+
+        <footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
+      </article>
+    </main>
+
+    <footer class="site-footer"><p>&copy; <span data-year></span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+  </div>
+  <script src="../assets/js/theme.js"></script><script src="../assets/js/main.js"></script>
+  <script src="/assets/js/reveal.js"></script>
+</body>
+</html>
