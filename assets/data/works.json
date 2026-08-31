@@ -1,21 +1,128 @@
-[{
-    "title": "25-Project Engineering & Software Archive",
-    "slug": "archive-tool-suite",
+[
+  {
+    "title": "Internet Time Machine",
+    "slug": "internet-time-machine",
     "category": "Engineering Software",
-    "description": "A detailed public archive of 25 local-first engineering, electronics, diagnostic, documentation, and calculator tools, including 20 responsive live report services and verified source repositories.",
+    "description": "Turns network-quality history into provenance-aware trends and optional user-triggered summaries. It demonstrates thoughtful data visualization and transparent handling of measured, imported, and synthetic data.",
     "image": "assets/images/archive-engineering-hero.png",
-    "url": "works/archive-tool-suite.html",
-    "github": "https://github.com/nandurpm",
-    "technologies": ["Node.js", "Static Reports", "Render", "GitHub", "Local-first"]
+    "url": "works/archive-tool-suite.html#live-directory",
+    "demo": "https://timemachine-alxsadqu.manus.space",
+    "github": "https://github.com/nandurpm/internet-time-machine",
+    "technologies": [
+      "JavaScript",
+      "Node.js",
+      "Data Visualization",
+      "Local-first"
+    ]
+  },
+  {
+    "title": "Electrical Troubleshooter",
+    "slug": "electrical-troubleshooter",
+    "category": "Engineering Software",
+    "description": "Guides users through a safety-first electrical decision tree for recording observations and choosing clear escalation paths. It translates practical engineering judgment into an inspectable, repeatable workflow.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/archive-tool-suite.html#live-directory",
+    "demo": "https://electrical-troubleshooter.onrender.com",
+    "github": "https://github.com/nandurpm/electrical-troubleshooter",
+    "technologies": [
+      "JavaScript",
+      "Node.js",
+      "Electrical Engineering",
+      "Decision Trees"
+    ]
+  },
+  {
+    "title": "Project Digital Twin",
+    "slug": "project-digital-twin",
+    "category": "Engineering Software",
+    "description": "Maps a technical project's architecture into a read-only view that makes components and relationships easier to understand. It showcases systems thinking, documentation discipline, and maintainability-focused tooling.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#live-directory",
+    "demo": "https://project-digital-twin.onrender.com",
+    "github": "https://github.com/nandurpm/project-digital-twin",
+    "technologies": [
+      "JavaScript",
+      "Node.js",
+      "Architecture",
+      "Documentation"
+    ]
+  },
+  {
+    "title": "Question Machine",
+    "slug": "question-machine",
+    "category": "Web Development",
+    "description": "A progressive learning-tree tutor with deterministic assessment and optional semantic feedback. The project demonstrates structured educational UX and a careful boundary between dependable core behavior and AI-assisted guidance.",
+    "image": "assets/images/works/project-6.png",
+    "url": "works/archive-tool-suite.html#live-directory",
+    "demo": "https://question-machine.onrender.com",
+    "github": "https://github.com/nandurpm/question-machine",
+    "technologies": [
+      "JavaScript",
+      "Node.js",
+      "Education",
+      "AI-assisted"
+    ]
+  },
+  {
+    "title": "Digital Life Dashboard",
+    "slug": "digital-life-dashboard",
+    "category": "Web Development",
+    "description": "A local-first dashboard for organizing browser-held notes, preferences, and privacy-conscious personal insights. It demonstrates responsive interface design and useful features without unnecessary collection of personal data.",
+    "image": "assets/images/works/project-8.jpg",
+    "url": "works/archive-tool-suite.html#live-directory",
+    "demo": "https://digital-life-dashboard.onrender.com",
+    "github": "https://github.com/nandurpm/digital-life-dashboard",
+    "technologies": [
+      "JavaScript",
+      "Node.js",
+      "Responsive UI",
+      "Local-first"
+    ]
   },
   {
     "title": "Diploma Notes",
     "slug": "diploma-notes",
     "category": "Web Development",
-    "description": "A student-friendly study platform for Kerala Diploma learners with syllabus access, lesson pages, downloadable notes, and organized question-paper resources.",
+    "description": "Helps Kerala Diploma learners reach syllabus links, lesson material, notes, and question-paper resources from one organized study platform. It demonstrates information architecture and accessible static-web delivery for a focused student audience.",
     "image": "assets/images/works/project-6.png",
     "url": "works/diploma-notes.html",
     "github": "https://github.com/nandurpm/diploma-notes",
-    "technologies": ["HTML", "CSS", "JavaScript", "GitHub Pages"]
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "GitHub Pages"
+    ]
+  },
+  {
+    "title": "Engineering & Software Tool Archive",
+    "slug": "archive-tool-suite",
+    "category": "Engineering Software",
+    "description": "Brings together 26 public, local-first tools for engineering calculations, diagnostics, documentation, privacy review, and technical decision support. The collection demonstrates breadth while clearly stating the safety and data boundaries of every hosted report.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "url": "works/archive-tool-suite.html",
+    "github": "https://github.com/nandurpm",
+    "technologies": [
+      "JavaScript",
+      "Node.js",
+      "Static Reports",
+      "Local-first"
+    ]
+  },
+  {
+    "title": "Portfolio & Content Studio",
+    "slug": "portfolio",
+    "category": "Web Development",
+    "description": "A fast static portfolio paired with a GitHub-backed Content Studio and automated publishing pipeline. It demonstrates dependency-free front-end engineering, secure OAuth boundaries, and maintainable content automation.",
+    "image": "assets/images/works/project-7.png",
+    "url": "works/engineering-projects.html",
+    "github": "https://github.com/nandurpm/portfolio",
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Cloudflare",
+      "GitHub Actions"
+    ]
   }
 ]
