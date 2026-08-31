@@ -95,7 +95,7 @@ The Content Studio is served from `/admin/`. Its browser-side configuration may 
 
 ## Build and Generated Content
 
-The public site does not require compilation. The closest equivalent to a build step is regenerating the static project and blog card blocks from the JSON indexes:
+The public site does not require compilation. The closest equivalent to a build step is regenerating the static project and blog card blocks from the JSON indexes and rebuilding the sitemap from published content:
 
 ```bash
 node scripts/render-static-content.mjs

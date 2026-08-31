@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://nandakumarm.dpdns.org/</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/about.html</loc><lastmod>2026-08-13</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/projects.html</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/blog.html</loc><lastmod>2026-08-13</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/resume.html</loc><lastmod>2026-08-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/diploma-notes.html</loc><lastmod>2026-08-13</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/contact.html</loc><lastmod>2026-08-13</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://nandakumarm.dpdns.org/works.html</loc><lastmod>2026-08-13</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://nandakumarm.dpdns.org/</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/about.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/projects.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/resume.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/contact.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/works.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/works/archive-tool-suite.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/works/diploma-notes.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/works/engineering-projects.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/honest-software-boundaries.html</loc><lastmod>2026-08-31</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/engineering-design-reviews.html</loc><lastmod>2026-05-28</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/fast-static-portfolio.html</loc><lastmod>2026-05-21</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/cnc-precision.html</loc><lastmod>2026-05-12</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/current-affairs-technology-careers.html</loc><lastmod>2026-04-29</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/movie-review-engineers-lens.html</loc><lastmod>2026-04-16</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/documentation-professional-skill.html</loc><lastmod>2026-03-31</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/politics-infrastructure-engineering.html</loc><lastmod>2026-03-18</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/learning-new-technologies.html</loc><lastmod>2026-02-25</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/blog/electronics-basics.html</loc><lastmod>2026-02-08</lastmod></url>
+  <url><loc>https://nandakumarm.dpdns.org/works/escalator-sticker-designs.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/works/technical-documentation.html</loc></url>
+  <url><loc>https://nandakumarm.dpdns.org/works/website-design.html</loc></url>
 </urlset>

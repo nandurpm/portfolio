@@ -2,7 +2,5 @@
 User-agent: *
 Allow: /
 Disallow: /assets/
-Disallow: /blog/
-Disallow: /works/
 
 Sitemap: https://nandakumarm.dpdns.org/sitemap.xml
