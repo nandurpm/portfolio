@@ -10,6 +10,8 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 
 class PageParser(HTMLParser):
+    """Collect local references, element IDs, and required page metadata."""
+
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.refs: list[tuple[str, str, int]] = []
@@ -44,6 +46,8 @@ class PageParser(HTMLParser):
 
 
 def resolve_local(page: Path, ref: str) -> Path | None:
+    """Resolve a same-site HTML reference to a repository path when possible."""
+
     parsed = urlparse(ref)
     if parsed.scheme or ref.startswith("//") or ref.startswith("#"):
         return None
@@ -56,6 +60,8 @@ def resolve_local(page: Path, ref: str) -> Path | None:
 
 
 def main() -> None:
+    """Audit every HTML document and print a deterministic repository summary."""
+
     html_files = sorted(ROOT.rglob("*.html"))
     missing: list[tuple[str, int, str, str]] = []
     duplicate_ids: list[tuple[str, str, list[int]]] = []

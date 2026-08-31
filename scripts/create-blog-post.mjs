@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 /**
+ * FILE: create-blog-post.mjs
+ * FILE PURPOSE: Validates blog metadata and content, then creates a complete
+ * HTML/image pair in the blog upload inbox for the publishing workflow.
+ *
  * Create a staged blog post for the portfolio publishing workflow.
  *
  * Usage:
@@ -113,7 +117,11 @@ const schema = JSON.stringify({
   keywords: tags.join(', ')
 });
 
-const html = `<!DOCTYPE html>
+const html = `<!--
+FILE: ${slug}.html
+FILE PURPOSE: Staged portfolio blog article generated for validation and publication.
+-->
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">

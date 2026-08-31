@@ -1,6 +1,6 @@
 /*
  * FILE: theme.css
- * FILE PURPOSE: Stylesheet containing reusable theme rules for the portfolio interface.
+ * FILE PURPOSE: Site-wide viewport, sticky-header, hero, listing, and long-form layout overrides layered over the core design system.
  */
 
 @import url("./content-pages.css");

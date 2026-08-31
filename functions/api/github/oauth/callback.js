@@ -64,6 +64,10 @@ async function githubJson(url, options = {}) {
   return data;
 }
 
+/**
+ * Validate the OAuth callback, exchange its code, verify repository ownership,
+ * and return the session-held credential to the originating studio popup.
+ */
 export async function onRequestGet({ request, env }) {
   const requestUrl = new URL(request.url);
   const origin = env.SITE_ORIGIN || requestUrl.origin;

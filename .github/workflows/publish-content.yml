@@ -2,6 +2,7 @@
 
 name: Publish uploaded content
 
+# Content publication is automatic for inbox changes and may also be run manually.
 on:
   push:
     branches: [main]
@@ -10,15 +11,18 @@ on:
       - "uploads/projects/**"
   workflow_dispatch:
 
+# The final step writes only the generated publication result back to this repository.
 permissions:
   contents: write
 
+# Process publication commits in order so two inbox pushes cannot race each other.
 concurrency:
   group: portfolio-content-publisher
   cancel-in-progress: false
 
 jobs:
   publish:
+    # The workflow's own generated commit must not start another publication cycle.
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
