@@ -1,5 +1,16 @@
 [
   {
+    "title": "What 26 Engineering Tools Taught Me About Honest Software Boundaries",
+    "slug": "honest-software-boundaries",
+    "category": "Technical Articles",
+    "date": "2026-08-31",
+    "readTime": "7 min read",
+    "excerpt": "Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.",
+    "image": "assets/images/archive-engineering-hero.png",
+    "tags": ["engineering software", "local-first", "validation"],
+    "url": "blog/honest-software-boundaries.html"
+  },
+  {
     "title": "How I Think About Engineering Design Reviews",
     "slug": "engineering-design-reviews",
     "category": "Engineering",
