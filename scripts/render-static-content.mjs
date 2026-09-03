@@ -1,6 +1,6 @@
 /*
  * FILE: render-static-content.mjs
- * FILE PURPOSE: Repository automation that regenerates static project and blog cards from the published content indexes.
+ * FILE PURPOSE: Regenerates static project/article cards and the sitemap from JSON indexes.
  */
 
 import fs from 'node:fs';
@@ -9,8 +9,7 @@ import path from 'node:path';
 const ROOT = process.cwd();
 
 function readJson(relativePath) {
-  const fullPath = path.join(ROOT, relativePath);
-  const value = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+  const value = JSON.parse(fs.readFileSync(path.join(ROOT, relativePath), 'utf8'));
   if (!Array.isArray(value)) throw new Error(`${relativePath} must contain a JSON array.`);
   return value;
 }
@@ -34,9 +33,68 @@ function replaceBlock(relativePath, startName, endName, markup) {
   if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex) {
     throw new Error(`${relativePath} is missing ${startName}/${endName} markers.`);
   }
-  const replacement = `${start}\n${markup.trim()}\n          ${end}`;
-  const updated = source.slice(0, startIndex) + replacement + source.slice(endIndex + end.length);
-  fs.writeFileSync(fullPath, updated);
+  const cleanMarkup = markup.trim().replace(/[ \t]+$/gm, '');
+  const replacement = `${start}\n${cleanMarkup}\n          ${end}`;
+  fs.writeFileSync(fullPath, source.slice(0, startIndex) + replacement + source.slice(endIndex + end.length));
+}
+
+function externalAttributes(url = '') {
+  return /^https?:\/\//i.test(url) ? ' target="_blank" rel="noopener noreferrer"' : '';
+}
+
+function formatDate(value) {
+  if (!value) return 'Recently updated';
+  return new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+}
+
+function projectCard(project) {
+  const tags = (project.technologies || []).slice(0, 4)
+    .map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join('');
+  const details = project.url || project.github;
+  const searchText = [project.title, project.category, project.description, project.outcome, ...(project.technologies || [])].join(' ').toLowerCase();
+  return `          <article class="project-card project-dossier" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText)}" data-name="${escapeHtml(project.title)}" data-stars="${Number(project.stars || 0)}" data-updated="${escapeHtml(project.updated || '')}">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">${String(project.rank || '').padStart(2, '0')}</span><span>${escapeHtml(project.category)}</span><strong>${escapeHtml(project.language || 'Project')}</strong></div>
+            <div class="card-body">
+              <div class="card-meta">${tags}</div>
+              <h3>${escapeHtml(project.title)}</h3>
+              <p>${escapeHtml(project.description)}</p>
+              <p class="project-outcome"><strong>Built for:</strong> ${escapeHtml(project.outcome || 'A focused, practical workflow.')}</p>
+              <div class="project-facts"><span>★ ${Number(project.stars || 0)}</span><span>${escapeHtml(formatDate(project.updated))}</span></div>
+              <div class="card-actions">
+                ${details && details !== project.github && details !== project.demo ? `<a href="${escapeHtml(details)}"${externalAttributes(details)}>Details <span aria-hidden="true">↗</span></a>` : ''}
+                ${project.github ? `<a href="${escapeHtml(project.github)}" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>` : ''}
+                ${project.demo ? `<a href="${escapeHtml(project.demo)}" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>` : ''}
+              </div>
+            </div>
+          </article>`;
+}
+
+function repositoryCard(repository) {
+  const tags = [repository.language, ...(repository.topics || [])].filter(Boolean).slice(0, 4)
+    .map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join('');
+  const description = repository.description || repository.readmeSummary || 'Open-source project and development notes.';
+  const searchText = [repository.title, repository.name, repository.category, description, repository.language, ...(repository.topics || [])].join(' ').toLowerCase();
+  return `          <article class="repository-card" data-reveal="up" data-category="${escapeHtml(repository.category)}" data-search="${escapeHtml(searchText)}" data-name="${escapeHtml(repository.title)}" data-stars="${Number(repository.stars || 0)}" data-updated="${escapeHtml(repository.updatedAt || '')}">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>${escapeHtml(repository.category)}</span></div>
+            <h3>${escapeHtml(repository.title)}</h3>
+            <p>${escapeHtml(description)}</p>
+            <div class="card-meta">${tags}</div>
+            <div class="repository-footer"><span>★ ${Number(repository.stars || 0)} · Updated ${escapeHtml(formatDate(repository.updatedAt))}</span><span class="card-actions"><a href="${escapeHtml(repository.github)}" target="_blank" rel="noopener noreferrer">Repository ↗</a>${repository.demo ? `<a href="${escapeHtml(repository.demo)}" target="_blank" rel="noopener noreferrer">Demo ↗</a>` : ''}</span></div>
+          </article>`;
+}
+
+function blogCard(post) {
+  const url = escapeHtml(post.url);
+  const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(' ').toLowerCase();
+  return `          <article class="blog-card" data-reveal="up" id="post-${escapeHtml(post.slug)}" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText)}">
+            <a href="${url}" aria-label="Open ${escapeHtml(post.title)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy"></a>
+            <div class="card-body">
+              <div class="card-meta"><span class="pill">${escapeHtml(post.category)}</span><span class="pill">${escapeHtml(post.readTime)}</span></div>
+              <a href="${url}"><h3>${escapeHtml(post.title)}</h3></a>
+              <p>${escapeHtml(post.excerpt)}</p>
+              <div class="card-actions"><a href="${url}">Read article</a><span>${escapeHtml(post.date)}</span></div>
+            </div>
+          </article>`;
 }
 
 function listPublishedHtml(directory) {
@@ -51,61 +109,39 @@ function renderSitemap(projects, posts) {
   const indexedContent = [...projects.map((project) => project.url), ...posts.map((post) => post.url)]
     .filter((url) => typeof url === 'string' && !/^[a-z]+:\/\//i.test(url))
     .map((url) => url.split('#')[0].split('?')[0]);
-  const publishedContent = [...listPublishedHtml('works'), ...listPublishedHtml('blog')];
-  const paths = [...new Set([...topLevelPages, ...indexedContent, ...publishedContent])];
+  const paths = [...new Set([...topLevelPages, ...indexedContent, ...listPublishedHtml('works'), ...listPublishedHtml('blog')])];
   const postDates = new Map(posts.map((post) => [post.url, post.date]));
   const urls = paths.map((relativePath) => {
     const loc = relativePath ? `${siteUrl}/${relativePath}` : `${siteUrl}/`;
     const lastModified = postDates.get(relativePath);
-    const lastmod = lastModified ? `<lastmod>${escapeHtml(lastModified)}</lastmod>` : '';
-    return `  <url><loc>${escapeHtml(loc)}</loc>${lastmod}</url>`;
+    return `  <url><loc>${escapeHtml(loc)}</loc>${lastModified ? `<lastmod>${escapeHtml(lastModified)}</lastmod>` : ''}</url>`;
   });
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap);
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
 }
 
-function projectCard(project) {
-  const tags = (project.technologies || []).map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join('');
-  const image = `<img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy">`;
-  const title = `<h3>${escapeHtml(project.title)}</h3>`;
-  const url = project.url ? escapeHtml(project.url) : '';
-  const searchText = [project.title, project.category, project.description, ...(project.technologies || [])].join(' ').toLowerCase();
-  return `          <article class="project-card" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText)}">
-            ${url ? `<a href="${url}" aria-label="Open ${escapeHtml(project.title)} project page">${image}</a>` : image}
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">${escapeHtml(project.category)}</span>${tags}</div>
-              ${url ? `<a href="${url}">${title}</a>` : title}
-              <p>${escapeHtml(project.description)}</p>
-            </div>
-          </article>`;
-}
-
-function blogCard(post) {
-  const url = escapeHtml(post.url);
-  const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(' ').toLowerCase();
-  return `          <article class="blog-card" data-reveal="up" id="post-${escapeHtml(post.slug)}" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText)}">
-            <a href="${url}" aria-label="Open ${escapeHtml(post.title)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">${escapeHtml(post.category)}</span><span class="pill">${escapeHtml(post.readTime)}</span></div>
-              <a href="${url}"><h3>${escapeHtml(post.title)}</h3></a>
-              <p>${escapeHtml(post.excerpt)}</p>
-              <div class="card-actions"><a href="${url}">Read More</a><span>${escapeHtml(post.date)}</span></div>
-            </div>
-          </article>`;
-}
-
-const projects = readJson('assets/data/works.json');
+const repositories = readJson('assets/data/github-projects.json');
+const repositoryByName = new Map(repositories.map((repository) => [repository.name, repository]));
+const projects = readJson('assets/data/works.json')
+  .map((project) => {
+    const repository = repositoryByName.get(project.repository);
+    return {
+      ...project,
+      language: repository?.language || project.language,
+      stars: repository?.stars ?? project.stars,
+      updated: repository?.updatedAt || project.updated,
+      demo: project.demo || repository?.demo || ''
+    };
+  })
+  .sort((a, b) => Number(a.rank) - Number(b.rank));
 const posts = readJson('assets/data/blog.json').sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+const featuredNames = new Set(projects.map((project) => project.repository));
+const moreRepositories = repositories.filter((repository) => !featuredNames.has(repository.name) && repository.name !== 'nandurpm');
 
-const projectMarkup = projects.length ? projects.map(projectCard).join('\n') : '          <p class="empty-state">No projects published yet.</p>';
-const featuredMarkup = projects.length ? projects.slice(0, 3).map(projectCard).join('\n') : '          <p class="empty-state">No projects published yet.</p>';
-const blogMarkup = posts.length ? posts.map(blogCard).join('\n') : '          <p class="empty-state">No blog posts published yet.</p>';
-const recentMarkup = posts.length ? posts.slice(0, 3).map(blogCard).join('\n') : '          <p class="empty-state">No blog posts published yet.</p>';
-
-replaceBlock('projects.html', 'PROJECTS_START', 'PROJECTS_END', projectMarkup);
-replaceBlock('index.html', 'FEATURED_PROJECTS_START', 'FEATURED_PROJECTS_END', featuredMarkup);
-replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', blogMarkup);
-replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', recentMarkup);
+replaceBlock('projects.html', 'PROJECTS_START', 'PROJECTS_END', projects.map(projectCard).join('\n'));
+replaceBlock('projects.html', 'MORE_PROJECTS_START', 'MORE_PROJECTS_END', moreRepositories.map(repositoryCard).join('\n'));
+replaceBlock('index.html', 'FEATURED_PROJECTS_START', 'FEATURED_PROJECTS_END', projects.slice(0, 4).map(projectCard).join('\n'));
+replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', posts.map(blogCard).join('\n'));
+replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', posts.slice(0, 3).map(blogCard).join('\n'));
 renderSitemap(projects, posts);
 
-console.log(`Rendered ${projects.length} projects, ${posts.length} blog posts, and sitemap.xml.`);
+console.log(`Rendered ${projects.length} featured projects, ${moreRepositories.length} additional public repositories, ${posts.length} articles, and sitemap.xml.`);

@@ -1,18 +1,17 @@
-<!--
-FILE: projects.html
-FILE PURPOSE: Published project index with category filtering and project-card rendering.
--->
+<!-- FILE: projects.html | FILE PURPOSE: Curated projects and public GitHub repository explorer. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Selected personal projects by Nandakumar M across web development, electronics, embedded systems, and technical tools.">
+  <meta name="description" content="Explore selected public projects by Nandakumar M across engineering tools, monitoring, education, applications, and web development.">
+  <meta name="author" content="Nandakumar M">
+  <meta name="theme-color" content="#07111f">
   <meta property="og:title" content="Projects | Nandakumar M">
-  <meta property="og:description" content="Selected web, electronics, embedded-system, and technical-tool projects by Nandakumar M.">
+  <meta property="og:description" content="A public-only catalog of engineering tools, education platforms, monitoring software, and practical applications.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/projects.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.jpg">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/archive-engineering-hero.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://nandakumarm.dpdns.org/projects.html">
   <title>Projects | Nandakumar M</title>
@@ -23,339 +22,341 @@ FILE PURPOSE: Published project index with category filtering and project-card r
   <link rel="stylesheet" href="assets/css/theme.css">
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="/assets/css/reveal.css">
+  <link rel="stylesheet" href="assets/css/reveal.css">
 </head>
 <body class="projects-page">
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a class="active" href="projects.html" aria-current="page">Projects</a><a href="blog.html">Blog</a><a href="about.html">About Me</a></nav>
+      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a class="active" href="projects.html" aria-current="page">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
     <main>
-      <section class="page-hero glass" data-reveal="up">
-        <p class="eyebrow">Selected Work</p>
-        <h1>Projects built through learning, experimentation, and practical problem solving.</h1>
-        <p>Explore selected web applications, electronics concepts, embedded-system experiments, and technical tools.</p>
+      <section class="page-hero glass project-hero" data-reveal="up">
+        <div><p class="eyebrow">Public work / selected &amp; indexed</p><h1>Useful tools built where engineering meets software.</h1><p>Eight projects are highlighted for depth and relevance. The complete public catalog below is generated from GitHub metadata and excludes private, forked, and archived repositories.</p></div>
+        <div class="project-hero-note"><span>Selection principles</span><strong>Clear purpose</strong><strong>Practical workflow</strong><strong>Inspectable boundaries</strong></div>
       </section>
 
-      <section class="section" aria-labelledby="project-list-title">
-        <h2 id="project-list-title" class="visually-hidden">Project list</h2>
-        <div class="filter-bar glass" data-reveal="up" aria-label="Filter projects by category">
-          <button class="filter-btn active" type="button" data-project-filter="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-project-filter="Engineering Software" aria-pressed="false">Engineering Software</button>
-          <button class="filter-btn" type="button" data-project-filter="Electronics Tools" aria-pressed="false">Electronics Tools</button>
-          <button class="filter-btn" type="button" data-project-filter="Monitoring &amp; Diagnostics" aria-pressed="false">Monitoring &amp; Diagnostics</button>
-          <button class="filter-btn" type="button" data-project-filter="Documentation Tools" aria-pressed="false">Documentation Tools</button>
-          <button class="filter-btn" type="button" data-project-filter="Productivity Tools" aria-pressed="false">Productivity Tools</button>
-          <button class="filter-btn" type="button" data-project-filter="Learning Tools" aria-pressed="false">Learning Tools</button>
-          <button class="filter-btn" type="button" data-project-filter="Web Development" aria-pressed="false">Web Development</button>
-        </div>
+      <section class="section" aria-labelledby="selected-projects-title">
+        <div class="section-heading"><div><p class="eyebrow">01 / Selected</p><h2 id="selected-projects-title">Featured casework</h2></div><span class="catalog-count">8 projects</span></div>
         <div class="card-grid project-grid" data-stagger id="projectsGrid" aria-live="polite">
-          <noscript><p style="color: var(--muted); margin: 12px 0;">Published projects are listed on this page. Category filtering requires JavaScript.</p></noscript>
           <!-- PROJECTS_START -->
-<article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="electrical troubleshooter engineering software guides users through a safety-first electrical decision tree for recording observations and choosing escalation paths. it translates practical diagnostic reasoning into a consistent, inspectable workflow. node.js electrical engineering decision trees">
-            <a href="works/archive-tool-suite.html#electrical-troubleshooter" aria-label="Open Electrical Troubleshooter project page"><img src="assets/images/archive-engineering-hero.png" alt="Electrical Troubleshooter" loading="lazy"></a>
+<article class="project-card project-dossier" data-reveal="up" data-category="Learning &amp; Education" data-search="poly pmna learning &amp; education a comprehensive learning platform for kerala polytechnic students, combining syllabus-aware lessons, revision resources, quizzes, engineering tools, and ai-assisted study support. one structured destination for multiple curriculum revisions and student workflows. html javascript cloudflare supabase" data-name="POLY PMNA" data-stars="1" data-updated="2026-09-03T03:29:47Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">01</span><span>Learning &amp; Education</span><strong>HTML</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">Node.js</span><span class="pill">Electrical Engineering</span><span class="pill">Decision Trees</span></div>
-              <a href="works/archive-tool-suite.html#electrical-troubleshooter"><h3>Electrical Troubleshooter</h3></a>
-              <p>Guides users through a safety-first electrical decision tree for recording observations and choosing escalation paths. It translates practical diagnostic reasoning into a consistent, inspectable workflow.</p>
+              <div class="card-meta"><span class="pill">HTML</span><span class="pill">JavaScript</span><span class="pill">Cloudflare</span><span class="pill">Supabase</span></div>
+              <h3>POLY PMNA</h3>
+              <p>A comprehensive learning platform for Kerala Polytechnic students, combining syllabus-aware lessons, revision resources, quizzes, engineering tools, and AI-assisted study support.</p>
+              <p class="project-outcome"><strong>Built for:</strong> One structured destination for multiple curriculum revisions and student workflows.</p>
+              <div class="project-facts"><span>★ 1</span><span>Sept 2026</span></div>
+              <div class="card-actions">
+                <a href="works/diploma-notes.html">Details <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/nandurpm/diploma-notes" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+                <a href="https://polypmna.dpdns.org" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="internet time machine monitoring &amp; diagnostics turns network-quality history into provenance-aware trends and optional user-triggered summaries. it demonstrates clear data-source labeling and separates deterministic reporting from optional assistance. node.js data visualization local-first">
-            <a href="works/archive-tool-suite.html#internet-time-machine" aria-label="Open Internet Time Machine project page"><img src="assets/images/archive-engineering-hero.png" alt="Internet Time Machine" loading="lazy"></a>
+          <article class="project-card project-dossier" data-reveal="up" data-category="Learning &amp; Education" data-search="poly pmna — modern app learning &amp; education a modern full-stack learning experience built with react, typescript, convex authentication, animated interfaces, protected dashboards, and an ai-assisted study workflow. transforms the learning platform into an authenticated, responsive product experience. react 19 typescript convex tailwind css" data-name="POLY PMNA — Modern App" data-stars="0" data-updated="2026-09-03T02:54:48Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">02</span><span>Learning &amp; Education</span><strong>TypeScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Data Visualization</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#internet-time-machine"><h3>Internet Time Machine</h3></a>
-              <p>Turns network-quality history into provenance-aware trends and optional user-triggered summaries. It demonstrates clear data-source labeling and separates deterministic reporting from optional assistance.</p>
+              <div class="card-meta"><span class="pill">React 19</span><span class="pill">TypeScript</span><span class="pill">Convex</span><span class="pill">Tailwind CSS</span></div>
+              <h3>POLY PMNA — Modern App</h3>
+              <p>A modern full-stack learning experience built with React, TypeScript, Convex authentication, animated interfaces, protected dashboards, and an AI-assisted study workflow.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Transforms the learning platform into an authenticated, responsive product experience.</p>
+              <div class="project-facts"><span>★ 0</span><span>Sept 2026</span></div>
+              <div class="card-actions">
+
+                <a href="https://github.com/nandurpm/polypmna" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+                <a href="https://polypmna.freebuff.app" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Learning Tools" data-search="diploma notes learning tools helps kerala diploma learners reach syllabus links, lesson material, notes, and question-paper resources from one organized study platform. it demonstrates information architecture and accessible static-web delivery for a focused student audience. html css javascript github pages">
+          <article class="project-card project-dossier" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="internet time machine monitoring &amp; diagnostics a local-first network-quality historian that tracks endpoint reachability, latency, dns timing, incidents, and data provenance without overstating what measurements prove. makes long-term network behaviour understandable while keeping measured, estimated, and demo data distinct. react typescript express sqlite" data-name="Internet Time Machine" data-stars="0" data-updated="2026-08-29T10:41:42Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">03</span><span>Monitoring &amp; Diagnostics</span><strong>TypeScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">Node.js</span><span class="pill">Electrical Engineering</span><span class="pill">Decision Trees</span></div>
-              <a href="works/archive-tool-suite.html#electrical-troubleshooter"><h3>Electrical Troubleshooter</h3></a>
-              <p>Guides users through a safety-first electrical decision tree for recording observations and choosing escalation paths. It translates practical diagnostic reasoning into a consistent, inspectable workflow.</p>
+              <div class="card-meta"><span class="pill">React</span><span class="pill">TypeScript</span><span class="pill">Express</span><span class="pill">SQLite</span></div>
+              <h3>Internet Time Machine</h3>
+              <p>A local-first network-quality historian that tracks endpoint reachability, latency, DNS timing, incidents, and data provenance without overstating what measurements prove.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Makes long-term network behaviour understandable while keeping measured, estimated, and demo data distinct.</p>
+              <div class="project-facts"><span>★ 0</span><span>Aug 2026</span></div>
+              <div class="card-actions">
+                <a href="works/archive-tool-suite.html#internet-time-machine">Details <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/nandurpm/internet-time-machine" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+                <a href="https://internet-time-machine-kappa.vercel.app" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="internet time machine monitoring &amp; diagnostics turns network-quality history into provenance-aware trends and optional user-triggered summaries. it demonstrates clear data-source labeling and separates deterministic reporting from optional assistance. node.js data visualization local-first">
-            <a href="works/archive-tool-suite.html#internet-time-machine" aria-label="Open Internet Time Machine project page"><img src="assets/images/archive-engineering-hero.png" alt="Internet Time Machine" loading="lazy"></a>
+          <article class="project-card project-dossier" data-reveal="up" data-category="Applications" data-search="purple signature billing applications an android billing application for a salon, with invoice workflows, searchable local history, configurable services, payment qr support, and secure release automation. packages a practical offline-first business workflow into an installable android application. android java webview indexeddb" data-name="Purple Signature Billing" data-stars="0" data-updated="2026-08-29T10:29:11Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">04</span><span>Applications</span><strong>JavaScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Data Visualization</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#internet-time-machine"><h3>Internet Time Machine</h3></a>
-              <p>Turns network-quality history into provenance-aware trends and optional user-triggered summaries. It demonstrates clear data-source labeling and separates deterministic reporting from optional assistance.</p>
+              <div class="card-meta"><span class="pill">Android</span><span class="pill">Java</span><span class="pill">WebView</span><span class="pill">IndexedDB</span></div>
+              <h3>Purple Signature Billing</h3>
+              <p>An Android billing application for a salon, with invoice workflows, searchable local history, configurable services, payment QR support, and secure release automation.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Packages a practical offline-first business workflow into an installable Android application.</p>
+              <div class="project-facts"><span>★ 0</span><span>Aug 2026</span></div>
+              <div class="card-actions">
+
+                <a href="https://github.com/nandurpm/pss-billing-app" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Learning Tools" data-search="diploma notes learning tools helps kerala diploma learners reach syllabus links, lesson material, notes, and question-paper resources from one organized study platform. it demonstrates information architecture and accessible static-web delivery for a focused student audience. html css javascript github pages">
-<article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="internet time machine engineering software turns network-quality history into provenance-aware trends and optional user-triggered summaries. it demonstrates thoughtful data visualization and transparent handling of measured, imported, and synthetic data. javascript node.js data visualization local-first">
-            <a href="works/archive-tool-suite.html#live-directory" aria-label="Open Internet Time Machine project page"><img src="assets/images/archive-engineering-hero.png" alt="Internet Time Machine" loading="lazy"></a>
+          <article class="project-card project-dossier" data-reveal="up" data-category="Developer Tools" data-search="project digital twin developer tools a read-only repository architecture mapper that turns source relationships, dependencies, workflows, and git activity into a navigable project graph and change-impact plan. improves architecture review and change planning without modifying the inspected repository. node.js static analysis git html reports" data-name="Project Digital Twin" data-stars="0" data-updated="2026-08-29T10:24:37Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">05</span><span>Developer Tools</span><strong>JavaScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">JavaScript</span><span class="pill">Node.js</span><span class="pill">Data Visualization</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#live-directory"><h3>Internet Time Machine</h3></a>
-              <p>Turns network-quality history into provenance-aware trends and optional user-triggered summaries. It demonstrates thoughtful data visualization and transparent handling of measured, imported, and synthetic data.</p>
+              <div class="card-meta"><span class="pill">Node.js</span><span class="pill">Static Analysis</span><span class="pill">Git</span><span class="pill">HTML Reports</span></div>
+              <h3>Project Digital Twin</h3>
+              <p>A read-only repository architecture mapper that turns source relationships, dependencies, workflows, and Git activity into a navigable project graph and change-impact plan.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Improves architecture review and change planning without modifying the inspected repository.</p>
+              <div class="project-facts"><span>★ 0</span><span>Aug 2026</span></div>
+              <div class="card-actions">
+                <a href="works/archive-tool-suite.html#project-digital-twin">Details <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/nandurpm/project-digital-twin" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="electrical troubleshooter engineering software guides users through a safety-first electrical decision tree for recording observations and choosing clear escalation paths. it translates practical engineering judgment into an inspectable, repeatable workflow. javascript node.js electrical engineering decision trees">
-            <a href="works/archive-tool-suite.html#live-directory" aria-label="Open Electrical Troubleshooter project page"><img src="assets/images/works/project-7.png" alt="Electrical Troubleshooter" loading="lazy"></a>
+          <article class="project-card project-dossier" data-reveal="up" data-category="Engineering Tools" data-search="tech calc engineering tools a browser-local technical calculator workbench covering electrical, power, harmonics, motors, electronics, energy, and unit-conversion scenarios with explicit assumptions. turns repeatable engineering calculations into reviewable, consistent workflows. node.js electrical engineering validation local-first" data-name="Tech Calc" data-stars="0" data-updated="2026-08-29T10:28:12Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">06</span><span>Engineering Tools</span><strong>JavaScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">JavaScript</span><span class="pill">Node.js</span><span class="pill">Electrical Engineering</span><span class="pill">Decision Trees</span></div>
-              <a href="works/archive-tool-suite.html#live-directory"><h3>Electrical Troubleshooter</h3></a>
-              <p>Guides users through a safety-first electrical decision tree for recording observations and choosing clear escalation paths. It translates practical engineering judgment into an inspectable, repeatable workflow.</p>
+              <div class="card-meta"><span class="pill">Node.js</span><span class="pill">Electrical Engineering</span><span class="pill">Validation</span><span class="pill">Local-first</span></div>
+              <h3>Tech Calc</h3>
+              <p>A browser-local technical calculator workbench covering electrical, power, harmonics, motors, electronics, energy, and unit-conversion scenarios with explicit assumptions.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Turns repeatable engineering calculations into reviewable, consistent workflows.</p>
+              <div class="project-facts"><span>★ 0</span><span>Aug 2026</span></div>
+              <div class="card-actions">
+                <a href="works/archive-tool-suite.html#tech-calc">Details <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/nandurpm/tech-calc" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="project digital twin engineering software maps a technical project&#39;s architecture into a read-only view that makes components and relationships easier to understand. it showcases systems thinking, documentation discipline, and maintainability-focused tooling. javascript node.js architecture documentation">
-            <a href="works/archive-tool-suite.html#live-directory" aria-label="Open Project Digital Twin project page"><img src="assets/images/works/project-8.jpg" alt="Project Digital Twin" loading="lazy"></a>
+          <article class="project-card project-dossier" data-reveal="up" data-category="Learning &amp; Education" data-search="question machine learning &amp; education a responsive learning-tree tutor with deterministic assessment, transparent feedback, browser-local progress, and optional semantic evaluation for unresolved answers. keeps the dependable learning path usable even when the optional ai provider is unavailable. node.js javascript education ai-assisted" data-name="Question Machine" data-stars="0" data-updated="2026-08-29T10:24:56Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">07</span><span>Learning &amp; Education</span><strong>JavaScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">JavaScript</span><span class="pill">Node.js</span><span class="pill">Architecture</span><span class="pill">Documentation</span></div>
-              <a href="works/archive-tool-suite.html#live-directory"><h3>Project Digital Twin</h3></a>
-              <p>Maps a technical project&#39;s architecture into a read-only view that makes components and relationships easier to understand. It showcases systems thinking, documentation discipline, and maintainability-focused tooling.</p>
+              <div class="card-meta"><span class="pill">Node.js</span><span class="pill">JavaScript</span><span class="pill">Education</span><span class="pill">AI-assisted</span></div>
+              <h3>Question Machine</h3>
+              <p>A responsive learning-tree tutor with deterministic assessment, transparent feedback, browser-local progress, and optional semantic evaluation for unresolved answers.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Keeps the dependable learning path usable even when the optional AI provider is unavailable.</p>
+              <div class="project-facts"><span>★ 0</span><span>Aug 2026</span></div>
+              <div class="card-actions">
+                <a href="works/archive-tool-suite.html#question-machine">Details <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/nandurpm/question-machine" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+                <a href="https://question-machine.onrender.com" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>
+              </div>
             </div>
           </article>
-          <article class="project-card" data-reveal="up" data-category="Web Development" data-search="question machine web development a progressive learning-tree tutor with deterministic assessment and optional semantic feedback. the project demonstrates structured educational ux and a careful boundary between dependable core behavior and ai-assisted guidance. javascript node.js education ai-assisted">
-            <a href="works/archive-tool-suite.html#live-directory" aria-label="Open Question Machine project page"><img src="assets/images/works/project-6.png" alt="Question Machine" loading="lazy"></a>
+          <article class="project-card project-dossier" data-reveal="up" data-category="Engineering Tools" data-search="electrical troubleshooter engineering tools a safety-conscious framework for creating, validating, and navigating electrical diagnostic decision trees with import, export, explanations, and safe-stop states. converts practical troubleshooting logic into an inspectable workflow with explicit safety boundaries. node.js decision trees schema validation electrical safety" data-name="Electrical Troubleshooter" data-stars="0" data-updated="2026-08-29T10:22:12Z">
+            <div class="project-cover" aria-hidden="true"><span class="project-code">08</span><span>Engineering Tools</span><strong>JavaScript</strong></div>
             <div class="card-body">
-              <div class="card-meta"><span class="pill">Web Development</span><span class="pill">JavaScript</span><span class="pill">Node.js</span><span class="pill">Education</span><span class="pill">AI-assisted</span></div>
-              <a href="works/archive-tool-suite.html#live-directory"><h3>Question Machine</h3></a>
-              <p>A progressive learning-tree tutor with deterministic assessment and optional semantic feedback. The project demonstrates structured educational UX and a careful boundary between dependable core behavior and AI-assisted guidance.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Web Development" data-search="digital life dashboard web development a local-first dashboard for organizing browser-held notes, preferences, and privacy-conscious personal insights. it demonstrates responsive interface design and useful features without unnecessary collection of personal data. javascript node.js responsive ui local-first">
-            <a href="works/archive-tool-suite.html#live-directory" aria-label="Open Digital Life Dashboard project page"><img src="assets/images/works/project-8.jpg" alt="Digital Life Dashboard" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Web Development</span><span class="pill">JavaScript</span><span class="pill">Node.js</span><span class="pill">Responsive UI</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#live-directory"><h3>Digital Life Dashboard</h3></a>
-              <p>A local-first dashboard for organizing browser-held notes, preferences, and privacy-conscious personal insights. It demonstrates responsive interface design and useful features without unnecessary collection of personal data.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Web Development" data-search="diploma notes web development helps kerala diploma learners reach syllabus links, lesson material, notes, and question-paper resources from one organized study platform. it demonstrates information architecture and accessible static-web delivery for a focused student audience. html css javascript github pages">
-            <a href="works/diploma-notes.html" aria-label="Open Diploma Notes project page"><img src="assets/images/works/project-6.png" alt="Diploma Notes" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Learning Tools</span><span class="pill">HTML</span><span class="pill">CSS</span><span class="pill">JavaScript</span><span class="pill">GitHub Pages</span></div>
-              <a href="works/diploma-notes.html"><h3>Diploma Notes</h3></a>
-              <p>Helps Kerala Diploma learners reach syllabus links, lesson material, notes, and question-paper resources from one organized study platform. It demonstrates information architecture and accessible static-web delivery for a focused student audience.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Productivity Tools" data-search="digital life dashboard productivity tools organizes browser-held notes, preferences, and personal insights in a local-first dashboard. it demonstrates responsive information design without requiring unnecessary collection of personal data. node.js responsive ui local-first">
-            <a href="works/archive-tool-suite.html#digital-life-dashboard" aria-label="Open Digital Life Dashboard project page"><img src="assets/images/works/project-7.png" alt="Digital Life Dashboard" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Productivity Tools</span><span class="pill">Node.js</span><span class="pill">Responsive UI</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#digital-life-dashboard"><h3>Digital Life Dashboard</h3></a>
-              <p>Organizes browser-held notes, preferences, and personal insights in a local-first dashboard. It demonstrates responsive information design without requiring unnecessary collection of personal data.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="system change tracker monitoring &amp; diagnostics presents system changes as a read-only timeline with comparison views and explicit synthetic-data boundaries. it demonstrates audit-friendly reporting without implying hidden access to a visitor’s computer. node.js timeline read-only">
-            <a href="works/archive-tool-suite.html#system-change-tracker" aria-label="Open System Change Tracker project page"><img src="assets/images/works/project-8.jpg" alt="System Change Tracker" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Timeline</span><span class="pill">Read-only</span></div>
-              <a href="works/archive-tool-suite.html#system-change-tracker"><h3>System Change Tracker</h3></a>
-              <p>Presents system changes as a read-only timeline with comparison views and explicit synthetic-data boundaries. It demonstrates audit-friendly reporting without implying hidden access to a visitor’s computer.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Learning Tools" data-search="question machine learning tools provides a progressive learning tree with deterministic assessment and optional server-side semantic feedback. it demonstrates structured educational ux while keeping the dependable assessment path understandable. node.js education ai-assisted">
-            <a href="works/archive-tool-suite.html#question-machine" aria-label="Open Question Machine project page"><img src="assets/images/works/project-7.png" alt="Question Machine" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Learning Tools</span><span class="pill">Node.js</span><span class="pill">Education</span><span class="pill">AI-assisted</span></div>
-              <a href="works/archive-tool-suite.html#question-machine"><h3>Question Machine</h3></a>
-              <p>Provides a progressive learning tree with deterministic assessment and optional server-side semantic feedback. It demonstrates structured educational UX while keeping the dependable assessment path understandable.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="boot inspector monitoring &amp; diagnostics turns synthetic boot diagnostic records into an interactive report for reviewing startup events and likely investigation areas. it demonstrates diagnostic presentation while clearly avoiding claims of direct access to the visitor’s machine. node.js diagnostics synthetic data">
-            <a href="works/archive-tool-suite.html#boot-inspector" aria-label="Open Boot Inspector project page"><img src="assets/images/works/project-8.jpg" alt="Boot Inspector" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Diagnostics</span><span class="pill">Synthetic Data</span></div>
-              <a href="works/archive-tool-suite.html#boot-inspector"><h3>Boot Inspector</h3></a>
-              <p>Turns synthetic boot diagnostic records into an interactive report for reviewing startup events and likely investigation areas. It demonstrates diagnostic presentation while clearly avoiding claims of direct access to the visitor’s machine.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="folder archaeologist monitoring &amp; diagnostics explores a filtered file inventory through a readable report built from local or synthetic samples. it demonstrates how large directory information can be reduced into reviewable structure without uploading private files. node.js file inventory privacy-aware">
-            <a href="works/archive-tool-suite.html#folder-archaeologist" aria-label="Open Folder Archaeologist project page"><img src="assets/images/archive-engineering-hero.png" alt="Folder Archaeologist" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">File Inventory</span><span class="pill">Privacy-aware</span></div>
-              <a href="works/archive-tool-suite.html#folder-archaeologist"><h3>Folder Archaeologist</h3></a>
-              <p>Explores a filtered file inventory through a readable report built from local or synthetic samples. It demonstrates how large directory information can be reduced into reviewable structure without uploading private files.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="lan map monitoring &amp; diagnostics visualizes a read-only network topology report with its local-network limits stated directly. it demonstrates topology communication and responsible handling of network-scan expectations. node.js network topology read-only">
-            <a href="works/archive-tool-suite.html#lan-map" aria-label="Open LAN Map project page"><img src="assets/images/works/project-7.png" alt="LAN Map" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Network Topology</span><span class="pill">Read-only</span></div>
-              <a href="works/archive-tool-suite.html#lan-map"><h3>LAN Map</h3></a>
-              <p>Visualizes a read-only network topology report with its local-network limits stated directly. It demonstrates topology communication and responsible handling of network-scan expectations.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="wifi heatmap monitoring &amp; diagnostics models a local wireless survey as a simulated coverage heatmap. it demonstrates spatial data visualization and survey interpretation without presenting sample measurements as a live scan. node.js wireless data visualization">
-            <a href="works/archive-tool-suite.html#wifi-heatmap" aria-label="Open WiFi Heatmap project page"><img src="assets/images/works/project-8.jpg" alt="WiFi Heatmap" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Wireless</span><span class="pill">Data Visualization</span></div>
-              <a href="works/archive-tool-suite.html#wifi-heatmap"><h3>WiFi Heatmap</h3></a>
-              <p>Models a local wireless survey as a simulated coverage heatmap. It demonstrates spatial data visualization and survey interpretation without presenting sample measurements as a live scan.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="energy monitor engineering software maintains a local appliance-energy ledger with readable totals, summaries, and trends. it demonstrates practical electrical data organization for understanding consumption patterns. node.js energy local-first">
-            <a href="works/archive-tool-suite.html#energy-monitor" aria-label="Open Energy Monitor project page"><img src="assets/images/archive-engineering-hero.png" alt="Energy Monitor" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">Node.js</span><span class="pill">Energy</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#energy-monitor"><h3>Energy Monitor</h3></a>
-              <p>Maintains a local appliance-energy ledger with readable totals, summaries, and trends. It demonstrates practical electrical data organization for understanding consumption patterns.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Electronics Tools" data-search="component vault electronics tools provides an offline component reference organized for quick practical lookup. it demonstrates electronics knowledge organization and resilient access without a required remote service. node.js electronics offline-first">
-            <a href="works/archive-tool-suite.html#component-vault" aria-label="Open Component Vault project page"><img src="assets/images/works/project-7.png" alt="Component Vault" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Electronics Tools</span><span class="pill">Node.js</span><span class="pill">Electronics</span><span class="pill">Offline-first</span></div>
-              <a href="works/archive-tool-suite.html#component-vault"><h3>Component Vault</h3></a>
-              <p>Provides an offline component reference organized for quick practical lookup. It demonstrates electronics knowledge organization and resilient access without a required remote service.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Electronics Tools" data-search="resistor vision electronics tools combines a manual resistor color-code calculator with a compact reference workflow. it demonstrates dependable input-to-value calculation and accessible electronics guidance. node.js electronics calculator">
-            <a href="works/archive-tool-suite.html#resistor-vision" aria-label="Open Resistor Vision project page"><img src="assets/images/works/project-8.jpg" alt="Resistor Vision" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Electronics Tools</span><span class="pill">Node.js</span><span class="pill">Electronics</span><span class="pill">Calculator</span></div>
-              <a href="works/archive-tool-suite.html#resistor-vision"><h3>Resistor Vision</h3></a>
-              <p>Combines a manual resistor color-code calculator with a compact reference workflow. It demonstrates dependable input-to-value calculation and accessible electronics guidance.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Electronics Tools" data-search="pcb component finder electronics tools provides a manual annotation workspace for exploring and identifying pcb components. it demonstrates visual technical documentation while keeping identification decisions under user control. node.js pcb annotation">
-            <a href="works/archive-tool-suite.html#pcb-component-finder" aria-label="Open PCB Component Finder project page"><img src="assets/images/archive-engineering-hero.png" alt="PCB Component Finder" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Electronics Tools</span><span class="pill">Node.js</span><span class="pill">PCB</span><span class="pill">Annotation</span></div>
-              <a href="works/archive-tool-suite.html#pcb-component-finder"><h3>PCB Component Finder</h3></a>
-              <p>Provides a manual annotation workspace for exploring and identifying PCB components. It demonstrates visual technical documentation while keeping identification decisions under user control.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Electronics Tools" data-search="signal lab electronics tools presents a signal-analysis workflow behind its own controlled sign-in surface. it demonstrates electronics-focused analysis and deliberate access boundaries for a hosted tool. node.js signal analysis access control">
-            <a href="works/archive-tool-suite.html#signal-lab" aria-label="Open Signal Lab project page"><img src="assets/images/works/project-7.png" alt="Signal Lab" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Electronics Tools</span><span class="pill">Node.js</span><span class="pill">Signal Analysis</span><span class="pill">Access Control</span></div>
-              <a href="works/archive-tool-suite.html#signal-lab"><h3>Signal Lab</h3></a>
-              <p>Presents a signal-analysis workflow behind its own controlled sign-in surface. It demonstrates electronics-focused analysis and deliberate access boundaries for a hosted tool.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="motor toolbox engineering software collects engineering calculators for motor and electrical scenarios in one report-oriented interface. it demonstrates repeatable calculation workflows that make assumptions and results easier to review. node.js motors calculator">
-            <a href="works/archive-tool-suite.html#motor-toolbox" aria-label="Open Motor Toolbox project page"><img src="assets/images/works/project-8.jpg" alt="Motor Toolbox" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">Node.js</span><span class="pill">Motors</span><span class="pill">Calculator</span></div>
-              <a href="works/archive-tool-suite.html#motor-toolbox"><h3>Motor Toolbox</h3></a>
-              <p>Collects engineering calculators for motor and electrical scenarios in one report-oriented interface. It demonstrates repeatable calculation workflows that make assumptions and results easier to review.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Documentation Tools" data-search="machine logbook documentation tools provides a local-first maintenance logbook with documentation-oriented views. it demonstrates structured maintenance history and practical record keeping without making a remote account mandatory. node.js maintenance local-first">
-            <a href="works/archive-tool-suite.html#machine-logbook" aria-label="Open Machine Logbook project page"><img src="assets/images/archive-engineering-hero.png" alt="Machine Logbook" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Documentation Tools</span><span class="pill">Node.js</span><span class="pill">Maintenance</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#machine-logbook"><h3>Machine Logbook</h3></a>
-              <p>Provides a local-first maintenance logbook with documentation-oriented views. It demonstrates structured maintenance history and practical record keeping without making a remote account mandatory.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Documentation Tools" data-search="screen explainer documentation tools supports privacy-first local image exploration and annotation. it demonstrates how screenshots can become clearer technical evidence while keeping image handling close to the user. node.js annotation privacy-first">
-            <a href="works/archive-tool-suite.html#screen-explainer" aria-label="Open Screen Explainer project page"><img src="assets/images/works/project-7.png" alt="Screen Explainer" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Documentation Tools</span><span class="pill">Node.js</span><span class="pill">Annotation</span><span class="pill">Privacy-first</span></div>
-              <a href="works/archive-tool-suite.html#screen-explainer"><h3>Screen Explainer</h3></a>
-              <p>Supports privacy-first local image exploration and annotation. It demonstrates how screenshots can become clearer technical evidence while keeping image handling close to the user.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Documentation Tools" data-search="diagram script documentation tools generates validated technical flowcharts through an offline workflow. it demonstrates reproducible diagramming and validation rather than relying on manually redrawn process maps. node.js flowcharts offline-first">
-            <a href="works/archive-tool-suite.html#diagram-script" aria-label="Open Diagram Script project page"><img src="assets/images/works/project-8.jpg" alt="Diagram Script" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Documentation Tools</span><span class="pill">Node.js</span><span class="pill">Flowcharts</span><span class="pill">Offline-first</span></div>
-              <a href="works/archive-tool-suite.html#diagram-script"><h3>Diagram Script</h3></a>
-              <p>Generates validated technical flowcharts through an offline workflow. It demonstrates reproducible diagramming and validation rather than relying on manually redrawn process maps.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="tech calc engineering software groups reusable technical calculators and engineering helpers into a focused library. it demonstrates consistent input handling and repeatable calculation support across common scenarios. node.js engineering calculator">
-            <a href="works/archive-tool-suite.html#tech-calc" aria-label="Open Tech Calc project page"><img src="assets/images/archive-engineering-hero.png" alt="Tech Calc" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">Node.js</span><span class="pill">Engineering</span><span class="pill">Calculator</span></div>
-              <a href="works/archive-tool-suite.html#tech-calc"><h3>Tech Calc</h3></a>
-              <p>Groups reusable technical calculators and engineering helpers into a focused library. It demonstrates consistent input handling and repeatable calculation support across common scenarios.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="mini tool factory engineering software provides a controlled workspace for defining and using small calculators. it demonstrates reusable tool configuration while keeping calculator behavior explicit and reviewable. node.js tooling calculator">
-            <a href="works/archive-tool-suite.html#mini-tool-factory" aria-label="Open Mini Tool Factory project page"><img src="assets/images/works/project-7.png" alt="Mini Tool Factory" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">Node.js</span><span class="pill">Tooling</span><span class="pill">Calculator</span></div>
-              <a href="works/archive-tool-suite.html#mini-tool-factory"><h3>Mini Tool Factory</h3></a>
-              <p>Provides a controlled workspace for defining and using small calculators. It demonstrates reusable tool configuration while keeping calculator behavior explicit and reviewable.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Productivity Tools" data-search="command center productivity tools combines portable dashboard views with browser-local preferences. it demonstrates configurable personal tooling that remains useful without a centralized profile service. node.js dashboard local-first">
-            <a href="works/archive-tool-suite.html#command-center" aria-label="Open Command Center project page"><img src="assets/images/works/project-8.jpg" alt="Command Center" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Productivity Tools</span><span class="pill">Node.js</span><span class="pill">Dashboard</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html#command-center"><h3>Command Center</h3></a>
-              <p>Combines portable dashboard views with browser-local preferences. It demonstrates configurable personal tooling that remains useful without a centralized profile service.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="storage forensics monitoring &amp; diagnostics presents a read-only storage inventory for structured review. it demonstrates forensic-style reporting while clearly separating report exploration from direct access to a visitor’s disks. node.js storage read-only">
-            <a href="works/archive-tool-suite.html#storage-forensics" aria-label="Open Storage Forensics project page"><img src="assets/images/archive-engineering-hero.png" alt="Storage Forensics" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Storage</span><span class="pill">Read-only</span></div>
-              <a href="works/archive-tool-suite.html#storage-forensics"><h3>Storage Forensics</h3></a>
-              <p>Presents a read-only storage inventory for structured review. It demonstrates forensic-style reporting while clearly separating report exploration from direct access to a visitor’s disks.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="privacy inspector monitoring &amp; diagnostics organizes a masked, read-only privacy review into an inspectable report. it demonstrates privacy-aware presentation and avoids exposing sensitive sample values unnecessarily. node.js privacy read-only">
-            <a href="works/archive-tool-suite.html#privacy-inspector" aria-label="Open Privacy Inspector project page"><img src="assets/images/works/project-7.png" alt="Privacy Inspector" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Node.js</span><span class="pill">Privacy</span><span class="pill">Read-only</span></div>
-              <a href="works/archive-tool-suite.html#privacy-inspector"><h3>Privacy Inspector</h3></a>
-              <p>Organizes a masked, read-only privacy review into an inspectable report. It demonstrates privacy-aware presentation and avoids exposing sensitive sample values unnecessarily.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Documentation Tools" data-search="repo time machine documentation tools turns git history and repository metadata into a read-only timeline. it demonstrates software-change traceability and makes project evolution easier to inspect. node.js git timeline">
-            <a href="works/archive-tool-suite.html#repo-time-machine" aria-label="Open Repo Time Machine project page"><img src="assets/images/works/project-8.jpg" alt="Repo Time Machine" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Documentation Tools</span><span class="pill">Node.js</span><span class="pill">Git</span><span class="pill">Timeline</span></div>
-              <a href="works/archive-tool-suite.html#repo-time-machine"><h3>Repo Time Machine</h3></a>
-              <p>Turns Git history and repository metadata into a read-only timeline. It demonstrates software-change traceability and makes project evolution easier to inspect.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Documentation Tools" data-search="project digital twin documentation tools maps a technical project’s architecture into a read-only view of components and relationships. it demonstrates systems thinking, documentation discipline, and maintainability-focused tooling. node.js architecture documentation">
-            <a href="works/archive-tool-suite.html#project-digital-twin" aria-label="Open Project Digital Twin project page"><img src="assets/images/archive-engineering-hero.png" alt="Project Digital Twin" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Documentation Tools</span><span class="pill">Node.js</span><span class="pill">Architecture</span><span class="pill">Documentation</span></div>
-              <a href="works/archive-tool-suite.html#project-digital-twin"><h3>Project Digital Twin</h3></a>
-              <p>Maps a technical project’s architecture into a read-only view of components and relationships. It demonstrates systems thinking, documentation discipline, and maintainability-focused tooling.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="usb device historian monitoring &amp; diagnostics reviews usb device history locally because meaningful analysis requires operating-system records, hardware context, and user-granted permissions. it demonstrates the engineering judgment to keep hardware-dependent inspection outside a misleading hosted demo. local tool usb system history">
-            <a href="works/archive-tool-suite.html#usb-device-historian" aria-label="Open USB Device Historian project page"><img src="assets/images/works/project-7.png" alt="USB Device Historian" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Monitoring &amp; Diagnostics</span><span class="pill">Local Tool</span><span class="pill">USB</span><span class="pill">System History</span></div>
-              <a href="works/archive-tool-suite.html#usb-device-historian"><h3>USB Device Historian</h3></a>
-              <p>Reviews USB device history locally because meaningful analysis requires operating-system records, hardware context, and user-granted permissions. It demonstrates the engineering judgment to keep hardware-dependent inspection outside a misleading hosted demo.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Web Development" data-search="portfolio &amp; content studio web development combines a fast static portfolio with a github-backed content studio and automated publishing pipeline. it demonstrates dependency-free front-end engineering, secure oauth boundaries, and maintainable content automation. html css javascript cloudflare github actions">
-          <article class="project-card" data-reveal="up" data-category="Engineering Software" data-search="engineering &amp; software tool archive engineering software brings together 26 public, local-first tools for engineering calculations, diagnostics, documentation, privacy review, and technical decision support. the collection demonstrates breadth while clearly stating the safety and data boundaries of every hosted report. javascript node.js static reports local-first">
-            <a href="works/archive-tool-suite.html" aria-label="Open Engineering &amp; Software Tool Archive project page"><img src="assets/images/archive-engineering-hero.png" alt="Engineering &amp; Software Tool Archive" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Engineering Software</span><span class="pill">JavaScript</span><span class="pill">Node.js</span><span class="pill">Static Reports</span><span class="pill">Local-first</span></div>
-              <a href="works/archive-tool-suite.html"><h3>Engineering &amp; Software Tool Archive</h3></a>
-              <p>Brings together 26 public, local-first tools for engineering calculations, diagnostics, documentation, privacy review, and technical decision support. The collection demonstrates breadth while clearly stating the safety and data boundaries of every hosted report.</p>
-            </div>
-          </article>
-          <article class="project-card" data-reveal="up" data-category="Web Development" data-search="portfolio &amp; content studio web development a fast static portfolio paired with a github-backed content studio and automated publishing pipeline. it demonstrates dependency-free front-end engineering, secure oauth boundaries, and maintainable content automation. html css javascript cloudflare github actions">
-            <a href="works/engineering-projects.html" aria-label="Open Portfolio &amp; Content Studio project page"><img src="assets/images/works/project-7.png" alt="Portfolio &amp; Content Studio" loading="lazy"></a>
-            <div class="card-body">
-              <div class="card-meta"><span class="pill">Web Development</span><span class="pill">HTML</span><span class="pill">CSS</span><span class="pill">JavaScript</span><span class="pill">Cloudflare</span><span class="pill">GitHub Actions</span></div>
-              <a href="works/engineering-projects.html"><h3>Portfolio &amp; Content Studio</h3></a>
-              <p>Combines a fast static portfolio with a GitHub-backed Content Studio and automated publishing pipeline. It demonstrates dependency-free front-end engineering, secure OAuth boundaries, and maintainable content automation.</p>
-              <p>A fast static portfolio paired with a GitHub-backed Content Studio and automated publishing pipeline. It demonstrates dependency-free front-end engineering, secure OAuth boundaries, and maintainable content automation.</p>
+              <div class="card-meta"><span class="pill">Node.js</span><span class="pill">Decision Trees</span><span class="pill">Schema Validation</span><span class="pill">Electrical Safety</span></div>
+              <h3>Electrical Troubleshooter</h3>
+              <p>A safety-conscious framework for creating, validating, and navigating electrical diagnostic decision trees with import, export, explanations, and safe-stop states.</p>
+              <p class="project-outcome"><strong>Built for:</strong> Converts practical troubleshooting logic into an inspectable workflow with explicit safety boundaries.</p>
+              <div class="project-facts"><span>★ 0</span><span>Aug 2026</span></div>
+              <div class="card-actions">
+                <a href="works/archive-tool-suite.html#electrical-troubleshooter">Details <span aria-hidden="true">↗</span></a>
+                <a href="https://github.com/nandurpm/electrical-troubleshooter" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+
+              </div>
             </div>
           </article>
           <!-- PROJECTS_END -->
         </div>
       </section>
+
+      <section class="section public-catalog" aria-labelledby="public-projects-title">
+        <div class="section-heading"><div><p class="eyebrow">02 / Explore</p><h2 id="public-projects-title">More public projects</h2></div><p id="projectResults" class="catalog-count" aria-live="polite">32 public projects</p></div>
+        <div class="project-tools glass" data-reveal="up">
+          <label class="search-box" for="projectSearch"><span>Search repositories</span><input id="projectSearch" type="search" placeholder="Try React, monitoring, electrical…" autocomplete="off"></label>
+          <label for="projectCategory"><span>Category</span><select id="projectCategory"><option value="all">All categories</option></select></label>
+          <label for="projectSort"><span>Sort by</span><select id="projectSort"><option value="recent">Recently updated</option><option value="name">Name A–Z</option><option value="stars">Most starred</option></select></label>
+        </div>
+        <p class="privacy-note"><strong>Public-only by design.</strong> This catalog never lists private repositories. Source data is filtered to exclude private, forked, and archived repositories before publication.</p>
+        <div class="more-projects-grid" id="moreProjectsGrid" data-stagger aria-live="polite">
+          <!-- MORE_PROJECTS_START -->
+<article class="repository-card" data-reveal="up" data-category="Learning &amp; Education" data-search="poly pmna pdf files poly-pmna-pdf-files learning &amp; education public pdf archive for poly pmna study notes python" data-name="Poly Pmna PDF Files" data-stars="0" data-updated="2026-09-03T02:54:27Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Learning &amp; Education</span></div>
+            <h3>Poly Pmna PDF Files</h3>
+            <p>Public PDF archive for POLY PMNA study notes</p>
+            <div class="card-meta"><span class="pill">Python</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Sept 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/poly-pmna-pdf-files" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Web Development" data-search="portfolio portfolio web development personal engineering portfolio and projects by nandakumar m html" data-name="Portfolio" data-stars="0" data-updated="2026-08-31T05:33:57Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Web Development</span></div>
+            <h3>Portfolio</h3>
+            <p>Personal engineering portfolio and projects by Nandakumar M</p>
+            <div class="card-meta"><span class="pill">HTML</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/portfolio" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Productivity Tools" data-search="digital life dashboard digital-life-dashboard productivity tools open-source project and development notes. typescript" data-name="Digital Life Dashboard" data-stars="0" data-updated="2026-08-29T10:30:46Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Productivity Tools</span></div>
+            <h3>Digital Life Dashboard</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">TypeScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/digital-life-dashboard" target="_blank" rel="noopener noreferrer">Repository ↗</a><a href="https://digital-life-dashboard-zeta.vercel.app" target="_blank" rel="noopener noreferrer">Demo ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Developer Tools" data-search="folder archaeologist folder-archaeologist developer tools open-source project and development notes. javascript" data-name="Folder Archaeologist" data-stars="0" data-updated="2026-08-29T10:30:15Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Developer Tools</span></div>
+            <h3>Folder Archaeologist</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/folder-archaeologist" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="usb device historian usb-device-historian monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="USB Device Historian" data-stars="0" data-updated="2026-08-29T10:28:55Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>USB Device Historian</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/usb-device-historian" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="wifi heatmap wifi-heatmap monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="Wifi Heatmap" data-stars="0" data-updated="2026-08-29T10:28:29Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>Wifi Heatmap</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/wifi-heatmap" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="system change tracker system-change-tracker monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="System Change Tracker" data-stars="0" data-updated="2026-08-29T10:26:58Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>System Change Tracker</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/system-change-tracker" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="signal lab signal-lab engineering tools open-source project and development notes. javascript" data-name="Signal LAB" data-stars="0" data-updated="2026-08-29T10:26:48Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>Signal LAB</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/signal-lab" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Developer Tools" data-search="screen explainer screen-explainer developer tools open-source project and development notes. javascript" data-name="Screen Explainer" data-stars="0" data-updated="2026-08-29T10:26:38Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Developer Tools</span></div>
+            <h3>Screen Explainer</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/screen-explainer" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="resistor vision resistor-vision engineering tools open-source project and development notes. javascript" data-name="Resistor Vision" data-stars="0" data-updated="2026-08-29T10:26:24Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>Resistor Vision</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/resistor-vision" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="storage forensics storage-forensics monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="Storage Forensics" data-stars="0" data-updated="2026-08-29T10:26:23Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>Storage Forensics</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/storage-forensics" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Developer Tools" data-search="repo time machine repo-time-machine developer tools open-source project and development notes. javascript" data-name="Repo Time Machine" data-stars="0" data-updated="2026-08-29T10:26:01Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Developer Tools</span></div>
+            <h3>Repo Time Machine</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/repo-time-machine" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="pcb component finder pcb-component-finder engineering tools open-source project and development notes. javascript" data-name="PCB Component Finder" data-stars="0" data-updated="2026-08-29T10:24:41Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>PCB Component Finder</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/pcb-component-finder" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="privacy inspector privacy-inspector monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="Privacy Inspector" data-stars="0" data-updated="2026-08-29T10:24:33Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>Privacy Inspector</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/privacy-inspector" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="motor toolbox motor-toolbox engineering tools open-source project and development notes. javascript" data-name="Motor Toolbox" data-stars="0" data-updated="2026-08-29T10:24:25Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>Motor Toolbox</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/motor-toolbox" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Developer Tools" data-search="mini tool factory mini-tool-factory developer tools open-source project and development notes. javascript" data-name="Mini Tool Factory" data-stars="0" data-updated="2026-08-29T10:24:17Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Developer Tools</span></div>
+            <h3>Mini Tool Factory</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/mini-tool-factory" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Developer Tools" data-search="machine logbook machine-logbook developer tools open-source project and development notes. javascript" data-name="Machine Logbook" data-stars="0" data-updated="2026-08-29T10:22:57Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Developer Tools</span></div>
+            <h3>Machine Logbook</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/machine-logbook" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="lan map lan-map monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="LAN MAP" data-stars="0" data-updated="2026-08-29T10:22:45Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>LAN MAP</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/lan-map" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Monitoring &amp; Diagnostics" data-search="boot inspector boot-inspector monitoring &amp; diagnostics open-source project and development notes. javascript" data-name="Boot Inspector" data-stars="0" data-updated="2026-08-29T10:22:35Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Monitoring &amp; Diagnostics</span></div>
+            <h3>Boot Inspector</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/boot-inspector" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Productivity Tools" data-search="command center command-center productivity tools open-source project and development notes. javascript" data-name="Command Center" data-stars="0" data-updated="2026-08-29T10:22:25Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Productivity Tools</span></div>
+            <h3>Command Center</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/command-center" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Developer Tools" data-search="diagram script diagram-script developer tools open-source project and development notes. javascript" data-name="Diagram Script" data-stars="0" data-updated="2026-08-29T10:21:56Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Developer Tools</span></div>
+            <h3>Diagram Script</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/diagram-script" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="component vault component-vault engineering tools open-source project and development notes. javascript" data-name="Component Vault" data-stars="0" data-updated="2026-08-29T10:20:34Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>Component Vault</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/component-vault" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="energy monitor energy-monitor engineering tools open-source project and development notes. javascript" data-name="Energy Monitor" data-stars="0" data-updated="2026-08-29T10:18:58Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>Energy Monitor</h3>
+            <p>Open-source project and development notes.</p>
+            <div class="card-meta"><span class="pill">JavaScript</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/energy-monitor" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <article class="repository-card" data-reveal="up" data-category="Engineering Tools" data-search="sci fi calc sci-fi-calc engineering tools universal scientific engineering calculator documentation" data-name="SCI FI Calc" data-stars="0" data-updated="2026-08-12T11:51:25Z">
+            <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>Engineering Tools</span></div>
+            <h3>SCI FI Calc</h3>
+            <p>Universal Scientific Engineering Calculator</p>
+            <div class="card-meta"><span class="pill">Documentation</span></div>
+            <div class="repository-footer"><span>★ 0 · Updated Aug 2026</span><span class="card-actions"><a href="https://github.com/nandurpm/sci-fi-calc" target="_blank" rel="noopener noreferrer">Repository ↗</a></span></div>
+          </article>
+          <!-- MORE_PROJECTS_END -->
+        </div>
+      </section>
+
+      <section class="cta glass" data-reveal="up"><div><p class="eyebrow">Discuss the work</p><h2>Interested in the reasoning behind a project?</h2><p>I’m happy to discuss architecture, engineering decisions, and what I learned while building it.</p></div><a class="btn primary" href="contact.html">Get in touch</a></section>
     </main>
 
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
-
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/main.js"></script>
-  <script src="/assets/js/reveal.js"></script>
+  <script src="assets/js/projects.js"></script>
+  <script src="assets/js/reveal.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
 
 const DATA_PATHS = {
   projects: "assets/data/works.json",
+  githubProjects: "assets/data/github-projects.json",
   blog: "assets/data/blog.json"
 };
 
@@ -29,25 +30,44 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function externalAttributes(url = "") {
+  return /^https?:\/\//i.test(url) ? ' target="_blank" rel="noopener noreferrer"' : "";
+}
+
+function formatProjectDate(value) {
+  if (!value) return "Recently updated";
+  return new Intl.DateTimeFormat("en-IN", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(value));
+}
+
 function projectCard(project) {
-  const tags = (project.technologies || [])
+  const tags = (project.technologies || []).slice(0, 4)
     .map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`)
     .join("");
-  const image = `<img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy">`;
-  const title = `<h3>${escapeHtml(project.title)}</h3>`;
-  const url = project.url ? escapeHtml(project.url) : "";
-  const searchText = [project.title, project.category, project.description, ...(project.technologies || [])].join(" ");
+  const details = project.url || project.github || "";
+  const searchText = [project.title, project.category, project.description, project.outcome, ...(project.technologies || [])].join(" ");
 
   return `
-    <article class="project-card" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
-      ${url ? `<a href="${url}" aria-label="Open ${escapeHtml(project.title)} project page">${image}</a>` : image}
+    <article class="project-card project-dossier" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText.toLowerCase())}" data-name="${escapeHtml(project.title)}" data-stars="${Number(project.stars || 0)}" data-updated="${escapeHtml(project.updated || "")}">
+      <div class="project-cover" aria-hidden="true"><span class="project-code">${String(project.rank || "").padStart(2, "0")}</span><span>${escapeHtml(project.category)}</span><strong>${escapeHtml(project.language || "Project")}</strong></div>
       <div class="card-body">
-        <div class="card-meta"><span class="pill">${escapeHtml(project.category)}</span>${tags}</div>
-        ${url ? `<a href="${url}">${title}</a>` : title}
+        <div class="card-meta">${tags}</div>
+        <h3>${escapeHtml(project.title)}</h3>
         <p>${escapeHtml(project.description)}</p>
+        <p class="project-outcome"><strong>Built for:</strong> ${escapeHtml(project.outcome || "A focused, practical workflow.")}</p>
+        <div class="project-facts"><span>★ ${Number(project.stars || 0)}</span><span>${escapeHtml(formatProjectDate(project.updated))}</span></div>
+        <div class="card-actions">
+          ${details && details !== project.github && details !== project.demo ? `<a href="${escapeHtml(details)}"${externalAttributes(details)}>Details <span aria-hidden="true">↗</span></a>` : ""}
+          ${project.github ? `<a href="${escapeHtml(project.github)}" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>` : ""}
+          ${project.demo ? `<a href="${escapeHtml(project.demo)}" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>` : ""}
+        </div>
       </div>
     </article>`;
 }
+
+window.portfolioProjectCard = projectCard;
+window.loadPortfolioJson = loadJson;
+window.portfolioEscapeHtml = escapeHtml;
+window.formatProjectDate = formatProjectDate;
 
 function blogCard(post) {
   const url = escapeHtml(post.url);
@@ -117,13 +137,26 @@ function setupProjectFilters(grid, projects = null) {
 }
 
 async function renderProjects() {
-  const allGrid = document.querySelector("#projectsGrid");
   const featuredGrid = document.querySelector("#featuredProjects");
-  if (!allGrid && !featuredGrid) return;
+  if (!featuredGrid) return;
 
   let projects = null;
   try {
-    projects = await loadJson(DATA_PATHS.projects);
+    const [editorialProjects, repositories] = await Promise.all([
+      loadJson(DATA_PATHS.projects),
+      loadJson(DATA_PATHS.githubProjects)
+    ]);
+    const repositoryByName = new Map(repositories.map((repository) => [repository.name, repository]));
+    projects = editorialProjects.map((project) => {
+      const repository = repositoryByName.get(project.repository);
+      return {
+        ...project,
+        language: repository?.language || project.language,
+        stars: repository?.stars ?? project.stars,
+        updated: repository?.updatedAt || project.updated,
+        demo: project.demo || repository?.demo || ""
+      };
+    });
   } catch (error) {
     console.warn(error.message);
   }
@@ -133,10 +166,6 @@ async function renderProjects() {
     featuredGrid.innerHTML = projects.slice(0, limit).map(projectCard).join("");
   }
 
-  if (allGrid) {
-    if (projects?.length) allGrid.innerHTML = projects.map(projectCard).join("");
-    setupProjectFilters(allGrid, projects?.length ? projects : null);
-  }
 }
 
 async function renderRecentPosts() {

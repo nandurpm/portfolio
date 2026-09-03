@@ -1,22 +1,63 @@
-<!--
-FILE: contact.html
-FILE PURPOSE: Backward-compatible contact route that redirects visitors to the contact section on the about page.
--->
+<!-- FILE: contact.html | FILE PURPOSE: Direct contact page and mail composer. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=about.html#contact">
-  <meta name="description" content="Contact Nandakumar M about engineering opportunities, collaborations, and professional projects.">
-  <link rel="canonical" href="https://nandakumarm.dpdns.org/about.html#contact">
+  <meta name="description" content="Contact Nandakumar M in Chennai about electrical engineering opportunities, technical projects, and professional collaboration.">
+  <meta name="author" content="Nandakumar M">
+  <meta name="theme-color" content="#07111f">
+  <meta property="og:title" content="Contact Nandakumar M">
+  <meta property="og:description" content="Start a professional conversation about engineering, technical tools, or collaboration.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nandakumarm.dpdns.org/contact.html">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://nandakumarm.dpdns.org/contact.html">
   <title>Contact | Nandakumar M</title>
-  <link rel="stylesheet" href="/assets/css/reveal.css">
+  <link rel="icon" href="assets/images/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/reveal.css">
 </head>
-<body>
-  <script>window.location.replace("about.html#contact");</script>
-  <p><a href="about.html#contact">Open Contact</a></p>
-  <script src="/assets/js/reveal.js"></script>
+<body class="contact-page">
+  <div class="site-shell">
+    <header class="site-header glass">
+      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a class="active" href="contact.html" aria-current="page">Contact</a></nav>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
+    </header>
+
+    <main>
+      <section class="page-hero glass contact-hero" data-reveal="up"><p class="eyebrow">Chennai, Tamil Nadu, India</p><h1>Let’s talk about a useful problem.</h1><p>For engineering opportunities, project discussions, or thoughtful collaborations, email is the most direct way to reach me.</p></section>
+
+      <section class="section contact-layout" aria-labelledby="contact-title">
+        <form class="contact-form glass" id="contactForm" data-reveal="up">
+          <div><p class="eyebrow">Send an email</p><h2 id="contact-title">Start with the essentials</h2><p>This form prepares a message in your email app. It does not send or store your information on the website.</p></div>
+          <div class="form-row"><label>Name<input name="name" type="text" autocomplete="name" required></label><label>Email<input name="email" type="email" autocomplete="email" required></label></div>
+          <label>Subject<input name="subject" type="text" value="Portfolio enquiry" required></label>
+          <label>Message<textarea name="message" rows="7" placeholder="A little context about the opportunity or idea…" required></textarea></label>
+          <div class="form-submit-row"><button class="btn primary" type="submit">Prepare email</button><p class="form-note" id="formNote" aria-live="polite">Your message stays on your device until your email app opens.</p></div>
+        </form>
+
+        <aside class="contact-panel" data-reveal="up" data-delay="100">
+          <article class="contact-card glass"><span class="contact-card-label">Email</span><h3>Direct contact</h3><a class="contact-direct" href="mailto:nandakumarmkdpm@gmail.com">nandakumarmkdpm@gmail.com</a></article>
+          <article class="contact-card glass"><span class="contact-card-label">GitHub</span><h3>Public code &amp; projects</h3><a class="contact-direct" href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">github.com/nandurpm ↗</a></article>
+          <article class="contact-card glass"><span class="contact-card-label">Résumé</span><h3>Experience at a glance</h3><a class="contact-direct" href="assets/files/resume.pdf" download>Download PDF ↓</a></article>
+          <p class="availability-note"><span class="status-dot"></span>Based in Chennai and open to professional conversations.</p>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+  </div>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/reveal.js"></script>
 </body>
 </html>
-

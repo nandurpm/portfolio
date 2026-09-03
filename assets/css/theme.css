@@ -23,8 +23,8 @@
   --radius-lg: 28px;
   --radius-md: 18px;
   --radius-sm: 12px;
-  --max-width: 100%;
-  --page-gutter: clamp(12px, 1.35vw, 22px);
+  --max-width: 1480px;
+  --page-gutter: clamp(16px, 2.2vw, 34px);
   --header-height: 78px;
 }
 
@@ -62,11 +62,11 @@ body {
 }
 
 html body .site-shell {
-  width: 100%;
-  max-width: none;
+  width: min(100%, calc(var(--max-width) + var(--page-gutter) + var(--page-gutter)));
+  max-width: calc(var(--max-width) + var(--page-gutter) + var(--page-gutter));
   min-height: 100vh;
   min-height: 100svh;
-  margin: 0;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   padding-inline: var(--page-gutter);
@@ -83,19 +83,16 @@ html body .site-shell > .site-footer {
   margin-top: auto;
 }
 
-/* Full-width navigation fixed to the top edge without a floating gap. */
+/* Sticky navigation stays aligned with the portfolio content. */
 .site-shell > .site-header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  width: calc(100% + var(--page-gutter) + var(--page-gutter));
+  width: 100%;
   min-height: var(--header-height);
-  margin: 0 calc(0px - var(--page-gutter)) clamp(18px, 2vw, 28px);
+  margin: 12px 0 clamp(22px, 2.5vw, 38px);
   padding: 12px max(var(--page-gutter), 16px);
-  border-top: 0;
-  border-right: 0;
-  border-left: 0;
-  border-radius: 0 0 20px 20px;
+  border-radius: 20px;
   background: rgba(8, 20, 36, 0.88);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(24px) saturate(135%);
