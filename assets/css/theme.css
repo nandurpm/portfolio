@@ -23,7 +23,7 @@
   --radius-lg: 28px;
   --radius-md: 18px;
   --radius-sm: 12px;
-  --max-width: 1480px;
+  --max-width: 100%;
   --page-gutter: clamp(16px, 2.2vw, 34px);
   --header-height: 78px;
 }
@@ -62,11 +62,11 @@ body {
 }
 
 html body .site-shell {
-  width: min(100%, calc(var(--max-width) + var(--page-gutter) + var(--page-gutter)));
-  max-width: calc(var(--max-width) + var(--page-gutter) + var(--page-gutter));
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   min-height: 100svh;
-  margin: 0 auto;
+  margin: 0;
   display: flex;
   flex-direction: column;
   padding-inline: var(--page-gutter);
