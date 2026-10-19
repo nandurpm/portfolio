@@ -269,3 +269,274 @@ html body .site-shell > .site-footer {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* --------------------------------------------------------------------------
+   Portfolio refinement layer — calmer spacing, stronger hierarchy and polish.
+   Kept separate from the core components so it is easy to review or revert.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --content-max: 1760px;
+  --copy-measure: 72ch;
+  --ease-refined: cubic-bezier(.2, .7, .2, 1);
+}
+
+/* Keep ultrawide layouts readable without changing the responsive page grid. */
+html body .site-shell {
+  padding-inline: max(var(--page-gutter), calc((100vw - var(--content-max)) / 2));
+}
+
+html body .site-shell > .site-header,
+html body .site-shell > main,
+html body .site-shell > .site-footer {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+html body .site-shell > .site-header {
+  margin-top: 12px;
+  margin-bottom: clamp(22px, 2.5vw, 38px);
+}
+
+/* More consistent reading rhythm and headline wrapping. */
+.site-shell h1,
+.site-shell h2,
+.site-shell h3 {
+  text-wrap: balance;
+}
+
+.site-shell .hero h1 {
+  max-width: 17ch;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+.site-shell .hero-text {
+  max-width: 64ch;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.1vw, 1.15rem);
+  line-height: 1.8;
+}
+
+.site-shell .typing-line {
+  line-height: 1.65;
+}
+
+.site-shell .typing-text {
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.site-shell .section-intro,
+.site-shell .manifesto p,
+.site-shell .article-content p {
+  max-width: var(--copy-measure);
+  line-height: 1.8;
+}
+
+.site-shell .section-heading {
+  gap: clamp(16px, 2vw, 28px);
+}
+
+/* Stronger but restrained navigation states, including keyboard navigation. */
+.site-shell .brand-mark {
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--brand) 20%, transparent);
+  transition: transform 220ms var(--ease-refined), box-shadow 220ms var(--ease-refined);
+}
+
+.site-shell .brand:hover .brand-mark {
+  transform: translateY(-2px) rotate(-3deg);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--brand) 28%, transparent);
+}
+
+.site-shell .site-nav a {
+  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.site-shell .site-nav a:hover,
+.site-shell .site-nav a:focus-visible {
+  color: var(--heading);
+  background: color-mix(in srgb, var(--brand) 13%, transparent);
+}
+
+.site-shell .site-nav a.active {
+  color: var(--heading);
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+
+/* Consistent visible keyboard focus across links and controls. */
+.site-shell a:focus-visible,
+.site-shell button:focus-visible,
+.site-shell input:focus-visible,
+.site-shell textarea:focus-visible,
+.site-shell select:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 4px;
+}
+
+.site-shell .btn,
+.site-shell .text-link,
+.site-shell .card-actions a {
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms var(--ease-refined),
+    transform 180ms var(--ease-refined);
+}
+
+.site-shell .btn.primary {
+  box-shadow: 0 9px 25px color-mix(in srgb, var(--brand) 14%, transparent);
+}
+
+.site-shell .btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--brand) 23%, transparent);
+}
+
+.site-shell .btn.ghost:hover {
+  border-color: color-mix(in srgb, var(--brand) 50%, var(--border));
+  background: var(--surface-strong);
+  transform: translateY(-2px);
+}
+
+.site-shell .text-link:hover {
+  color: var(--heading);
+}
+
+/* Give cards more depth and a clear interactive affordance. */
+.site-shell .project-card,
+.site-shell .blog-card,
+.site-shell .skill-card,
+.site-shell .contact-card,
+.site-shell .resume-panel {
+  border-color: color-mix(in srgb, var(--border) 82%, transparent);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
+  transition:
+    transform 240ms var(--ease-refined),
+    border-color 240ms ease,
+    box-shadow 240ms var(--ease-refined);
+}
+
+.site-shell .project-card:hover,
+.site-shell .blog-card:hover,
+.site-shell .skill-card:hover,
+.site-shell .contact-card:hover {
+  border-color: color-mix(in srgb, var(--brand) 48%, var(--border));
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.18);
+  transform: translateY(-4px);
+}
+
+.site-shell .project-card h3,
+.site-shell .blog-card h3 {
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.site-shell .project-card p,
+.site-shell .blog-card p {
+  line-height: 1.72;
+}
+
+.site-shell .project-cover {
+  background:
+    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--brand) 28%, transparent), transparent 42%),
+    linear-gradient(150deg, rgba(56, 189, 248, 0.12), transparent 58%),
+    repeating-linear-gradient(0deg, transparent 0 35px, rgba(255, 255, 255, 0.045) 36px),
+    #081a2e;
+}
+
+.site-shell .card-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.site-shell .card-actions a:hover {
+  color: var(--brand);
+  transform: translateY(-1px);
+}
+
+/* Keep the hero image and caption intentional without obscuring the subject. */
+.site-shell .hero-visual .profile-frame {
+  box-shadow:
+    0 28px 72px rgba(0, 0, 0, 0.22),
+    0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.site-shell .profile-caption {
+  border-left: 3px solid var(--brand);
+  background: rgba(3, 12, 24, 0.86);
+}
+
+.site-shell .manifesto {
+  border-radius: 24px;
+  background: linear-gradient(110deg, color-mix(in srgb, var(--surface) 80%, transparent), transparent);
+}
+
+/* Improve comfort on small screens without changing the existing menu logic. */
+@media (max-width: 680px) {
+  html body .site-shell {
+    padding-inline: var(--page-gutter);
+  }
+
+  .site-shell .hero h1 {
+    max-width: 16ch;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .site-shell .hero-text {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .site-shell .button-row {
+    gap: 10px;
+    margin-block: 22px;
+  }
+
+  .site-shell .button-row .btn {
+    min-height: 50px;
+  }
+
+  .site-shell .manifesto {
+    border-radius: 18px;
+    padding: 24px 18px;
+  }
+
+  .site-shell .profile-caption {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    padding: 12px 14px;
+  }
+
+  .site-shell .profile-caption small {
+    line-height: 1.45;
+  }
+
+  .site-shell .project-card:hover,
+  .site-shell .blog-card:hover,
+  .site-shell .skill-card:hover,
+  .site-shell .contact-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-shell .brand-mark,
+  .site-shell .site-nav a,
+  .site-shell .btn,
+  .site-shell .text-link,
+  .site-shell .card-actions a,
+  .site-shell .project-card,
+  .site-shell .blog-card,
+  .site-shell .skill-card,
+  .site-shell .contact-card {
+    transition: none !important;
+  }
+}
