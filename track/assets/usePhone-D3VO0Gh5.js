@@ -1,0 +1,1 @@
+import{a}from"./motion--2Vn9l43.js";function o(){const[n,s]=a.useState(()=>matchMedia("(max-width: 760px)").matches);return a.useEffect(()=>{const e=matchMedia("(max-width: 760px)"),t=()=>s(e.matches);return e.addEventListener("change",t),t(),()=>e.removeEventListener("change",t)},[]),n}export{o as u};
