@@ -7,3 +7,5 @@
 /about /about.html 200
 /about/ /about.html 200
 /home /index.html 200
+
+/track /track/ 301

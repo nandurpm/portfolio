@@ -4,3 +4,6 @@ Allow: /
 Disallow: /assets/
 
 Sitemap: https://nandakumarm.dpdns.org/sitemap.xml
+
+Disallow: /track
+Disallow: /tools/tracker-source/

@@ -10,3 +10,5 @@ node_modules
 wrangler.jsonc
 README.md
 LICENSE
+
+tools/tracker-source

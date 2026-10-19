@@ -1,0 +1,104 @@
+{
+  "name": "savings-and-expense-tracker",
+  "productName": "Savings and Expense Tracker",
+  "version": "1.4.1",
+  "description": "Offline personal savings, expenses and loan planning",
+  "author": "Nandakumar",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "build:web": "tsc --noEmit && vite build --mode web --outDir dist-web"
+  },
+  "build": {
+    "appId": "com.nandakumar.savingsandexpencetracker",
+    "productName": "Savings and Expense Tracker",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "build/icon.png",
+      "package.json",
+      "docs/Inter-LICENSE.txt",
+      "LICENSE",
+      "!node_modules/**/*"
+    ],
+    "asar": true,
+    "npmRebuild": false,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Savings-and-Expense-Tracker-Setup.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Savings and Expense Tracker",
+      "uninstallDisplayName": "Savings and Expense Tracker",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office",
+      "icon": "build/icon.png"
+    },
+    "publish": null
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@fontsource/inter": "5.3.0",
+    "@supabase/supabase-js": "2.118.0",
+    "@tanstack/react-virtual": "3.14.19",
+    "canvas-confetti": "1.9.4",
+    "exceljs": "4.4.0",
+    "framer-motion": "14.2.0",
+    "immer": "11.1.21",
+    "jszip": "3.10.2",
+    "lucide-react": "1.57.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "recharts": "3.10.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@types/canvas-confetti": "1.9.0",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "electron": "44.7.2",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.2",
+    "eslint": "10.12.0",
+    "png-to-ico": "3.0.2",
+    "prettier": "3.9.10",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.2",
+    "vite": "7.3.7",
+    "vitest": "5.0.4"
+  }
+}

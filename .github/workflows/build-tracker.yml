@@ -1,0 +1,41 @@
+name: Build private tracker route
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/tracker-source/**'
+      - 'scripts/stage-tracker.mjs'
+      - '.github/workflows/build-tracker.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tracker-web-release
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - name: Install pinned dependencies without native app downloads
+        run: npm ci --ignore-scripts
+        working-directory: tools/tracker-source
+      - name: Build the sign-in-required website
+        run: npm run build:web
+        working-directory: tools/tracker-source
+      - name: Stage only the public web build
+        run: node scripts/stage-tracker.mjs
+      - name: Save generated assets for Cloudflare deployment
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add track
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Build sign-in-required tracker assets'
+          git pull --rebase origin main
+          git push origin HEAD:main
