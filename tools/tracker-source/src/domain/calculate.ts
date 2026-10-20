@@ -45,17 +45,28 @@ export function closureAmount(p: Plan, m = p.settings.closureMonth) {
 }
 export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
   if (!c.active) return 0;
-  if (c.loanId)
+  if (c.loanId) {
+    const linked = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId);
     return round(
       (p.additionalLoans?.find((l) => l.id === c.loanId)?.rows ?? []).reduce((n, r) => {
-        const early = r.paidDate && r.paidDate.slice(0, 7) < r.month;
-        return (
-          n +
-          (r.month === m ? Math.max(0, r.emi - (early ? r.paidAmount : 0)) : 0) +
-          (early && r.paidDate.slice(0, 7) === m ? r.paidAmount : 0)
-        );
+        const receipts = linked.filter((e) => e.loanRowId === r.id);
+        const early = receipts.filter((e) => e.date.slice(0, 7) < r.month);
+        // Legacy schedule-only payments retain their original timing until reconciled.
+        const legacyEarly = !receipts.length && r.paidDate && r.paidDate.slice(0, 7) < r.month;
+        const prepaid = receipts.length
+          ? early.reduce((sum, e) => sum + e.amount, 0)
+          : legacyEarly
+            ? r.paidAmount
+            : 0;
+        const paidThisMonth = receipts.length
+          ? early.filter((e) => e.date.slice(0, 7) === m).reduce((sum, e) => sum + e.amount, 0)
+          : legacyEarly && r.paidDate.slice(0, 7) === m
+            ? r.paidAmount
+            : 0;
+        return n + (r.month === m ? Math.max(0, r.emi - prepaid) : 0) + paidThisMonth;
       }, 0),
     );
+  }
   if (c.months.length && !c.months.includes(+m.slice(5, 7))) return 0;
   if (c.role === 'salary') return salary(p, m);
   if (c.role === 'emi')
@@ -278,3 +289,4 @@ export function regenerateLoan(p: Plan): LoanRow[] {
   }
   return rows;
 }
+
