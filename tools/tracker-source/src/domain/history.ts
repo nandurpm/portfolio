@@ -39,7 +39,7 @@ export function commit(
 ): Envelope {
   const [next, forward, inverse] = produceWithPatches(envelope.data, (draft) => {
     recipe(draft);
-    synchronizePayments(draft);
+    synchronizePayments(draft, envelope.data);
   });
   if (!forward.length) return envelope;
   validatePlan(next);
@@ -152,7 +152,7 @@ export function envelopeFrom(raw: unknown): Envelope {
   return { ...e, format: APP_NAME, data, sync: checkedSync };
 }
 
-function synchronizePayments(p: Draft<Plan>) {
+function synchronizePayments(p: Draft<Plan>, before: Plan) {
   const extraRows = (p.additionalLoans ?? []).flatMap((l) => l.rows);
   const allRows = [...p.loan.rows, ...extraRows];
   for (const e of p.entries) {
@@ -170,19 +170,28 @@ function synchronizePayments(p: Draft<Plan>) {
       delete e.loanRowId;
       continue;
     }
-    row.paid = !extra || e.amount >= row.emi;
-    if (extra) row.paidBeforeOpening = e.date < `${p.settings.planStart}-01`;
-    row.paidAmount = e.amount;
-    row.paidDate = e.date;
   }
   for (const row of allRows) {
     const extra = extraRows.some((r) => r.id === row.id);
     if (row.paidBeforeOpening && !extra) continue;
-    if (!p.entries.some((e) => e.loanRowId === row.id)) {
+    const receipts = p.entries.filter((e) => e.loanRowId === row.id);
+    if (receipts.length) {
+      row.paidAmount = Math.round(receipts.reduce((sum, e) => sum + e.amount, 0) * 100) / 100;
+      if (row.paidAmount > row.emi)
+        throw Error('Combined receipts cannot exceed the scheduled installment.');
+      row.paid = row.paidAmount >= row.emi;
+      row.paidDate = receipts
+        .map((e) => e.date)
+        .sort()
+        .at(-1)!;
+      if (extra)
+        row.paidBeforeOpening = receipts.every((e) => e.date < `${p.settings.planStart}-01`);
+    } else if (before.entries.some((e) => e.loanRowId === row.id)) {
       row.paid = false;
       row.paidAmount = 0;
       row.paidDate = '';
       if (extra) row.paidBeforeOpening = false;
     }
+    // Imported schedule-only payments remain intact; never invent a transaction/date.
   }
 }

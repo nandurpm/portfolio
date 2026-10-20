@@ -72,38 +72,15 @@
   padding: 10px 0;
   color: var(--accent);
 }
-@media (max-width: 760px) {
-  .loan-money-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-  .loan-money-grid div {
-    padding: 12px;
-  }
-  .loan-money-grid dd {
-    font-size: 20px;
-  }
-  .multi-loan-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .multi-loan-summary strong {
-    font-size: 20px;
-  }
-  .multi-loan-summary div {
-    min-width: 0;
-  }
-  .panel-head {
-    flex-wrap: wrap;
-  }
-  .panel-head > div {
-    min-width: 0;
-  }
-  .loan-next-payment {
-    font-size: 13px;
-  }
-}
 html {
   --accent: #6255df;
+  --chart-2: #2bb799;
+  --chart-3: #ef9a40;
+  --chart-4: #4f9ce8;
+  --chart-5: #dd658a;
+  --chart-6: #a27aee;
+  --chart-7: #e7bc51;
+  --chart-8: #41b7c6;
   --accent-deep: #4838ac;
   --accent-soft: #eeebff;
   --sidebar-a: #33306b;
@@ -112,7 +89,7 @@ html {
   --surface: #fff;
   --surface-soft: #f8f9fd;
   --text: #28324b;
-  --muted: #7b859b;
+  --muted: #596579;
   --border: #e9ecf4;
   --shadow: 0 7px 26px #27346606;
   --green: #159e83;
@@ -209,6 +186,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 input[type='checkbox'] {
@@ -261,6 +239,7 @@ code {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
+  background: var(--surface-soft);
   background: color-mix(in srgb, var(--muted) 30%, transparent);
   border-radius: 8px;
 }
@@ -308,7 +287,7 @@ code {
   filter: drop-shadow(0 4px 7px #0002);
 }
 .sidebar-label {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 1.9px;
   color: #ffffff6b;
   font-weight: 600;
@@ -509,7 +488,7 @@ code {
 }
 .range-control small {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   letter-spacing: 1px;
   text-align: left;
@@ -540,7 +519,7 @@ code {
   margin-top: 7px;
 }
 .eyebrow {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
   letter-spacing: 1.8px;
   color: var(--accent);
@@ -563,11 +542,13 @@ code {
   transition:
     transform 0.15s,
     box-shadow 0.15s;
+  box-shadow: 0 0 0 3px var(--accent-soft);
   box-shadow: 0 4px 10px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 .button:hover:not(:disabled) {
   background: var(--accent-deep);
   transform: translateY(-1px);
+  box-shadow: 0 0 0 3px var(--accent-soft);
   box-shadow: 0 6px 14px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 .button.secondary {
@@ -672,34 +653,38 @@ code {
   border-radius: 14px;
   padding: 19px 19px 16px;
   box-shadow: var(--shadow);
+  background: var(--surface-soft);
   background: linear-gradient(
     145deg,
     var(--surface),
-    color-mix(in srgb, #6255df 3%, var(--surface))
+    color-mix(in srgb, var(--accent) 3%, var(--surface))
   );
   min-width: 0;
   position: relative;
   overflow: hidden;
 }
 .stat-card.green {
+  background: var(--surface-soft);
   background: linear-gradient(
     145deg,
     var(--surface),
-    color-mix(in srgb, #20b69c 5%, var(--surface))
+    color-mix(in srgb, var(--green) 5%, var(--surface))
   );
 }
 .stat-card.orange {
+  background: var(--surface-soft);
   background: linear-gradient(
     145deg,
     var(--surface),
-    color-mix(in srgb, #ef9a40 6%, var(--surface))
+    color-mix(in srgb, var(--orange) 6%, var(--surface))
   );
 }
 .stat-card.blue {
+  background: var(--surface-soft);
   background: linear-gradient(
     145deg,
     var(--surface),
-    color-mix(in srgb, #4d93d5 5%, var(--surface))
+    color-mix(in srgb, var(--accent) 5%, var(--surface))
   );
 }
 .stat-top {
@@ -749,7 +734,7 @@ code {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   gap: 8px;
   line-height: 1.6;
@@ -790,7 +775,7 @@ code {
   padding: 11px 13px;
   text-align: right;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.15px;
   font-weight: 550;
   border-bottom: 1px solid var(--border);
@@ -816,6 +801,7 @@ code {
   border-bottom: 0;
 }
 .data-table tbody tr:hover {
+  background: var(--surface-soft);
   background: color-mix(in srgb, var(--accent) 2%, var(--surface));
 }
 .data-table .total-row {
@@ -901,11 +887,11 @@ code {
   white-space: nowrap;
 }
 .cumulative-item small {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
 }
 .cumulative-item > span:last-child {
-  font-size: 9px;
+  font-size: 11px;
 }
 .chart-grid {
   display: grid;
@@ -965,7 +951,7 @@ code {
   border-radius: 6px;
   padding: 4px 7px;
   background: var(--surface-soft);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.3;
   font-weight: 500;
   color: var(--muted);
@@ -999,7 +985,7 @@ code {
 }
 .progress-cell small {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -1028,11 +1014,11 @@ code {
   display: flex;
   justify-content: space-between;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   padding: 10px 2px 5px;
 }
 .edited {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--accent);
   background: var(--accent-soft);
   border-radius: 4px;
@@ -1127,6 +1113,7 @@ code {
   padding: 14px 17px;
   margin: 14px 0;
   background: var(--accent-soft);
+  border: 1px solid var(--border);
   border: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
   border-radius: 9px;
   font-size: 11px;
@@ -1258,7 +1245,7 @@ code {
 .entry-grid.header {
   height: 43px;
   background: var(--surface-soft);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
 }
 .virtual-entries {
@@ -1290,7 +1277,7 @@ code {
 }
 .entry-row .subtle,
 .fill-cell small {
-  font-size: 8px;
+  font-size: 11px;
   margin: 0 0 0 6px;
   display: block;
   color: var(--muted);
@@ -1552,7 +1539,7 @@ code {
   color: var(--accent);
 }
 .paid-ring span {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
 }
 .loan-hero h2 {
@@ -1582,7 +1569,7 @@ code {
 .closure-summary small {
   display: block;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   margin-bottom: 6px;
 }
 .closure-summary strong {
@@ -1670,13 +1657,13 @@ code {
   line-height: 1.3;
 }
 .calendar-item > div span {
-  font-size: 9px;
+  font-size: 11px;
 }
 .calendar-item h3 {
   font-size: 11px;
 }
 .calendar-item small {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   display: block;
   margin: 3px 0;
@@ -1805,6 +1792,8 @@ code {
   align-items: center;
   gap: 12px;
   z-index: 100;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
 }
 .spinner {
   display: inline-block;
@@ -1865,7 +1854,7 @@ code {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   min-width: 65px;
 }
@@ -1938,7 +1927,7 @@ code {
 .history-list small {
   display: block;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
   margin-top: 4px;
 }
 .history-changes {
@@ -1953,7 +1942,7 @@ code {
 }
 .history-changes code {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--accent);
   margin-bottom: 5px;
 }
@@ -2081,10 +2070,10 @@ html[data-animations='false'] *::after {
     font-size: 23px;
   }
   .stat-top {
-    font-size: 9px;
+    font-size: 11px;
   }
   .stat-caption {
-    font-size: 8px;
+    font-size: 11px;
   }
   .cumulative-item {
     padding: 4px 13px;
@@ -2496,11 +2485,100 @@ html[data-animations='false'] *::after {
 .phone-card-actions .icon-button.red {
   margin-left: auto;
 }
-.busy-pill {
-  transform: translateX(-50%);
-  max-width: calc(100vw - 24px);
+
+/* The native Android window already excludes status/navigation bars and the keyboard.
+   Ignore WebView safe-area values (including stale values on older ColorOS WebViews). */
+html[data-platform='android'] {
+  --safe-top: 0px;
+  --safe-bottom: 0px;
+  --safe-left: 0px;
+  --safe-right: 0px;
+}
+html[data-platform='android'] .workspace::before {
+  content: none;
+  height: 0;
+}
+
+.google-signin {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  gap: 12px;
+}
+.google-letter {
+  font-weight: 700;
+  font-size: 22px;
+  color: #4285f4;
+}
+.multi-loan-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+}
+.multi-loan-summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.multi-loan-summary strong {
+  font-size: 1.4rem;
+}
+
+/* Semantic green/orange/red remain consistent across all palettes. */
+.receipt-row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.payment-receipts {
+  margin-bottom: 18px;
+}
+.theme-switch {
+  flex-shrink: 0;
+}
+.progress-table {
+  min-width: 800px;
+}
+.initial-sync,
+.sync-review {
+  margin-block: 16px;
+}
+.phone-budget {
+  min-width: 0;
 }
 @media (max-width: 760px) {
+  .loan-money-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .loan-money-grid div {
+    padding: 12px;
+  }
+  .loan-money-grid dd {
+    font-size: 20px;
+  }
+  .multi-loan-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .multi-loan-summary strong {
+    font-size: 20px;
+  }
+  .multi-loan-summary div {
+    min-width: 0;
+  }
+  .panel-head {
+    flex-wrap: wrap;
+  }
+  .panel-head > div {
+    min-width: 0;
+  }
+  .loan-next-payment {
+    font-size: 13px;
+  }
   :root {
     --safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
     --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
@@ -2889,8 +2967,8 @@ html[data-animations='false'] *::after {
   .budget-fill-handle {
     display: none;
   }
-  .recharts-text,
-  .recharts-legend-item-text {
+  .chart-box .recharts-text,
+  .chart-box .recharts-legend-item-text {
     font-size: 13px !important;
   }
   .toast-stack {
@@ -2935,9 +3013,6 @@ html[data-animations='false'] *::after {
     flex-direction: column;
     font-size: 13px;
   }
-}
-
-@media (max-width: 760px) {
   .quick-add,
   .chart-grid,
   .comparison-chart-grid,
@@ -2991,8 +3066,6 @@ html[data-animations='false'] *::after {
   .phone-menu > .button {
     justify-content: start;
   }
-}
-@media (max-width: 760px) {
   .loan-hero {
     flex-direction: column;
     align-items: flex-start;
@@ -3028,44 +3101,25 @@ html[data-animations='false'] *::after {
   .toggle-row input:checked::after {
     transform: translateX(18px);
   }
+  .multi-loan-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 10px;
+  }
+  .multi-loan-summary strong {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+  .multi-loan-summary small {
+    font-size: 12px;
+  }
+  .loan-money-grid dd {
+    font-size: 18px;
+  }
 }
 
-/* The native Android window already excludes status/navigation bars and the keyboard.
-   Ignore WebView safe-area values (including stale values on older ColorOS WebViews). */
-html[data-platform='android'] {
-  --safe-top: 0px;
-  --safe-bottom: 0px;
-  --safe-left: 0px;
-  --safe-right: 0px;
+.profile > div {
+  min-width: 0;
 }
-html[data-platform='android'] .workspace::before {
-  content: none;
-  height: 0;
+.profile strong {
+  overflow-wrap: anywhere;
 }
-
-.google-signin {
-  width: 100%;
-  min-height: 48px;
-  justify-content: center;
-  gap: 12px;
-}
-.google-letter {
-  font-weight: 700;
-  font-size: 22px;
-  color: #4285f4;
-}
-.multi-loan-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  margin: 22px 0;
-}
-.multi-loan-summary div {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.multi-loan-summary strong {
-  font-size: 1.4rem;
-}
-@media(max-width:760px){.multi-loan-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 10px}.multi-loan-summary strong{font-size:18px;overflow-wrap:anywhere}.multi-loan-summary small{font-size:12px}.loan-money-grid dd{font-size:18px}}

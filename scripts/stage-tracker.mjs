@@ -12,5 +12,5 @@ for(const entry of await fs.readdir(path.join(target,'assets')).catch(()=>[])){
  if(!current.has(entry))await fs.unlink(path.join(target,'assets',entry));
 }
 await fs.cp(source,target,{recursive:true});
-await fs.writeFile(path.join(target,'release.json'),JSON.stringify({version:'1.4.1',requiresSignIn:true,route:'/track/'})+'\n');
+await fs.writeFile(path.join(target,'release.json'),JSON.stringify({version:JSON.parse(await fs.readFile(path.join(root,'tools/tracker-source/package.json'),'utf8')).version,requiresSignIn:true,route:'/track/'})+'\n');
 console.log('Staged sign-in-required /track/ build. No navigation links or sitemap entries added.');

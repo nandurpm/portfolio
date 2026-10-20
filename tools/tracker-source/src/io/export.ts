@@ -1,5 +1,5 @@
-import ExcelJS from 'exceljs';
-import JSZip from 'jszip';
+import type ExcelJS from 'exceljs';
+
 import type { Plan, Category } from '../domain/types';
 import { APP_NAME } from '../domain/types';
 import {
@@ -78,6 +78,7 @@ export async function exportWorkbook(
   start = p.settings.planStart,
   end = p.settings.planEnd,
 ) {
+  const { default: ExcelJS } = await import('exceljs');
   const wb = new ExcelJS.Workbook();
   wb.creator = APP_NAME;
   wb.title = APP_NAME;
@@ -209,7 +210,10 @@ export async function exportWorkbook(
   exportState.settings.viewEnd = end;
   exportState.settings.selectedMonth = month;
   // Keep linked installment receipts even outside the exported budget window.
-  const extraRowIds = new Set((p.additionalLoans ?? []).flatMap((l) => l.rows.map((r) => r.id)));
+  const extraRowIds = new Set([
+    ...p.loan.rows.map((r) => r.id),
+    ...(p.additionalLoans ?? []).flatMap((l) => l.rows.map((r) => r.id)),
+  ]);
   exportState.entries = p.entries.filter(
     (e) => entries.some((x) => x.id === e.id) || (e.loanRowId && extraRowIds.has(e.loanRowId)),
   );
@@ -466,6 +470,7 @@ export async function exportWorkbook(
   return addCharts(bytes, chartData, Math.max(41, 23 + p.categories.length));
 }
 async function addCharts(bytes: Uint8Array, data: ReturnType<typeof progress>, row: number) {
+  const { default: JSZip } = await import('jszip');
   const zip = await JSZip.loadAsync(bytes),
     ns = 'http://schemas.openxmlformats.org';
   const n = data.length;
@@ -515,10 +520,10 @@ async function addCharts(bytes: Uint8Array, data: ReturnType<typeof progress>, r
         ),
     },
   ];
-  for (let i = 0; i < 2; i++)
+  for (const [i, spec] of specs.entries())
     zip.file(
       `xl/charts/chart${i + 1}.xml`,
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><c:chartSpace xmlns:c="${ns}/drawingml/2006/chart" xmlns:a="${ns}/drawingml/2006/main"><c:chart><c:title><c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-IN" sz="1300"/><a:t>${xmlEscape(specs[i].title)}</a:t></a:r></a:p></c:rich></c:tx></c:title><c:plotArea><c:layout/><c:lineChart><c:grouping val="standard"/>${specs[i].series}<c:axId val="100"/><c:axId val="200"/></c:lineChart><c:catAx><c:axId val="100"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:axPos val="b"/><c:tickLblPos val="nextTo"/><c:crossAx val="200"/><c:crosses val="autoZero"/></c:catAx><c:valAx><c:axId val="200"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:axPos val="l"/><c:majorGridlines/><c:numFmt formatCode="#,##0" sourceLinked="0"/><c:tickLblPos val="nextTo"/><c:crossAx val="100"/><c:crosses val="autoZero"/></c:valAx></c:plotArea><c:legend><c:legendPos val="b"/></c:legend><c:plotVisOnly val="0"/><c:dispBlanksAs val="gap"/></c:chart></c:chartSpace>`,
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><c:chartSpace xmlns:c="${ns}/drawingml/2006/chart" xmlns:a="${ns}/drawingml/2006/main"><c:chart><c:title><c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-IN" sz="1300"/><a:t>${xmlEscape(spec.title)}</a:t></a:r></a:p></c:rich></c:tx></c:title><c:plotArea><c:layout/><c:lineChart><c:grouping val="standard"/>${spec.series}<c:axId val="100"/><c:axId val="200"/></c:lineChart><c:catAx><c:axId val="100"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:axPos val="b"/><c:tickLblPos val="nextTo"/><c:crossAx val="200"/><c:crosses val="autoZero"/></c:catAx><c:valAx><c:axId val="200"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:axPos val="l"/><c:majorGridlines/><c:numFmt formatCode="#,##0" sourceLinked="0"/><c:tickLblPos val="nextTo"/><c:crossAx val="100"/><c:crosses val="autoZero"/></c:valAx></c:plotArea><c:legend><c:legendPos val="b"/></c:legend><c:plotVisOnly val="0"/><c:dispBlanksAs val="gap"/></c:chart></c:chartSpace>`,
     );
   const anchor = (i: number) =>
     `<xdr:twoCellAnchor><xdr:from><xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${row + i * 19}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:to><xdr:col>7</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${row + 17 + i * 19}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="${i + 1}" name="Chart ${i + 1}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="${ns}/drawingml/2006/chart"><c:chart xmlns:c="${ns}/drawingml/2006/chart" xmlns:r="${ns}/officeDocument/2006/relationships" r:id="rId${i + 1}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:twoCellAnchor>`;

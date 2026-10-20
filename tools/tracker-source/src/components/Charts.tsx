@@ -18,14 +18,14 @@ import { progress, actualCategory, reportDate, money } from '../domain/calculate
 import { monthLabel } from '../domain/dates';
 import { Section, Empty } from './UI';
 const colors = [
-  '#6255df',
-  '#2bb799',
-  '#ef9a40',
-  '#4f9ce8',
-  '#dd658a',
-  '#a27aee',
-  '#e7bc51',
-  '#41b7c6',
+  'var(--accent)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--chart-6)',
+  'var(--chart-7)',
+  'var(--chart-8)',
 ];
 const axis = { tickLine: false, axisLine: false, tick: { fill: 'var(--muted)', fontSize: 11 } };
 const tip = {
@@ -84,7 +84,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 <Line
                   name="Plan savings"
                   dataKey="plan"
-                  stroke="#9b86ed"
+                  stroke="var(--accent)"
                   strokeWidth={2}
                   strokeDasharray="5 4"
                   dot={data.length < 8}
@@ -93,7 +93,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 <Line
                   name="Actual savings"
                   dataKey="actual"
-                  stroke="#20b69c"
+                  stroke="var(--green)"
                   strokeWidth={3}
                   dot={data.length < 8}
                   connectNulls={false}
@@ -116,8 +116,8 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="cashGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6255df" stopOpacity={0.32} />
-                    <stop offset="100%" stopColor="#6255df" stopOpacity={0.01} />
+                    <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.32} />
+                    <stop offset="100%" stopColor="var(--accent)" stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 6" vertical={false} stroke="var(--border)" />
@@ -136,7 +136,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 <Area
                   name="Recorded cash"
                   dataKey="cash"
-                  stroke="#6255df"
+                  stroke="var(--accent)"
                   fill="url(#cashGradient)"
                   strokeWidth={3}
                   dot={data.length < 8}

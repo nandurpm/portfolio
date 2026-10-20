@@ -55,9 +55,10 @@ export function parseGoogleCallback(raw: string, redirect: string) {
   if (u.searchParams.has('error'))
     throw Error('Google sign-in was declined or could not finish. Please try again.');
   const codes = u.searchParams.getAll('code');
-  if (codes.length !== 1 || !/^[A-Za-z0-9._~-]{1,2048}$/.test(codes[0]))
+  const code = codes[0];
+  if (codes.length !== 1 || !code || !/^[A-Za-z0-9._~-]{1,2048}$/.test(code))
     throw Error('Google did not return a valid sign-in code.');
-  return codes[0];
+  return code;
 }
 let completing = false,
   generation = 0;

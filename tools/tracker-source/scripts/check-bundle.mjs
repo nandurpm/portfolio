@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';
+const root = process.argv[2] ?? 'dist-web';
+const assets = await fs.readdir(root + '/assets');
+const report = assets.find((n) => /^Reports-.*\.js$/.test(n));
+if (!report) throw Error('Reports chunk missing');
+const size = (await fs.stat(root + '/assets/' + report)).size;
+if (size > 120000) throw Error('Reports action-loading budget exceeded');
+const html = await fs.readFile(root + '/index.html', 'utf8');
+if (html.includes('__TRACKER_CONNECT_SRC__')) throw Error('Unresolved cloud CSP');
+console.log(JSON.stringify({ reportsBytes: size, budgetBytes: 120000 }));

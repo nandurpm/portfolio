@@ -49,11 +49,11 @@ const pages = [
   { id: 'settings', name: 'Settings', icon: SettingsIcon },
 ];
 class Boundary extends Component<{ children: ReactNode }, { error: string }> {
-  state = { error: '' };
+  override state = { error: '' };
   static getDerivedStateFromError(e: Error) {
     return { error: e.message };
   }
-  render() {
+  override render() {
     if (this.state.error)
       return (
         <div className="fatal">
@@ -111,6 +111,7 @@ function Shell() {
     const off = window.desktop?.onBeforeClose(() => store.flush());
     return () => {
       clearInterval(timer);
+      sync.stop();
       off?.();
     };
   }, []);
@@ -119,6 +120,7 @@ function Shell() {
       p.settings.theme === 'dark' ||
       (p.settings.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    document.documentElement.dataset.palette = p.settings.palette;
     void applySystemBarTheme(dark, {
       topColor: getComputedStyle(document.documentElement).getPropertyValue('--surface').trim(),
       bottomColor: getComputedStyle(document.documentElement)
@@ -145,6 +147,14 @@ function Shell() {
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (cloud.locked || cloud.review || cloud.initial !== undefined) return;
+      if (
+        e.isComposing ||
+        (e.target instanceof HTMLElement &&
+          e.target.closest(
+            'input,textarea,select,[contenteditable]:not([contenteditable="false"])',
+          ))
+      )
+        return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         if ((e.target as HTMLElement).closest('[role="dialog"]')) return;
         e.preventDefault();
@@ -248,9 +258,11 @@ function Shell() {
               </div>
             </div>
             <div className="profile">
-              <div className="avatar">N</div>
+              <div className="avatar">
+                {cloud.session?.user.email?.slice(0, 1).toUpperCase() ?? 'P'}
+              </div>
               <div>
-                <strong>Nandakumar</strong>
+                <strong>{cloud.session?.user.email ?? 'Personal finance'}</strong>
                 <span>Personal finance</span>
               </div>
               <button

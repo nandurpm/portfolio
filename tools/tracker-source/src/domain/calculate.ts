@@ -221,7 +221,7 @@ export function closureAnalysis(p: Plan) {
   const earliest = normal.find(
     (x) =>
       x.balance > 0 &&
-      x.month >= p.loan.rows[0]?.month &&
+      x.month >= (p.loan.rows[0]?.month ?? '9999-12') &&
       round(x.cash - closureAmount(p, x.month)) >= p.settings.cushion,
   );
   const interest = round(

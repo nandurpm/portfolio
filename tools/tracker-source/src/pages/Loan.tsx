@@ -1,3 +1,5 @@
+import { saveOriginalPayment } from '../domain/installments';
+import { PaymentReceipts } from '../components/PaymentReceipts';
 import { useState } from 'react';
 import AdditionalLoans from '../components/AdditionalLoans';
 import { usePhone } from '../components/usePhone';
@@ -123,10 +125,12 @@ export default function Loan() {
       });
       return;
     }
+    setReceiptId('');
     setPayment(r);
     setPaidDate(inRange(today(), s.planStart, s.planEnd) ? today() : r.dueDate);
-    setPaidAmount(r.emi);
+    setPaidAmount(Math.max(0, r.emi - r.paidAmount));
   }
+  const [receiptId, setReceiptId] = useState('');
   function savePayment() {
     if (!payment) return;
     const cat = p.categories.find((c) => c.role === 'emi' && !c.loanId);
@@ -135,25 +139,9 @@ export default function Loan() {
       return;
     }
     try {
-      store.change(`Pay EMI: ${payment.month}`, (d) => {
-        const row = d.loan.rows.find((r) => r.id === payment.id)!;
-        row.paid = true;
-        row.paidDate = paidDate;
-        row.paidAmount = paidAmount;
-        row.edited = true;
-        d.entries = d.entries.filter((e) => e.loanRowId !== row.id);
-        d.entries.push({
-          id: crypto.randomUUID(),
-          date: paidDate,
-          categoryId: cat.id,
-          description: `EMI for ${monthLabel(row.month)}`,
-          amount: paidAmount,
-          payment: 'Bank',
-          notes: 'Linked to loan schedule',
-          loanRowId: row.id,
-          edited: true,
-        });
-      });
+      store.change(`Pay EMI: ${payment.month}`, (d) =>
+        saveOriginalPayment(d, payment.id, paidDate, paidAmount, receiptId || undefined),
+      );
       setPayment(null);
       toast('Payment saved in the schedule and Daily Entries.');
     } catch (e) {
@@ -442,6 +430,11 @@ export default function Loan() {
                     className="button small secondary"
                     onClick={() => {
                       setPayment(r);
+                      setReceiptId(
+                        p.entries.filter((e) => e.loanRowId === r.id).length === 1
+                          ? p.entries.find((e) => e.loanRowId === r.id)!.id
+                          : '',
+                      );
                       setPaidDate(r.paidDate);
                       setPaidAmount(r.paidAmount);
                     }}
@@ -560,6 +553,11 @@ export default function Loan() {
                             className="text-button"
                             onClick={() => {
                               setPayment(r);
+                              setReceiptId(
+                                p.entries.filter((e) => e.loanRowId === r.id).length === 1
+                                  ? p.entries.find((e) => e.loanRowId === r.id)!.id
+                                  : '',
+                              );
                               setPaidDate(r.paidDate);
                               setPaidAmount(r.paidAmount);
                             }}
@@ -582,6 +580,19 @@ export default function Loan() {
           title={`Record EMI payment · ${monthLabel(payment.month)}`}
           onClose={() => setPayment(null)}
         >
+          <PaymentReceipts
+            receipts={p.entries.filter((e) => e.loanRowId === payment.id)}
+            onEdit={(e) => {
+              setReceiptId(e.id);
+              setPaidDate(e.date);
+              setPaidAmount(e.amount);
+            }}
+          />
+          <p>
+            {receiptId
+              ? 'Editing one receipt.'
+              : 'Add another transfer; previous receipts stay separate.'}
+          </p>
           <Field label="Actual paid amount (₹)">
             <input
               type="number"
@@ -595,8 +606,7 @@ export default function Loan() {
             <input type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
           </Field>
           <p className="muted">
-            This creates one linked transaction. A payment outside the plan range is kept in the
-            archive.
+            This saves one receipt. A payment outside the plan range is kept in the archive.
           </p>
           <div className="modal-actions">
             <button className="button secondary" onClick={() => setPayment(null)}>

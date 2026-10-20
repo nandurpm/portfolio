@@ -1,7 +1,7 @@
-import JSZip from 'jszip';
 /** ExcelJS 4.x expects unprefixed SpreadsheetML elements. Preserve values/formulas while
  * normalizing equivalent namespace-prefixed OOXML (including the supplied workbook). */
 export async function excelCompatible(bytes: Uint8Array): Promise<Uint8Array> {
+  const { default: JSZip } = await import('jszip');
   const zip = await JSZip.loadAsync(bytes);
   let changed = false;
   for (const file of Object.values(zip.files)) {
@@ -30,6 +30,7 @@ export async function excelCompatible(bytes: Uint8Array): Promise<Uint8Array> {
     const hasDates = /<c\b[^>]*\bt=["']d["']/.test(xml);
     if (!namespaces.length && !hasDates) continue;
     for (const match of namespaces) {
+      if (!match[1]) continue;
       const prefix = match[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       xml = xml
         .replace(new RegExp(`(<\\/?)(?:${prefix}):`, 'g'), '$1')

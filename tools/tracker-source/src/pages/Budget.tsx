@@ -93,13 +93,18 @@ export default function Budget() {
   function drop(month: string, id: string) {
     const a = drag.current;
     if (!a) return;
-    const mi = [months.indexOf(a.month), months.indexOf(month)].sort((a, b) => a - b),
-      ci = [cats.findIndex((c) => c.id === a.id), cats.findIndex((c) => c.id === id)].sort(
-        (a, b) => a - b,
-      );
+    const m1 = months.indexOf(a.month),
+      m2 = months.indexOf(month),
+      c1 = cats.findIndex((c) => c.id === a.id),
+      c2 = cats.findIndex((c) => c.id === id);
+    if ([m1, m2, c1, c2].some((n) => n < 0)) return;
     store.change('Drag-fill budget cells', (d) => {
-      for (let i = mi[0]; i <= mi[1]; i++)
-        for (let j = ci[0]; j <= ci[1]; j++) d.overrides[key(months[i], cats[j].id)] = a.value;
+      for (let i = Math.min(m1, m2); i <= Math.max(m1, m2); i++)
+        for (let j = Math.min(c1, c2); j <= Math.max(c1, c2); j++) {
+          const m = months[i],
+            c = cats[j];
+          if (m && c) d.overrides[key(m, c.id)] = a.value;
+        }
     });
     drag.current = null;
   }
@@ -155,29 +160,45 @@ export default function Budget() {
       const i = d.categories.findIndex((c) => c.id === id),
         j = i + by;
       if (j < 0 || j >= d.categories.length) return;
-      [d.categories[i], d.categories[j]] = [d.categories[j], d.categories[i]];
+      const first = d.categories[i],
+        second = d.categories[j];
+      if (!first || !second) return;
+      d.categories[i] = second;
+      d.categories[j] = first;
     });
   }
   function removeCategory() {
     if (!deleteCat) return;
+    if (deleteCat.loanId || deleteCat.role === 'emi' || deleteCat.role === 'closure') {
+      toast(
+        'This category is linked to a loan. Keep it so installments and payments remain connected.',
+        true,
+      );
+      setDeleteCat(null);
+      return;
+    }
     const used = p.entries.some((e) => e.categoryId === deleteCat.id);
     if (used && !reassign) {
       toast('Choose a replacement category for existing entries.', true);
       return;
     }
-    store.change(`Delete category: ${deleteCat.name}`, (d) => {
-      d.entries.forEach((e) => {
-        if (e.categoryId === deleteCat.id) {
-          e.categoryId = reassign;
-          e.edited = true;
-        }
+    try {
+      store.change(`Delete category: ${deleteCat.name}`, (d) => {
+        d.entries.forEach((e) => {
+          if (e.categoryId === deleteCat.id) {
+            e.categoryId = reassign;
+            e.edited = true;
+          }
+        });
+        d.categories = d.categories.filter((c) => c.id !== deleteCat.id);
+        Object.keys(d.overrides)
+          .filter((k) => k.endsWith('|' + deleteCat.id))
+          .forEach((k) => delete d.overrides[k]);
       });
-      d.categories = d.categories.filter((c) => c.id !== deleteCat.id);
-      Object.keys(d.overrides)
-        .filter((k) => k.endsWith('|' + deleteCat.id))
-        .forEach((k) => delete d.overrides[k]);
-    });
-    setDeleteCat(null);
+      setDeleteCat(null);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : String(e), true);
+    }
   }
   return (
     <>

@@ -104,7 +104,10 @@ export function Modal({
     const unregister = registerDialog(close);
     const prev = document.activeElement as HTMLElement;
     const el = ref.current;
-    el?.focus();
+    el?.querySelector<HTMLElement>(
+      'input:not(:disabled),select:not(:disabled),textarea:not(:disabled),button:not(:disabled)',
+    )?.focus();
+    if (el && !el.contains(document.activeElement)) el.focus();
     const key = (e: KeyboardEvent) => {
       if (!isTopDialog(close)) return;
       if (e.key === 'Escape') {
@@ -120,10 +123,14 @@ export function Modal({
         );
         const first = list[0],
           last = list.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
+        const outside = !list.includes(document.activeElement as HTMLElement);
+        if (!first) {
+          e.preventDefault();
+          el.focus();
+        } else if (e.shiftKey && (document.activeElement === first || outside)) {
           last?.focus();
           e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
+        } else if (!e.shiftKey && (document.activeElement === last || outside)) {
           first?.focus();
           e.preventDefault();
         }
@@ -133,7 +140,7 @@ export function Modal({
     return () => {
       unregister();
       document.removeEventListener('keydown', key);
-      prev?.focus();
+      if (prev?.isConnected) prev.focus();
     };
   }, []);
   return (
@@ -377,6 +384,7 @@ export function Money({
       return () => control.stop();
     }
     mv.set(value);
+    return undefined;
   }, [value, mv, animateValue, p.settings.animations]);
   return <motion.span>{display}</motion.span>;
 }

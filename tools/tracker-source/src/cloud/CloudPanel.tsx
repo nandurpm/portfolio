@@ -229,7 +229,7 @@ export function CloudPanel() {
             disabled={blocked}
             onClick={() => void action(() => sync.signOut())}
           >
-            Sign out on this device
+            {WEB_APP ? 'Sign out & clear this browser' : 'Sign out on this device'}
           </button>
         </>
       ) : (
@@ -305,7 +305,7 @@ export function CloudPanel() {
           </div>
           <p className="footnote">
             {WEB_APP
-              ? 'Use your existing app account. This page requires sign-in; financial data is loaded from your account only. Sign out when using a shared computer.'
+              ? 'Use your existing app account. Sign-out removes this tracker’s local financial copies from the browser after your changes have synced.'
               : 'Your Supabase dashboard account is separate from this app login. Create an app account once, then use it on both devices. Never enter the database password here.'}
           </p>
         </form>

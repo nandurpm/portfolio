@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import type ExcelJS from 'exceljs';
 import { excelCompatible } from './normalize';
 import { freshPlan } from '../domain/defaults';
 import type { Plan, Entry, ImportPreview, Category, LoanRow } from '../domain/types';
@@ -37,7 +37,7 @@ export function iso(v: any): string {
   if (typeof v === 'string') {
     if (validDate(v.slice(0, 10))) return v.slice(0, 10);
     const m = /^(\d{1,2})[-/]([A-Za-z]{3}|\d{1,2})[-/](\d{4})$/.exec(v);
-    if (m) {
+    if (m && m[1] && m[2] && m[3]) {
       const month = isNaN(+m[2])
         ? [
             'jan',
@@ -106,6 +106,7 @@ function importRows(
     throw Error('Map Date, Category and Amount columns before importing.');
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
+    if (!row) continue;
     if (!row.some((v) => v !== null && v !== undefined && v !== '')) continue;
     const decode = (v: unknown) =>
       encodedCSV && row[head.indexOf('Tracker CSV encoding')] === 'apostrophe-v2'
@@ -159,6 +160,7 @@ export async function readWorkbook(
   base: Plan = freshPlan(),
   map: ColumnMapping = defaultMapping,
 ): Promise<ImportPreview & { headers: string[] }> {
+  const { default: ExcelJS } = await import('exceljs');
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load((await excelCompatible(bytes)) as any);
   const budget = wb.getWorksheet('Budget'),
@@ -298,15 +300,26 @@ export async function readWorkbook(
     ),
   );
   const parsed = importRows(data, h.headers, p, map, h.row + 1);
-  const preservedExtraReceipts = p.entries.filter(
-    (e) =>
-      e.loanRowId &&
-      (p.additionalLoans ?? []).some((l) => l.rows.some((r) => r.id === e.loanRowId)) &&
-      !parsed.entries.some(
-        (x) => x.date === e.date && x.categoryId === e.categoryId && x.amount === e.amount,
-      ),
+  const linked = p.entries.filter((e) => e.loanRowId);
+  const used = new Set<string>();
+  for (const entry of parsed.entries) {
+    const saved = linked.find(
+      (e) =>
+        !used.has(e.id) &&
+        e.date === entry.date &&
+        e.categoryId === entry.categoryId &&
+        Math.abs(e.amount - entry.amount) < 0.01,
+    );
+    if (saved) {
+      entry.id = saved.id;
+      entry.loanRowId = saved.loanRowId;
+      used.add(saved.id);
+    }
+  }
+  const archived = linked.filter(
+    (e) => !used.has(e.id) && (e.date < s.planStart + '-01' || e.date > monthEnd(s.planEnd)),
   );
-  p.entries = [...parsed.entries, ...preservedExtraReceipts];
+  p.entries = [...parsed.entries, ...archived];
   for (const l of p.additionalLoans ?? [])
     for (const r of l.rows) {
       const cat = p.categories.find((c) => c.loanId === l.id);
@@ -321,7 +334,7 @@ export async function readWorkbook(
     }
   // Re-link marked payments only where a matching entry actually exists; never create duplicate actuals.
   for (const r of p.loan.rows) {
-    if (r.paidBeforeOpening) continue;
+    if (r.paidBeforeOpening || p.entries.some((e) => e.loanRowId === r.id)) continue;
     const match = p.entries.find(
       (e) =>
         !e.loanRowId &&
@@ -393,6 +406,7 @@ export function parseCSV(text: string): string[][] {
 export async function inspectColumns(bytes: Uint8Array, name: string) {
   if (name.toLowerCase().endsWith('.csv'))
     return parseCSV(new TextDecoder().decode(bytes))[0] ?? [];
+  const { default: ExcelJS } = await import('exceljs');
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load((await excelCompatible(bytes)) as any);
   const ws = wb.getWorksheet('Daily entries');

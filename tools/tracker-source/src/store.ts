@@ -13,8 +13,19 @@ let current = freshEnvelope(),
   lastSavedAt = '',
   lastBackupAt = '';
 const listeners = new Set<() => void>();
+type SaveState = readonly [
+  status: string,
+  warning: string,
+  dataPath: string,
+  savedAt: string,
+  backupAt: string,
+];
+let saveState: SaveState = [status, warning, dataPath, lastSavedAt, lastBackupAt];
 let pending: Promise<void> = Promise.resolve();
-const emit = () => listeners.forEach((fn) => fn());
+const emit = () => {
+  saveState = [status, warning, dataPath, lastSavedAt, lastBackupAt];
+  listeners.forEach((fn) => fn());
+};
 function requireEditable() {
   if (locked) throw Error('Changes are paused. Restore a JSON backup in Reports to continue.');
 }
@@ -169,7 +180,26 @@ export const store = {
     return file;
   },
   flush: () => pending,
-  status: () => `${status}|${warning}|${dataPath}|${lastSavedAt}|${lastBackupAt}`,
+  async clearBrowserData() {
+    if (window.desktop)
+      throw Error('Native financial profiles are not cleared by browser sign-out.');
+    await pending;
+    for (const key of [
+      'savings-expence-v1',
+      'savings-expence-v1-corrupt',
+      'savings-expence-last-saved',
+      'tracker-before-sync',
+    ])
+      localStorage.removeItem(key);
+    current = freshEnvelope();
+    locked = false;
+    warning = '';
+    lastSavedAt = '';
+    lastBackupAt = '';
+    status = 'Signed out';
+    emit();
+  },
+  status: () => saveState,
 };
 export function usePlan() {
   return useSyncExternalStore(store.subscribe, () => store.get().data);
@@ -178,5 +208,5 @@ export function useEnvelope() {
   return useSyncExternalStore(store.subscribe, store.get);
 }
 export function useSaveStatus() {
-  return useSyncExternalStore(store.subscribe, store.status).split('|');
+  return useSyncExternalStore(store.subscribe, store.status);
 }

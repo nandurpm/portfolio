@@ -63,9 +63,9 @@ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'm
       <div className="comparison-chart-grid">
         {(
           [
-            ['Income', 'planIncome', 'actualIncome', '#20b69c'],
-            ['Expenses', 'planExpenses', 'actualExpenses', '#ef9a40'],
-            ['Savings', 'planSavings', 'actualSavings', '#6255df'],
+            ['Income', 'planIncome', 'actualIncome', 'var(--green)'],
+            ['Expenses', 'planExpenses', 'actualExpenses', 'var(--orange)'],
+            ['Savings', 'planSavings', 'actualSavings', 'var(--accent)'],
           ] as const
         ).map(([label, plannedKey, actualKey, color]) => (
           <div
@@ -101,7 +101,7 @@ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'm
                   <Bar
                     name={basis === 'full' ? 'Full-month plan' : 'Plan by date'}
                     dataKey={plannedKey}
-                    fill="#a6a0bb"
+                    fill="var(--muted)"
                     radius={[4, 4, 0, 0]}
                     isAnimationActive={p.settings.animations}
                   />
@@ -116,7 +116,7 @@ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'm
               </ResponsiveContainer>
             </div>
             <div className="comparison-summary">
-              {rows.length === 1 ? (
+              {rows.length === 1 && rows[0] ? (
                 <>
                   <span>
                     Plan <strong>{money(rows[0][plannedKey])}</strong>

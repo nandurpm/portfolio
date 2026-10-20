@@ -62,7 +62,8 @@ export default function Entries({
     categoryId:
       p.categories.find((c) => c.id === 'food' && c.active)?.id ??
       p.categories.find((c) => c.group === 'Living' && c.active)?.id ??
-      p.categories[0].id,
+      p.categories[0]?.id ??
+      '',
     description: '',
     amount: '',
     payment: 'UPI',
@@ -639,8 +640,9 @@ export default function Entries({
             <div className="virtual-entries" ref={parent}>
               <div style={{ height: virtual.getTotalSize(), position: 'relative' }}>
                 {virtual.getVirtualItems().map((item) => {
-                  const row = rows[item.index],
-                    c = catMap.get(row.categoryId),
+                  const row = rows[item.index];
+                  if (!row) return null;
+                  const c = catMap.get(row.categoryId),
                     future = row.date > reportDate(p);
                   return (
                     <div

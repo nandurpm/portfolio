@@ -63,6 +63,7 @@ export function saveInstallmentPayment(
   date: string,
   amount: number,
   method = 'Not specified',
+  receiptId?: string,
 ) {
   const loan = p.additionalLoans?.find((l) => l.id === loanId);
   const row = loan?.rows.find((r) => r.id === rowId);
@@ -70,9 +71,21 @@ export function saveInstallmentPayment(
   if (!loan || !row || !category) throw Error('Loan installment was not found.');
   if (!validDate(date) || !Number.isFinite(amount) || amount <= 0)
     throw Error('Enter a valid payment date and amount.');
-  if (amount > row.emi) throw Error('Payment cannot exceed this installment.');
-  const existing = p.entries.find((e) => e.loanRowId === rowId);
-  p.entries = p.entries.filter((e) => e.loanRowId !== rowId);
+  const existing = receiptId
+    ? p.entries.find((e) => e.id === receiptId && e.loanRowId === rowId)
+    : undefined;
+  if (receiptId && !existing) throw Error('Receipt was not found.');
+  const receipts = p.entries.filter((e) => e.loanRowId === rowId);
+  if (row.paidAmount && !receipts.length)
+    throw Error(
+      'This imported payment has no linked receipt. Reconcile its schedule and actual entries before adding a payment.',
+    );
+  const otherPaid = receipts
+    .filter((e) => e.id !== existing?.id)
+    .reduce((sum, e) => sum + e.amount, 0);
+  if (round(otherPaid + amount) > row.emi)
+    throw Error('Combined payments cannot exceed this installment.');
+  if (existing) p.entries = p.entries.filter((e) => e.id !== existing.id);
   p.entries.push({
     id: existing?.id ?? crypto.randomUUID(),
     date,
@@ -81,6 +94,44 @@ export function saveInstallmentPayment(
     description: `${loan.name} — installment due ${row.dueDate}`,
     payment: method,
     notes: `Financed amount ${loan.principal}; ${loan.tenure} installments of ${loan.monthlyEmi}. ${loan.note}`,
+    loanRowId: rowId,
+    edited: true,
+  });
+}
+
+export function saveOriginalPayment(
+  p: Plan,
+  rowId: string,
+  date: string,
+  amount: number,
+  receiptId?: string,
+) {
+  const row = p.loan.rows.find((r) => r.id === rowId);
+  const category = p.categories.find((c) => c.role === 'emi' && !c.loanId);
+  if (!row || !category || row.paidBeforeOpening) throw Error('Choose an editable installment.');
+  if (!validDate(date) || !Number.isFinite(amount) || amount <= 0)
+    throw Error('Enter a valid payment date and positive amount.');
+  const receipts = p.entries.filter((e) => e.loanRowId === rowId);
+  const existing = receipts.find((e) => e.id === receiptId);
+  if (receiptId && !existing) throw Error('Receipt was not found.');
+  if (row.paidAmount && !receipts.length)
+    throw Error(
+      'This imported schedule payment has no receipt. Reconcile it before recording another payment.',
+    );
+  const other = receipts.filter((e) => e.id !== receiptId).reduce((sum, e) => sum + e.amount, 0);
+  if (round(other + amount) > row.emi)
+    throw Error(
+      'Combined payments cannot exceed this installment. Record loan prepayments separately.',
+    );
+  if (existing) p.entries = p.entries.filter((e) => e.id !== receiptId);
+  p.entries.push({
+    id: existing?.id ?? crypto.randomUUID(),
+    date,
+    amount,
+    categoryId: category.id,
+    description: `EMI due ${row.dueDate}`,
+    payment: existing?.payment ?? 'Bank',
+    notes: existing?.notes ?? 'Linked to loan schedule',
     loanRowId: rowId,
     edited: true,
   });

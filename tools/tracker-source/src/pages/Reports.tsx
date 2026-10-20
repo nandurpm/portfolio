@@ -260,7 +260,7 @@ export default function Reports() {
             </div>
             <div className="form-grid three">
               {Object.entries(mapping).map(([k, v]) => (
-                <Field key={k} label={k[0].toUpperCase() + k.slice(1)}>
+                <Field key={k} label={k.slice(0, 1).toUpperCase() + k.slice(1)}>
                   <select
                     aria-label={`Map ${k}`}
                     value={v}
@@ -299,7 +299,7 @@ export default function Reports() {
                       New category names: keep them as new categories, or map their entries to an
                       existing category.
                     </p>
-                    <div className="form-grid two">
+                    <div className="form-grid">
                       {preview.unknownCategories.map((name) => (
                         <Field key={name} label={name}>
                           <select
@@ -416,6 +416,7 @@ export default function Reports() {
                 )
                   return null;
                 store.restore(backup);
+                return true;
               })
             }
           >

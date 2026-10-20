@@ -7,6 +7,7 @@ import { usePhone } from './usePhone';
 import { loanSummary } from '../domain/loan-summary';
 import { addInstallmentLoan, saveInstallmentPayment } from '../domain/installments';
 import { Section, Modal, Field, useUi } from './UI';
+import { PaymentReceipts } from './PaymentReceipts';
 
 export default function AdditionalLoans() {
   const phone = usePhone();
@@ -20,6 +21,7 @@ export default function AdditionalLoans() {
     [first, setFirst] = useState(today()),
     [note, setNote] = useState('');
   const [selected, setSelected] = useState('');
+  const [receiptId, setReceiptId] = useState('');
   const [payment, setPayment] = useState<{ loanId: string; rowId: string } | null>(null);
   const [paidDate, setPaidDate] = useState(today()),
     [paidAmount, setPaidAmount] = useState(''),
@@ -30,11 +32,13 @@ export default function AdditionalLoans() {
   const paid = loan ? round(loan.rows.reduce((n, r) => n + r.paidAmount, 0)) : 0;
   const summary = loan ? loanSummary(loan.rows) : null;
   function openPayment(rowId: string) {
+    if (!loan) return;
     const r = loan.rows.find((r) => r.id === rowId)!;
     setPayment({ loanId: loan.id, rowId });
-    setPaidDate(r.paidDate || today());
-    setPaidAmount(String(r.paidAmount || r.emi));
-    setMethod(p.entries.find((e) => e.loanRowId === rowId)?.payment || 'Not specified');
+    setReceiptId('');
+    setPaidDate(today());
+    setPaidAmount(String(Math.max(0, round(r.emi - r.paidAmount))));
+    setMethod('Not specified');
   }
   function saveLoan(e: React.FormEvent) {
     e.preventDefault();
@@ -73,6 +77,7 @@ export default function AdditionalLoans() {
           paidDate,
           Number(paidAmount),
           method,
+          receiptId || undefined,
         ),
       );
       setPayment(null);
@@ -92,7 +97,7 @@ export default function AdditionalLoans() {
           </button>
         }
       >
-        {!loans.length ? (
+        {!loan ? (
           <p>No additional loans yet. Add a loan to create its own payment schedule.</p>
         ) : (
           <>
@@ -169,7 +174,7 @@ export default function AdditionalLoans() {
                     </dl>
                     {r.paidDate && r.paidDate < r.dueDate && <p>Paid early</p>}
                     <button className="button small secondary" onClick={() => openPayment(r.id)}>
-                      {r.paid ? 'Paid · Edit' : r.paidAmount ? 'Partial · Edit' : 'Record payment'}
+                      {r.paid ? 'View receipts' : r.paidAmount ? 'Add payment' : 'Record payment'}
                     </button>
                   </article>
                 ))}
@@ -205,20 +210,12 @@ export default function AdditionalLoans() {
                         <td>
                           <button
                             className={`button small ${r.paid ? 'paid-button' : 'secondary'}`}
-                            onClick={() => {
-                              setPayment({ loanId: loan.id, rowId: r.id });
-                              setPaidDate(r.paidDate || today());
-                              setPaidAmount(String(r.paidAmount || r.emi));
-                              setMethod(
-                                p.entries.find((e) => e.loanRowId === r.id)?.payment ||
-                                  'Not specified',
-                              );
-                            }}
+                            onClick={() => openPayment(r.id)}
                           >
                             {r.paid
-                              ? 'Paid · Edit'
+                              ? 'View receipts'
                               : r.paidAmount
-                                ? 'Partial · Edit'
+                                ? 'Add payment'
                                 : 'Record payment'}
                           </button>
                         </td>
@@ -308,6 +305,20 @@ export default function AdditionalLoans() {
       )}
       {payment && (
         <Modal title="Record installment payment" onClose={() => setPayment(null)}>
+          <PaymentReceipts
+            receipts={p.entries.filter((e) => e.loanRowId === payment.rowId)}
+            onEdit={(e) => {
+              setReceiptId(e.id);
+              setPaidDate(e.date);
+              setPaidAmount(String(e.amount));
+              setMethod(e.payment);
+            }}
+          />
+          <p>
+            {receiptId
+              ? 'Editing one saved receipt.'
+              : 'Add a new transfer. Previous receipts are kept.'}
+          </p>
           <form onSubmit={savePayment}>
             <Field label="Actual payment date">
               <input
