@@ -8,7 +8,8 @@ Dependency-free Node.js automation for staging, validating, publishing, and rend
 
 - `create-blog-post.mjs` — Validates metadata/body/image inputs and creates a complete HTML/image pair in `uploads/blog/`.
 - `publish-content.mjs` — Validates staged blog/project metadata and matching images, publishes pages/assets, upserts JSON indexes, and removes processed staging files.
-- `render-static-content.mjs` — Reads the JSON indexes, replaces the named generated-card blocks in `index.html`, `projects.html`, and `blog.html`, and rebuilds `sitemap.xml` from published pages.
+- `render-static-content.mjs` — Reads the JSON indexes, replaces the named generated-card blocks in `index.html`, `projects.html`, and `blog.html`, rebuilds `sitemap.xml`, normalizes page metadata and shared heads, and updates CSP hashes in `_headers`.
+- `site-pages.mjs`, `theme-bootstrap.html` — Shared metadata/head rules and the theme initialization that must run before first paint.
 
 ## Responsibilities
 

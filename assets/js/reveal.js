@@ -63,7 +63,17 @@
       });
     }, { threshold: 0.16, rootMargin: '0px 0px -8% 0px' });
 
-    elements.forEach((element) => observer.observe(element));
+    // Only hide content after its observer is successfully attached. If this
+    // script is blocked or fails, all content remains visible by default.
+    elements.forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        element.classList.add('is-revealed');
+        return;
+      }
+      observer.observe(element);
+      element.classList.add('reveal-pending');
+    });
   };
 
   document.addEventListener('DOMContentLoaded', () => init());

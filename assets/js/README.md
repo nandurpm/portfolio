@@ -6,10 +6,10 @@ Browser-native behavior for public portfolio pages. These scripts run directly w
 
 ## Contents
 
-- `theme.js` — Applies saved light/dark preferences, loads cross-page polish styles, and activates the local-date Independence Day theme and banner.
-- `main.js` — Provides shared JSON loading, safe card rendering, project filters, navigation, typing, contact, presentation-deck, and page initialization behavior.
-- `blog.js` — Loads blog records and manages search, category filters, pagination, and static-card fallback behavior.
-- `blog-card-navigation.js` — Makes the complete blog-card surface keyboard/click navigable after static or dynamic rendering.
+- `theme.js` — Applies saved light/dark preferences, handles storage denial, and activates the local-date Independence Day theme and banner.
+- `main.js` — Provides navigation, accessible typing, contact fallback, safe hash scrolling and page initialization.
+- `blog.js` — Searches, filters and paginates build-rendered cards without replacing their DOM nodes.
+- `projects.js` — Filters and sorts the build-rendered project catalog.
 - `reveal.js` — Configures and observes `data-reveal` elements, including stagger and reduced-motion handling.
 
 ## Responsibilities

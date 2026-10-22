@@ -115,7 +115,7 @@ const schema = JSON.stringify({
   author: { '@type': 'Person', name: 'Nandakumar M', url: 'https://nandakumarm.dpdns.org/' },
   mainEntityOfPage: canonical,
   keywords: tags.join(', ')
-});
+}).replaceAll('<', '\\u003c');
 
 const html = `<!--
 FILE: ${slug}.html
@@ -125,6 +125,17 @@ FILE PURPOSE: Staged portfolio blog article generated for validation and publica
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+try {
+  const theme = localStorage.getItem('portfolio-theme');
+  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+} catch {
+  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+</script>
+  <meta name="theme-color" content="#07111f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f8ff" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${escapeHtml(excerpt)}">
   <meta name="author" content="Nandakumar M">
@@ -148,15 +159,18 @@ FILE PURPOSE: Staged portfolio blog article generated for validation and publica
   <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/blog/${imageName}">
   <script type="application/ld+json">${schema}</script>
   <title>${escapeHtml(title)} | Nandakumar M</title>
+  <link rel="stylesheet" href="../assets/css/fonts.css">
+  <link rel="stylesheet" href="../assets/css/content-pages.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
   <link rel="stylesheet" href="../assets/css/animations.css">
   <link rel="stylesheet" href="../assets/css/main.css">
-  <link rel="stylesheet" href="/assets/css/reveal.css">
+  <link rel="stylesheet" href="../assets/css/polish.css">
+  <link rel="stylesheet" href="../assets/css/reveal.css">
 </head>
 <body>
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
+      <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="site-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a class="active" href="../blog.html" aria-current="page">Blog</a><a href="../about.html">About</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
@@ -167,7 +181,7 @@ FILE PURPOSE: Staged portfolio blog article generated for validation and publica
           <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
           <h1>${escapeHtml(title)}</h1>
           <div class="article-meta"><time datetime="${escapeHtml(date)}">${escapeHtml(date)}</time><span>${escapeHtml(readTime)}</span><span>${escapeHtml(category)}</span></div>
-          <img src="${imageSrc}" alt="${escapeHtml(values.alt || title)}" class="article-image">
+          <img src="${imageSrc}" alt="${escapeHtml(values.alt || title)}" class="article-image" width="800" height="450">
         </header>
         <div class="article-content">${content}</div>
         ${tags.length ? `<div class="article-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
@@ -178,7 +192,7 @@ FILE PURPOSE: Staged portfolio blog article generated for validation and publica
   </div>
   <script src="../assets/js/theme.js"></script>
   <script src="../assets/js/main.js"></script>
-  <script src="/assets/js/reveal.js"></script>
+  <script src="../assets/js/reveal.js"></script>
 </body>
 </html>
 `;

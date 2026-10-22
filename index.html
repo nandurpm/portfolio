@@ -4,27 +4,23 @@
 <head>
   <meta name="google-site-verification" content="XuJI6Xfz6bsd_y87_t7BBAgoFq1fJKu7mZBVaNkgZnI">
   <meta charset="UTF-8">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+try {
+  const theme = localStorage.getItem('portfolio-theme');
+  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+} catch {
+  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+</script>
+  <meta name="theme-color" content="#07111f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f8ff" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Portfolio of Nandakumar M, an Electrical and Electronics Design Engineer in Chennai building dependable electrical systems, technical documentation, and practical software tools.">
   <meta name="keywords" content="Nandakumar M, Electrical Design Engineer, Chennai, escalator engineering, electronics, engineering software">
   <meta name="author" content="Nandakumar M">
-  <meta name="theme-color" content="#07111f">
-  <meta property="og:title" content="Nandakumar M | Electrical Design &amp; Practical Software">
-  <meta property="og:description" content="Electrical systems, engineering documentation, and practical software—built with clarity and traceability.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://nandakumarm.dpdns.org/">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://nandakumarm.dpdns.org/">
   <title>Nandakumar M | Electrical Design &amp; Practical Software</title>
   <link rel="icon" href="assets/images/logo.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/theme.css">
-  <link rel="stylesheet" href="assets/css/animations.css">
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/reveal.css">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,11 +33,33 @@
     "sameAs": ["https://github.com/nandurpm"]
   }
   </script>
+
+  <!-- PAGE_METADATA_START -->
+  <link rel="canonical" href="https://nandakumarm.dpdns.org/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Nandakumar M | Electrical Design &amp; Practical Software">
+  <meta property="og:description" content="Portfolio of Nandakumar M, an Electrical and Electronics Design Engineer in Chennai building dependable electrical systems, technical documentation, and practical software tools.">
+  <meta property="og:url" content="https://nandakumarm.dpdns.org/">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nandakumar M | Electrical Design &amp; Practical Software">
+  <meta name="twitter:description" content="Portfolio of Nandakumar M, an Electrical and Electronics Design Engineer in Chennai building dependable electrical systems, technical documentation, and practical software tools.">
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/profile.webp">
+  <!-- PAGE_METADATA_END -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin-400-normal.woff2" data-portfolio-font>
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin-800-normal.woff2" data-portfolio-font>
+  <link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/content-pages.css">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/polish.css">
+  <link rel="stylesheet" href="assets/css/reveal.css">
 </head>
 <body>
   <div class="site-shell">
     <header class="site-header glass">
-      <a class="brand" href="index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="site-nav" aria-label="Main navigation"><a class="active" href="index.html" aria-current="page">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
@@ -52,14 +70,14 @@
         <div class="hero-copy" data-reveal="up">
           <p class="eyebrow">Chennai, Tamil Nadu · Electrical Design &amp; Development</p>
           <h1>I turn electrical systems and technical data into clear, dependable tools.</h1>
-          <p class="typing-line">Focused on <span class="typing-text" data-typing='["electrical systems.", "engineering documentation.", "practical software.", "reliable workflows."]'></span></p>
+          <p class="typing-line">Focused on <span class="visually-hidden">electrical systems, engineering documentation, practical software, and reliable workflows.</span><span aria-hidden="true" class="typing-text" data-typing='["electrical systems.", "engineering documentation.", "practical software.", "reliable workflows."]'>electrical systems.</span></p>
           <p class="hero-text">I’m Nandakumar M, an Electrical and Electronics Design Engineer working across escalator electrical systems, development support, technical documentation, and software that makes engineering work easier to understand and maintain.</p>
           <div class="button-row"><a class="btn primary" href="projects.html">Explore selected work</a><a class="btn ghost" href="contact.html">Start a conversation</a><a class="text-link resume-link" href="assets/files/resume.pdf" download>Download résumé ↓</a></div>
           <div class="hero-stats glass" aria-label="Primary portfolio areas"><span><strong>Systems</strong> Electrical design</span><span><strong>Clarity</strong> Documentation</span><span><strong>Tools</strong> Practical software</span></div>
         </div>
         <div class="hero-visual" data-reveal="zoom" data-delay="120">
           <div class="profile-frame">
-            <img src="assets/images/profile.jpg" alt="Nandakumar M, Electrical and Electronics Design Engineer" width="1536" height="864" fetchpriority="high">
+            <img src="assets/images/profile.webp" alt="Nandakumar M, Electrical and Electronics Design Engineer" fetchpriority="high" width="900" height="506">
             <div class="profile-caption"><span class="status-dot"></span><strong>Engineer + builder</strong><small>Designing for the drawing, the shop floor, and the person who maintains it.</small></div>
           </div>
         </div>
@@ -154,30 +172,30 @@
         <div class="card-grid blog-grid" data-stagger id="recentPosts" data-limit="3">
           <!-- RECENT_POSTS_START -->
 <article class="blog-card" data-reveal="up" id="post-honest-software-boundaries" data-category="Technical Articles" data-search="what 26 engineering tools taught me about honest software boundaries practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access. technical articles engineering software local-first validation">
-            <a href="blog/honest-software-boundaries.html" aria-label="Open What 26 Engineering Tools Taught Me About Honest Software Boundaries"><img src="assets/images/archive-engineering-hero.png" alt="What 26 Engineering Tools Taught Me About Honest Software Boundaries" loading="lazy"></a>
+            <img src="assets/images/archive-engineering-thumb.webp" alt="What 26 Engineering Tools Taught Me About Honest Software Boundaries" width="800" height="450" loading="lazy">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">7 min read</span></div>
-              <a href="blog/honest-software-boundaries.html"><h3>What 26 Engineering Tools Taught Me About Honest Software Boundaries</h3></a>
+              <h3><a class="blog-card-link" href="blog/honest-software-boundaries.html">What 26 Engineering Tools Taught Me About Honest Software Boundaries</a></h3>
               <p>Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.</p>
-              <div class="card-actions"><a href="blog/honest-software-boundaries.html">Read article</a><span>2026-08-31</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-08-31</span></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-engineering-design-reviews" data-category="Engineering" data-search="how i think about engineering design reviews a practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release. engineering design quality manufacturing">
-            <a href="blog/engineering-design-reviews.html" aria-label="Open How I Think About Engineering Design Reviews"><img src="assets/images/blog/blog-1.jpg" alt="How I Think About Engineering Design Reviews" loading="lazy"></a>
+            <img src="assets/images/blog/blog-1.jpg" alt="How I Think About Engineering Design Reviews" width="601" height="401" loading="lazy">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Engineering</span><span class="pill">8 min read</span></div>
-              <a href="blog/engineering-design-reviews.html"><h3>How I Think About Engineering Design Reviews</h3></a>
+              <h3><a class="blog-card-link" href="blog/engineering-design-reviews.html">How I Think About Engineering Design Reviews</a></h3>
               <p>A practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release.</p>
-              <div class="card-actions"><a href="blog/engineering-design-reviews.html">Read article</a><span>2026-05-28</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-05-28</span></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-fast-static-portfolio" data-category="Technical Articles" data-search="building a fast static portfolio with github pages why a pure html, css, and javascript portfolio is still one of the fastest and most reliable ways to publish online. technical articles github pages html css">
-            <a href="blog/fast-static-portfolio.html" aria-label="Open Building a Fast Static Portfolio with GitHub Pages"><img src="assets/images/blog/blog-2.jpg" alt="Building a Fast Static Portfolio with GitHub Pages" loading="lazy"></a>
+            <img src="assets/images/blog/blog-2.jpg" alt="Building a Fast Static Portfolio with GitHub Pages" width="601" height="401" loading="lazy">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">8 min read</span></div>
-              <a href="blog/fast-static-portfolio.html"><h3>Building a Fast Static Portfolio with GitHub Pages</h3></a>
+              <h3><a class="blog-card-link" href="blog/fast-static-portfolio.html">Building a Fast Static Portfolio with GitHub Pages</a></h3>
               <p>Why a pure HTML, CSS, and JavaScript portfolio is still one of the fastest and most reliable ways to publish online.</p>
-              <div class="card-actions"><a href="blog/fast-static-portfolio.html">Read article</a><span>2026-05-21</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-05-21</span></div>
             </div>
           </article>
           <!-- RECENT_POSTS_END -->
@@ -187,7 +205,7 @@
       <section class="cta glass" data-reveal="up"><div><p class="eyebrow">Let’s connect</p><h2>Have an engineering role, useful problem, or collaboration in mind?</h2><p>Based in Chennai and open to thoughtful professional conversations.</p></div><a class="btn primary" href="contact.html">Contact me</a></section>
     </main>
 
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M. Built as a fast, dependency-free static site.</p><div><a href="savings-tracker.html">Expense and Savings Tracker</a><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M. Built with HTML, CSS, and JavaScript.</p><div><a href="savings-tracker.html">Expense and Savings Tracker</a><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/main.js"></script>

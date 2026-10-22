@@ -6,7 +6,9 @@ Read-only developer checks for the committed static-site tree.
 
 ## Contents
 
-- `audit_links.py` — Parses every repository HTML file, resolves local `href`/`src` paths, detects duplicate IDs, and reports missing titles or meta descriptions.
+- `audit_links.py` — Parses published HTML and upload templates (excluding Vite source, caches and dependencies), resolves local `href`/`src` paths, detects duplicate IDs, and reports missing titles or meta descriptions.
+
+- `test-portfolio.cjs` — Chromium regressions using the tracker’s pinned Playwright dependency. Applies `_headers` locally to test CSP and caching; it does not emulate Cloudflare routing.
 
 ## Responsibilities
 

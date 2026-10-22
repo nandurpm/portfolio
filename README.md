@@ -75,7 +75,7 @@ For the upload-based workflow, see [`CONTENT_PUBLISHING.md`](CONTENT_PUBLISHING.
 ```bash
 node scripts/render-static-content.mjs
 python3 tools/audit_links.py
-for file in $(find . -type f \( -name '*.js' -o -name '*.mjs' \)); do node --check "$file"; done
+for file in $(find assets/js admin functions scripts -type f \( -name '*.js' -o -name '*.mjs' \)); do node --check "$file"; done
 git diff --check
 ```
 
@@ -107,3 +107,9 @@ The repository includes `CNAME`, `_redirects`, and `wrangler.jsonc` for the exis
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
+
+## Audit regression checks
+
+After `npm ci --ignore-scripts` in `tools/tracker-source`, run `node tools/test-portfolio.cjs` from the repository root. It uses the pinned Playwright dependency and `/usr/bin/chromium` (or `CHROMIUM_PATH`). The checks cover mobile layouts, no-JavaScript content, failed reveal loading, denied theme storage, static filtering and pagination, malicious editor HTML, and locally applied CSP/cache rules. They do not prove Cloudflare deployment behavior. See `docs/AUDIT_RESOLUTION.md` for findings and outstanding hosting checks.
+
+`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. Commit `_headers` and `sitemap.xml` together with generated pages. Self-hosted fonts use optional display to avoid late font swaps; system fallback fonts may be used on a slow first visit. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.

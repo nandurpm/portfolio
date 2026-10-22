@@ -5,6 +5,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { SITE_URL, normalizePage } from './site-pages.mjs';
 
 const ROOT = process.cwd();
 
@@ -83,16 +86,16 @@ function repositoryCard(repository) {
           </article>`;
 }
 
-function blogCard(post) {
+function blogCard(post, heading = 'h3') {
   const url = escapeHtml(post.url);
   const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(' ').toLowerCase();
   return `          <article class="blog-card" data-reveal="up" id="post-${escapeHtml(post.slug)}" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText)}">
-            <a href="${url}" aria-label="Open ${escapeHtml(post.title)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy"></a>
+            <img src="${escapeHtml(post.thumbnail || post.image)}" alt="${escapeHtml(post.title)}" width="${post.imageWidth || 800}" height="${post.imageHeight || 450}" loading="lazy">
             <div class="card-body">
               <div class="card-meta"><span class="pill">${escapeHtml(post.category)}</span><span class="pill">${escapeHtml(post.readTime)}</span></div>
-              <a href="${url}"><h3>${escapeHtml(post.title)}</h3></a>
+              <${heading}><a class="blog-card-link" href="${url}">${escapeHtml(post.title)}</a></${heading}>
               <p>${escapeHtml(post.excerpt)}</p>
-              <div class="card-actions"><a href="${url}">Read article</a><span>${escapeHtml(post.date)}</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>${escapeHtml(post.date)}</span></div>
             </div>
           </article>`;
 }
@@ -104,16 +107,20 @@ function listPublishedHtml(directory) {
 }
 
 function renderSitemap(projects, posts) {
-  const siteUrl = `https://${fs.readFileSync(path.join(ROOT, 'CNAME'), 'utf8').trim()}`;
-  const topLevelPages = ['', 'about.html', 'projects.html', 'blog.html', 'resume.html', 'contact.html', 'works.html'];
+  const siteUrl = SITE_URL;
+  const topLevelPages = ['', 'about.html', 'projects.html', 'blog.html', 'contact.html', 'savings-tracker.html', 'savings-tracker-privacy.html'];
   const indexedContent = [...projects.map((project) => project.url), ...posts.map((post) => post.url)]
     .filter((url) => typeof url === 'string' && !/^[a-z]+:\/\//i.test(url))
     .map((url) => url.split('#')[0].split('?')[0]);
-  const paths = [...new Set([...topLevelPages, ...indexedContent, ...listPublishedHtml('works'), ...listPublishedHtml('blog')])];
+  const paths = [...new Set([...topLevelPages, ...indexedContent, ...listPublishedHtml('works'), ...listPublishedHtml('blog')])]
+    .filter((relativePath) => !/^(?:resume|works|diploma-notes)\.html$/.test(relativePath));
   const postDates = new Map(posts.map((post) => [post.url, post.date]));
   const urls = paths.map((relativePath) => {
     const loc = relativePath ? `${siteUrl}/${relativePath}` : `${siteUrl}/`;
-    const lastModified = postDates.get(relativePath);
+    let lastModified = postDates.get(relativePath);
+    if (!lastModified) {
+      try { lastModified = execFileSync('git', ['log', '-1', '--format=%cs', '--', relativePath || 'index.html'], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { /* No invented modification date. */ }
+    }
     return `  <url><loc>${escapeHtml(loc)}</loc>${lastModified ? `<lastmod>${escapeHtml(lastModified)}</lastmod>` : ''}</url>`;
   });
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
@@ -140,8 +147,27 @@ const moreRepositories = repositories.filter((repository) => !featuredNames.has(
 replaceBlock('projects.html', 'PROJECTS_START', 'PROJECTS_END', projects.map(projectCard).join('\n'));
 replaceBlock('projects.html', 'MORE_PROJECTS_START', 'MORE_PROJECTS_END', moreRepositories.map(repositoryCard).join('\n'));
 replaceBlock('index.html', 'FEATURED_PROJECTS_START', 'FEATURED_PROJECTS_END', projects.slice(0, 4).map(projectCard).join('\n'));
-replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', posts.map(blogCard).join('\n'));
-replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', posts.slice(0, 3).map(blogCard).join('\n'));
+replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', posts.map((post) => blogCard(post, 'h2')).join('\n'));
+replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', posts.slice(0, 3).map((post) => blogCard(post)).join('\n'));
 renderSitemap(projects, posts);
+
+// Apply the same head to existing and newly published pages, keeping metadata
+// and the early theme bootstrap consistent with future publishing runs.
+const publicPages = [...fs.readdirSync(ROOT).filter((name) => name.endsWith('.html')),
+  ...listPublishedHtml('blog'), ...listPublishedHtml('works')];
+const hashes = new Set();
+for (const relativePath of publicPages) {
+  const file = path.join(ROOT, relativePath);
+  const post = posts.find((post) => post.url === relativePath);
+  const html = normalizePage(fs.readFileSync(file, 'utf8'), relativePath, post);
+  fs.writeFileSync(file, html);
+  for (const match of html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
+    hashes.add(`'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`);
+  }
+}
+const headersPath = path.join(ROOT, '_headers');
+const headers = fs.readFileSync(headersPath, 'utf8').replace(/script-src 'self'(?: 'sha256-[^']+')*/,
+  `script-src 'self' ${[...hashes].sort().join(' ')}`);
+fs.writeFileSync(headersPath, headers);
 
 console.log(`Rendered ${projects.length} featured projects, ${moreRepositories.length} additional public repositories, ${posts.length} articles, and sitemap.xml.`);

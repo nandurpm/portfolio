@@ -1,5 +1,5 @@
 // FILE: wrangler.jsonc
-// FILE PURPOSE: Cloudflare Workers/Pages configuration for serving the repository root as static assets with Pages Functions support.
+// FILE PURPOSE: Cloudflare Workers static-asset configuration. Pages Functions require a separate Pages deployment.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "portfolio",

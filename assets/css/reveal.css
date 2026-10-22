@@ -14,12 +14,19 @@
   --reveal-x: 0;
   --reveal-y: 0;
   --reveal-scale: 1;
-  opacity: 0;
-  transform: translate3d(var(--reveal-x), var(--reveal-y), 0) scale(var(--reveal-scale));
+  opacity: 1;
+}
+
+[data-reveal].reveal-pending {
   transition:
     opacity var(--reveal-duration) var(--reveal-ease) var(--reveal-delay),
     transform var(--reveal-duration) var(--reveal-ease) var(--reveal-delay);
   will-change: opacity, transform;
+}
+
+[data-reveal].reveal-pending:not(.is-revealed) {
+  opacity: 0;
+  transform: translate3d(var(--reveal-x), var(--reveal-y), 0) scale(var(--reveal-scale));
 }
 
 [data-reveal="fade"] { --reveal-distance: 0px; }

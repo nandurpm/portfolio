@@ -126,7 +126,6 @@ select {
 }
 
 .site-nav a,
-.filter-btn,
 .pagination button {
   border: 0;
   border-radius: 999px;
@@ -140,8 +139,6 @@ select {
 
 .site-nav a:hover,
 .site-nav a.active,
-.filter-btn:hover,
-.filter-btn.active,
 .pagination button.active {
   color: var(--heading);
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(34, 197, 94, 0.16));
@@ -319,59 +316,12 @@ p {
   place-items: center;
 }
 
-.profile-orbit {
-  position: relative;
-  width: min(78vw, 390px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    linear-gradient(135deg, var(--brand), var(--brand-2), var(--accent)) border-box;
-  border: 1px solid transparent;
-  box-shadow: var(--shadow);
-}
 
-.profile-orbit img {
-  width: 78%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 8px solid rgba(255, 255, 255, 0.14);
-}
 
-.orbit-dot {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--brand);
-  box-shadow: 0 0 34px currentColor;
-}
 
-.orbit-dot.one { top: 10%; right: 12%; color: var(--brand); }
-.orbit-dot.two { bottom: 16%; left: 5%; color: var(--brand-2); background: var(--brand-2); }
-.orbit-dot.three { bottom: 8%; right: 18%; color: var(--accent); background: var(--accent); }
 
-.hero-card {
-  position: absolute;
-  right: 0;
-  bottom: 54px;
-  width: min(92%, 310px);
-  padding: 18px;
-  border-radius: 20px;
-}
 
-.hero-card strong,
-.hero-card small {
-  display: block;
-}
 
-.hero-card small {
-  margin-top: 6px;
-  color: var(--muted);
-}
 
 .status-dot {
   display: inline-block;
@@ -1583,11 +1533,6 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .hero-card {
-    position: static;
-    width: 100%;
-    margin-top: -30px;
-  }
 
   .about-photo img {
     height: auto;
@@ -1799,6 +1744,7 @@ p {
 }
 
 .profile-caption {
+  color: #f8fbff;
   position: absolute;
   right: 28px;
   bottom: 28px;

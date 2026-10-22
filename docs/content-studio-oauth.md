@@ -1,6 +1,8 @@
 # Content Studio — GitHub Login Setup
 
-The Content Studio supports both:
+The repository contains Pages Function handlers for OAuth, but the current `wrangler.jsonc` serves Workers static assets. Workers Assets does not execute the `functions/` directory. Keep `serverOAuth: false` in `admin/config.js` on that deployment.
+
+The Content Studio supports:
 
 1. **Continue with GitHub** through an OAuth App and the serverless functions in `functions/api/github/oauth/`.
 2. **Fine-grained personal access token** as a fallback.
@@ -31,17 +33,23 @@ GITHUB_REPOSITORY=portfolio
 
 For Cloudflare Pages, add them under **Settings → Environment variables** for Production, then redeploy the latest commit.
 
-The login button automatically becomes active when `/api/github/oauth/config` confirms that the client ID and secret exist.
+On a Pages Functions deployment, set `serverOAuth: true` in `admin/config.js`. The login button checks whether `/api/github/oauth/config` confirms that the client ID and secret exist.
 
 ## Security model
 
 - OAuth state validation protects the callback from cross-site request forgery.
 - PKCE binds the authorization code to the browser login attempt.
 - The client secret stays only in the serverless environment.
-- The returned GitHub token is sent to the original Content Studio window with `postMessage` and held in session storage.
+- The returned GitHub token is sent to the original Content Studio window with `postMessage` and held only in memory for the current tab. Reloading or closing the tab requires signing in again.
 - The dashboard accepts only the `nandurpm` GitHub account and verifies write access to `nandurpm/portfolio`.
 - The requested OAuth scope is limited to `public_repo read:user` because the portfolio repository is public.
 
 ## Static-only deployments
 
 GitHub Pages and other static-only hosting do not execute the `functions/` directory. The token login continues to work, but direct GitHub OAuth login requires a serverless runtime such as Cloudflare Pages Functions, Netlify Functions, Vercel Functions, or an equivalent backend.
+
+## Protect the deployed editor
+
+The frontend is a public asset; publishing still requires the repository owner and GitHub write access. Deploy `_headers` with the editor to enforce its script CSP, prevent framing, and disable caching. Content is sanitized by the vendored DOMPurify allowlist before preview and publication. Keep that vendor version current.
+
+For an additional access boundary, configure Cloudflare Access for `/admin` and `/admin/*` in the hosting account. This repository cannot configure account-level Access policies. Do not use `robots.txt` as access control. OAuth callbacks are backend routes and require a deliberately compatible Access policy.

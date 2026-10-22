@@ -4,7 +4,7 @@
  */
 
 /* Portfolio audit improvements: accessibility, responsive typography and clearer interaction states */
-:root { color-scheme: dark light; }
+
 
 body { overflow-x: hidden; }
 
@@ -26,7 +26,7 @@ h1 { font-size: clamp(2.65rem, 5vw, 5.6rem); line-height: .98; text-wrap: balanc
 h2, h3 { text-wrap: balance; }
 .hero-text, .page-hero > p, .split-section > p { max-width: 72ch; }
 
-.site-nav a, .btn, .filter-btn, .theme-toggle, .nav-toggle, .text-link {
+.site-nav a, .btn, .theme-toggle, .nav-toggle, .text-link {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -75,12 +75,11 @@ h2, h3 { text-wrap: balance; }
   .brand small { max-width: 170px; }
   .hero { gap: 14px; }
   .hero-visual { min-height: 370px; }
-  .hero-card { right: 50%; transform: translateX(50%); bottom: 12px; }
   .split-section, .section-heading { grid-template-columns: 1fr; }
   .section-heading .text-link { grid-column: 1; grid-row: 3; justify-self: start; }
   .card-grid, .skills-grid, .form-row { grid-template-columns: 1fr; }
   .filter-bar { align-items: stretch; }
-  .filter-btn { flex: 1 1 calc(50% - 10px); }
+
 }
 
 @media (max-width: 480px) {
@@ -88,7 +87,6 @@ h2, h3 { text-wrap: balance; }
   .brand-mark { width: 42px; height: 42px; border-radius: 13px; }
   h1 { font-size: clamp(2.35rem, 12vw, 3.5rem); }
   .hero-stats span { flex-basis: 100%; }
-  .profile-orbit { width: min(82vw, 330px); }
   .page-hero { padding: 24px 20px; }
 }
 
@@ -100,4 +98,15 @@ h2, h3 { text-wrap: balance; }
     transition-duration: .01ms !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
+}
+
+/* Visibility must win over grid/flex declarations when filtering cards. */
+[hidden] { display: none !important; }
+.blog-card { position: relative; }
+.blog-card-link::after { content: ""; position: absolute; inset: 0; }
+.blog-card:focus-within { outline: 3px solid var(--brand); outline-offset: 4px; }
+/* Keep navigation usable if JavaScript is disabled or fails to load. */
+@media (max-width: 1080px) {
+  html:not(.js) .site-nav { display: flex; position: static; grid-column: 1 / -1; }
+  html:not(.js) .nav-toggle { display: none; }
 }

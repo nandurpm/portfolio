@@ -6,9 +6,16 @@
     "date": "2026-08-31",
     "readTime": "7 min read",
     "excerpt": "Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.",
-    "image": "assets/images/archive-engineering-hero.png",
-    "tags": ["engineering software", "local-first", "validation"],
-    "url": "blog/honest-software-boundaries.html"
+    "image": "assets/images/archive-engineering-hero.webp",
+    "tags": [
+      "engineering software",
+      "local-first",
+      "validation"
+    ],
+    "url": "blog/honest-software-boundaries.html",
+    "thumbnail": "assets/images/archive-engineering-thumb.webp",
+    "imageWidth": 800,
+    "imageHeight": 450
   },
   {
     "title": "How I Think About Engineering Design Reviews",
@@ -18,8 +25,14 @@
     "readTime": "8 min read",
     "excerpt": "A practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release.",
     "image": "assets/images/blog/blog-1.jpg",
-    "tags": ["design", "quality", "manufacturing"],
-    "url": "blog/engineering-design-reviews.html"
+    "tags": [
+      "design",
+      "quality",
+      "manufacturing"
+    ],
+    "url": "blog/engineering-design-reviews.html",
+    "imageWidth": 601,
+    "imageHeight": 401
   },
   {
     "title": "Building a Fast Static Portfolio with GitHub Pages",
@@ -29,8 +42,14 @@
     "readTime": "8 min read",
     "excerpt": "Why a pure HTML, CSS, and JavaScript portfolio is still one of the fastest and most reliable ways to publish online.",
     "image": "assets/images/blog/blog-2.jpg",
-    "tags": ["github pages", "html", "css"],
-    "url": "blog/fast-static-portfolio.html"
+    "tags": [
+      "github pages",
+      "html",
+      "css"
+    ],
+    "url": "blog/fast-static-portfolio.html",
+    "imageWidth": 601,
+    "imageHeight": 401
   },
   {
     "title": "What CNC Operations Taught Me About Precision",
@@ -40,8 +59,14 @@
     "readTime": "7 min read",
     "excerpt": "Lessons from production work that continue to influence how I approach drawings, inspection, and process discipline.",
     "image": "assets/images/blog/blog-3.jpg",
-    "tags": ["cnc", "process", "inspection"],
-    "url": "blog/cnc-precision.html"
+    "tags": [
+      "cnc",
+      "process",
+      "inspection"
+    ],
+    "url": "blog/cnc-precision.html",
+    "imageWidth": 601,
+    "imageHeight": 401
   },
   {
     "title": "Current Affairs and Technology Careers",
@@ -51,8 +76,14 @@
     "readTime": "7 min read",
     "excerpt": "A reflection on how global technology trends shape local engineering careers, learning choices, and long-term opportunities.",
     "image": "assets/images/blog/blog-4.jpg",
-    "tags": ["technology", "career", "industry"],
-    "url": "blog/current-affairs-technology-careers.html"
+    "tags": [
+      "technology",
+      "career",
+      "industry"
+    ],
+    "url": "blog/current-affairs-technology-careers.html",
+    "imageWidth": 601,
+    "imageHeight": 401
   },
   {
     "title": "A Movie Review Through an Engineer's Lens",
@@ -62,8 +93,14 @@
     "readTime": "6 min read",
     "excerpt": "Looking at storytelling, systems thinking, and the small production details that make a movie feel believable.",
     "image": "assets/images/blog/blog-5.jpg",
-    "tags": ["movies", "review", "story"],
-    "url": "blog/movie-review-engineers-lens.html"
+    "tags": [
+      "movies",
+      "review",
+      "story"
+    ],
+    "url": "blog/movie-review-engineers-lens.html",
+    "imageWidth": 600,
+    "imageHeight": 391
   },
   {
     "title": "Why Documentation Is a Professional Skill",
@@ -73,8 +110,14 @@
     "readTime": "8 min read",
     "excerpt": "Good documentation reduces repeated mistakes, helps teams align, and makes engineering decisions easier to audit.",
     "image": "assets/images/blog/blog-6.jpg",
-    "tags": ["documentation", "teams", "quality"],
-    "url": "blog/documentation-professional-skill.html"
+    "tags": [
+      "documentation",
+      "teams",
+      "quality"
+    ],
+    "url": "blog/documentation-professional-skill.html",
+    "imageWidth": 600,
+    "imageHeight": 394
   },
   {
     "title": "Politics, Infrastructure, and Everyday Engineering",
@@ -84,8 +127,14 @@
     "readTime": "7 min read",
     "excerpt": "Thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life.",
     "image": "assets/images/blog/blog-4.jpg",
-    "tags": ["infrastructure", "policy", "public systems"],
-    "url": "blog/politics-infrastructure-engineering.html"
+    "tags": [
+      "infrastructure",
+      "policy",
+      "public systems"
+    ],
+    "url": "blog/politics-infrastructure-engineering.html",
+    "imageWidth": 601,
+    "imageHeight": 401
   },
   {
     "title": "Personal Notes on Learning New Technologies",
@@ -95,8 +144,14 @@
     "readTime": "7 min read",
     "excerpt": "How I keep learning practical tools while balancing work, curiosity, and long-term professional goals.",
     "image": "assets/images/blog/blog-5.jpg",
-    "tags": ["learning", "career", "growth"],
-    "url": "blog/learning-new-technologies.html"
+    "tags": [
+      "learning",
+      "career",
+      "growth"
+    ],
+    "url": "blog/learning-new-technologies.html",
+    "imageWidth": 600,
+    "imageHeight": 391
   },
   {
     "title": "Electronics Basics That Still Matter",
@@ -106,7 +161,13 @@
     "readTime": "8 min read",
     "excerpt": "A reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere.",
     "image": "assets/images/blog/blog-6.jpg",
-    "tags": ["electronics", "basics", "testing"],
-    "url": "blog/electronics-basics.html"
+    "tags": [
+      "electronics",
+      "basics",
+      "testing"
+    ],
+    "url": "blog/electronics-basics.html",
+    "imageWidth": 600,
+    "imageHeight": 394
   }
 ]

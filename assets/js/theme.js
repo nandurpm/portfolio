@@ -5,21 +5,12 @@
 
 (function () {
   const root = document.documentElement;
-  const storedTheme = localStorage.getItem("portfolio-theme");
+  let storedTheme;
+  try { storedTheme = localStorage.getItem("portfolio-theme"); } catch { /* Storage is optional. */ }
   const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
   const initialTheme = storedTheme === "light" || storedTheme === "dark"
     ? storedTheme
     : (prefersLight ? "light" : "dark");
-
-  // Load the shared audit stylesheet from one entry point so every page receives
-  // the same responsive, accessibility and interaction improvements.
-  if (!document.querySelector("link[data-portfolio-polish]")) {
-    const stylesheet = document.createElement("link");
-    stylesheet.rel = "stylesheet";
-    stylesheet.href = new URL("../css/polish.css", document.currentScript?.src || window.location.href).href;
-    stylesheet.dataset.portfolioPolish = "true";
-    document.head.appendChild(stylesheet);
-  }
 
   /**
    * Independence Day is intentionally evaluated against the user's local date.
@@ -60,9 +51,9 @@
     }
 
     if (independenceDayActive) {
-      meta.content = isLight ? "#fffaf2" : "#07131f";
+      document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#fffaf2" : "#07131f"; });
     } else {
-      meta.content = isLight ? "#f4f8fb" : "#07111f";
+      document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#f3f8ff" : "#07111f"; });
     }
   }
 
@@ -115,7 +106,7 @@
     button.addEventListener("click", () => {
       const nextTheme = root.getAttribute("data-theme") === "light" ? "dark" : "light";
       root.setAttribute("data-theme", nextTheme);
-      localStorage.setItem("portfolio-theme", nextTheme);
+      try { localStorage.setItem("portfolio-theme", nextTheme); } catch { /* Keep the in-memory preference. */ }
       updateButton();
     });
   });

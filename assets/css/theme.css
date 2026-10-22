@@ -3,7 +3,6 @@
  * FILE PURPOSE: Site-wide viewport, sticky-header, hero, listing, and long-form layout overrides layered over the core design system.
  */
 
-@import url("./content-pages.css");
 
 :root {
   color-scheme: dark;
@@ -26,6 +25,10 @@
   --max-width: 100%;
   --page-gutter: clamp(16px, 2.2vw, 34px);
   --header-height: 78px;
+  --content-max: 1760px;
+  --copy-measure: 72ch;
+  --ease-refined: cubic-bezier(.2, .7, .2, 1);
+
 }
 
 [data-theme="light"] {
@@ -276,11 +279,6 @@ html body .site-shell > .site-footer {
    Kept separate from the core components so it is easy to review or revert.
    -------------------------------------------------------------------------- */
 
-:root {
-  --content-max: 1760px;
-  --copy-measure: 72ch;
-  --ease-refined: cubic-bezier(.2, .7, .2, 1);
-}
 
 /* Keep ultrawide layouts readable without changing the responsive page grid. */
 html body .site-shell {
@@ -431,7 +429,7 @@ html body .site-shell > .site-header {
 }
 
 .site-shell .project-card h3,
-.site-shell .blog-card h3 {
+.site-shell .blog-card :is(h2, h3) {
   line-height: 1.25;
   letter-spacing: -0.02em;
 }

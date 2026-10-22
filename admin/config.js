@@ -8,5 +8,7 @@ window.CONTENT_STUDIO_CONFIG = Object.freeze({
   repository: 'portfolio',
   branch: 'main',
   siteUrl: 'https://nandakumarm.dpdns.org',
+  // Enable only on a host that actually executes functions/api/github/oauth.
+  serverOAuth: false,
   githubClientId: ''
 });

@@ -11,4 +11,10 @@ wrangler.jsonc
 README.md
 LICENSE
 
-tools/tracker-source
+tools
+
+.cache
+.cache/*
+assets/fonts/*LICENSE.txt
+admin/vendor/README.md
+admin/vendor/*LICENSE.txt

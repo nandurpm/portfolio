@@ -3,7 +3,6 @@
  * FILE PURPOSE: Defines reusable typing/orbit animations and reduced-motion fallbacks, while loading shared content-page styles.
  */
 
-@import url("content-pages.css");
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -31,16 +30,8 @@
   animation: caret 0.8s step-end infinite;
 }
 
-.profile-orbit {
-  animation: float 7s ease-in-out infinite;
-}
 
-.orbit-dot {
-  animation: pulse 3s ease-in-out infinite;
-}
 
-.orbit-dot.two { animation-delay: 0.5s; }
-.orbit-dot.three { animation-delay: 1s; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -1,194 +1,9 @@
-/*
- * FILE: main.js
- * FILE PURPOSE: Shared portfolio-page initialization and interaction behavior used by the public static site.
- */
-
-// -----------------------------------------------------------------------------
-// CONTENT LOADING, ESCAPING, AND CARD RENDERING
-// -----------------------------------------------------------------------------
-
-const DATA_PATHS = {
-  projects: "assets/data/works.json",
-  githubProjects: "assets/data/github-projects.json",
-  blog: "assets/data/blog.json"
-};
-
-async function loadJson(path) {
-  const response = await fetch(path, { cache: "no-store" });
-  if (!response.ok) throw new Error(`Unable to load ${path}`);
-  const data = await response.json();
-  if (!Array.isArray(data)) throw new Error(`${path} does not contain a valid list.`);
-  return data;
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function externalAttributes(url = "") {
-  return /^https?:\/\//i.test(url) ? ' target="_blank" rel="noopener noreferrer"' : "";
-}
-
-function formatProjectDate(value) {
-  if (!value) return "Recently updated";
-  return new Intl.DateTimeFormat("en-IN", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(value));
-}
-
-function projectCard(project) {
-  const tags = (project.technologies || []).slice(0, 4)
-    .map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`)
-    .join("");
-  const details = project.url || project.github || "";
-  const searchText = [project.title, project.category, project.description, project.outcome, ...(project.technologies || [])].join(" ");
-
-  return `
-    <article class="project-card project-dossier" data-reveal="up" data-category="${escapeHtml(project.category)}" data-search="${escapeHtml(searchText.toLowerCase())}" data-name="${escapeHtml(project.title)}" data-stars="${Number(project.stars || 0)}" data-updated="${escapeHtml(project.updated || "")}">
-      <div class="project-cover" aria-hidden="true"><span class="project-code">${String(project.rank || "").padStart(2, "0")}</span><span>${escapeHtml(project.category)}</span><strong>${escapeHtml(project.language || "Project")}</strong></div>
-      <div class="card-body">
-        <div class="card-meta">${tags}</div>
-        <h3>${escapeHtml(project.title)}</h3>
-        <p>${escapeHtml(project.description)}</p>
-        <p class="project-outcome"><strong>Built for:</strong> ${escapeHtml(project.outcome || "A focused, practical workflow.")}</p>
-        <div class="project-facts"><span>★ ${Number(project.stars || 0)}</span><span>${escapeHtml(formatProjectDate(project.updated))}</span></div>
-        <div class="card-actions">
-          ${details && details !== project.github && details !== project.demo ? `<a href="${escapeHtml(details)}"${externalAttributes(details)}>Details <span aria-hidden="true">↗</span></a>` : ""}
-          ${project.github ? `<a href="${escapeHtml(project.github)}" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>` : ""}
-          ${project.demo ? `<a href="${escapeHtml(project.demo)}" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">↗</span></a>` : ""}
-        </div>
-      </div>
-    </article>`;
-}
-
-window.portfolioProjectCard = projectCard;
-window.loadPortfolioJson = loadJson;
-window.portfolioEscapeHtml = escapeHtml;
-window.formatProjectDate = formatProjectDate;
-
-function blogCard(post) {
-  const url = escapeHtml(post.url);
-  const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(" ");
-  return `
-    <article class="blog-card" id="post-${escapeHtml(post.slug)}" data-reveal="up" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText.toLowerCase())}">
-      <a href="${url}" aria-label="Open ${escapeHtml(post.title)}">
-        <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy">
-      </a>
-      <div class="card-body">
-        <div class="card-meta"><span class="pill">${escapeHtml(post.category)}</span><span class="pill">${escapeHtml(post.readTime)}</span></div>
-        <a href="${url}"><h3>${escapeHtml(post.title)}</h3></a>
-        <p>${escapeHtml(post.excerpt)}</p>
-        <div class="card-actions"><a href="${url}">Read More</a><span>${escapeHtml(post.date)}</span></div>
-      </div>
-    </article>`;
-}
-
-function setupProjectFilters(grid, projects = null) {
-  const buttons = [...document.querySelectorAll("[data-project-filter]")];
-  if (!grid || !buttons.length) return;
-
-  let activeFilter = "all";
-  let emptyState = grid.querySelector(".filter-empty-state");
-  if (!emptyState) {
-    emptyState = document.createElement("p");
-    emptyState.className = "empty-state filter-empty-state";
-    emptyState.hidden = true;
-    grid.after(emptyState);
-  }
-
-  const render = () => {
-    if (Array.isArray(projects)) {
-      const visible = activeFilter === "all"
-        ? projects
-        : projects.filter((item) => item.category === activeFilter);
-      grid.innerHTML = visible.map(projectCard).join("");
-      emptyState.hidden = visible.length > 0;
-      emptyState.textContent = visible.length ? "" : "No projects match this filter.";
-    } else {
-      const cards = [...grid.querySelectorAll(".project-card")];
-      let visibleCount = 0;
-      cards.forEach((card) => {
-        const visible = activeFilter === "all" || card.dataset.category === activeFilter;
-        card.hidden = !visible;
-        if (visible) visibleCount += 1;
-      });
-      emptyState.hidden = visibleCount > 0;
-      emptyState.textContent = visibleCount ? "" : "No projects match this filter.";
-    }
-    notifyContentRendered(document);
-  };
-
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      activeFilter = button.dataset.projectFilter || "all";
-      buttons.forEach((item) => {
-        const active = item === button;
-        item.classList.toggle("active", active);
-        item.setAttribute("aria-pressed", String(active));
-      });
-      render();
-    });
-  });
-
-  render();
-}
-
-async function renderProjects() {
-  const featuredGrid = document.querySelector("#featuredProjects");
-  if (!featuredGrid) return;
-
-  let projects = null;
-  try {
-    const [editorialProjects, repositories] = await Promise.all([
-      loadJson(DATA_PATHS.projects),
-      loadJson(DATA_PATHS.githubProjects)
-    ]);
-    const repositoryByName = new Map(repositories.map((repository) => [repository.name, repository]));
-    projects = editorialProjects.map((project) => {
-      const repository = repositoryByName.get(project.repository);
-      return {
-        ...project,
-        language: repository?.language || project.language,
-        stars: repository?.stars ?? project.stars,
-        updated: repository?.updatedAt || project.updated,
-        demo: project.demo || repository?.demo || ""
-      };
-    });
-  } catch (error) {
-    console.warn(error.message);
-  }
-
-  if (featuredGrid && projects?.length) {
-    const limit = Number(featuredGrid.dataset.limit || 3);
-    featuredGrid.innerHTML = projects.slice(0, limit).map(projectCard).join("");
-  }
-
-}
-
-async function renderRecentPosts() {
-  const container = document.querySelector("#recentPosts");
-  if (!container) return;
-  try {
-    const posts = await loadJson(DATA_PATHS.blog);
-    if (posts.length) {
-      const limit = Number(container.dataset.limit || 3);
-      container.innerHTML = posts.slice(0, limit).map(blogCard).join("");
-    }
-  } catch (error) {
-    console.warn(error.message);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// PAGE INTERACTIONS
-// -----------------------------------------------------------------------------
+/* Shared progressive enhancements; content is rendered at build time. */
 
 function setupTyping() {
   const target = document.querySelector("[data-typing]");
   if (!target) return;
+  target.setAttribute("aria-hidden", "true");
   let words;
   try {
     words = JSON.parse(target.dataset.typing);
@@ -233,6 +48,7 @@ function setupNavigation() {
     nav.classList.remove("open");
   };
 
+  document.documentElement.classList.add("navigation-ready");
   toggle.addEventListener("click", () => {
     const expanded = toggle.getAttribute("aria-expanded") === "true";
     toggle.setAttribute("aria-expanded", String(!expanded));
@@ -249,6 +65,16 @@ function setupContactForm() {
   if (!form) return;
   const recipient = "nandakumarmkdpm@gmail.com";
 
+  document.querySelector("#copyEmail")?.addEventListener("click", async () => {
+    const note = document.querySelector("#formNote");
+    try {
+      await navigator.clipboard.writeText(recipient);
+      if (note) note.textContent = "Email address copied.";
+    } catch {
+      if (note) note.textContent = `Copy this address: ${recipient}`;
+    }
+  });
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
@@ -261,100 +87,22 @@ function setupContactForm() {
     const body = [`Name: ${name}`, `Email: ${email}`, "", message].join("\n");
 
     const note = document.querySelector("#formNote");
-    if (note) note.textContent = "Opening your email application with the message prepared.";
-    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(body)}`;
-  });
-}
-
-function setupSlideDeck() {
-  const deck = document.querySelector("[data-slide-deck]");
-  if (!deck) return;
-  const slides = [...deck.querySelectorAll("[data-slide]")];
-  if (!slides.length) return;
-
-  const dotsWrap = document.querySelector("[data-slide-dots]");
-  const progress = document.querySelector("[data-slide-progress]");
-  const counter = document.querySelector("[data-slide-counter]");
-  const prev = document.querySelector("[data-slide-prev]");
-  const next = document.querySelector("[data-slide-next]");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const intervalMs = 5200;
-  let current = 0;
-  let timer = 0;
-  let progressTimer = 0;
-  let startedAt = Date.now();
-  let paused = reducedMotion;
-
-  const updateProgress = () => {
-    if (!progress || paused) return;
-    progress.style.width = `${Math.min(100, ((Date.now() - startedAt) / intervalMs) * 100)}%`;
-  };
-
-  const render = (index, direction = 1) => {
-    const previous = slides[current];
-    current = (index + slides.length) % slides.length;
-    const incoming = slides[current];
-    if (previous !== incoming) {
-      previous.classList.remove("active");
-      if (!reducedMotion) previous.classList.add(direction >= 0 ? "exit-left" : "exit-right");
-      if (!reducedMotion) incoming.classList.add(direction >= 0 ? "enter-right" : "enter-left");
-      incoming.getBoundingClientRect();
-      incoming.classList.remove("enter-right", "enter-left");
-      incoming.classList.add("active");
-      window.setTimeout(() => previous.classList.remove("exit-left", "exit-right"), 540);
-    } else {
-      incoming.classList.add("active");
+    if (note) note.textContent = "Opening your email app. If it does not open, copy the address and message below.";
+    const fallback = document.querySelector("#emailFallback");
+    document.getElementById("emailFallbackLabel")?.removeAttribute("hidden");
+    if (fallback) { fallback.value = `To: ${recipient}\nSubject: ${subjectText}\n\n${body}`; fallback.hidden = false; }
+    const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(body)}`;
+    if (mailto.length > 1800) {
+      if (note) note.textContent = "This message is long. Copy the prepared email below into your email application.";
+      return;
     }
-    dotsWrap?.querySelectorAll("button").forEach((dot, i) => {
-      dot.classList.toggle("active", i === current);
-      dot.setAttribute("aria-current", i === current ? "true" : "false");
-    });
-    if (counter) counter.textContent = `${String(current + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
-    startedAt = Date.now();
-    if (progress) progress.style.width = "0%";
-  };
-
-  const restart = () => {
-    window.clearInterval(timer);
-    window.clearInterval(progressTimer);
-    startedAt = Date.now();
-    if (!paused) {
-      timer = window.setInterval(() => render(current + 1, 1), intervalMs);
-      progressTimer = window.setInterval(updateProgress, 90);
-    }
-  };
-
-  if (dotsWrap) {
-    dotsWrap.innerHTML = slides.map((_, index) => `<button type="button" aria-label="Go to slide ${index + 1}" aria-current="${index === 0}"></button>`).join("");
-    dotsWrap.querySelectorAll("button").forEach((dot, index) => dot.addEventListener("click", () => {
-      render(index, index >= current ? 1 : -1);
-      restart();
-    }));
-  }
-  prev?.addEventListener("click", () => { render(current - 1, -1); restart(); });
-  next?.addEventListener("click", () => { render(current + 1, 1); restart(); });
-  deck.addEventListener("mouseenter", () => {
-    paused = true;
-    window.clearInterval(timer);
-    window.clearInterval(progressTimer);
-    if (progress) progress.style.opacity = "0.4";
+    window.location.href = mailto;
   });
-  deck.addEventListener("mouseleave", () => {
-    paused = reducedMotion;
-    if (progress) progress.style.opacity = "";
-    restart();
-  });
-  render(0);
-  restart();
 }
 
 // -----------------------------------------------------------------------------
 // DYNAMIC-CONTENT SIGNALING AND PAGE INITIALIZATION
 // -----------------------------------------------------------------------------
-
-function notifyContentRendered(target = document) {
-  target.dispatchEvent(new CustomEvent("portfolio:content-rendered", { bubbles: true }));
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-year]").forEach((item) => {
@@ -363,14 +111,13 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupTyping();
   setupContactForm();
-  setupSlideDeck();
-  renderProjects().then(() => notifyContentRendered(document));
-  renderRecentPosts().then(() => notifyContentRendered(document));
 
   if (window.location.hash) {
     const tryScroll = (attempt = 0) => {
-      const target = document.querySelector(window.location.hash);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      let id;
+      try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
+      const target = document.getElementById(id);
+      if (target) target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       else if (attempt < 20) window.setTimeout(() => tryScroll(attempt + 1), 100);
     };
     tryScroll();

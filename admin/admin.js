@@ -16,11 +16,12 @@
     branch: 'main',
     siteUrl: 'https://nandakumarm.dpdns.org',
     githubClientId: '',
+    serverOAuth: false,
     ...(window.CONTENT_STUDIO_CONFIG || {})
   };
 
   const API_VERSION = '2022-11-28';
-  const TOKEN_KEY = 'portfolio-studio-token';
+  try { sessionStorage.removeItem('portfolio-studio-token'); } catch { /* Storage is optional. */ }
   const OAUTH_CLIENT_KEY = 'portfolio-studio-oauth-client';
   const DRAFT_KEY = 'portfolio-studio-drafts-v2';
   const PREF_KEY = 'portfolio-studio-preferences-v2';
@@ -53,7 +54,7 @@
   };
 
   const state = {
-    token: sessionStorage.getItem(TOKEN_KEY) || '',
+    token: '',
     authMethod: '',
     user: null,
     activeView: 'dashboard',
@@ -221,17 +222,7 @@
    * HTML trusted; only owner-reviewed content should enter the upload inbox.
    */
   function sanitizeContent(html) {
-    const parsed = new DOMParser().parseFromString(`<div id="content-root">${html}</div>`, 'text/html');
-    const root = parsed.querySelector('#content-root');
-    root.querySelectorAll('script, iframe, object, embed, form, input, button, textarea, select, link, meta').forEach((node) => node.remove());
-    root.querySelectorAll('*').forEach((node) => {
-      [...node.attributes].forEach((attribute) => {
-        const name = attribute.name.toLowerCase();
-        const value = attribute.value.trim().toLowerCase();
-        if (name.startsWith('on') || value.startsWith('javascript:')) node.removeAttribute(attribute.name);
-      });
-    });
-    return root.innerHTML.trim();
+    return window.sanitizePortfolioContent(html, CONFIG.siteUrl);
   }
 
   function plainTextFromHtml(html) {
@@ -388,7 +379,7 @@
     const repository = await githubRequest(`/repos/${CONFIG.owner}/${CONFIG.repository}`);
     const canPush = repository.permissions?.push || repository.permissions?.admin || repository.permissions?.maintain;
     if (!canPush) throw new Error('This credential does not have repository write access.');
-    sessionStorage.setItem(TOKEN_KEY, state.token);
+    // Authentication lasts only for this open tab; tokens are never persisted.
     state.authMethod = method;
     state.user = user;
     await enterStudio();
@@ -398,7 +389,7 @@
     state.devicePollCancelled = true;
     state.token = '';
     state.user = null;
-    sessionStorage.removeItem(TOKEN_KEY);
+
     el.studioApp.hidden = true;
     el.authScreen.hidden = false;
     el.tokenInput.value = '';
@@ -459,7 +450,7 @@
       await authenticate(payload.token, 'github');
     } catch (error) {
       state.token = '';
-      sessionStorage.removeItem(TOKEN_KEY);
+
       setAuthStatus(error.message, 'error');
     } finally {
       stopOAuthPopup();
@@ -471,6 +462,7 @@
     if (IS_LOCAL_DEMO) return;
     el.githubLoginButton.disabled = true;
     try {
+      if (!CONFIG.serverOAuth) { await startGitHubDeviceLogin(); return; }
       const response = await fetch('/api/github/oauth/config', { headers: { Accept: 'application/json' }, cache: 'no-store' });
       const config = response.ok ? await response.json() : null;
       if (!config?.enabled) {
@@ -1174,7 +1166,7 @@
 
   function siteHeader(active) {
     const item = (href, label, key) => `<a${active === key ? ' class="active" aria-current="page"' : ''} href="${href}">${label}</a>`;
-    return `<header class="site-header glass"><a class="brand" href="../index.html" aria-label="Nandakumar M home"><span class="brand-mark">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a><button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" aria-label="Main navigation">${item('../index.html','Home','home')}${item('../projects.html','Projects','projects')}${item('../blog.html','Blog','blog')}${item('../about.html','About','about')}</nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>`;
+    return `<header class="site-header glass"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a><button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" aria-label="Main navigation">${item('../index.html','Home','home')}${item('../projects.html','Projects','projects')}${item('../blog.html','Blog','blog')}${item('../about.html','About','about')}</nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>`;
   }
 
   function siteFooter() {
@@ -1194,6 +1186,17 @@ FILE PURPOSE: Generated published ${active === 'blog' ? 'blog article' : 'portfo
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+try {
+  const theme = localStorage.getItem('portfolio-theme');
+  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+} catch {
+  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+</script>
+  <meta name="theme-color" content="#07111f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f8ff" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${escapeHtml(description)}">
   <meta name="author" content="Nandakumar M">
@@ -1211,12 +1214,13 @@ ${metadata}
   <script type="application/ld+json">${jsonLd(schema)}</script>
   <title>${escapeHtml(title)} | Nandakumar M</title>
   <link rel="icon" href="../assets/images/logo.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/fonts.css">
+  <link rel="stylesheet" href="../assets/css/content-pages.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
   <link rel="stylesheet" href="../assets/css/animations.css">
   <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/polish.css">
+  <link rel="stylesheet" href="../assets/css/reveal.css">
 </head>
 <body>
   <div class="site-shell">
@@ -1259,7 +1263,7 @@ ${metadata}
       values.demo ? `<a class="btn primary" href="${escapeHtml(values.demo)}" target="_blank" rel="noopener noreferrer">Open live project</a>` : '',
       values.github ? `<a class="btn ghost" href="${escapeHtml(values.github)}" target="_blank" rel="noopener noreferrer">View source</a>` : ''
     ].filter(Boolean).join('') : '';
-    const body = `<article class="blog-article"><header class="article-header"><p class="eyebrow"><a href="../${isBlog ? 'blog' : 'projects'}.html">← Back to ${isBlog ? 'Blog' : 'Projects'}</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span><span>${Math.max(1, Math.ceil(plainTextFromHtml(content).split(/\s+/).filter(Boolean).length / 200))} min read</span></div><img src="${escapeHtml(imageDisplaySrc)}" alt="${escapeHtml(values.alt || values.title)}" class="article-image"></header><div class="article-content">${!isBlog ? `<p>${escapeHtml(values.excerpt)}</p>` : ''}${content}</div>${tags.length ? `<div class="article-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>` : ''}<footer class="article-footer">${buttons ? `<div class="button-row">${buttons}</div>` : `<a class="btn ghost" href="../${isBlog ? 'blog' : 'projects'}.html">← Back to all ${isBlog ? 'posts' : 'projects'}</a>`}</footer></article>`;
+    const body = `<article class="blog-article"><header class="article-header"><p class="eyebrow"><a href="../${isBlog ? 'blog' : 'projects'}.html">← Back to ${isBlog ? 'Blog' : 'Projects'}</a></p><h1>${escapeHtml(values.title)}</h1><div class="article-meta"><time datetime="${escapeHtml(values.date)}">${escapeHtml(formatDate(values.date))}</time><span>${escapeHtml(values.category)}</span><span>${Math.max(1, Math.ceil(plainTextFromHtml(content).split(/\s+/).filter(Boolean).length / 200))} min read</span></div><img src="${escapeHtml(imageDisplaySrc)}" alt="${escapeHtml(values.alt || values.title)}" class="article-image" width="800" height="450"></header><div class="article-content">${!isBlog ? `<p>${escapeHtml(values.excerpt)}</p>` : ''}${content}</div>${tags.length ? `<div class="article-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>` : ''}<footer class="article-footer">${buttons ? `<div class="button-row">${buttons}</div>` : `<a class="btn ghost" href="../${isBlog ? 'blog' : 'projects'}.html">← Back to all ${isBlog ? 'posts' : 'projects'}</a>`}</footer></article>`;
     const schema = isBlog ? {
       '@context': 'https://schema.org', '@type': 'BlogPosting', headline: values.title, description: values.excerpt, datePublished: values.date, dateModified: values.date, image: [publicImage], author: { '@type': 'Person', name: 'Nandakumar M', url: CONFIG.siteUrl }, mainEntityOfPage: canonical, keywords: tags.join(', ')
     } : {
@@ -1485,7 +1489,7 @@ ${metadata}
       button.disabled = true;
       setAuthStatus('Verifying repository access…');
       try { await authenticate(el.tokenInput.value, 'token'); setAuthStatus(); }
-      catch (error) { state.token = ''; sessionStorage.removeItem(TOKEN_KEY); setAuthStatus(error.message, 'error'); }
+      catch (error) { state.token = '';  setAuthStatus(error.message, 'error'); }
       finally { button.disabled = false; }
     });
 

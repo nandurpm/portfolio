@@ -62,7 +62,10 @@ def resolve_local(page: Path, ref: str) -> Path | None:
 def main() -> None:
     """Audit every HTML document and print a deterministic repository summary."""
 
-    html_files = sorted(ROOT.rglob("*.html"))
+    # Audit deployable pages and templates, not Vite input, dependencies or caches.
+    excluded = {'.git', '.cache', 'node_modules', 'tracker-source', 'scripts'}
+    html_files = sorted(page for page in ROOT.rglob("*.html")
+                        if not excluded.intersection(page.relative_to(ROOT).parts))
     missing: list[tuple[str, int, str, str]] = []
     duplicate_ids: list[tuple[str, str, list[int]]] = []
     metadata: list[tuple[str, str, bool]] = []

@@ -1,9 +1,7 @@
-# POLY PMNA portfolio — https://nandakumarm.dpdns.org
 User-agent: *
 Allow: /
-Disallow: /assets/
+Disallow: /track
+Disallow: /admin/
+Disallow: /tools/
 
 Sitemap: https://nandakumarm.dpdns.org/sitemap.xml
-
-Disallow: /track
-Disallow: /tools/tracker-source/

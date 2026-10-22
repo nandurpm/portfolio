@@ -1,0 +1,1 @@
+DOMPurify 3.4.17, vendored from the versioned npm package (https://www.npmjs.com/package/dompurify). See DOMPurify-LICENSE.txt. Update through a verified npm package and rerun the malicious-markup browser tests.

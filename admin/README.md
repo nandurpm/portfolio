@@ -30,7 +30,7 @@ Never place an OAuth client secret in browser configuration. Device flow is a fa
 
 ### Fine-grained token fallback
 
-Create a fine-grained personal access token limited to `nandurpm/portfolio` with **Contents: Read and write**. The studio stores the credential only in browser session storage and removes it when you sign out or close the session.
+Create a fine-grained personal access token limited to `nandurpm/portfolio` with **Contents: Read and write**. The studio holds the credential only in memory in the current tab. Reloading or closing the tab requires signing in again.
 
 ## Publishing workflow
 
@@ -40,7 +40,7 @@ The editor commits generated HTML and its cover image to the appropriate `upload
 
 Drafts, editor preferences, and the optional OAuth Client ID are stored only in local browser storage. Published content remains in GitHub.
 
-The GitHub credential is held in `sessionStorage`, not `localStorage`; signing out or ending the browser session removes it. Local draft content and non-secret editor preferences persist in `localStorage`.
+The GitHub credential is held only in memory; signing out, reloading or closing the tab removes it. Local draft content and non-secret editor preferences persist in `localStorage`.
 
 Removing a credential from browser storage does not revoke it at GitHub. Revoke an OAuth authorization or fine-grained token in GitHub account settings if it may have been exposed.
 

@@ -13,7 +13,7 @@ The preferred sign-in is the server-backed GitHub OAuth flow documented in `docs
 - Repository access: only `nandurpm/portfolio`
 - Repository permission: Contents — Read and write
 
-Any returned OAuth token or manually entered token is stored in `sessionStorage`, so it is cleared when the browser session ends. It is not committed to the repository.
+Any returned OAuth token or manually entered token is held only in memory in the current tab. Reloading or closing the tab requires signing in again. It is not committed to the repository.
 
 The editor creates one Git commit containing the HTML file and cover image. The publishing workflow then validates and moves the files, updates the appropriate JSON index, and commits the generated website changes.
 
