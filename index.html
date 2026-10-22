@@ -13,8 +13,8 @@ try {
   document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 </script>
-  <meta name="theme-color" content="#07111f" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f3f8ff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Portfolio of Nandakumar M, an Electrical and Electronics Design Engineer in Chennai building dependable electrical systems, technical documentation, and practical software tools.">
   <meta name="keywords" content="Nandakumar M, Electrical Design Engineer, Chennai, escalator engineering, electronics, engineering software">
@@ -55,8 +55,9 @@ try {
   <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/polish.css">
   <link rel="stylesheet" href="assets/css/reveal.css">
+  <link rel="stylesheet" href="assets/css/series.css">
 </head>
-<body>
+<body class="series-home">
   <div class="site-shell">
     <header class="site-header glass">
       <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a>
@@ -66,14 +67,15 @@ try {
     </header>
 
     <main>
-      <section class="hero section-grid">
+      <section class="hero section-grid" aria-label="Nandakumar — The Engineering Series">
         <div class="hero-copy" data-reveal="up">
-          <p class="eyebrow">Chennai, Tamil Nadu · Electrical Design &amp; Development</p>
-          <h1>I turn electrical systems and technical data into clear, dependable tools.</h1>
+          <p class="eyebrow series-label"><span aria-hidden="true">N</span> An engineering original</p>
+          <h1>NANDAKUMAR<span class="series-subtitle">THE ENGINEERING SERIES</span></h1>
+          <p class="series-meta"><span>DESIGN + BUILD</span> Chennai, Tamil Nadu <span aria-hidden="true">•</span> Electrical &amp; Electronics</p>
           <p class="typing-line">Focused on <span class="visually-hidden">electrical systems, engineering documentation, practical software, and reliable workflows.</span><span aria-hidden="true" class="typing-text" data-typing='["electrical systems.", "engineering documentation.", "practical software.", "reliable workflows."]'>electrical systems.</span></p>
           <p class="hero-text">I’m Nandakumar M, an Electrical and Electronics Design Engineer working across escalator electrical systems, development support, technical documentation, and software that makes engineering work easier to understand and maintain.</p>
-          <div class="button-row"><a class="btn primary" href="projects.html">Explore selected work</a><a class="btn ghost" href="contact.html">Start a conversation</a><a class="text-link resume-link" href="assets/files/resume.pdf" download>Download résumé ↓</a></div>
-          <div class="hero-stats glass" aria-label="Primary portfolio areas"><span><strong>Systems</strong> Electrical design</span><span><strong>Clarity</strong> Documentation</span><span><strong>Tools</strong> Practical software</span></div>
+          <div class="button-row"><a class="btn primary" href="projects.html"><span aria-hidden="true">▶</span> Explore my work</a><a class="btn ghost" href="about.html">More about me</a><a class="text-link resume-link" href="assets/files/resume.pdf" download>Download résumé ↓</a></div>
+          <div class="hero-stats" aria-label="Primary portfolio areas"><span><strong>Systems</strong> Electrical design</span><span><strong>Clarity</strong> Documentation</span><span><strong>Tools</strong> Practical software</span></div>
         </div>
         <div class="hero-visual" data-reveal="zoom" data-delay="120">
           <div class="profile-frame">
@@ -83,15 +85,15 @@ try {
         </div>
       </section>
 
-      <section class="section split-section manifesto" data-reveal="up">
-        <div><p class="eyebrow">How I work</p><h2>Engineering should be understandable before it is impressive.</h2></div>
+      <section class="section split-section manifesto" id="the-pilot" data-reveal="up">
+        <div><p class="eyebrow">Episode 01 / The pilot</p><h2>Engineering should be understandable before it is impressive.</h2></div>
         <div><p>I combine electrical design discipline, manufacturing awareness, electronics fundamentals, and software thinking. The result is work that can be reviewed, traced, built, and supported.</p><a class="text-link" href="about.html">Read my background and approach →</a></div>
       </section>
 
       <section class="section">
-        <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Featured work</p><h2>Selected public projects</h2></div><a class="text-link" href="projects.html">View the full catalog →</a></div>
+        <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Originals / Selected work</p><h2>Built to solve. Made to work.</h2></div><a class="text-link" href="projects.html">View the full catalog →</a></div>
         <p class="section-intro">A focused selection of education platforms, engineering utilities, monitoring tools, and useful applications. Repository visibility is respected: only public projects appear here.</p>
-        <div class="card-grid project-grid" data-stagger id="featuredProjects" data-limit="4">
+        <div class="card-grid project-grid" data-stagger id="featuredProjects" data-limit="4" tabindex="0" role="region" aria-label="Selected projects — scroll horizontally for more">
           <!-- FEATURED_PROJECTS_START -->
 <article class="project-card project-dossier" data-reveal="up" data-category="Learning &amp; Education" data-search="poly pmna learning &amp; education a comprehensive learning platform for kerala polytechnic students, combining syllabus-aware lessons, revision resources, quizzes, engineering tools, and ai-assisted study support. one structured destination for multiple curriculum revisions and student workflows. html javascript cloudflare supabase" data-name="POLY PMNA" data-stars="1" data-updated="2026-10-19T04:08:01Z">
             <div class="project-cover" aria-hidden="true"><span class="project-code">01</span><span>Learning &amp; Education</span><strong>HTML</strong></div>
@@ -158,7 +160,7 @@ try {
       </section>
 
       <section class="section">
-        <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Capabilities</p><h2>One workflow, several disciplines</h2></div></div>
+        <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Behind the build</p><h2>One workflow, several disciplines</h2></div></div>
         <div class="skills-grid" data-stagger>
           <article class="skill-card glass" data-reveal="up"><span>01 / DESIGN</span><h3>Electrical systems</h3><p>Engineering drawings, wiring logic, component coordination, design revisions, and development support.</p></article>
           <article class="skill-card glass" data-reveal="up" data-delay="80"><span>02 / VERIFY</span><h3>Manufacturing &amp; quality</h3><p>Production-floor awareness, inspection discipline, PDI exposure, and practical troubleshooting.</p></article>
@@ -168,7 +170,7 @@ try {
       </section>
 
       <section class="section">
-        <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Field notes</p><h2>Recent articles</h2></div><a class="text-link" href="blog.html">Browse all writing →</a></div>
+        <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Field notes / New episodes</p><h2>Stories from the workbench</h2></div><a class="text-link" href="blog.html">Browse all writing →</a></div>
         <div class="card-grid blog-grid" data-stagger id="recentPosts" data-limit="3">
           <!-- RECENT_POSTS_START -->
 <article class="blog-card" data-reveal="up" id="post-honest-software-boundaries" data-category="Technical Articles" data-search="what 26 engineering tools taught me about honest software boundaries practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access. technical articles engineering software local-first validation">
@@ -202,7 +204,7 @@ try {
         </div>
       </section>
 
-      <section class="cta glass" data-reveal="up"><div><p class="eyebrow">Let’s connect</p><h2>Have an engineering role, useful problem, or collaboration in mind?</h2><p>Based in Chennai and open to thoughtful professional conversations.</p></div><a class="btn primary" href="contact.html">Contact me</a></section>
+      <section class="cta glass" data-reveal="up"><div><p class="eyebrow">To be continued…</p><h2>Let’s build the next chapter.</h2><p>Based in Chennai and open to thoughtful professional conversations.</p></div><a class="btn primary" href="contact.html">Contact me</a></section>
     </main>
 
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M. Built with HTML, CSS, and JavaScript.</p><div><a href="savings-tracker.html">Expense and Savings Tracker</a><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
