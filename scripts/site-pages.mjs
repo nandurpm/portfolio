@@ -14,11 +14,12 @@ export function normalizePage(source, relativePath, post) {
   const canonical = `${SITE_URL}/${relativePath === 'index.html' ? '' : relativePath}`;
   const pageImage = relativePath.startsWith('works/') ? source.match(/<img[^>]+src="([^"]+)"/i)?.[1] : null;
   const image = post ? new URL(post.image, `${SITE_URL}/`).href : pageImage ? new URL(pageImage, canonical).href : `${SITE_URL}/assets/images/profile.webp`;
+  source = source.replace(/(<meta name="theme-color" content=")#07111f/g, '$1#09090b').replace(/(<meta name="theme-color" content=")#f3f8ff/g, '$1#f6f3ef');
   let html = source.replace(/\s*<!-- PAGE_METADATA_START -->[\s\S]*?<!-- PAGE_METADATA_END -->/g, '');
   html = html.replace(/\s*<link rel="canonical"[^>]*>/gi, '')
     .replace(/\s*<meta (?:property="og:[^"]+"|name="twitter:[^"]+")[^>]*>/gi, '')
     .replace(/\s*<link[^>]+(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>/gi, '')
-    .replace(/\s*<link rel="stylesheet" href="(?:\.\.\/|\/)?assets\/css\/(?:fonts|content-pages|theme|animations|main|polish|reveal)\.css">/g, '');
+    .replace(/\s*<link rel="stylesheet" href="(?:\.\.\/|\/)?assets\/css\/(?:fonts|content-pages|theme|animations|main|polish|reveal|series)\.css">/g, '');
   html = html.replace(/(href|src)="\/assets\//g, `$1="${prefix}assets/`);
   // Remove the common bootstrap before inserting its single maintained copy.
   html = html.replace(/\s*<script data-theme-bootstrap>[\s\S]*?<\/script>/g, '');
@@ -46,5 +47,5 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/(<a\b[^>]*class="brand"[^>]*?)\saria-label="[^"]*"/g, '$1');
   // Page-specific rules must follow the shared cascade.
   html = html.replace(/\s*<link rel="stylesheet" href="assets\/css\/about\.css">/g, '');
-  return html.replace('</head>', `${metadata}${preload}\n${links}${relativePath === 'about.html' ? '\n  <link rel="stylesheet" href="assets/css/about.css">' : ''}\n</head>`);
+  return html.replace('</head>', `${metadata}${preload}\n${links}${relativePath === 'about.html' ? '\n  <link rel="stylesheet" href="assets/css/about.css">' : ''}\n  <link rel="stylesheet" href="${prefix}assets/css/series.css">\n</head>`);
 }

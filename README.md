@@ -18,6 +18,12 @@ A fast, responsive portfolio for **Nandakumar M**, an Electrical and Electronics
 - Dark/light themes, responsive layouts, structured metadata, Open Graph tags, and sitemap
 - Static architecture with no client framework and no runtime dependency installation
 
+## Visual theme
+
+The public portfolio uses an original cinematic theme inspired by [Portfolio_series](https://github.com/Sushmitadasari/Portfolio_series): charcoal surfaces, crimson accents, a portrait billboard, episodic section labels, and a native swipe rail for selected projects. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported. No reference code, photos, or branding were copied.
+
+Shared overrides live in `assets/css/series.css`; `scripts/site-pages.mjs` adds them to every public page during content publishing. The embedded tracker and Content Studio keep their own styles.
+
 ## Stack
 
 | Area | Implementation |
