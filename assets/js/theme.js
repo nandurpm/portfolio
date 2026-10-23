@@ -53,7 +53,7 @@
     if (independenceDayActive) {
       document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#fffaf2" : "#07131f"; });
     } else {
-      document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#f6f3ef" : "#09090b"; });
+      document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#f6f3ef" : "#17272a"; });
     }
   }
 

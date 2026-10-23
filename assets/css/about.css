@@ -15,7 +15,7 @@
       width: 600px;
       height: 600px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.08), transparent);
+      background: radial-gradient(circle, rgb(var(--accent-rgb) / 0.08), transparent);
       pointer-events: none;
     }
     
@@ -107,14 +107,14 @@
     .stat-item {
       padding: 18px;
       border-radius: 16px;
-      background: rgba(56, 189, 248, 0.06);
-      border: 1px solid rgba(56, 189, 248, 0.15);
+      background: rgb(var(--accent-rgb) / 0.06);
+      border: 1px solid rgb(var(--accent-rgb) / 0.15);
       transition: all 300ms ease;
     }
     
     .stat-item:hover {
-      background: rgba(56, 189, 248, 0.12);
-      border-color: rgba(56, 189, 248, 0.3);
+      background: rgb(var(--accent-rgb) / 0.12);
+      border-color: rgb(var(--accent-rgb) / 0.3);
       transform: translateY(-2px);
     }
     
@@ -185,7 +185,7 @@
     
     .info-card:hover, .feature-card:hover, .revision-card:hover, .step-card:hover, .stack-card:hover { 
       transform: translateY(-6px);
-      border-color: rgba(56, 189, 248, 0.4);
+      border-color: rgb(var(--accent-rgb) / 0.4);
     }
     
     .info-card:hover::before, .feature-card:hover::before, .revision-card:hover::before, .step-card:hover::before, .stack-card:hover::before {
@@ -212,7 +212,7 @@
       margin-bottom: 14px; 
       border-radius: 12px; 
       background: linear-gradient(135deg, var(--brand), var(--brand-2)); 
-      color: #00111e; 
+      color: var(--bg);
       font-family: "JetBrains Mono", monospace; 
       font-weight: 800;
       font-size: 1.1rem;
@@ -291,7 +291,7 @@
     }
     
     .language-switch button.active { 
-      background: linear-gradient(135deg, rgba(56,189,248,.24), rgba(34,197,94,.16)); 
+      background: linear-gradient(135deg, rgb(var(--accent-rgb) / .24), rgb(var(--accent-rgb) / .16));
       color: var(--heading); 
     }
     
@@ -316,8 +316,8 @@
     }
     
     .pill-row span:hover {
-      background: rgba(56, 189, 248, 0.15);
-      border-color: rgba(56, 189, 248, 0.3);
+      background: rgb(var(--accent-rgb) / 0.15);
+      border-color: rgb(var(--accent-rgb) / 0.3);
       color: var(--brand);
     }
     
@@ -397,7 +397,7 @@
     
     .stat-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(56, 189, 248, 0.3);
+      border-color: rgb(var(--accent-rgb) / 0.3);
     }
     
     .stat-card strong { 
@@ -429,12 +429,12 @@
     
     .btn.primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(56, 189, 248, 0.3);
+      box-shadow: 0 12px 32px rgb(var(--accent-rgb) / 0.3);
     }
     
     .btn.ghost:hover {
-      background: rgba(56, 189, 248, 0.1);
-      border-color: rgba(56, 189, 248, 0.3);
+      background: rgb(var(--accent-rgb) / 0.1);
+      border-color: rgb(var(--accent-rgb) / 0.3);
       color: var(--brand);
     }
     
