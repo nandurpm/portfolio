@@ -34,7 +34,7 @@ function setupNavigation() {
 function setupContactForm() {
   const form = document.querySelector("#contactForm");
   if (!form) return;
-  const recipient = "nandakumarmkdpm@gmail.com";
+  const recipient = "contact@nandakumarm.dpdns.org";
 
   document.querySelector("#copyEmail")?.addEventListener("click", async () => {
     const note = document.querySelector("#formNote");

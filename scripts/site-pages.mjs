@@ -71,7 +71,7 @@ export function normalizePage(source, relativePath, post) {
   // Preserve privacy/support links in the app's public information pages.
   html = html.replace(/<footer class="site-footer">[\s\S]*?<\/footer>/g, (old) => {
     const extras = [...old.matchAll(/<a\b[^>]+href="(?:[^\"]*privacy[^\"]*|mailto:nandhakumardesign[^\"]*)"[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]).join('');
-    return `<footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a>${extras}</nav></footer>`;
+    return `<footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a>${extras}</nav></footer>`;
   });
   let metadata = `\n  <!-- PAGE_METADATA_START -->\n  <link rel="canonical" href="${escape(canonical)}">`;
   const og = { type:post ? 'article':'website', title, description, url:canonical, image, 'image:width':'1200', 'image:height':'630', 'image:alt':imageAlt };

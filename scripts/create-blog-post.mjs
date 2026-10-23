@@ -188,7 +188,7 @@ try {
         <footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
       </article>
     </main>
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:contact@nandakumarm.dpdns.org">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
   </div>
   <script src="../assets/js/theme.js"></script>
   <script src="../assets/js/main.js"></script>

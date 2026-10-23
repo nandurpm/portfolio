@@ -1,6 +1,6 @@
 # Contact email options
 
-The public site intentionally keeps `nandakumarmkdpm@gmail.com` unchanged. The current contact flow prepares a local `mailto:` message and does not send form data to a server.
+The public contact address is `contact@nandakumarm.dpdns.org`, hosted in Zoho Mail. The current contact flow prepares a local `mailto:` message and does not send form data to a server.
 
 If address harvesting becomes a concern, the owner can approve one of these follow-up options:
 
