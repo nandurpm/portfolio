@@ -28,6 +28,11 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/(href|src)="\/assets\//g, `$1="${prefix}assets/`);
   html = html.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n  ${bootstrap}`);
   html = html.replace(/<html(?:\s+lang="[^"]*")?>/i, '<html lang="en">');
+  // Keep preload and the image candidate list identical; desktop billboard occupies most of the viewport.
+  html = html.replace(/assets\/images\/profile(?:-(?:480|768))?\.webp/g, (url) => url.replace(/profile(?:-(480|768))?\.webp/, (_, width) => `profile-hq-${width || 1673}.webp`));
+  html = html.replace(/srcset="[^"]*profile-hq-[^"]*"/g, 'srcset="assets/images/profile-hq-480.webp 480w, assets/images/profile-hq-768.webp 768w, assets/images/profile-hq-1200.webp 1200w, assets/images/profile-hq-1673.webp 1673w"');
+  html = html.replace(/(<img[^>]*src="assets\/images\/profile-hq-1673\.webp"[^>]*width=")\d+(" height=")\d+(")/, '$11673$2940$3');
+  html = html.replace(/sizes="\(max-width: 760px\) 100vw, 48vw"/g, 'sizes="(max-width: 760px) 100vw, (max-width: 1680px) 85vw, 1400px"');
   // A single literal sentence avoids duplication in text extraction and screen readers.
   html = html.replace(/<main(?![^>]*\bid=)([^>]*)>/, '<main id="main-content" tabindex="-1"$1>');
   html = html.replace(/<main(?![^>]*\btabindex=)([^>]*)>/, '<main tabindex="-1"$1>');
@@ -53,7 +58,7 @@ export function normalizePage(source, relativePath, post) {
   html = html.replaceAll('profile-480.webp 480w, assets/images/profile.webp 900w', 'profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w');
   html = html.replace(/<img\b([^>]*)>/gi, (_, attrs) => {
     if (!/\bdecoding=/.test(attrs)) attrs += ' decoding="async"';
-    const isHero = relativePath === 'index.html' && /profile\.webp/.test(attrs);
+    const isHero = relativePath === 'index.html' && /profile(?:-hq-1673)?\.webp/.test(attrs);
     if (isHero) {
       if (!/\bsrcset=/.test(attrs)) attrs += ' srcset="assets/images/profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w" sizes="(max-width: 760px) 100vw, 48vw"';
     } else if (!/fetchpriority="high"/.test(attrs) && !/\bloading=/.test(attrs)) attrs += ' loading="lazy"';
@@ -78,7 +83,7 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/\s*<link rel="preload"[^>]*data-portfolio-font[^>]*>/g, '');
   html = html.replace(/\s*<link[^>]+(?:rel="icon"|rel="apple-touch-icon"|rel="manifest")[^>]*>/g, '');
   const icons = `  <link rel="icon" href="${prefix}favicon.ico" sizes="any">\n  <link rel="icon" type="image/png" sizes="32x32" href="${prefix}assets/images/favicon-32.png">\n  <link rel="apple-touch-icon" sizes="180x180" href="${prefix}assets/images/apple-touch-icon.png">\n  <link rel="manifest" href="${prefix}manifest.webmanifest">`;
-  const heroPreload = relativePath === 'index.html' ? '\n  <link rel="preload" as="image" href="assets/images/profile.webp" imagesrcset="assets/images/profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w" imagesizes="(max-width: 760px) 100vw, 48vw" fetchpriority="high">' : '';
+  const heroPreload = relativePath === 'index.html' ? '\n  <link rel="preload" as="image" href="assets/images/profile-hq-1673.webp" imagesrcset="assets/images/profile-hq-480.webp 480w, assets/images/profile-hq-768.webp 768w, assets/images/profile-hq-1200.webp 1200w, assets/images/profile-hq-1673.webp 1673w" imagesizes="(max-width: 760px) 100vw, (max-width: 1680px) 85vw, 1400px" fetchpriority="high">' : '';
   const links = ['portfolio'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css?v=series-20261023">`).join('\n');
   html = html.replace(/\s*<link rel="stylesheet" href="assets\/css\/about\.css">/g, '');
   return html.replace('</head>', `${metadata}${icons}${heroPreload}\n${links}\n</head>`).replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n');
