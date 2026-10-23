@@ -2105,9 +2105,9 @@ html body .site-shell > .site-header { margin-bottom:18px; padding-block:12px; }
 .series-home .hero-name { display:block; }
 .series-home .hero-role { color:var(--heading); margin-block:16px; }
 .series-home .profile-frame > img { height:100%; aspect-ratio:auto; }
-.series-home .profile-frame::after { display:block; }
+.series-home .profile-frame::after { content:""; position:absolute; pointer-events:none; display:block; }
 .series-home .site-shell .hero-visual { grid-row:auto; width:auto; }
-.series-home .site-shell .profile-frame { aspect-ratio:auto; }
+.series-home .site-shell .profile-frame { position:relative; aspect-ratio:auto; }
 .series-home #featuredProjects .project-cover { position:relative; aspect-ratio:16/9; }
 .series-home #featuredProjects .project-cover > img { position:absolute; inset:0; width:100%; height:100%; opacity:.12; object-fit:cover; }
 .series-home .hero-stats strong { color:var(--heading); }
@@ -2124,6 +2124,6 @@ html body .site-shell > .site-header { margin-bottom:18px; padding-block:12px; }
 @media (max-width:680px) {
 .series-home .site-shell .hero h1 { font-size:clamp(3.25rem,16vw,6rem); }
 .series-home .hero-role { font-size:1rem; }
-.series-home .site-shell .profile-frame { aspect-ratio:auto; }
+.series-home .site-shell .profile-frame { position:relative; aspect-ratio:auto; }
 .series-home .site-shell .profile-frame > img { height:100%; aspect-ratio:auto; }
 }
