@@ -2165,13 +2165,13 @@ border:1px solid var(--border); border-radius:0 0 var(--radius-sm) var(--radius-
 box-shadow:var(--shadow-hover);
 }
 .site-header .site-nav.open { display:flex; }
-html:not(.navigation-ready) .site-header .nav-toggle { display:none; }
-html:not(.navigation-ready) .site-shell > .site-header { height:auto; grid-template-columns:minmax(0,1fr) 44px; }
-html:not(.navigation-ready) .site-header .site-nav {
+html:not(.js) .site-header .nav-toggle { display:none; }
+html:not(.js) .site-shell > .site-header { height:auto; grid-template-columns:minmax(0,1fr) 44px; }
+html:not(.js) .site-header .site-nav {
 display:flex; position:static; grid-column:1 / -1; grid-row:2;
 max-height:none; border:0; box-shadow:none;
 }
-html:not(.navigation-ready) .site-header .theme-toggle { grid-column:2; grid-row:1; }
+html:not(.js) .site-header .theme-toggle { grid-column:2; grid-row:1; }
 }
 @media (max-width:480px) {
 .site-header .brand { gap:8px; }
