@@ -156,6 +156,7 @@ export default function Dashboard({
     s = p.settings,
     m = s.selectedMonth,
     date = reportDate(p),
+    beforeMonth = date < `${m}-01`,
     full = planned(p, m),
     due = planned(p, m, date),
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
@@ -258,8 +259,12 @@ export default function Dashboard({
       </div>
       <ComparisonCharts />
       <Section
-        title="This month, side by side"
-        caption="Green means favourable. Actuals include only the transactions you enter."
+        title={`${monthLabel(m, true)}, side by side`}
+        caption={
+          beforeMonth
+            ? `Forecast only: the report date (${displayDate(date)}) is before this month. Date-based comparisons are not yet applicable. Full-month plan shows the expected budget.`
+            : 'Green means favourable. Actuals include only the transactions you enter.'
+        }
       >
         <div className="table-scroll">
           <table className="data-table comparison">
@@ -282,11 +287,12 @@ export default function Dashboard({
                       {label}
                     </td>
                     <td>{money(full[k])}</td>
-                    <td>{money(due[k])}</td>
-                    <td className="strong">{money(act[k])}</td>
-                    <td className={gap >= 0 ? 'favourable' : 'unfavourable'}>
-                      {gap > 0 ? '+' : ''}
-                      {money(gap)}
+                    <td>{beforeMonth ? 'Not yet applicable' : money(due[k])}</td>
+                    <td className="strong">{beforeMonth ? 'Not yet applicable' : money(act[k])}</td>
+                    <td
+                      className={beforeMonth ? 'muted' : gap >= 0 ? 'favourable' : 'unfavourable'}
+                    >
+                      {beforeMonth ? 'Not yet applicable' : `${gap > 0 ? '+' : ''}${money(gap)}`}
                     </td>
                   </tr>
                 );

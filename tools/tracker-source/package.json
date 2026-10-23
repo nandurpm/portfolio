@@ -1,7 +1,7 @@
 {
   "name": "savings-and-expense-tracker",
   "productName": "Savings and Expense Tracker",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Offline personal savings, expenses and loan planning",
   "author": "Nandakumar",
   "license": "MIT",
@@ -105,5 +105,10 @@
   },
   "engines": {
     "node": ">=24 <25"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
   }
 }
