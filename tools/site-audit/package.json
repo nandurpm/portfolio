@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-audit-tools",
+  "private": true,
+  "scripts": {
+    "browser": "node ../audit-browser.cjs",
+    "minify": "node minify.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1",
+    "axe-core": "4.10.3",
+    "lighthouse": "12.8.2",
+    "clean-css": "5.3.3",
+    "terser": "5.44.0",
+    "vnu-jar": "26.10.12"
+  }
+}
