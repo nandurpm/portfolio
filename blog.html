@@ -15,12 +15,11 @@ try {
   document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 </script>
-  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Technical articles and personal writing by Nandakumar M across engineering, electronics, technology, current affairs, cinema, and professional development.">
   <title>Articles | Nandakumar M</title>
-  <link rel="icon" href="assets/images/logo.ico">
   <style>
     .blog-hero-compact { padding: clamp(18px, 3vw, 34px); margin-bottom: 10px; }
     .blog-hero-compact .eyebrow { margin-bottom: 6px; }
@@ -36,33 +35,34 @@ try {
   <meta property="og:title" content="Articles | Nandakumar M">
   <meta property="og:description" content="Technical articles and personal writing by Nandakumar M across engineering, electronics, technology, current affairs, cinema, and professional development.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/blog.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.webp">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Articles | Nandakumar M">
   <meta name="twitter:description" content="Technical articles and personal writing by Nandakumar M across engineering, electronics, technology, current affairs, cinema, and professional development.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/profile.webp">
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin-400-normal.woff2" data-portfolio-font>
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin-800-normal.woff2" data-portfolio-font>
-  <link rel="stylesheet" href="assets/css/fonts.css">
-  <link rel="stylesheet" href="assets/css/content-pages.css">
-  <link rel="stylesheet" href="assets/css/theme.css">
-  <link rel="stylesheet" href="assets/css/animations.css">
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/polish.css">
-  <link rel="stylesheet" href="assets/css/reveal.css">
-  <link rel="stylesheet" href="assets/css/series.css">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="assets/css/portfolio.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <div class="site-shell blog-page">
     <header class="site-header glass">
       <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a class="active" href="blog.html" aria-current="page">Articles</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+      <button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="blog.html" class="active" aria-current="page">Articles</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <section class="page-hero glass blog-hero-compact" data-reveal="up">
         <p class="eyebrow">Field notes / 10 published articles</p>
         <h1>Writing from engineering practice.</h1>
@@ -78,102 +78,102 @@ try {
           <noscript><p style="color: var(--muted); margin: 12px 0;">All articles are listed on this page. Search and category filtering require JavaScript.</p></noscript>
           <!-- BLOG_POSTS_START -->
 <article class="blog-card" data-reveal="up" id="post-honest-software-boundaries" data-category="Technical Articles" data-search="what 26 engineering tools taught me about honest software boundaries practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access. technical articles engineering software local-first validation">
-            <img src="assets/images/archive-engineering-thumb.webp" alt="What 26 Engineering Tools Taught Me About Honest Software Boundaries" width="800" height="450" loading="lazy">
+            <img src="assets/images/archive-engineering-thumb.webp" alt="What 26 Engineering Tools Taught Me About Honest Software Boundaries" width="800" height="450" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">7 min read</span></div>
               <h2><a class="blog-card-link" href="blog/honest-software-boundaries.html">What 26 Engineering Tools Taught Me About Honest Software Boundaries</a></h2>
               <p>Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-08-31</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-08-31">31 Aug 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-engineering-design-reviews" data-category="Engineering" data-search="how i think about engineering design reviews a practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release. engineering design quality manufacturing">
-            <img src="assets/images/blog/blog-1.jpg" alt="How I Think About Engineering Design Reviews" width="601" height="401" loading="lazy">
+            <img src="assets/images/blog/blog-1.webp" alt="How I Think About Engineering Design Reviews" width="601" height="401" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Engineering</span><span class="pill">8 min read</span></div>
               <h2><a class="blog-card-link" href="blog/engineering-design-reviews.html">How I Think About Engineering Design Reviews</a></h2>
               <p>A practical checklist for reviewing design intent, manufacturability, quality risk, and field reliability before release.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-05-28</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-05-28">28 May 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-fast-static-portfolio" data-category="Technical Articles" data-search="building a fast static portfolio with github pages why a pure html, css, and javascript portfolio is still one of the fastest and most reliable ways to publish online. technical articles github pages html css">
-            <img src="assets/images/blog/blog-2.jpg" alt="Building a Fast Static Portfolio with GitHub Pages" width="601" height="401" loading="lazy">
+            <img src="assets/images/blog/blog-2.webp" alt="Building a Fast Static Portfolio with GitHub Pages" width="601" height="401" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">8 min read</span></div>
               <h2><a class="blog-card-link" href="blog/fast-static-portfolio.html">Building a Fast Static Portfolio with GitHub Pages</a></h2>
               <p>Why a pure HTML, CSS, and JavaScript portfolio is still one of the fastest and most reliable ways to publish online.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-05-21</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-05-21">21 May 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-cnc-precision" data-category="Engineering" data-search="what cnc operations taught me about precision lessons from production work that continue to influence how i approach drawings, inspection, and process discipline. engineering cnc process inspection">
-            <img src="assets/images/blog/blog-3.jpg" alt="What CNC Operations Taught Me About Precision" width="601" height="401" loading="lazy">
+            <img src="assets/images/blog/blog-3.webp" alt="What CNC Operations Taught Me About Precision" width="601" height="401" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Engineering</span><span class="pill">7 min read</span></div>
               <h2><a class="blog-card-link" href="blog/cnc-precision.html">What CNC Operations Taught Me About Precision</a></h2>
               <p>Lessons from production work that continue to influence how I approach drawings, inspection, and process discipline.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-05-12</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-05-12">12 May 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-current-affairs-technology-careers" data-category="Current Affairs" data-search="current affairs and technology careers a reflection on how global technology trends shape local engineering careers, learning choices, and long-term opportunities. current affairs technology career industry">
-            <img src="assets/images/blog/blog-4.jpg" alt="Current Affairs and Technology Careers" width="601" height="401" loading="lazy">
+            <img src="assets/images/blog/blog-4.webp" alt="Current Affairs and Technology Careers" width="601" height="401" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Current Affairs</span><span class="pill">7 min read</span></div>
               <h2><a class="blog-card-link" href="blog/current-affairs-technology-careers.html">Current Affairs and Technology Careers</a></h2>
               <p>A reflection on how global technology trends shape local engineering careers, learning choices, and long-term opportunities.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-04-29</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-04-29">29 Apr 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-movie-review-engineers-lens" data-category="Movie Reviews" data-search="a movie review through an engineer&#39;s lens looking at storytelling, systems thinking, and the small production details that make a movie feel believable. movie reviews movies review story">
-            <img src="assets/images/blog/blog-5.jpg" alt="A Movie Review Through an Engineer&#39;s Lens" width="600" height="391" loading="lazy">
+            <img src="assets/images/blog/blog-5.webp" alt="A Movie Review Through an Engineer&#39;s Lens" width="600" height="391" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Movie Reviews</span><span class="pill">6 min read</span></div>
               <h2><a class="blog-card-link" href="blog/movie-review-engineers-lens.html">A Movie Review Through an Engineer&#39;s Lens</a></h2>
               <p>Looking at storytelling, systems thinking, and the small production details that make a movie feel believable.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-04-16</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-04-16">16 Apr 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-documentation-professional-skill" data-category="Technical Articles" data-search="why documentation is a professional skill good documentation reduces repeated mistakes, helps teams align, and makes engineering decisions easier to audit. technical articles documentation teams quality">
-            <img src="assets/images/blog/blog-6.jpg" alt="Why Documentation Is a Professional Skill" width="600" height="394" loading="lazy">
+            <img src="assets/images/blog/blog-6.webp" alt="Why Documentation Is a Professional Skill" width="600" height="394" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Technical Articles</span><span class="pill">8 min read</span></div>
               <h2><a class="blog-card-link" href="blog/documentation-professional-skill.html">Why Documentation Is a Professional Skill</a></h2>
               <p>Good documentation reduces repeated mistakes, helps teams align, and makes engineering decisions easier to audit.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-03-31</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-03-31">31 Mar 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-politics-infrastructure-engineering" data-category="Politics" data-search="politics, infrastructure, and everyday engineering thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life. politics infrastructure policy public systems">
-            <img src="assets/images/blog/blog-4.jpg" alt="Politics, Infrastructure, and Everyday Engineering" width="601" height="401" loading="lazy">
+            <img src="assets/images/blog/blog-4.webp" alt="Politics, Infrastructure, and Everyday Engineering" width="601" height="401" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Politics</span><span class="pill">7 min read</span></div>
               <h2><a class="blog-card-link" href="blog/politics-infrastructure-engineering.html">Politics, Infrastructure, and Everyday Engineering</a></h2>
               <p>Thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-03-18</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-03-18">18 Mar 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-learning-new-technologies" data-category="Personal Writings" data-search="personal notes on learning new technologies how i keep learning practical tools while balancing work, curiosity, and long-term professional goals. personal writings learning career growth">
-            <img src="assets/images/blog/blog-5.jpg" alt="Personal Notes on Learning New Technologies" width="600" height="391" loading="lazy">
+            <img src="assets/images/blog/blog-5.webp" alt="Personal Notes on Learning New Technologies" width="600" height="391" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Personal Writings</span><span class="pill">7 min read</span></div>
               <h2><a class="blog-card-link" href="blog/learning-new-technologies.html">Personal Notes on Learning New Technologies</a></h2>
               <p>How I keep learning practical tools while balancing work, curiosity, and long-term professional goals.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-02-25</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-02-25">25 Feb 2026</time></div>
             </div>
           </article>
           <article class="blog-card" data-reveal="up" id="post-electronics-basics" data-category="Engineering" data-search="electronics basics that still matter a reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere. engineering electronics basics testing">
-            <img src="assets/images/blog/blog-6.jpg" alt="Electronics Basics That Still Matter" width="600" height="394" loading="lazy">
+            <img src="assets/images/blog/blog-6.webp" alt="Electronics Basics That Still Matter" width="600" height="394" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">Engineering</span><span class="pill">8 min read</span></div>
               <h2><a class="blog-card-link" href="blog/electronics-basics.html">Electronics Basics That Still Matter</a></h2>
               <p>A reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere.</p>
-              <div class="card-actions"><span aria-hidden="true">Read article ↗</span><span>2026-02-08</span></div>
+              <div class="card-actions"><span aria-hidden="true">Read article →</span><time datetime="2026-02-08">8 Feb 2026</time></div>
             </div>
           </article>
           <!-- BLOG_POSTS_END -->
         </div>
-        <div class="pagination" id="blogPagination" aria-label="Blog pagination"></div>
+        <div role="group" class="pagination" id="blogPagination" aria-label="Blog pagination"></div>
       </section>
     </main>
 
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span class="social-placeholder">LinkedIn — coming soon</span><!-- TODO: replace with real details: LinkedIn profile URL; turn this span into an external link and add it to Person.sameAs. --></nav></footer>
   </div>
 
   <script src="assets/js/theme.js"></script>

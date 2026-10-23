@@ -1,0 +1,20 @@
+{
+  "name": "Nandakumar M \u2014 Portfolio",
+  "short_name": "Nandakumar",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f6f3ef",
+  "theme_color": "#f6f3ef",
+  "icons": [
+    {
+      "src": "assets/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

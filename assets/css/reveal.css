@@ -1,14 +1,10 @@
+@media (prefers-reduced-motion: no-preference) {
 /*
  * FILE: reveal.css
  * FILE PURPOSE: Visual states, directions, timing variables, and reduced-motion behavior used by the scroll-reveal controller.
  */
 
-:root {
-  --reveal-duration: 700ms;
-  --reveal-delay: 0ms;
-  --reveal-distance: 40px;
-  --reveal-ease: cubic-bezier(.22,.61,.36,1);
-}
+
 
 [data-reveal] {
   --reveal-x: 0;
@@ -49,4 +45,6 @@
     transition: none !important;
     will-change: auto !important;
   }
+}
+
 }

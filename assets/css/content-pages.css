@@ -173,7 +173,7 @@
   border-left: 4px solid var(--brand);
   border-radius: 0 16px 16px 0;
   color: var(--heading);
-  background: rgba(56, 189, 248, 0.09);
+  background: rgb(var(--accent-rgb) / 0.09);
   font-size: 1.05rem;
   line-height: 1.75;
 }

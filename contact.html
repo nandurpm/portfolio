@@ -12,13 +12,12 @@ try {
   document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 </script>
-  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Contact Nandakumar M in Chennai about electrical engineering opportunities, technical projects, and professional collaboration.">
   <meta name="author" content="Nandakumar M">
   <title>Contact | Nandakumar M</title>
-  <link rel="icon" href="assets/images/logo.ico">
 
   <!-- PAGE_METADATA_START -->
   <link rel="canonical" href="https://nandakumarm.dpdns.org/contact.html">
@@ -26,33 +25,34 @@ try {
   <meta property="og:title" content="Contact | Nandakumar M">
   <meta property="og:description" content="Contact Nandakumar M in Chennai about electrical engineering opportunities, technical projects, and professional collaboration.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/contact.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/profile.webp">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Contact | Nandakumar M">
   <meta name="twitter:description" content="Contact Nandakumar M in Chennai about electrical engineering opportunities, technical projects, and professional collaboration.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/profile.webp">
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin-400-normal.woff2" data-portfolio-font>
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin-800-normal.woff2" data-portfolio-font>
-  <link rel="stylesheet" href="assets/css/fonts.css">
-  <link rel="stylesheet" href="assets/css/content-pages.css">
-  <link rel="stylesheet" href="assets/css/theme.css">
-  <link rel="stylesheet" href="assets/css/animations.css">
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/polish.css">
-  <link rel="stylesheet" href="assets/css/reveal.css">
-  <link rel="stylesheet" href="assets/css/series.css">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="assets/css/portfolio.css">
 </head>
 <body class="contact-page">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <div class="site-shell">
     <header class="site-header glass">
       <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a class="active" href="contact.html" aria-current="page">Contact</a></nav>
+      <button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a href="contact.html" class="active" aria-current="page">Contact</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <section class="page-hero glass contact-hero" data-reveal="up"><p class="eyebrow">Chennai, Tamil Nadu, India</p><h1>Let’s talk about a useful problem.</h1><p>For engineering opportunities, project discussions, or thoughtful collaborations, email is the most direct way to reach me.</p></section>
 
       <section class="section contact-layout" aria-labelledby="contact-title">
@@ -67,15 +67,15 @@ try {
         </form>
 
         <aside class="contact-panel" data-reveal="up" data-delay="100">
-          <article class="contact-card glass"><span class="contact-card-label">Email</span><h3>Direct contact</h3><a class="contact-direct" href="mailto:nandakumarmkdpm@gmail.com">nandakumarmkdpm@gmail.com</a><button class="btn ghost" id="copyEmail" type="button">Copy email address</button><p>You can also paste this address into your webmail. This form needs a configured email app.</p></article>
-          <article class="contact-card glass"><span class="contact-card-label">GitHub</span><h3>Public code &amp; projects</h3><a class="contact-direct" href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">github.com/nandurpm ↗</a></article>
-          <article class="contact-card glass"><span class="contact-card-label">Résumé</span><h3>Experience at a glance</h3><a class="contact-direct" href="assets/files/resume.pdf" download>Download PDF ↓</a></article>
+          <article class="contact-card glass"><span class="contact-card-label">Email</span><h2>Direct contact</h2><a class="contact-direct" href="mailto:nandakumarmkdpm@gmail.com">nandakumarmkdpm@gmail.com</a><button class="btn ghost" id="copyEmail" type="button">Copy email address</button><p>You can also paste this address into your webmail. This form needs a configured email app.</p></article>
+          <article class="contact-card glass"><span class="contact-card-label">GitHub</span><h2>Public code &amp; projects</h2><a class="contact-direct" href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">github.com/nandurpm ↗</a></article>
+          <article class="contact-card glass"><span class="contact-card-label">Résumé</span><h2>Experience at a glance</h2><a class="contact-direct" href="assets/files/resume.pdf" download>Download PDF ↓</a></article>
           <p class="availability-note"><span class="status-dot"></span>Based in Chennai and open to professional conversations.</p>
         </aside>
       </section>
     </main>
 
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span class="social-placeholder">LinkedIn — coming soon</span><!-- TODO: replace with real details: LinkedIn profile URL; turn this span into an external link and add it to Person.sameAs. --></nav></footer>
   </div>
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/main.js"></script>

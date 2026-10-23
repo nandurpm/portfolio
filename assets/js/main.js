@@ -1,49 +1,12 @@
 /* Shared progressive enhancements; content is rendered at build time. */
 
-function setupTyping() {
-  const target = document.querySelector("[data-typing]");
-  if (!target) return;
-  target.setAttribute("aria-hidden", "true");
-  let words;
-  try {
-    words = JSON.parse(target.dataset.typing);
-  } catch {
-    return;
-  }
-  if (!Array.isArray(words) || !words.length) return;
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    target.textContent = String(words[0]);
-    return;
-  }
-
-  let wordIndex = 0;
-  let charIndex = 0;
-  let deleting = false;
-  const tick = () => {
-    const word = String(words[wordIndex]);
-    target.textContent = word.slice(0, charIndex);
-    if (!deleting && charIndex < word.length) charIndex += 1;
-    else if (deleting && charIndex > 0) charIndex -= 1;
-    else if (!deleting) {
-      deleting = true;
-      window.setTimeout(tick, 1200);
-      return;
-    } else {
-      deleting = false;
-      wordIndex = (wordIndex + 1) % words.length;
-    }
-    window.setTimeout(tick, deleting ? 45 : 85);
-  };
-  tick();
-}
-
 function setupNavigation() {
   const toggle = document.querySelector(".nav-toggle");
   const nav = document.querySelector(".site-nav");
   if (!toggle || !nav) return;
 
-  const close = () => {
+  const close = (restoreFocus = false) => {
+    if (restoreFocus && toggle.getAttribute('aria-expanded') === 'true') toggle.focus();
     toggle.setAttribute("aria-expanded", "false");
     nav.classList.remove("open");
   };
@@ -56,7 +19,7 @@ function setupNavigation() {
   });
   nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", close));
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") close();
+    if (event.key === "Escape") close(true);
   });
 }
 
@@ -109,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     item.textContent = new Date().getFullYear();
   });
   setupNavigation();
-  setupTyping();
   setupContactForm();
 
   if (window.location.hash) {

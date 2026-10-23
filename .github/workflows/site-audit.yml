@@ -1,0 +1,51 @@
+name: Static portfolio audit
+on:
+  push:
+    branches: [site-audit-fixes]
+    paths: ['**/*.html', 'assets/**', 'scripts/**', 'tools/**', '.github/workflows/site-audit.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: site-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Install audit-only dependencies
+        run: |
+          npm install --prefix tools/site-audit --ignore-scripts --no-audit --no-fund
+          npx --prefix tools/site-audit playwright install --with-deps chromium
+
+      - name: Static HTML, assets and syntax
+        run: |
+          python3 tools/audit_links.py
+          find . -name '*.html' -not -path './.git/*' -not -path './.cache/*' -not -path './tools/*' -not -path './admin/*' -not -path './track/*' -not -path './scripts/*' -print0 | xargs -0 java -jar tools/site-audit/node_modules/vnu-jar/build/dist/vnu.jar --errors-only
+          for file in assets/js/*.js scripts/*.mjs; do node --check "$file"; done
+          git diff --check
+      - name: Viewports, themes, navigation and accessibility
+        run: node tools/audit-browser.cjs
+      - name: Comparable before and after Lighthouse mobile audits
+        if: always()
+        run: |
+          mkdir -p .cache/audit /tmp/portfolio-baseline
+          git archive 963d9d3932a1b35c0b8e4dbcd31043f208cd5a58 | tar -x -C /tmp/portfolio-baseline
+          python3 -m http.server 8123 --directory . > /tmp/portfolio-after-server.log 2>&1 &
+          python3 -m http.server 8124 --directory /tmp/portfolio-baseline > /tmp/portfolio-before-server.log 2>&1 &
+          export CHROME_PATH=$(node -p "require('./tools/site-audit/node_modules/playwright').chromium.executablePath()")
+          tools/site-audit/node_modules/.bin/lighthouse http://127.0.0.1:8124/ --chrome-flags='--headless --no-sandbox' --output=json --output-path=.cache/audit/lighthouse-before.json --quiet
+          tools/site-audit/node_modules/.bin/lighthouse http://127.0.0.1:8123/ --chrome-flags='--headless --no-sandbox' --output=json --output-path=.cache/audit/lighthouse-after.json --quiet
+          node -e "for(const v of ['before','after']){const r=require('./.cache/audit/lighthouse-'+v+'.json');console.log(v,Object.fromEntries(Object.entries(r.categories).map(([k,x])=>[k,Math.round(x.score*100)])))}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portfolio-audit-results
+          path: .cache/audit/

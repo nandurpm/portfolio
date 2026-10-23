@@ -15,7 +15,7 @@ try {
   document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 </script>
-  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Practical lessons from publishing 26 engineering tools with clear boundaries around local data, synthetic reports, hosted demos, and hardware access.">
@@ -29,7 +29,6 @@ try {
   <meta name="post-tags" content="engineering software, local-first, validation">
   <meta name="post-image" content="../archive-engineering-hero.webp">
   <title>What 26 Engineering Tools Taught Me About Honest Software Boundaries | Nandakumar M</title>
-  <link rel="icon" href="../assets/images/logo.ico">
 
   <!-- PAGE_METADATA_START -->
   <link rel="canonical" href="https://nandakumarm.dpdns.org/blog/honest-software-boundaries.html">
@@ -37,40 +36,41 @@ try {
   <meta property="og:title" content="What 26 Engineering Tools Taught Me About Honest Software Boundaries | Nandakumar M">
   <meta property="og:description" content="Practical lessons from publishing 26 engineering tools with clear boundaries around local data, synthetic reports, hosted demos, and hardware access.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/blog/honest-software-boundaries.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/archive-engineering-hero.webp">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="What 26 Engineering Tools Taught Me About Honest Software Boundaries | Nandakumar M">
   <meta name="twitter:description" content="Practical lessons from publishing 26 engineering tools with clear boundaries around local data, synthetic reports, hosted demos, and hardware access.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/archive-engineering-hero.webp">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What 26 Engineering Tools Taught Me About Honest Software Boundaries","description":"Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.","datePublished":"2026-08-31","image":["https://nandakumarm.dpdns.org/assets/images/archive-engineering-hero.webp"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/honest-software-boundaries.html"}</script>
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What 26 Engineering Tools Taught Me About Honest Software Boundaries","description":"Practical lessons from publishing engineering tools that clearly separate local analysis, synthetic demonstrations, hosted reports, and real hardware access.","datePublished":"2026-08-31","image":["https://nandakumarm.dpdns.org/assets/images/og-card.png"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/honest-software-boundaries.html"}</script>
   <!-- PAGE_METADATA_END -->
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../assets/fonts/inter-latin-400-normal.woff2" data-portfolio-font>
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../assets/fonts/inter-latin-800-normal.woff2" data-portfolio-font>
-  <link rel="stylesheet" href="../assets/css/fonts.css">
-  <link rel="stylesheet" href="../assets/css/content-pages.css">
-  <link rel="stylesheet" href="../assets/css/theme.css">
-  <link rel="stylesheet" href="../assets/css/animations.css">
-  <link rel="stylesheet" href="../assets/css/main.css">
-  <link rel="stylesheet" href="../assets/css/polish.css">
-  <link rel="stylesheet" href="../assets/css/reveal.css">
-  <link rel="stylesheet" href="../assets/css/series.css">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="stylesheet" href="../assets/css/portfolio.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <div class="site-shell">
     <header class="site-header glass">
       <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical &amp; Electronics Design Engineer</small></span></a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="site-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a class="active" href="../blog.html" aria-current="page">Blog</a><a href="../about.html">About</a></nav>
+      <button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../projects.html">Projects</a><a href="../blog.html" class="active" aria-current="page">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav>
       <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <article class="blog-article">
         <header class="article-header">
           <p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p>
           <h1>What 26 Engineering Tools Taught Me About Honest Software Boundaries</h1>
-          <div class="article-meta"><time datetime="2026-08-31">August 31, 2026</time><span>7 min read</span><span>Technical Articles</span></div>
-          <img src="../assets/images/archive-engineering-hero.webp" alt="Engineering desk with electronics, test equipment, documentation, and a laptop" class="article-image" width="1280" height="720">
+          <div class="article-meta"><time datetime="2026-08-31">31 Aug 2026</time><span>7 min read</span><span>Technical Articles</span></div>
+          <img src="../assets/images/archive-engineering-hero.webp" alt="Engineering desk with electronics, test equipment, documentation, and a laptop" class="article-image" width="1280" height="720" decoding="async" loading="lazy">
         </header>
 
         <div class="article-content">
@@ -125,7 +125,7 @@ try {
       </article>
     </main>
 
-    <footer class="site-footer"><p>&copy; <span data-year></span> Nandakumar M.</p><div><a href="mailto:nandakumarmkdpm@gmail.com">Email</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub</a></div></footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span class="social-placeholder">LinkedIn — coming soon</span><!-- TODO: replace with real details: LinkedIn profile URL; turn this span into an external link and add it to Person.sameAs. --></nav></footer>
   </div>
   <script src="../assets/js/theme.js"></script><script src="../assets/js/main.js"></script>
   <script src="../assets/js/reveal.js"></script>

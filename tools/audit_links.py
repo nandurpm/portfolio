@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,12 +18,21 @@ class PageParser(HTMLParser):
         self.ids: list[tuple[str, int]] = []
         self.title = ""
         self.description = ""
+        self.images = []
+        self.headings = []
+        self.lang = None
+        self.external = []
         self._in_title = False
         self._title_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attrs_dict = dict(attrs)
         line = self.getpos()[0]
+        if tag == 'html': self.lang = attrs_dict.get('lang')
+        if tag in ('h1','h2','h3','h4','h5','h6'): self.headings.append(int(tag[1]))
+        if tag == 'img': self.images.append((attrs_dict, line))
+        if tag == 'a' and (attrs_dict.get('href') or '').startswith(('http://','https://')):
+            self.external.append((attrs_dict, line))
         if "id" in attrs_dict and attrs_dict["id"]:
             self.ids.append((attrs_dict["id"] or "", line))
         for attr in ("href", "src"):
@@ -70,9 +79,25 @@ def main() -> None:
     duplicate_ids: list[tuple[str, str, list[int]]] = []
     metadata: list[tuple[str, str, bool]] = []
 
+    semantic = []
     for page in html_files:
         parser = PageParser()
         parser.feed(page.read_text(encoding="utf-8"))
+        relative = page.relative_to(ROOT)
+        public = not {'admin','track','templates'}.intersection(relative.parts)
+        if public:
+            if parser.lang != 'en': semantic.append(f'{relative}: expected lang=en')
+            if parser.headings.count(1) != 1: semantic.append(f'{relative}: expected one H1')
+            previous = 0
+            for level in parser.headings:
+                if level > previous + 1: semantic.append(f'{relative}: skipped heading level')
+                previous = level
+            for image, line in parser.images:
+                if not all(key in image for key in ('alt','width','height','decoding')):
+                    semantic.append(f'{relative}:{line}: missing image attributes')
+            for link, line in parser.external:
+                if link.get('target') != '_blank' or not {'noopener','noreferrer'}.issubset(set((link.get('rel') or '').split())):
+                    semantic.append(f'{relative}:{line}: external link attributes')
         seen: dict[str, list[int]] = {}
         for value, line in parser.ids:
             seen.setdefault(value, []).append(line)
@@ -84,6 +109,14 @@ def main() -> None:
         for attr, ref, line in parser.refs:
             if 'templates/' in str(page.relative_to(ROOT)) and 'replace-with-url-slug' in ref:
                 continue
+            parsed = urlparse(ref)
+            if public and attr == 'href' and parsed.fragment and not parsed.scheme and not parsed.netloc:
+                anchor_page = resolve_local(page, ref) if parsed.path else page
+                if anchor_page and anchor_page.is_file() and anchor_page.suffix == '.html':
+                    target_parser = PageParser()
+                    target_parser.feed(anchor_page.read_text(encoding='utf-8'))
+                    if unquote(parsed.fragment) not in {value for value, _ in target_parser.ids}:
+                        semantic.append(f'{relative}:{line}: missing anchor {ref}')
             target = resolve_local(page, ref)
             if target is not None and not target.exists():
                 missing.append((str(page.relative_to(ROOT)), line, attr, ref))
@@ -101,7 +134,9 @@ def main() -> None:
         if not title or not has_description:
             print(f"  {page}: title={title!r}, meta_description={has_description}")
 
-    if missing or duplicate_ids:
+    print('Public-page semantics/anchors:', len(semantic))
+    for issue in semantic: print('  ' + issue)
+    if missing or duplicate_ids or semantic:
         raise SystemExit(1)
 
 
