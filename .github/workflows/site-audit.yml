@@ -1,7 +1,7 @@
 name: Static portfolio audit
 on:
   push:
-    branches: [site-audit-fixes, restore-series-theme, fix-shared-navigation]
+    branches: [site-audit-fixes, restore-series-theme, fix-shared-navigation, improve-about-portrait]
     paths: ['**/*.html', 'assets/**', 'scripts/**', 'tools/**', '.github/workflows/site-audit.yml']
   workflow_dispatch:
 permissions:
