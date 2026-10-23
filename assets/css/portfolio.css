@@ -2166,6 +2166,11 @@ margin-inline:calc(-1 * var(--page-gutter)); height:clamp(300px,60vw,520px); z-i
 @media (max-width:480px) {
 .series-about .hero-profile-section .quick-stats { grid-template-columns:1fr; }
 }
+.series-about .site-shell .page-hero { padding:clamp(20px,3vw,28px); }
+.series-about .site-shell .page-hero .breadcrumb { font-size:.8rem; margin-bottom:12px; }
+.series-about .site-shell .page-hero .eyebrow { font-size:.7rem; margin:0 0 10px; }
+.series-about .site-shell .page-hero h1 { font-size:clamp(1.4rem,2.4vw,2rem); line-height:1.25; max-width:32ch; margin:0 0 16px; }
+.series-about .site-shell .page-hero p:not(.eyebrow) { font-size:.925rem; line-height:1.7; max-width:78ch; margin:0; }
 html { scrollbar-gutter:stable; scroll-padding-top:calc(var(--header-height) + var(--space-4)); }
 html body .site-shell > .site-header {
 position:sticky; top:0; z-index:100; isolation:isolate;

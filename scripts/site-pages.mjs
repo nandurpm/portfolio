@@ -86,7 +86,7 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/\s*<link[^>]+(?:rel="icon"|rel="apple-touch-icon"|rel="manifest")[^>]*>/g, '');
   const icons = `  <link rel="icon" href="${prefix}favicon.ico" sizes="any">\n  <link rel="icon" type="image/png" sizes="32x32" href="${prefix}assets/images/favicon-32.png">\n  <link rel="apple-touch-icon" sizes="180x180" href="${prefix}assets/images/apple-touch-icon.png">\n  <link rel="manifest" href="${prefix}manifest.webmanifest">`;
   const heroPreload = relativePath === 'index.html' ? '\n  <link rel="preload" as="image" href="assets/images/profile-hq-1673.webp" imagesrcset="assets/images/profile-hq-480.webp 480w, assets/images/profile-hq-768.webp 768w, assets/images/profile-hq-1200.webp 1200w, assets/images/profile-hq-1673.webp 1673w" imagesizes="(max-width: 760px) 100vw, (max-width: 1680px) 85vw, 1400px" fetchpriority="high">' : '';
-  const links = ['portfolio'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css?v=about-portrait-20261023">`).join('\n');
+  const links = ['portfolio'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css?v=${relativePath === 'about.html' ? 'about-intro-20261023' : 'about-portrait-20261023'}">`).join('\n');
   html = html.replace(/\s*<link rel="stylesheet" href="assets\/css\/about\.css">/g, '');
   return html.replace('</head>', `${metadata}${icons}${heroPreload}\n${links}\n</head>`).replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n');
 }
