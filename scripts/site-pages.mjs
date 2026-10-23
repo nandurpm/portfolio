@@ -20,7 +20,7 @@ export function normalizePage(source, relativePath, post) {
     .replace(/\s*<link rel="canonical"[^>]*>/gi, '')
     .replace(/\s*<meta (?:property="og:[^"]+"|name="twitter:[^"]+")[^>]*>/gi, '')
     .replace(/\s*<link[^>]+(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>/gi, '')
-    .replace(/\s*<link rel="stylesheet" href="(?:\.\.\/|\/)?assets\/css\/(?:fonts|content-pages|theme|animations|main|polish|reveal|series)\.css">/g, '')
+    .replace(/\s*<link rel="stylesheet" href="(?:\.\.\/|\/)?assets\/css\/(?:fonts|content-pages|theme|animations|main|polish|reveal|series|portfolio)\.css">/g, '')
     .replace(/\s*<script data-theme-bootstrap>[\s\S]*?<\/script>/g, '')
     .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: dark\)")/g, '$1#17272a$2')
     .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: light\)")/g, '$1#f6f3ef$2');
@@ -48,11 +48,12 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/<span>(\d{4}-\d{2}-\d{2})<\/span>/g, (_, value) => `<time datetime="${value}">${dateText(value)}</time>`);
   // Keep original JPG files available at their established URLs.
   html = html.replace(/(assets\/images\/blog\/blog-\d+)\.jpg/g, '$1.webp');
+  html = html.replaceAll('profile-480.webp 480w, assets/images/profile.webp 900w', 'profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w');
   html = html.replace(/<img\b([^>]*)>/gi, (_, attrs) => {
     if (!/\bdecoding=/.test(attrs)) attrs += ' decoding="async"';
     const isHero = relativePath === 'index.html' && /profile\.webp/.test(attrs);
     if (isHero) {
-      if (!/\bsrcset=/.test(attrs)) attrs += ' srcset="assets/images/profile-480.webp 480w, assets/images/profile.webp 900w" sizes="(max-width: 760px) 100vw, 48vw"';
+      if (!/\bsrcset=/.test(attrs)) attrs += ' srcset="assets/images/profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w" sizes="(max-width: 760px) 100vw, 48vw"';
     } else if (!/fetchpriority="high"/.test(attrs) && !/\bloading=/.test(attrs)) attrs += ' loading="lazy"';
     return `<img${attrs}>`;
   });
@@ -75,8 +76,8 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/\s*<link rel="preload"[^>]*data-portfolio-font[^>]*>/g, '');
   html = html.replace(/\s*<link[^>]+(?:rel="icon"|rel="apple-touch-icon"|rel="manifest")[^>]*>/g, '');
   const icons = `  <link rel="icon" href="${prefix}favicon.ico" sizes="any">\n  <link rel="icon" type="image/png" sizes="32x32" href="${prefix}assets/images/favicon-32.png">\n  <link rel="apple-touch-icon" sizes="180x180" href="${prefix}assets/images/apple-touch-icon.png">\n  <link rel="manifest" href="${prefix}manifest.webmanifest">`;
-  const heroPreload = relativePath === 'index.html' ? '\n  <link rel="preload" as="image" href="assets/images/profile.webp" imagesrcset="assets/images/profile-480.webp 480w, assets/images/profile.webp 900w" imagesizes="(max-width: 760px) 100vw, 48vw" fetchpriority="high">' : '';
-  const links = ['fonts','content-pages','theme','animations','main','polish','reveal'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css">`).join('\n');
+  const heroPreload = relativePath === 'index.html' ? '\n  <link rel="preload" as="image" href="assets/images/profile.webp" imagesrcset="assets/images/profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w" imagesizes="(max-width: 760px) 100vw, 48vw" fetchpriority="high">' : '';
+  const links = ['portfolio'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css">`).join('\n');
   html = html.replace(/\s*<link rel="stylesheet" href="assets\/css\/about\.css">/g, '');
-  return html.replace('</head>', `${metadata}${icons}${heroPreload}\n${links}${relativePath === 'about.html' ? '\n  <link rel="stylesheet" href="assets/css/about.css">' : ''}\n  <link rel="stylesheet" href="${prefix}assets/css/series.css">\n</head>`).replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n');
+  return html.replace('</head>', `${metadata}${icons}${heroPreload}\n${links}\n</head>`).replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n');
 }
