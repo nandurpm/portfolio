@@ -148,3 +148,9 @@ html body .site-shell > .site-header { top:0; margin:0 0 var(--space-5); min-hei
 }
 
 @media (prefers-reduced-motion:reduce) { .site-shell *:hover { transform:none !important; } }
+.pagination button { min-width:44px; min-height:44px; }
+@media (max-width:760px) {
+  .series-home .site-shell .profile-frame { aspect-ratio:auto; }
+  .series-home .profile-frame > img { height:auto; aspect-ratio:16/10; }
+  .series-home .profile-caption { position:static; padding:var(--space-4); border-top:1px solid var(--border); border-radius:0; }
+}

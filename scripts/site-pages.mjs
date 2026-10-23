@@ -29,6 +29,7 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/<html(?:\s+lang="[^"]*")?>/i, '<html lang="en">');
   // A single literal sentence avoids duplication in text extraction and screen readers.
   html = html.replace(/<main(?![^>]*\bid=)([^>]*)>/, '<main id="main-content" tabindex="-1"$1>');
+  html = html.replace(/<main(?![^>]*\btabindex=)([^>]*)>/, '<main tabindex="-1"$1>');
   const mainId = html.match(/<main[^>]*id="([^"]+)"/)?.[1] || 'main-content';
   html = html.replace(/<a class="skip-link"[^>]*>[\s\S]*?<\/a>/g, '');
   html = html.replace(/(<body[^>]*>)/, `$1\n  <a class="skip-link" href="#${mainId}">Skip to main content</a>`);

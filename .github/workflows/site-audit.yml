@@ -2,9 +2,13 @@ name: Static portfolio audit
 on:
   push:
     branches: [site-audit-fixes]
+    paths: ['**/*.html', 'assets/**', 'scripts/**', 'tools/**', '.github/workflows/site-audit.yml']
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: site-audit-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   audit:
     runs-on: ubuntu-latest

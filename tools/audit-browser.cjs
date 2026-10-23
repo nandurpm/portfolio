@@ -23,11 +23,11 @@ const server=http.createServer((req,res)=>{
  try{
  for(const theme of report.themes){
   const ctx=await browser.newContext({colorScheme:theme,reducedMotion:'reduce'});
-  const page=await ctx.newPage();const runtime=[];page.on('pageerror',e=>runtime.push(String(e)));
+  const page=await ctx.newPage();const runtime=[];page.on('pageerror',e=>runtime.push(String(e)));page.on('console',m=>{if(m.type()==='error')runtime.push(m.text());});page.on('response',r=>{if(r.status()>=400)runtime.push('HTTP '+r.status()+' '+r.url());});
   for(const width of report.widths){
    await page.setViewportSize({width,height:950});
    for(const url of pages){
-    await page.goto(`${base}/${url}`,{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
+    await page.goto(`${base}/${url}`,{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);await page.locator('img').evaluateAll(images=>images.forEach(i=>{i.loading='eager';}));await page.waitForFunction(()=>[...document.images].every(i=>i.complete));
     const issues=await page.evaluate(()=>{
       const errors=[];
       if(document.documentElement.scrollWidth>innerWidth+1)errors.push('horizontal overflow');
