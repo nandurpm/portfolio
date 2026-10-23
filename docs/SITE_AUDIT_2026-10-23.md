@@ -114,7 +114,7 @@ No new API key, credential, account connection, certification or employer detail
 - Separated the existing name and Engineering Series title and added the requested plain role line.
 - Removed only this requested homepage sentence: “Repository visibility is respected: only public projects appear here.”
 - Hid zero-star badge content and removed duplicate cover language labels; nonzero counts and every underlying project record remain.
-- Replaced raw/short dates with equivalent human-readable dates, preserving the source machine date.
+- Replaced raw/short dates with equivalent human-readable dates, preserving the source machine date. The no-JavaScript catalog count is now derived from the same project data (33 rather than the stale 32).
 - Removed meta-keyword tags.
 - Moved the homepage footer’s Expense and Savings Tracker link to a Projects card. Tracker information-page footer links also have an in-content destination; privacy and app-support links remain.
 - Replaced footer label “Email” with “Email Nandakumar”; removed the homepage footer sentence “Built with HTML, CSS, and JavaScript.” and the legacy project-page footer text “Built for GitHub Pages.” The stack and hosting remain documented in README.

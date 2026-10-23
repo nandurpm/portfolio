@@ -164,6 +164,8 @@ const moreRepositories = repositories.filter((repository) => !featuredNames.has(
 
 replaceBlock('projects.html', 'PROJECTS_START', 'PROJECTS_END', projects.map(projectCard).join('\n'));
 replaceBlock('projects.html', 'MORE_PROJECTS_START', 'MORE_PROJECTS_END', moreRepositories.map(repositoryCard).join('\n'));
+const projectsPage = path.join(ROOT, 'projects.html');
+fs.writeFileSync(projectsPage, fs.readFileSync(projectsPage, 'utf8').replace(/(<p[^>]*id="projectResults"[^>]*>)\d+ public projects(<\/p>)/, `$1${projects.length + moreRepositories.length} public projects$2`));
 replaceBlock('index.html', 'FEATURED_PROJECTS_START', 'FEATURED_PROJECTS_END', projects.slice(0, 4).map(projectCard).join('\n'));
 replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', posts.map((post) => blogCard(post, 'h2')).join('\n'));
 replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', posts.slice(0, 3).map((post) => blogCard(post)).join('\n'));
