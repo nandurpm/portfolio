@@ -117,7 +117,7 @@ No new API key, credential, account connection, certification or employer detail
 - Replaced raw/short dates with equivalent human-readable dates, preserving the source machine date.
 - Removed meta-keyword tags.
 - Moved the homepage footer’s Expense and Savings Tracker link to a Projects card. Tracker information-page footer links also have an in-content destination; privacy and app-support links remain.
-- Replaced footer label “Email” with “Email Nandakumar”; removed the homepage footer sentence “Built with HTML, CSS, and JavaScript.” The stack remains documented in README.
+- Replaced footer label “Email” with “Email Nandakumar”; removed the homepage footer sentence “Built with HTML, CSS, and JavaScript.” and the legacy project-page footer text “Built for GitHub Pages.” The stack and hosting remain documented in README.
 - Normalized the nav label “Blog” to “Articles” and added missing Contact entries without removing destinations.
 - Replaced the crimson/charcoal design rules and native horizontal project rail with teal/paper styling and responsive grids. Removed unused presentation/deck/demo CSS, not authored page content.
 - No existing page, article, project, original image, public route or filename is deleted. JPG and historical font/style assets remain accessible for compatibility.
@@ -165,3 +165,7 @@ Observed with HTTP GET requests on 23 October 2026, 18-second timeout. These are
 | https://system-change-tracker.onrender.com | Timed out; not verified |
 | https://tech-calc.onrender.com | Timed out; not verified |
 | https://wifi-heatmap.onrender.com | Timed out; not verified |
+
+## Concurrent main-branch update
+
+Main commit `08a32077b691c00419de327590f9f7b46e0f2f44` improved the hero photo visibility during this audit. The branch incorporates it: the new layout uses an unobscured, fully opaque portrait column and retains its contrast/saturation adjustment. The old text-over-image gradients no longer apply because text has its own column. The conflict was resolved without discarding the visibility intent.

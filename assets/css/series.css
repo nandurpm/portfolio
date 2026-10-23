@@ -58,7 +58,7 @@ html body .site-shell > .site-header { top:0; margin:0 0 var(--space-5); min-hei
 .series-home .site-shell .hero-text { max-width:var(--copy-measure); font-size:var(--text-base); }
 .series-home .site-shell .hero-visual { position:relative; inset:auto; min-height:0; width:100%; align-self:center; }
 .series-home .site-shell .profile-frame { width:100%; height:auto; aspect-ratio:4/5; padding:0; border:0; border-radius:var(--radius-lg); background:var(--surface); box-shadow:var(--shadow); overflow:hidden; }
-.series-home .profile-frame > img { width:100%; height:100%; object-fit:cover; object-position:68% center; border-radius:0; }
+.series-home .profile-frame > img { width:100%; height:100%; object-fit:cover; object-position:68% center; border-radius:0; filter:contrast(1.08) saturate(1.12); }
 .series-home .profile-frame::after { display:none; }
 .series-home .profile-caption { right:var(--space-4); left:var(--space-4); bottom:var(--space-4); padding:var(--space-3); border:0; border-radius:var(--radius-sm); background:var(--bg); color:var(--heading); box-shadow:none; backdrop-filter:none; }
 .series-home .profile-caption small { color:var(--muted); font-size:var(--text-xs); }
