@@ -15,13 +15,12 @@ try {
   document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 </script>
-  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Electronics Lab Tracker - Electronics Project">
   <meta name="author" content="Nandakumar M">
   <title>Electronics Lab Tracker | Nandakumar M</title>
-  <link rel="icon" href="../assets/images/logo.ico">
 
   <!-- PAGE_METADATA_START -->
   <link rel="canonical" href="https://nandakumarm.dpdns.org/works/technical-documentation.html">
@@ -29,14 +28,20 @@ try {
   <meta property="og:title" content="Electronics Lab Tracker | Nandakumar M">
   <meta property="og:description" content="Electronics Lab Tracker - Electronics Project">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/works/technical-documentation.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/works/project-4.png">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Electronics Lab Tracker | Nandakumar M">
   <meta name="twitter:description" content="Electronics Lab Tracker - Electronics Project">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/works/project-4.png">
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../assets/fonts/inter-latin-400-normal.woff2" data-portfolio-font>
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../assets/fonts/inter-latin-800-normal.woff2" data-portfolio-font>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="../manifest.webmanifest">
   <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/content-pages.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
@@ -47,6 +52,8 @@ try {
   <link rel="stylesheet" href="../assets/css/series.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <div class="site-shell">
     <header class="site-header glass">
       <a class="brand" href="../index.html">
@@ -56,10 +63,10 @@ try {
           <small>Designing and Development Engineer</small>
         </span>
       </a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+      <button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <nav class="site-nav" aria-label="Main navigation">
+      <nav class="site-nav" id="main-navigation" aria-label="Main navigation">
         <a href="../index.html">Home</a>
         <a class="active" href="../projects.html">Projects</a>
         <a href="../blog.html">Blog</a>
@@ -70,7 +77,7 @@ try {
       </button>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <section class="section-grid" style="padding: 80px 0;">
         <div style="max-width: 800px;">
           <p class="eyebrow"><a href="../projects.html">← Back to Projects</a></p>
@@ -81,11 +88,11 @@ try {
             <span class="badge">Documentation</span>
             <span class="badge">Reports</span>
           </div>
-          <img src="../assets/images/works/project-4.png" alt="Electronics Lab Tracker" style="width: 100%; border-radius: 8px; margin: 40px 0;" width="600" height="450">
-          
+          <img src="../assets/images/works/project-4.png" alt="Electronics Lab Tracker" style="width: 100%; border-radius: 8px; margin: 40px 0;" width="600" height="450" decoding="async" loading="lazy">
+
           <h2>Overview</h2>
           <p>A sample lab tracking system for organizing circuits, test readings, observations, and maintenance tasks for electronics workflows. This project emphasizes systematic record-keeping in experimental work.</p>
-          
+
           <h2>Key Components</h2>
           <ul>
             <li>Circuit inventory and schematic documentation</li>
@@ -94,28 +101,22 @@ try {
             <li>Maintenance schedule and component life tracking</li>
             <li>Troubleshooting notes and failure analysis</li>
           </ul>
-          
+
           <h2>Workflow Integration</h2>
           <p>Designed to support both individual experimentation and team collaboration. Templates reduce setup time and ensure consistent documentation across different projects and personnel.</p>
-          
+
           <h2>Data Organization</h2>
           <p>Structured filing system that makes past experiments retrievable and comparable, supporting continuous improvement in testing methodology and circuit design validation.</p>
-          
+
           <div style="margin-top: 40px; display: flex; gap: 20px;">
-            <a class="btn primary" href="https://github.com/nandurpm" target="_blank" rel="noopener">View on GitHub</a>
+            <a class="btn primary" href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">View on GitHub</a>
             <a class="btn ghost" href="../assets/data/works.json" download>Download Data</a>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div>
-        <a href="mailto:nandakumarmkdpm@gmail.com">Email</a>
-        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span class="social-placeholder">LinkedIn — coming soon</span><!-- TODO: replace with real details: LinkedIn profile URL; turn this span into an external link and add it to Person.sameAs. --></nav></footer>
   </div>
 
   <script src="../assets/js/theme.js"></script>

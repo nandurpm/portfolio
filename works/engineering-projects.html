@@ -15,13 +15,12 @@ try {
   document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 </script>
-  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Smart Portfolio Dashboard - Engineering Design Project">
   <meta name="author" content="Nandakumar M">
   <title>Engineering Projects | Nandakumar M</title>
-  <link rel="icon" href="../assets/images/logo.ico">
 
   <!-- PAGE_METADATA_START -->
   <link rel="canonical" href="https://nandakumarm.dpdns.org/works/engineering-projects.html">
@@ -29,14 +28,20 @@ try {
   <meta property="og:title" content="Engineering Projects | Nandakumar M">
   <meta property="og:description" content="Smart Portfolio Dashboard - Engineering Design Project">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/works/engineering-projects.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/works/project-1.jpg">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Engineering Projects | Nandakumar M">
   <meta name="twitter:description" content="Smart Portfolio Dashboard - Engineering Design Project">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/works/project-1.jpg">
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../assets/fonts/inter-latin-400-normal.woff2" data-portfolio-font>
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../assets/fonts/inter-latin-800-normal.woff2" data-portfolio-font>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="../manifest.webmanifest">
   <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/content-pages.css">
   <link rel="stylesheet" href="../assets/css/theme.css">
@@ -47,6 +52,8 @@ try {
   <link rel="stylesheet" href="../assets/css/series.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <div class="site-shell">
     <header class="site-header glass">
       <a class="brand" href="../index.html">
@@ -56,10 +63,10 @@ try {
           <small>Designing and Development Engineer</small>
         </span>
       </a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+      <button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <nav class="site-nav" aria-label="Main navigation">
+      <nav class="site-nav" id="main-navigation" aria-label="Main navigation">
         <a href="../index.html">Home</a>
         <a class="active" href="../projects.html">Projects</a>
         <a href="../blog.html">Blog</a>
@@ -70,7 +77,7 @@ try {
       </button>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <section class="section-grid" style="padding: 80px 0;">
         <div style="max-width: 800px;">
           <p class="eyebrow"><a href="../projects.html">← Back to Projects</a></p>
@@ -81,11 +88,11 @@ try {
             <span class="badge">CSS3</span>
             <span class="badge">JavaScript</span>
           </div>
-          <img src="../assets/images/works/project-1.jpg" alt="Smart Portfolio Dashboard" style="width: 100%; border-radius: 8px; margin: 40px 0;" width="600" height="451">
-          
+          <img src="../assets/images/works/project-1.jpg" alt="Smart Portfolio Dashboard" style="width: 100%; border-radius: 8px; margin: 40px 0;" width="600" height="451" decoding="async" loading="lazy">
+
           <h2>Overview</h2>
           <p>A responsive GitHub Pages dashboard for presenting engineering projects, resume highlights, and blog content with JSON-powered cards. This project demonstrates the power of static site generation combined with intelligent data structures for maintainability.</p>
-          
+
           <h2>Key Features</h2>
           <ul>
             <li>JSON-based project and blog data for easy updates</li>
@@ -95,28 +102,22 @@ try {
             <li>Fast loading - no server required</li>
             <li>SEO optimized with proper meta tags</li>
           </ul>
-          
+
           <h2>Technical Approach</h2>
           <p>The portfolio uses vanilla JavaScript to load JSON data and dynamically generate card layouts. This approach provides the flexibility of a database-driven site without the maintenance overhead or server costs. All styling is custom CSS with careful attention to accessibility and responsive design.</p>
-          
+
           <h2>Deployment</h2>
           <p>Hosted on GitHub Pages for free, reliable, and version-controlled hosting. The site follows Git-friendly structure with all assets self-contained and build tools optional.</p>
-          
+
           <div style="margin-top: 40px; display: flex; gap: 20px;">
-            <a class="btn primary" href="https://github.com/nandurpm/portfolio" target="_blank" rel="noopener">View on GitHub</a>
+            <a class="btn primary" href="https://github.com/nandurpm/portfolio" target="_blank" rel="noopener noreferrer">View on GitHub</a>
             <a class="btn ghost" href="../assets/data/works.json" download>Download Data</a>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>&copy; <span data-year></span> Nandakumar M. Built for GitHub Pages.</p>
-      <div>
-        <a href="mailto:nandakumarmkdpm@gmail.com">Email</a>
-        <a href="https://github.com/nandurpm" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </footer>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span class="social-placeholder">LinkedIn — coming soon</span><!-- TODO: replace with real details: LinkedIn profile URL; turn this span into an external link and add it to Person.sameAs. --></nav></footer>
   </div>
 
   <script src="../assets/js/theme.js"></script>
