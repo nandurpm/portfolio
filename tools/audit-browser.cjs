@@ -69,6 +69,11 @@ const server=http.createServer((req,res)=>{
      await page.evaluate(()=>scrollTo({top:500,behavior:'instant'}));
      await page.screenshot({path:path.join(out,`header-${url.replace('.html','')}-${theme}-${width}.png`)});
    }
+   if([375,1440].includes(width)){
+     await page.goto(base+'/about.html');await page.evaluate(()=>document.fonts.ready);
+     await page.locator('.hero-profile-section').evaluate(section=>scrollTo({top:section.getBoundingClientRect().top+scrollY-document.querySelector('.site-header').getBoundingClientRect().height-16,behavior:'instant'}));
+     await page.screenshot({path:path.join(out,`about-portrait-${theme}-${width}.png`)});
+   }
    if([375,1440].includes(width)){await page.goto(base+'/');await page.screenshot({path:path.join(out,`home-${theme}-${width}.png`),fullPage:true});report.screenshots.push(`home-${theme}-${width}.png`);}
   }
   await page.setViewportSize({width:375,height:950});await page.goto(base+'/');
