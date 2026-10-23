@@ -2018,7 +2018,6 @@ margin-top:0; margin-bottom:30px; padding:18px 0; border:0;
 border-bottom:1px solid var(--border); border-radius:0;
 background:color-mix(in srgb,var(--bg) 94%,transparent); box-shadow:none;
 }
-[data-theme="light"] .site-shell > .site-header { background:#f6f3eff2; }
 .site-shell .brand-mark { color:#fff; background:#d51b35; border-radius:4px; box-shadow:none; }
 .brand strong { letter-spacing:-.025em; }
 .site-nav { border:0; background:transparent; border-radius:4px; }
