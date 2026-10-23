@@ -6,7 +6,8 @@
 /* Portfolio audit improvements: accessibility, responsive typography and clearer interaction states */
 
 
-body { overflow-x: hidden; }
+/* Clip horizontal decoration without creating a scrolling ancestor for the sticky header. */
+body { overflow-x: clip; }
 
 .visually-hidden {
   position: absolute !important;
