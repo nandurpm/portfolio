@@ -18,3 +18,5 @@ tools
 assets/fonts/*LICENSE.txt
 admin/vendor/README.md
 admin/vendor/*LICENSE.txt
+CNAME
+scripts/theme-bootstrap.html

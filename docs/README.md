@@ -8,6 +8,7 @@ Architecture notes, operating procedures, and audit records that support reposit
 
 - `BLOG_AUTOMATION.md` — Metadata-driven command-line staging, publishing, editing, and verification workflow for articles.
 - `content-studio-oauth.md` — GitHub OAuth App setup, deployment environment contract, security model, and static-hosting limitation.
+- `contact-email-options.md` — Owner-approved options to reduce public email scraping; implementation is intentionally deferred.
 - `sitttr-rev2026-course-name-audit.md` — Historical project-specific record of the SITTTR revision/course-name review reflected by portfolio content.
 
 ## Responsibilities

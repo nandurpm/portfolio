@@ -20,7 +20,7 @@ A fast, responsive portfolio for **Nandakumar M**, an Electrical and Electronics
 
 ## Visual theme
 
-The public portfolio restores the requested [Portfolio_series](https://github.com/Sushmitadasari/Portfolio_series) cinematic direction: near-black surfaces, crimson accents, large Bebas Neue display lettering, a portrait billboard and a horizontal Originals rail. The cinematic dark theme is the default; a remembered optional light mode remains available. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported. No reference code, photos, or branding were copied.
+The public portfolio uses near-black surfaces, crimson accents, large Bebas Neue display lettering, a portrait billboard and a horizontal Originals rail. The cinematic dark theme is the default; a remembered optional light mode remains available. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported.
 
 Shared utilities live in `assets/css/series.css` and the final visual theme in `assets/css/series-cinematic.css`; `scripts/site-pages.mjs` adds them to every public page during content publishing. The embedded tracker and Content Studio keep their own styles.
 
@@ -32,7 +32,7 @@ Shared utilities live in `assets/css/series.css` and the final visual theme in `
 | Content | JSON indexes plus static HTML article/project pages |
 | Repository sync | Node.js script using the public GitHub REST API |
 | Content publishing | Node.js scripts and GitHub Actions |
-| Hosting | Cloudflare-compatible static assets, custom domain, redirects |
+| Hosting | Cloudflare Workers static assets, custom domain, redirects |
 | Validation | Node syntax checks and a Python HTML/link audit |
 
 ## Run locally
@@ -108,7 +108,7 @@ The contact form does not submit to a backend; it prepares a `mailto:` link on t
 
 ## Deployment
 
-The repository includes `CNAME`, `_redirects`, and `wrangler.jsonc` for the existing static deployment. Pushes to the configured production branch are deployed by the connected hosting provider. The weekly GitHub workflow refreshes only the public repository snapshot and generated cards.
+The repository includes `_redirects` and `wrangler.jsonc` for the Cloudflare Workers static-assets deployment. `CNAME` is retained as a legacy GitHub Pages compatibility file and is not used by the Workers deployment. Pushes to the configured production branch are deployed by the connected hosting provider. The weekly GitHub workflow refreshes only the public repository snapshot and generated cards.
 
 ## License
 
@@ -140,3 +140,5 @@ Minification exports copies to ignored `.cache/minified-assets/`; it does not ov
 ## Completing the engineering drafts
 
 Replace the explicitly marked TODOs in `index.html`, `works/electrical-case-studies.html` and `templates/electrical-case-study-template.html`. Verify tools and years of experience; fill in each case study’s problem, personal contribution, outcome and lesson; use permitted evidence. The hidden social-proof section must stay hidden until its contents are verified. Add a real LinkedIn URL to the shared footer and `Person.sameAs` in `scripts/site-pages.mjs` only when available. No LinkedIn profile, employer detail, credential or outcome is inferred by this audit.
+
+The unfinished experience strip and engineering draft case studies remain in the source but are hidden from public pages until their details are verified. Remove `hidden` only after replacing the TODO text with owner-confirmed information.

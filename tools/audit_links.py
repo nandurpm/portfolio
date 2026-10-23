@@ -72,7 +72,8 @@ def main() -> None:
     """Audit every HTML document and print a deterministic repository summary."""
 
     # Audit deployable pages and templates, not Vite input, dependencies or caches.
-    excluded = {'.git', '.cache', 'node_modules', 'tracker-source', 'scripts'}
+    # Zoho verification is intentionally a one-line token, not an HTML page.
+    excluded = {'.git', '.cache', 'node_modules', 'tracker-source', 'scripts', 'zohoverify'}
     html_files = sorted(page for page in ROOT.rglob("*.html")
                         if not excluded.intersection(page.relative_to(ROOT).parts))
     missing: list[tuple[str, int, str, str]] = []

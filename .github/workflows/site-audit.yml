@@ -44,7 +44,7 @@ jobs:
           tools/site-audit/node_modules/.bin/lighthouse http://127.0.0.1:8124/ --chrome-flags='--headless --no-sandbox' --output=json --output-path=.cache/audit/lighthouse-before.json --quiet
           tools/site-audit/node_modules/.bin/lighthouse http://127.0.0.1:8123/ --chrome-flags='--headless --no-sandbox' --output=json --output-path=.cache/audit/lighthouse-after.json --quiet
           node -e "for(const v of ['before','after']){const r=require('./.cache/audit/lighthouse-'+v+'.json');console.log(v,Object.fromEntries(Object.entries(r.categories).map(([k,x])=>[k,Math.round(x.score*100)])))}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: portfolio-audit-results
