@@ -7,13 +7,13 @@
   <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
 try {
-  const theme = localStorage.getItem('portfolio-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  const theme = localStorage.getItem('portfolio-series-theme');
+  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
 } catch {
-  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  document.documentElement.dataset.theme = 'dark';
 }
 </script>
-  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="This portfolio page could not be found. Return to Nandakumar M’s homepage or explore electrical engineering and software projects.">

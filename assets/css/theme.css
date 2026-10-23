@@ -1,13 +1,13 @@
-/* Central design tokens. Deep teal evokes electrical diagrams and remains AA-readable
-   on warm paper. Accent is reserved for links, focus, primary actions and key numbers. */
+/* Cinematic palette restored from the requested Portfolio_series direction.
+   Dark is the default; the header toggle offers an optional crimson light mode. */
 :root {
-  color-scheme: light;
-  --bg:#f6f3ef; --bg-soft:#ece9e3; --surface:#fffcf8; --surface-strong:#f0ede7;
-  --text:#243638; --heading:#17272a; --muted:#526260; --border:#c4ccc7;
-  --brand:#006c68; --brand-2:var(--brand); --accent:var(--brand); --danger:#a32934;
-  --accent-rgb:0 108 104; --ink-rgb:23 39 42;
+  color-scheme:dark;
+  --bg:#07070a; --bg-soft:#0e0e13; --surface:#111116; --surface-strong:#1b1b22;
+  --text:#f4f1ec; --heading:#faf7f2; --muted:#b1aeb7; --border:#ffffff24;
+  --brand:#ff4a60; --brand-2:#e5132b; --accent:#ffb697; --danger:#ffabb1;
+  --accent-rgb:255 74 96; --ink-rgb:7 7 10;
   --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-display:Georgia,"Times New Roman",serif;
+  --font-display:"Inter",system-ui,sans-serif;
   --font-label:"JetBrains Mono",ui-monospace,monospace;
   --text-xs:.75rem; --text-sm:.875rem; --text-base:1rem; --text-lg:1.125rem;
   --text-xl:clamp(1.4rem,2vw,1.75rem); --text-2xl:clamp(1.8rem,3vw,2.6rem);
@@ -18,23 +18,14 @@
   --shadow:0 12px 40px rgb(var(--ink-rgb) / .08);
   --shadow-hover:0 18px 45px rgb(var(--ink-rgb) / .15);
   --duration-fast:180ms; --duration:280ms; --ease-refined:cubic-bezier(.2,.7,.2,1);
-  --max-width:1280px; --content-max:1280px; --copy-measure:65ch;
+  --max-width:1600px; --content-max:1600px; --copy-measure:65ch;
   --page-gutter:clamp(20px,4vw,64px); --header-height:80px;
   --reveal-duration:500ms; --reveal-delay:0ms; --reveal-distance:16px;
   --reveal-ease:var(--ease-refined);
 }
-[data-theme="dark"] {
-  color-scheme:dark; --bg:#17272a; --bg-soft:#203438; --surface:#203236;
-  --surface-strong:#283d40; --text:#eceee8; --heading:#f6f3ef;
-  --muted:#becbc5; --border:#526966; --brand:#7ad9cb; --accent-rgb:122 217 203;
-  --danger:#ffabb1; --shadow:0 12px 40px #0003; --shadow-hover:0 18px 45px #0005;
-}
-/* System fallback also works before JavaScript or when it is disabled. */
-@media (prefers-color-scheme:dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme:dark; --bg:#17272a; --bg-soft:#203438; --surface:#203236;
-    --surface-strong:#283d40; --text:#eceee8; --heading:#f6f3ef;
-    --muted:#becbc5; --border:#526966; --brand:#7ad9cb; --accent-rgb:122 217 203;
-    --danger:#ffabb1; --shadow:0 12px 40px #0003; --shadow-hover:0 18px 45px #0005;
-  }
+[data-theme="light"] {
+  color-scheme:light; --bg:#f6f3ef; --bg-soft:#ebe7e2; --surface:#fff;
+  --surface-strong:#eee9e4; --text:#252229; --heading:#17151a;
+  --muted:#625c66; --border:#241c2926; --brand:#ae1430; --brand-2:#ce1c39;
+  --accent:#92402b; --accent-rgb:174 20 48;
 }

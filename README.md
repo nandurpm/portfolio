@@ -20,9 +20,9 @@ A fast, responsive portfolio for **Nandakumar M**, an Electrical and Electronics
 
 ## Visual theme
 
-The public portfolio keeps the Engineering Series framing with warm off-white surfaces, deep teal accents, a portrait-led hero, Georgia headings and responsive project grids. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported. No reference code, photos, or branding were copied.
+The public portfolio restores the requested [Portfolio_series](https://github.com/Sushmitadasari/Portfolio_series) cinematic direction: near-black surfaces, crimson accents, large Bebas Neue display lettering, a portrait billboard and a horizontal Originals rail. The cinematic dark theme is the default; a remembered optional light mode remains available. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported. No reference code, photos, or branding were copied.
 
-Shared overrides live in `assets/css/series.css`; `scripts/site-pages.mjs` adds them to every public page during content publishing. The embedded tracker and Content Studio keep their own styles.
+Shared utilities live in `assets/css/series.css` and the final visual theme in `assets/css/series-cinematic.css`; `scripts/site-pages.mjs` adds them to every public page during content publishing. The embedded tracker and Content Studio keep their own styles.
 
 ## Stack
 
@@ -118,7 +118,7 @@ MIT — see [`LICENSE`](LICENSE).
 
 After `npm ci --ignore-scripts` in `tools/tracker-source`, run `node tools/test-portfolio.cjs` from the repository root. It uses the pinned Playwright dependency and `/usr/bin/chromium` (or `CHROMIUM_PATH`). The checks cover mobile layouts, no-JavaScript content, failed reveal loading, denied theme storage, static filtering and pagination, malicious editor HTML, and locally applied CSP/cache rules. They do not prove Cloudflare deployment behavior. See `docs/AUDIT_RESOLUTION.md` for findings and outstanding hosting checks.
 
-`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. Commit `_headers` and `sitemap.xml` together with generated pages. Self-hosted Inter and JetBrains Mono use swap display, with stable system fallback stacks. Georgia is a system display font and requires no download. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.
+`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. Commit `_headers` and `sitemap.xml` together with generated pages. Self-hosted Inter and JetBrains Mono use swap display, with stable system fallback stacks. Bebas Neue is self-hosted with its OFL license and supplies the cinematic hero lettering. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.
 
 ## Custom domain (CNAME-ready)
 

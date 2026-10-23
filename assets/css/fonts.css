@@ -3,3 +3,5 @@
 @font-face { font-family:"Inter"; font-style:normal; font-weight:400; font-display:swap; src:url("../fonts/inter-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family:"Inter"; font-style:normal; font-weight:700; font-display:swap; src:url("../fonts/inter-latin-700-normal.woff2") format("woff2"); }
 @font-face { font-family:"JetBrains Mono"; font-style:normal; font-weight:500; font-display:swap; src:url("../fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2"); }
+/* Bebas Neue, OFL-1.1; @fontsource/bebas-neue 5.2.7. */
+@font-face { font-family:"Bebas Neue"; font-style:normal; font-weight:400; font-display:swap; src:url("../fonts/bebas-neue-latin-400-normal.woff2") format("woff2"); }

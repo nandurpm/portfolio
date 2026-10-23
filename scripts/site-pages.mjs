@@ -22,7 +22,7 @@ export function normalizePage(source, relativePath, post) {
     .replace(/\s*<link[^>]+(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>/gi, '')
     .replace(/\s*<link rel="stylesheet" href="(?:\.\.\/|\/)?assets\/css\/(?:fonts|content-pages|theme|animations|main|polish|reveal|series|portfolio)\.css">/g, '')
     .replace(/\s*<script data-theme-bootstrap>[\s\S]*?<\/script>/g, '')
-    .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: dark\)")/g, '$1#17272a$2')
+    .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: dark\)")/g, '$1#07070a$2')
     .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: light\)")/g, '$1#f6f3ef$2');
   html = html.replace(/(href|src)="\/assets\//g, `$1="${prefix}assets/`);
   html = html.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n  ${bootstrap}`);

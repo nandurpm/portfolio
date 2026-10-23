@@ -3,8 +3,8 @@
   "short_name": "Nandakumar",
   "start_url": "/",
   "display": "browser",
-  "background_color": "#f6f3ef",
-  "theme_color": "#f6f3ef",
+  "background_color": "#07070a",
+  "theme_color": "#07070a",
   "icons": [
     {
       "src": "assets/images/icon-192.png",
