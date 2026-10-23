@@ -146,3 +146,5 @@ html body .site-shell > .site-header { top:0; margin:0 0 var(--space-5); min-hei
   .site-shell .brand strong { font-size:var(--text-sm); }
   .site-shell .brand-mark { width:36px; height:44px; }
 }
+
+@media (prefers-reduced-motion:reduce) { .site-shell *:hover { transform:none !important; } }

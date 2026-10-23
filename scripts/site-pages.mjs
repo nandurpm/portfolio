@@ -34,6 +34,10 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/(<body[^>]*>)/, `$1\n  <a class="skip-link" href="#${mainId}">Skip to main content</a>`);
   html = html.replace(/<div\b([^>]*aria-label="[^"]*"[^>]*)>/g, (tag, attrs) => /\brole=/.test(attrs) ? tag : `<div role="group"${attrs}>`);
   html = html.replace(/<nav class="site-nav"(?![^>]*\bid=)/g, '<nav class="site-nav" id="main-navigation"');
+  html = html.replace(/<nav class="site-nav"[^>]*>[\s\S]*?<\/nav>/g, () => {
+    const current = relativePath.startsWith('works/') ? 'projects.html' : relativePath.startsWith('blog/') ? 'blog.html' : relativePath;
+    return `<nav class="site-nav" id="main-navigation" aria-label="Main navigation">${[['index.html','Home'],['projects.html','Projects'],['blog.html','Articles'],['about.html','About'],['contact.html','Contact']].map(([url,label]) => `<a href="${prefix}${url}"${current === url ? ' class="active" aria-current="page"' : ''}>${label}</a>`).join('')}</nav>`;
+  });
   html = html.replace(/<button class="nav-toggle"(?![^>]*aria-controls)/g, '<button class="nav-toggle" aria-controls="main-navigation"');
   html = html.replace(/<a\b([^>]*href="https?:\/\/[^>]+)>([\s\S]*?)<\/a>/gi, (_, attrs, text) => {
     attrs = attrs.replace(/\s(?:target|rel)="[^"]*"/g, '');

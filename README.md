@@ -20,7 +20,7 @@ A fast, responsive portfolio for **Nandakumar M**, an Electrical and Electronics
 
 ## Visual theme
 
-The public portfolio uses an original cinematic theme inspired by [Portfolio_series](https://github.com/Sushmitadasari/Portfolio_series): charcoal surfaces, crimson accents, a portrait billboard, episodic section labels, and a native swipe rail for selected projects. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported. No reference code, photos, or branding were copied.
+The public portfolio keeps the Engineering Series framing with warm off-white surfaces, deep teal accents, a portrait-led hero, Georgia headings and responsive project grids. Existing system/saved light and dark preferences, keyboard navigation, reduced-motion support, content, and static hosting remain supported. No reference code, photos, or branding were copied.
 
 Shared overrides live in `assets/css/series.css`; `scripts/site-pages.mjs` adds them to every public page during content publishing. The embedded tracker and Content Studio keep their own styles.
 
@@ -118,4 +118,25 @@ MIT — see [`LICENSE`](LICENSE).
 
 After `npm ci --ignore-scripts` in `tools/tracker-source`, run `node tools/test-portfolio.cjs` from the repository root. It uses the pinned Playwright dependency and `/usr/bin/chromium` (or `CHROMIUM_PATH`). The checks cover mobile layouts, no-JavaScript content, failed reveal loading, denied theme storage, static filtering and pagination, malicious editor HTML, and locally applied CSP/cache rules. They do not prove Cloudflare deployment behavior. See `docs/AUDIT_RESOLUTION.md` for findings and outstanding hosting checks.
 
-`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. Commit `_headers` and `sitemap.xml` together with generated pages. Self-hosted fonts use optional display to avoid late font swaps; system fallback fonts may be used on a slow first visit. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.
+`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. Commit `_headers` and `sitemap.xml` together with generated pages. Self-hosted Inter and JetBrains Mono use swap display, with stable system fallback stacks. Georgia is a system display font and requires no download. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.
+
+## Custom domain (CNAME-ready)
+
+The current domain is `nandakumarm.dpdns.org`; this audit does not change it. To switch later, configure the new domain and DNS in the actual hosting provider, update the existing `CNAME` for GitHub Pages, change `SITE_URL` in `scripts/site-pages.mjs`, update the Sitemap URL in `robots.txt`, then run `node scripts/render-static-content.mjs` and review redirects, canonical tags and HTTPS. A CNAME file alone does not configure DNS or a Worker custom domain.
+
+## Optional quality tools
+
+The website serves the checked-in HTML/CSS/JS directly: no framework, dependency installation or build is needed to host it. Audit-only dependencies are isolated in `tools/site-audit/`:
+
+```bash
+npm install --prefix tools/site-audit --ignore-scripts
+npx --prefix tools/site-audit playwright install chromium
+node tools/audit-browser.cjs
+npm --prefix tools/site-audit run minify
+```
+
+Minification exports copies to ignored `.cache/minified-assets/`; it does not overwrite editable sources. The `Static portfolio audit` workflow runs Nu HTML validation, all specified viewport widths and both themes, axe accessibility checks, interaction checks and comparable before/after mobile Lighthouse audits. Results and screenshots are uploaded as an Actions artifact. It does not deploy the branch.
+
+## Completing the engineering drafts
+
+Replace the explicitly marked TODOs in `index.html`, `works/electrical-case-studies.html` and `templates/electrical-case-study-template.html`. Verify tools and years of experience; fill in each case study’s problem, personal contribution, outcome and lesson; use permitted evidence. The hidden social-proof section must stay hidden until its contents are verified. Add a real LinkedIn URL to the shared footer and `Person.sameAs` in `scripts/site-pages.mjs` only when available. No LinkedIn profile, employer detail, credential or outcome is inferred by this audit.
