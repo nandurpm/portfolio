@@ -249,6 +249,16 @@
     el.authStatus.className = `status${type ? ` ${type}` : ''}`;
   }
 
+  function hasDirectGitHubLogin() {
+    return Boolean(CONFIG.serverOAuth || getOAuthClientId().trim());
+  }
+
+  function updateLoginGuidance() {
+    if (IS_LOCAL_DEMO || hasDirectGitHubLogin()) return;
+    el.githubLoginButton.querySelector('span').textContent = 'Use a GitHub token';
+    el.githubLoginButton.setAttribute('aria-label', 'Use a GitHub token to connect');
+  }
+
   function openModal(node) {
     node.hidden = false;
     document.body.classList.add('modal-open');
@@ -485,8 +495,8 @@
     const clientId = getOAuthClientId().trim();
     if (!clientId) {
       $('#oauthSetup').hidden = false;
-      el.oauthClientId.focus();
-      setAuthStatus('Server-backed GitHub sign-in is unavailable. Add an OAuth Client ID to use the fallback.', 'error');
+      el.tokenInput.focus();
+      setAuthStatus('Direct GitHub sign-in is not configured on this static deployment. Enter a fine-grained token below, or add a public OAuth Client ID for device sign-in.', 'error');
       el.githubLoginButton.disabled = false;
       return;
     }
@@ -1649,6 +1659,7 @@ ${metadata}
     setupEventListeners();
     el.oauthClientId.value = getOAuthClientId();
     $('#settingsOAuthClientId').value = getOAuthClientId();
+    updateLoginGuidance();
     if (IS_LOCAL_DEMO) {
       state.user = { login: 'nandurpm', name: 'Nandakumar M', avatar_url: 'https://github.com/nandurpm.png' };
       state.authMethod = 'demo';
