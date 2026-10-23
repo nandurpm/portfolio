@@ -4,8 +4,8 @@ The repository contains Pages Function handlers for OAuth, but the current `wran
 
 The Content Studio supports:
 
-1. **Continue with GitHub** through an OAuth App and the serverless functions in `functions/api/github/oauth/`.
-2. **Fine-grained personal access token** as a fallback.
+1. **Continue with GitHub** through an OAuth App and the serverless functions in `functions/api/github/oauth/` when deployed on Cloudflare Pages Functions.
+2. **Fine-grained personal access token** as the primary path on the current Workers static-assets deployment.
 
 The OAuth client secret must never be stored in HTML, JavaScript, GitHub commits, or repository variables visible to the browser.
 
@@ -42,11 +42,11 @@ On a Pages Functions deployment, set `serverOAuth: true` in `admin/config.js`. T
 - The client secret stays only in the serverless environment.
 - The returned GitHub token is sent to the original Content Studio window with `postMessage` and held only in memory for the current tab. Reloading or closing the tab requires signing in again.
 - The dashboard accepts only the `nandurpm` GitHub account and verifies write access to `nandurpm/portfolio`.
-- The requested OAuth scope is limited to `public_repo read:user` because the portfolio repository is public.
+- The device-flow fallback requests only `public_repo`, which is required to write the public portfolio repository; the app separately calls `/user` to validate the account. The server-backed callback uses `public_repo read:user` for its server-side identity check.
 
 ## Static-only deployments
 
-GitHub Pages and other static-only hosting do not execute the `functions/` directory. The token login continues to work, but direct GitHub OAuth login requires a serverless runtime such as Cloudflare Pages Functions, Netlify Functions, Vercel Functions, or an equivalent backend.
+The current `wrangler.jsonc` deploys Workers static assets, which do not execute the `functions/` directory. The admin UI therefore presents the fine-grained token path as primary on this deployment. Direct GitHub OAuth login requires a serverless runtime such as Cloudflare Pages Functions, Netlify Functions, Vercel Functions, or an equivalent backend; alternatively, configure a public OAuth App Client ID for the device-flow fallback.
 
 ## Protect the deployed editor
 

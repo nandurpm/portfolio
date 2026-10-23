@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /track
-Disallow: /admin/
-Disallow: /tools/
 
 Sitemap: https://nandakumarm.dpdns.org/sitemap.xml
