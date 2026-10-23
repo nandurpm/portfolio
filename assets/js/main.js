@@ -17,7 +17,15 @@ function setupNavigation() {
     toggle.setAttribute("aria-expanded", String(!expanded));
     nav.classList.toggle("open", !expanded);
   });
-  nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", close));
+  nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => close()));
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest('.site-header')) close();
+  });
+  document.addEventListener("focusin", (event) => {
+    if (!event.target.closest('.site-header')) close();
+  });
+  // A desktop round trip must not reopen a stale mobile menu.
+  window.matchMedia('(max-width: 1080px)').addEventListener('change', () => close());
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") close(true);
   });

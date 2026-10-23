@@ -1,0 +1,55 @@
+/* Shared navigation is deliberately opaque: hero text must never show through it.
+   Keep sticky ancestors free of overflow:hidden/auto; body uses overflow-x:clip. */
+html { scrollbar-gutter:stable; scroll-padding-top:calc(var(--header-height) + var(--space-4)); }
+html body .site-shell > .site-header {
+  position:sticky; top:0; z-index:100; isolation:isolate;
+  display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center; gap:20px;
+  height:var(--header-height); min-height:var(--header-height);
+  margin:0 0 30px; padding:12px 0;
+  border:0; border-radius:0; background:var(--bg);
+  box-shadow:none; backdrop-filter:none;
+}
+/* Extend the solid header background to both viewport edges without moving its content. */
+.site-header::before {
+  content:""; position:absolute; z-index:-1; pointer-events:none;
+  inset:0 calc(50% - 50vw); background:var(--bg); border-bottom:1px solid var(--border);
+}
+.site-header .brand { justify-self:start; gap:12px; min-width:0; }
+.site-header .brand > span:last-child { min-width:0; }
+.site-header .brand-mark { flex-shrink:0; width:44px; height:44px; }
+.site-header .brand strong { font-size:1rem; white-space:nowrap; }
+.site-header .brand small { max-width:260px; font-size:.75rem; }
+.site-header .theme-toggle { justify-self:end; width:44px; height:44px; }
+.site-header .nav-toggle { display:none; width:44px; height:44px; }
+.site-header .site-nav {
+  position:static; justify-self:center; display:flex; align-items:center;
+  gap:6px; margin:0; padding:0; border:0; border-radius:0; background:transparent;
+}
+.site-shell .site-header .site-nav a { min-height:44px; padding:10px 12px; font-size:.875rem; }
+@media (max-width:1080px) {
+  :root { --header-height:76px; }
+  html body .site-shell > .site-header { grid-template-columns:minmax(0,1fr) 44px 44px; gap:10px; margin-bottom:24px; padding:12px 0; }
+  .site-header .nav-toggle { display:grid; justify-self:end; }
+  .site-header .site-nav {
+    position:absolute; inset:100% 0 auto; display:none; width:100%;
+    flex-direction:column; align-items:stretch; gap:4px; padding:12px;
+    max-height:calc(100dvh - var(--header-height)); overflow-y:auto;
+    overscroll-behavior:contain; background:var(--bg);
+    border:1px solid var(--border); border-radius:0 0 var(--radius-sm) var(--radius-sm);
+    box-shadow:var(--shadow-hover);
+  }
+  .site-header .site-nav.open { display:flex; }
+  html:not(.js) .site-header .nav-toggle { display:none; }
+  html:not(.js) .site-shell > .site-header { height:auto; grid-template-columns:minmax(0,1fr) 44px; }
+  html:not(.js) .site-header .site-nav {
+    display:flex; position:static; grid-column:1 / -1; grid-row:2;
+    max-height:none; border:0; box-shadow:none;
+  }
+  html:not(.js) .site-header .theme-toggle { grid-column:2; grid-row:1; }
+}
+@media (max-width:480px) {
+  .site-header .brand { gap:8px; }
+  .site-header .brand strong { font-size:.875rem; }
+  .site-header .brand small { display:none; }
+}
