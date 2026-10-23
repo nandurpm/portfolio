@@ -6,11 +6,10 @@
 (function () {
   const root = document.documentElement;
   let storedTheme;
-  try { storedTheme = localStorage.getItem("portfolio-theme"); } catch { /* Storage is optional. */ }
-  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  try { storedTheme = localStorage.getItem("portfolio-series-theme"); } catch { /* Storage is optional. */ }
   const initialTheme = storedTheme === "light" || storedTheme === "dark"
     ? storedTheme
-    : (prefersLight ? "light" : "dark");
+    : "dark";
 
   /**
    * Independence Day is intentionally evaluated against the user's local date.
@@ -53,7 +52,7 @@
     if (independenceDayActive) {
       document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#fffaf2" : "#07131f"; });
     } else {
-      document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#f6f3ef" : "#17272a"; });
+      document.querySelectorAll('meta[name="theme-color"]').forEach((item) => { item.content = isLight ? "#f6f3ef" : "#07070a"; });
     }
   }
 
@@ -106,7 +105,7 @@
     button.addEventListener("click", () => {
       const nextTheme = root.getAttribute("data-theme") === "light" ? "dark" : "light";
       root.setAttribute("data-theme", nextTheme);
-      try { localStorage.setItem("portfolio-theme", nextTheme); } catch { /* Keep the in-memory preference. */ }
+      try { localStorage.setItem("portfolio-series-theme", nextTheme); } catch { /* Keep the in-memory preference. */ }
       updateButton();
     });
   });

@@ -7,13 +7,13 @@
   <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
 try {
-  const theme = localStorage.getItem('portfolio-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  const theme = localStorage.getItem('portfolio-series-theme');
+  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
 } catch {
-  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  document.documentElement.dataset.theme = 'dark';
 }
 </script>
-  <meta name="theme-color" content="#17272a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Portfolio of Nandakumar M, an Electrical and Electronics Design Engineer in Chennai building dependable electrical systems, technical documentation, and practical software tools.">
@@ -42,7 +42,7 @@ try {
   <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preload" as="image" href="assets/images/profile.webp" imagesrcset="assets/images/profile-480.webp 480w, assets/images/profile-768.webp 768w, assets/images/profile.webp 900w" imagesizes="(max-width: 760px) 100vw, 48vw" fetchpriority="high">
-  <link rel="stylesheet" href="assets/css/portfolio.css">
+  <link rel="stylesheet" href="assets/css/portfolio.css?v=series-20261023">
 </head>
 <body class="series-home">
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -84,7 +84,7 @@ try {
       <section class="section">
         <div class="section-heading" data-reveal="up"><div><p class="eyebrow">Originals / Selected work</p><h2>Built to solve. Made to work.</h2></div><a class="text-link" href="projects.html">View the full catalog →</a></div>
         <p class="section-intro">A focused selection of education platforms, engineering utilities, monitoring tools, and useful applications.</p>
-        <div class="card-grid project-grid" data-stagger id="featuredProjects" data-limit="4">
+        <div class="card-grid project-grid" data-stagger id="featuredProjects" data-limit="4" tabindex="0" role="region" aria-label="Originals: scroll horizontally to explore the projects">
           <!-- FEATURED_PROJECTS_START -->
 <article class="project-card project-dossier" data-reveal="up" data-category="Learning &amp; Education" data-search="poly pmna learning &amp; education a comprehensive learning platform for kerala polytechnic students, combining syllabus-aware lessons, revision resources, quizzes, engineering tools, and ai-assisted study support. one structured destination for multiple curriculum revisions and student workflows. html javascript cloudflare supabase" data-name="POLY PMNA" data-stars="1" data-updated="2026-10-19T04:08:01Z">
             <div class="project-cover" aria-hidden="true"><img src="assets/images/project-preview.svg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="project-code">01</span><span>Learning &amp; Education</span></div>
@@ -201,7 +201,7 @@ try {
 
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:nandakumarmkdpm@gmail.com">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span class="social-placeholder">LinkedIn — coming soon</span><!-- TODO: replace with real details: LinkedIn profile URL; turn this span into an external link and add it to Person.sameAs. --></nav></footer>
   </div>
-  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/theme.js?v=series-20261023"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/reveal.js"></script>
 </body>

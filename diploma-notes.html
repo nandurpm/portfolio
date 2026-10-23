@@ -9,10 +9,10 @@ FILE PURPOSE: Project detail page describing the Diploma Notes education platfor
   <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
 try {
-  const theme = localStorage.getItem('portfolio-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  const theme = localStorage.getItem('portfolio-series-theme');
+  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
 } catch {
-  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  document.documentElement.dataset.theme = 'dark';
 }
 </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,7 +40,7 @@ try {
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="assets/css/portfolio.css">
+  <link rel="stylesheet" href="assets/css/portfolio.css?v=series-20261023">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
