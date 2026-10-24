@@ -13,6 +13,7 @@ if (!['http:', 'https:'].includes(base.protocol) || base.username || base.passwo
 const manifestUrl = new URL('build.json', base),
   res = await fetch(manifestUrl);
 if (!res.ok) throw Error('Deployment has no readable build manifest: ' + res.status);
+if (!res.headers.get('content-type')?.includes('application/json')) throw Error('Deployment manifest route returned non-JSON content');
 const manifest = await res.json();
 if (
   !manifest.requiresSignIn ||

@@ -23,7 +23,7 @@ jobs:
       - run: npm run check
       - name: Verify the served build against its trusted manifest
         run: |
-          npx vite preview --outDir dist-web --host 127.0.0.1 --port 4173 >/tmp/tracker-preview.log 2>&1 &
+          npx vite preview --mode web --outDir dist-web --host 127.0.0.1 --port 4173 >/tmp/tracker-preview.log 2>&1 &
           tracker_preview_pid=$!
           trap 'kill "$tracker_preview_pid"' EXIT
           for attempt in {1..20}; do
