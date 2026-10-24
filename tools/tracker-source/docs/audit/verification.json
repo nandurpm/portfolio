@@ -14,7 +14,7 @@
     "lint": "passed",
     "quality_typecheck": "passed",
     "production_web_build": "passed",
-    "reports_chunk_bytes": 41281,
+    "reports_chunk_bytes": 41286,
     "reports_budget_bytes": 120000
   },
   "dependency_audit": {
@@ -36,7 +36,8 @@
     }
   },
   "browser": {
-    "status": "Blocked",
+    "status": "Passed in hosted isolated fixture; authenticated QA Blocked",
+    "local_reason": "Chromium/headless-shell downloads failed locally",
     "viewport_sizes": [
       "360x800",
       "393x873",
@@ -44,7 +45,13 @@
       "1366x768",
       "1920x1080"
     ],
-    "reason": "Chromium and headless-shell download failures; no executable browser available; launch attempted, assertions not run"
+    "hosted_run": 40066310420,
+    "hosted_job": 120790198072,
+    "tested_commit": "b59b94fbd59afce7e4738aed816407bdf703f2ba",
+    "tests_passed": 5,
+    "duration_seconds": 28.8,
+    "production_requests": false,
+    "authenticated_test": false
   },
   "two_user_security": {
     "status": "Blocked",

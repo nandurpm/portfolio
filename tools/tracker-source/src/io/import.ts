@@ -373,7 +373,7 @@ export async function readWorkbook(
       );
     }
   }
-  p.source = {
+  if (!hasMetadata) p.source = {
     filename: 'Imported workbook',
     importedAt: new Date().toISOString(),
     originalStart: s.planStart,

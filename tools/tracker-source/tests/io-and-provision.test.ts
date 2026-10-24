@@ -150,6 +150,7 @@ describe('provision liability and export integrity', () => {
     const result = (await readWorkbook(await exportWorkbook(p), p)).plan;
     expect(result.settings.planStart).toBe('2026-11');
     expect(result.settings.planEnd).toBe('2027-02');
+    expect(result.source.originalEnd).toBe('2026-12');
     expect(result.loan.rows).toHaveLength(3);
     expect(result.entries.map((e) => e.id).sort()).toEqual(['archive', 'early', 'visible']);
     expect(result.entries.find((e) => e.id === 'early')!.billDueMonth).toBe('2026-12');
