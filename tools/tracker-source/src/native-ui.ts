@@ -4,8 +4,8 @@ import {
   SystemBars,
   SystemBarsStyle,
   SystemBarType,
-  registerPlugin,
 } from '@capacitor/core';
+import { native } from './native-tracker';
 
 export function listenForAndroidBack(back: () => void): () => void {
   if (Capacitor.getPlatform() !== 'android') return () => {};
@@ -16,9 +16,6 @@ export function listenForAndroidBack(back: () => void): () => void {
 }
 export const exitAndroid = () => App.exitApp();
 
-const windowLayout = registerPlugin<{
-  setBarBackgrounds(colors: { topColor: string; bottomColor: string }): Promise<void>;
-}>('TrackerNative');
 export async function applySystemBarTheme(
   dark: boolean,
   colors?: { topColor: string; bottomColor: string },
@@ -33,7 +30,7 @@ export async function applySystemBarTheme(
   const bands = colors ?? { topColor: dark ? '#1d2134' : '#ffffff', bottomColor: '#6857c7' };
   const expand = (hex: string) =>
     hex.replace(/^#([a-f0-9])([a-f0-9])([a-f0-9])$/i, '#$1$1$2$2$3$3');
-  await windowLayout.setBarBackgrounds({
+  await native.setBarBackgrounds({
     topColor: expand(bands.topColor),
     bottomColor: expand(bands.bottomColor),
   });
