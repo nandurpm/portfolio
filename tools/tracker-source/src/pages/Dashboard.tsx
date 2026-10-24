@@ -1,3 +1,4 @@
+import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { ComparisonCharts } from '../components/ComparisonCharts';
 import { BackupStatus } from '../components/BackupStatus';
 import { useMemo } from 'react';
@@ -89,7 +90,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
     ? rows
     : rows.filter((r) => r.month >= p.settings.viewStart && r.month <= p.settings.viewEnd);
   return (
-    <div className="table-scroll">
+    <div className="table-scroll long-table-scroll">
       <table className="data-table progress-table">
         <thead>
           <tr>
@@ -257,6 +258,9 @@ export default function Dashboard({
           icon={<Wallet />}
         />
       </div>
+      <CashAlerts />
+      <BudgetAlerts />
+      <MonthlyChecklist />
       <ComparisonCharts />
       <Section
         title={`${monthLabel(m, true)}, side by side`}

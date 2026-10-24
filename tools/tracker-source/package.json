@@ -1,7 +1,7 @@
 {
   "name": "savings-and-expense-tracker",
   "productName": "Savings and Expense Tracker",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Offline personal savings, expenses and loan planning",
   "author": "Nandakumar",
   "license": "MIT",
@@ -11,7 +11,8 @@
   "scripts": {
     "build:web": "tsc --noEmit && vite build --mode web --outDir dist-web",
     "typecheck:quality": "tsc -p tsconfig.quality.json",
-    "check:bundle": "node scripts/check-bundle.mjs"
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "test:planning": "vitest run tests"
   },
   "build": {
     "appId": "com.nandakumar.savingsandexpencetracker",

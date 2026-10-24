@@ -1,8 +1,9 @@
+import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { store, usePlan } from '../store';
 import { money, round } from '../domain/calculate';
-import { today } from '../domain/dates';
+import { today, displayDate } from '../domain/dates';
 import { usePhone } from './usePhone';
 import { loanSummary } from '../domain/loan-summary';
 import {
@@ -16,7 +17,7 @@ import { PaymentReceipts } from './PaymentReceipts';
 export default function AdditionalLoans() {
   const phone = usePhone();
   const p = usePlan(),
-    { toast } = useUi();
+    { toast, confirm } = useUi();
   const [adding, setAdding] = useState(false);
   const [editingDates, setEditingDates] = useState(false);
   const [correctedFirst, setCorrectedFirst] = useState('');
@@ -75,10 +76,27 @@ export default function AdditionalLoans() {
       toast(String(e), true);
     }
   }
-  function savePayment(e: React.FormEvent) {
+  async function savePayment(e: React.FormEvent) {
     e.preventDefault();
     if (!payment) return;
     try {
+      const category = p.categories.find((c) => c.loanId === payment.loanId);
+      if (
+        category &&
+        possibleDuplicates(p.entries, {
+          id: receiptId,
+          date: paidDate,
+          categoryId: category.id,
+          amount: Number(paidAmount),
+        }).length &&
+        !(await confirm(
+          'Possible duplicate payment',
+          'A receipt already has this date, category and amount. Is this a separate transfer?',
+          false,
+          'Save anyway',
+        ))
+      )
+        return;
       store.change('Record installment payment', (d) =>
         saveInstallmentPayment(
           d,
@@ -157,7 +175,9 @@ export default function AdditionalLoans() {
             <p className="loan-next-payment">
               {summary?.next ? (
                 <>
-                  Next unpaid installment: <strong>{summary.next.dueDate}</strong> ·{' '}
+                  Next unpaid installment:{' '}
+                  <strong>Pay {displayDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> →
+                  Due <strong>{displayDate(summary.next.dueDate)}</strong> ·{' '}
                   <strong>{money(summary.nextAmount)}</strong>
                 </>
               ) : (
@@ -175,6 +195,10 @@ export default function AdditionalLoans() {
                       <span>{r.paid ? 'Paid' : r.paidAmount ? 'Partial' : 'Unpaid'}</span>
                     </div>
                     <dl>
+                      <div>
+                        <dt>Planned pay date</dt>
+                        <dd>{displayDate(plannedPaymentDate(p, r.dueDate))}</dd>
+                      </div>
                       <div>
                         <dt>Due date</dt>
                         <dd>{r.dueDate}</dd>
@@ -200,12 +224,13 @@ export default function AdditionalLoans() {
                 ))}
               </div>
             ) : (
-              <div className="table-scroll">
+              <div className="table-scroll long-table-scroll">
                 <table className="data-table">
                   <thead>
                     <tr>
                       {[
                         'Installment',
+                        'Planned pay date',
                         'Due date',
                         'Amount',
                         'Paid amount',
@@ -220,6 +245,7 @@ export default function AdditionalLoans() {
                     {loan.rows.map((r, i) => (
                       <tr key={r.id} className={r.paid ? 'paid-row' : ''}>
                         <td>{i + 1}</td>
+                        <td>{displayDate(plannedPaymentDate(p, r.dueDate))}</td>
                         <td>{r.dueDate}</td>
                         <td>{money(r.emi)}</td>
                         <td>{r.paidAmount ? money(r.paidAmount) : '—'}</td>

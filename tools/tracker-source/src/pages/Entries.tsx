@@ -1,5 +1,7 @@
+import { WEB_APP } from '../web-mode';
+import { possibleDuplicates, duplicateGroups } from '../domain/insights';
 import { usePhone } from '../components/usePhone';
-import { money } from '../domain/calculate';
+import { money, categoryPlan, actualCategory, round } from '../domain/calculate';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
@@ -18,7 +20,15 @@ import {
 } from 'lucide-react';
 import { store, usePlan } from '../store';
 import { type Entry } from '../domain/types';
-import { today, inRange, monthsBetween, monthLabel, displayDate, monthEnd } from '../domain/dates';
+import {
+  today,
+  inRange,
+  monthsBetween,
+  monthLabel,
+  displayDate,
+  monthEnd,
+  validMonth,
+} from '../domain/dates';
 import { reportDate } from '../domain/calculate';
 import { validateEntry } from '../domain/validation';
 import {
@@ -69,6 +79,7 @@ export default function Entries({
     payment: 'UPI',
     notes: '',
   });
+  const duplicates = useMemo(() => duplicateGroups(p.entries), [p.entries]);
   const quickCategories = p.categories.filter(
     (c) => c.active && (kind === 'Income' ? c.group === 'Income' : c.group !== 'Income'),
   );
@@ -77,6 +88,13 @@ export default function Entries({
     : (quickCategories.find((c) => c.role === 'salary' || c.id === 'food')?.id ??
       quickCategories[0]?.id ??
       '');
+  const selectedCategory = p.categories.find((c) => c.id === activeCategoryId);
+  const entryMonth = validMonth(draft.date.slice(0, 7)) ? draft.date.slice(0, 7) : s.selectedMonth;
+  const draftBudget = selectedCategory ? categoryPlan(p, selectedCategory, entryMonth) : 0;
+  const draftSpent = selectedCategory
+    ? actualCategory(p, selectedCategory, entryMonth, monthEnd(entryMonth))
+    : 0;
+  const draftProjected = round(draftSpent + (Number(draft.amount) || 0));
   const parent = useRef<HTMLDivElement>(null),
     searchRef = useRef<HTMLInputElement>(null),
     amountRef = useRef<HTMLInputElement>(null),
@@ -179,6 +197,17 @@ export default function Entries({
         edited: true,
       };
       validateEntry(n, p);
+      const matches = possibleDuplicates(store.get().data.entries, n);
+      if (
+        matches.length &&
+        !(await confirm(
+          'Possible duplicate transaction',
+          `${matches.length} existing entry/entries have the same date, category and amount (${money(n.amount)}). Review the existing records before adding another.`,
+          false,
+          'Add anyway',
+        ))
+      )
+        return;
       store.change(kind === 'Income' ? 'Add income' : 'Add expense', (d) => {
         d.entries.push(n);
       });
@@ -186,7 +215,11 @@ export default function Entries({
       amountRef.current?.focus();
       try {
         await store.flush();
-        toast(`${kind} added and saved locally.`);
+        toast(
+          WEB_APP
+            ? `${kind} recorded. Check cloud status for synchronization.`
+            : `${kind} added and saved locally.`,
+        );
       } catch (error) {
         toast(
           `Entry recorded in the app, but saving failed. Use Retry save above. ${String(error)}`,
@@ -199,7 +232,16 @@ export default function Entries({
       setAdding(false);
     }
   }
-  function duplicate(row: Entry) {
+  async function duplicate(row: Entry) {
+    if (
+      !(await confirm(
+        'Create a matching transaction?',
+        'This will create another entry with the same date, category and amount. Continue only if it represents a separate payment.',
+        false,
+        'Create copy',
+      ))
+    )
+      return;
     safe(() => {
       const entry = { ...row, id: crypto.randomUUID(), loanRowId: undefined, edited: true };
       validateEntry(entry, p);
@@ -321,6 +363,27 @@ export default function Entries({
             : 'Record what you paid. Rent, food, bills and loan payments all go here.'
         }
       >
+        {kind === 'Expense' && selectedCategory && (
+          <div className={`callout ${draftProjected > draftBudget ? 'error' : ''}`} role="status">
+            <strong>
+              {selectedCategory.name} · {monthLabel(entryMonth)}
+            </strong>
+            <p>
+              {money(draftSpent)} already recorded / {money(draftBudget)} monthly budget ·{' '}
+              {money(Math.max(0, round(draftBudget - draftSpent)))} remaining.
+            </p>
+            {Number(draft.amount) > 0 && (
+              <p>
+                After this entry: {money(draftProjected)} recorded.{' '}
+                {draftProjected > draftBudget
+                  ? `${money(round(draftProjected - draftBudget))} over budget.`
+                  : draftBudget > 0 && draftProjected >= draftBudget * 0.8
+                    ? '80% or more of this budget will be used.'
+                    : `${money(round(draftBudget - draftProjected))} will remain.`}
+              </p>
+            )}
+          </div>
+        )}
         {!quickCategories.length && (
           <p className="callout">
             No active {kind.toLowerCase()} categories. Add or enable one in Budget &amp; Plan.
@@ -407,10 +470,39 @@ export default function Entries({
           </Field>
         </form>
       </Section>
+      {duplicates.length > 0 && (
+        <div className="callout error" role="status">
+          <strong>Possible duplicate entries</strong>
+          <p>
+            {duplicates.length} group(s) have matching dates, categories and amounts. Review them
+            before recording more. Repeated payments can be legitimate; nothing is removed
+            automatically.
+          </p>
+          <details>
+            <summary>Review matching entries</summary>
+            <ul>
+              {duplicates.slice(0, 10).map((group) => {
+                const e = group[0]!;
+                return (
+                  <li key={e.id}>
+                    {displayDate(e.date)} · {catMap.get(e.categoryId)?.name} · {money(e.amount)} ·{' '}
+                    {group.length} entries
+                  </li>
+                );
+              })}
+            </ul>
+            {duplicates.length > 10 && (
+              <small>More matching groups are available in your transaction list.</small>
+            )}
+          </details>
+        </div>
+      )}
       <Section
         title={archive ? 'Archived transactions' : 'Your transactions'}
         caption={`${rows.length.toLocaleString('en-IN')} shown · ${phone ? 'Tap Edit to change a transaction. Select rows and use Bulk edit to copy dates, categories or payments.' : 'Changes save when you leave a field · Drag a fill handle down to copy a value'}`}
-        action={<Badge tone="income">Offline & private</Badge>}
+        action={
+          <Badge tone="income">{WEB_APP ? 'Private account sync' : 'Offline & private'}</Badge>
+        }
       >
         <div className="filter-bar">
           <div className="search-box">

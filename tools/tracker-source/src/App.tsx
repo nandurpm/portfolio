@@ -309,10 +309,12 @@ function Shell() {
               <fieldset disabled={recovery} className="edit-controls">
                 <RangeControl compact />
               </fieldset>
-              <span className={`save-indicator ${status === 'Save failed' ? 'failed' : ''}`}>
-                <Check size={14} />
-                {status}
-              </span>
+              {(!WEB_APP || status !== 'Saved locally') && (
+                <span className={`save-indicator ${status === 'Save failed' ? 'failed' : ''}`}>
+                  <Check size={14} />
+                  {status}
+                </span>
+              )}
               <button
                 className="icon-button"
                 aria-label="Undo"

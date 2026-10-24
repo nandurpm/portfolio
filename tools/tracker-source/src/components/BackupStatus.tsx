@@ -1,3 +1,5 @@
+import { WEB_APP } from '../web-mode';
+import { SyncStatusDetails } from '../cloud/SyncStatus';
 import { useState } from 'react';
 import { store, useSaveStatus } from '../store';
 import { displayDate } from '../domain/dates';
@@ -12,6 +14,7 @@ export function BackupStatus({ compact = false }: { compact?: boolean }) {
     const d = new Date(value);
     return `${displayDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)} ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
   };
+  if (WEB_APP) return <SyncStatusDetails />;
   return (
     <div
       className={`backup-status ${compact ? 'compact' : ''}`}

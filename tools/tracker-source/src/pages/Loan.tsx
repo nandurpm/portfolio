@@ -1,3 +1,4 @@
+import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { saveOriginalPayment } from '../domain/installments';
 import { PaymentReceipts } from '../components/PaymentReceipts';
 import { useState } from 'react';
@@ -16,7 +17,7 @@ import {
 } from 'recharts';
 import { store, usePlan } from '../store';
 import { closureAnalysis, regenerateLoan, money, round } from '../domain/calculate';
-import { monthLabel, monthDay, inRange, today } from '../domain/dates';
+import { monthLabel, monthDay, inRange, today, displayDate } from '../domain/dates';
 import type { LoanRow } from '../domain/types';
 import {
   Section,
@@ -131,7 +132,7 @@ export default function Loan() {
     setPaidAmount(Math.max(0, r.emi - r.paidAmount));
   }
   const [receiptId, setReceiptId] = useState('');
-  function savePayment() {
+  async function savePayment() {
     if (!payment) return;
     const cat = p.categories.find((c) => c.role === 'emi' && !c.loanId);
     if (!cat) {
@@ -139,6 +140,21 @@ export default function Loan() {
       return;
     }
     try {
+      if (
+        possibleDuplicates(p.entries, {
+          id: receiptId,
+          date: paidDate,
+          categoryId: cat.id,
+          amount: paidAmount,
+        }).length &&
+        !(await confirm(
+          'Possible duplicate payment',
+          'A receipt already has this date, category and amount. Is this a separate transfer?',
+          false,
+          'Save anyway',
+        ))
+      )
+        return;
       store.change(`Pay EMI: ${payment.month}`, (d) =>
         saveOriginalPayment(d, payment.id, paidDate, paidAmount, receiptId || undefined),
       );
@@ -180,7 +196,9 @@ export default function Loan() {
         <p className="loan-next-payment">
           {summary.next ? (
             <>
-              Next unpaid installment: <strong>{summary.next.dueDate}</strong> ·{' '}
+              Next unpaid installment:{' '}
+              <strong>Pay {displayDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> → Due{' '}
+              <strong>{displayDate(summary.next.dueDate)}</strong> ·{' '}
               <strong>{money(summary.nextAmount)}</strong>
             </>
           ) : (
@@ -410,6 +428,10 @@ export default function Loan() {
                 </div>
                 <dl>
                   <div>
+                    <dt>Planned pay date</dt>
+                    <dd>{displayDate(plannedPaymentDate(p, r.dueDate))}</dd>
+                  </div>
+                  <div>
                     <dt>Due date</dt>
                     <dd>{r.dueDate}</dd>
                   </div>
@@ -475,12 +497,13 @@ export default function Loan() {
             ))}
           </div>
         ) : (
-          <div className="table-scroll">
+          <div className="table-scroll long-table-scroll">
             <table className="data-table loan-table">
               <thead>
                 <tr>
                   {[
                     'Month',
+                    'Planned pay date',
                     'Due date',
                     'EMI',
                     'Principal',
@@ -505,6 +528,7 @@ export default function Loan() {
                         {r.edited && <Edited />}
                         {inconsistent && <Badge tone="debt">EMI ≠ principal + interest</Badge>}
                       </td>
+                      <td>{displayDate(plannedPaymentDate(p, r.dueDate))}</td>
                       <td>
                         <input
                           aria-label={`${r.month} due date`}

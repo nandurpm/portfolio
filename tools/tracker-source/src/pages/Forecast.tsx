@@ -1,3 +1,6 @@
+import { CashAlerts } from '../components/MoneyGuidance';
+import { installmentTasks } from '../domain/insights';
+import { useRef } from 'react';
 import { RangeControl } from '../components/RangeControl';
 import { ComparisonCharts } from '../components/ComparisonCharts';
 import { CalendarDays, Flag, PiggyBank, Wallet } from 'lucide-react';
@@ -13,6 +16,9 @@ export default function Forecast() {
     all = forecast(p),
     rows = all.filter((r) => r.month >= s.viewStart && r.month <= s.viewEnd),
     end = rows.at(-1);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const years = [...new Set(rows.map((r) => r.month.slice(0, 4)))];
+  const payments = installmentTasks(p, s.selectedMonth);
   const milestones = [10000, 25000, 50000, 100000, 200000];
   const dates = p.categories
     .filter((c) => c.active && c.timing === 'Fixed day' && fullAmount(p, c, s.selectedMonth) > 0)
@@ -34,6 +40,7 @@ export default function Forecast() {
         {reportDate(p) > today() &&
           'Your report date is in the future; recorded progress includes entries dated through that date.'}
       </p>
+      <CashAlerts />
       <div className="stats-grid three">
         <Stat
           label="Forecast closing cash"
@@ -93,8 +100,32 @@ export default function Forecast() {
             : 'All amounts use complete months, including future months. Cash and reserves continue from the plan start.'
         }
       >
-        <p className="muted">Showing {rows.length} of {all.length} months · {monthLabel(s.viewStart)} → {monthLabel(s.viewEnd)}. Choose Full plan or a custom range above.</p>
-        <div className="table-scroll">
+        <p className="muted">
+          Showing {rows.length} of {all.length} months · {monthLabel(s.viewStart)} →{' '}
+          {monthLabel(s.viewEnd)}. Choose Full plan or a custom range above.
+        </p>
+        <label className="year-jump">
+          Jump to year{' '}
+          <select
+            aria-label="Forecast year shortcut"
+            defaultValue=""
+            onChange={(e) => {
+              const box = tableRef.current;
+              const row = box?.querySelector<HTMLElement>(`tr[data-year="${e.target.value}"]`);
+              if (box && row)
+                box.scrollTop +=
+                  row.getBoundingClientRect().top - box.getBoundingClientRect().top - 42;
+            }}
+          >
+            <option value="" disabled>
+              Choose year
+            </option>
+            {years.map((y) => (
+              <option key={y}>{y}</option>
+            ))}
+          </select>
+        </label>
+        <div className="table-scroll long-table-scroll" ref={tableRef}>
           <table className="data-table">
             <thead>
               <tr>
@@ -118,7 +149,7 @@ export default function Forecast() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.month}>
+                <tr key={r.month} data-year={r.month.slice(0, 4)}>
                   <td className="strong nowrap">{monthLabel(r.month)}</td>
                   {(
                     [
@@ -158,7 +189,16 @@ export default function Forecast() {
               </div>
               <section>
                 <h3>{c.name}</h3>
-                <small>{displayDate(date, s.dateFormat)}</small>
+                <small>
+                  {c.role === 'emi' ? 'Pay ' : ''}
+                  {displayDate(date, s.dateFormat)}
+                </small>
+                {c.role === 'emi' &&
+                  payments
+                    .filter((l) => l.category === c.name)
+                    .map((l) => (
+                      <small key={l.id}>Due {displayDate(l.dueDate, s.dateFormat)}</small>
+                    ))}
                 <Badge tone={c.group.toLowerCase()}>{c.group}</Badge>
               </section>
             </div>

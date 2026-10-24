@@ -1,3 +1,4 @@
+import { useSyncSummary, SyncStatusDetails } from './SyncStatus';
 import { useEffect, useState } from 'react';
 import { useGoogleAuth, startGoogleSignIn, cancelGoogleSignIn } from './google';
 import { supabase } from './client';
@@ -314,15 +315,23 @@ export function CloudPanel() {
   );
 }
 export function CloudButton() {
-  const c = useCloud(),
-    [open, setOpen] = useState(false);
+  const summary = useSyncSummary();
+  const [open, setOpen] = useState(false);
   return (
     <>
       <button className="button secondary cloud-button" onClick={() => setOpen(true)}>
-        Cloud: {c.status}
+        <span>Cloud: {summary.status}</span>
+        <small>
+          {summary.pending
+            ? 'Pending changes'
+            : summary.timestamp
+              ? `Synced ${new Date(summary.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`
+              : 'Not yet synced'}
+        </small>
       </button>
       {open && (
         <Modal title="Account & cloud sync" onClose={() => setOpen(false)} wide>
+          <SyncStatusDetails />
           <CloudPanel />
         </Modal>
       )}

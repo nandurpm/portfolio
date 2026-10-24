@@ -1,3 +1,4 @@
+import { WEB_APP } from '../web-mode';
 import { CloudButton } from '../cloud/CloudPanel';
 import { RangeControl } from '../components/RangeControl';
 import { motion } from 'framer-motion';
@@ -206,17 +207,23 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
         </p>
       )}
       <Section
-        title="Local storage & backups"
-        caption="Local storage works offline. Optional cloud sync connects your devices."
+        title={WEB_APP ? 'Data & backups' : 'Local storage & backups'}
+        caption={
+          WEB_APP
+            ? 'Account sync connects your devices. Use Reports to export a complete backup.'
+            : 'Local storage works offline. Optional cloud sync connects your devices.'
+        }
       >
-        <div className="storage-info">
-          <Shield size={28} />
-          <div>
-            <strong>{status}</strong>
-            <code>{dataPath}</code>
+        {!WEB_APP && (
+          <div className="storage-info">
+            <Shield size={28} />
+            <div>
+              <strong>{status}</strong>
+              <code>{dataPath}</code>
+            </div>
+            <Badge tone="income">{env.sync ? 'Private sync' : 'Local only'}</Badge>
           </div>
-          <Badge tone="income">{env.sync ? 'Private sync' : 'Local only'}</Badge>
-        </div>
+        )}
         <BackupStatus />
         {window.desktop?.platform !== 'android' && (
           <Field label="Additional backup folder">
