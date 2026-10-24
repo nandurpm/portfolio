@@ -1,3 +1,5 @@
+> Follow-up work: see [PENDING_VERIFICATION_REPORT.md](PENDING_VERIFICATION_REPORT.md) for the later verification branch and its explicit environment limits.
+
 # Tracker implementation report
 
 Date: 2026-10-24. Repository: `nandurpm/portfolio`. Source: `tools/tracker-source`.

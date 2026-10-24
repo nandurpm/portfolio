@@ -24,3 +24,7 @@ Two authorized disposable test accounts/project were unavailable. Therefore cros
 `proposed/preserve-optional-fields.sql` blocks omission of existing optional collections and the EMI-timing setting by older clients. It changes no financial rows or schema shape. It needs staging tests, review and separate database approval before use. It does not validate every field, prevent explicit collection removal, or replace RLS/RPC validation. Review an authoritative server validator for provision references before enabling mixed-client writes. Upgrade all active clients and verify backups first.
 
 Existing owner IDs are never rewritten by this branch. No new table/column is required for optional JSON records. Do not downgrade a device and let it overwrite a newer cloud plan.
+
+## Follow-up branch
+
+See `../../PENDING_VERIFICATION_REPORT.md` for the disposable PostgreSQL/local Supabase test harness, proposed direct-API receipt guard and current verification outcomes. The original inspection above remains metadata-only; do not treat later local test results as production authorization certification.

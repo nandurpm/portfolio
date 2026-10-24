@@ -113,7 +113,10 @@ export default function Forecast() {
               const box = tableRef.current;
               const row = box?.querySelector<HTMLElement>(`tr[data-year="${e.target.value}"]`);
               if (box && row)
-                box.scrollTop = Math.max(0, row.offsetTop - (box.querySelector<HTMLElement>('thead')?.offsetHeight ?? 42));
+                box.scrollTop = Math.max(
+                  0,
+                  row.offsetTop - (box.querySelector<HTMLElement>('thead')?.offsetHeight ?? 42),
+                );
             }}
           >
             <option value="" disabled>
@@ -124,7 +127,13 @@ export default function Forecast() {
             ))}
           </select>
         </label>
-        <div className="table-scroll long-table-scroll" ref={tableRef}>
+        <div
+          className="table-scroll long-table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Full-month forecast table"
+          ref={tableRef}
+        >
           <table className="data-table">
             <thead>
               <tr>

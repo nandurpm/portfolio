@@ -3,7 +3,7 @@ import { receiptScope } from '../domain/archive';
 import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { saveOriginalPayment } from '../domain/installments';
 import { PaymentReceipts } from '../components/PaymentReceipts';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import AdditionalLoans from '../components/AdditionalLoans';
 import { usePhone } from '../components/usePhone';
 import { loanSummary } from '../domain/loan-summary';
@@ -43,7 +43,7 @@ export default function Loan() {
     [paidDate, setPaidDate] = useState(''),
     [paidAmount, setPaidAmount] = useState(0),
     [outside, setOutside] = useState(false);
-  const analysis = closureAnalysis(p),
+  const analysis = useMemo(() => closureAnalysis(p), [p]),
     rows = p.loan.rows.filter((r) => outside || (r.month >= s.planStart && r.month <= s.planEnd)),
     paid = p.loan.rows.filter((r) => r.paid),
     percent = p.loan.rows.length ? (paid.length / p.loan.rows.length) * 100 : 0;
@@ -512,7 +512,12 @@ export default function Loan() {
             ))}
           </div>
         ) : (
-          <div className="table-scroll long-table-scroll">
+          <div
+            className="table-scroll long-table-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label="Original loan repayment schedule"
+          >
             <table className="data-table loan-table">
               <thead>
                 <tr>
