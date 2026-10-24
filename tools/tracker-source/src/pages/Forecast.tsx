@@ -1,3 +1,4 @@
+import { RangeControl } from '../components/RangeControl';
 import { ComparisonCharts } from '../components/ComparisonCharts';
 import { CalendarDays, Flag, PiggyBank, Wallet } from 'lucide-react';
 import { usePlan } from '../store';
@@ -85,12 +86,14 @@ export default function Forecast() {
       <SavingsCharts />
       <Section
         title="Full-month forecast"
+        action={<RangeControl kind="view" />}
         caption={
           s.emiPreviousMonth
             ? 'EMIs are budgeted on the salary day before their due month. No extra EMI reserve is deducted. Contract balance follows the lender’s due-date schedule; advance payments do not assume an interest rebate.'
             : 'All amounts use complete months, including future months. Cash and reserves continue from the plan start.'
         }
       >
+        <p className="muted">Showing {rows.length} of {all.length} months · {monthLabel(s.viewStart)} → {monthLabel(s.viewEnd)}. Choose Full plan or a custom range above.</p>
         <div className="table-scroll">
           <table className="data-table">
             <thead>
