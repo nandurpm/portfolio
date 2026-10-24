@@ -55,13 +55,19 @@ export const planSchema = z.object({
         firstDueDate: date,
         note: z.string().max(5000),
         rows: z.array(
-          loanRow.omit({ principal: true, interest: true, balance: true, edited: true }),
+          loanRow.omit({
+            principal: true,
+            interest: true,
+            balance: true,
+            edited: true,
+          }),
         ),
       }),
     )
     .optional(),
   schemaVersion: z.literal(1),
   settings: z.object({
+    emiPreviousMonth: z.boolean().optional(),
     planStart: month,
     planEnd: month,
     opening: z.number().finite().min(-1e12).max(1e12),

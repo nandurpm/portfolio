@@ -31,7 +31,12 @@ function header(ws: ExcelJS.Worksheet, row: number, values: string[], color = te
   ws.getRow(row).height = 32;
   ws.getRow(row).eachCell((c) => {
     c.fill = fill(color);
-    c.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    c.font = {
+      name: 'Calibri',
+      size: 11,
+      bold: true,
+      color: { argb: 'FFFFFFFF' },
+    };
     c.alignment = { vertical: 'middle', wrapText: true };
   });
 }
@@ -40,10 +45,17 @@ function baseSheet(wb: ExcelJS.Workbook, name: string, title: string) {
     views: [{ state: 'frozen', ySplit: 4, showGridLines: false }],
   });
   ws.properties.defaultRowHeight = 22;
-  ws.columns = Array.from({ length: 14 }, (_, i) => ({ width: i === 0 ? 25 : 19 }));
+  ws.columns = Array.from({ length: 14 }, (_, i) => ({
+    width: i === 0 ? 25 : 19,
+  }));
   ws.mergeCells('A1:G2');
   ws.getCell('A1').value = title;
-  ws.getCell('A1').font = { name: 'Calibri', size: 21, bold: true, color: { argb: 'FFFFFFFF' } };
+  ws.getCell('A1').font = {
+    name: 'Calibri',
+    size: 21,
+    bold: true,
+    color: { argb: 'FFFFFFFF' },
+  };
   ws.getCell('A1').fill = fill(navy);
   ws.getCell('A1').alignment = { vertical: 'middle' };
   ws.getRow(1).height = 24;
@@ -158,7 +170,10 @@ export async function exportWorkbook(
         operator: 'lessThan',
         formulae: ['0'],
         priority: 1,
-        style: { fill: fill('FFFCE7EB'), font: { color: { argb: 'FFB43455' } } },
+        style: {
+          fill: fill('FFFCE7EB'),
+          font: { color: { argb: 'FFB43455' } },
+        },
       },
       {
         type: 'cellIs',
@@ -242,6 +257,7 @@ export async function exportWorkbook(
     ['Accrued interest estimate', s.accruedInterest],
     ['Closure fees and taxes', s.fees],
     ['Cash cushion after closure', s.cushion],
+    ['EMI payment timing', s.emiPreviousMonth ? 'Previous month on salary day' : 'Due month'],
   ];
   settingsRows.forEach(([label, v], i) => {
     budget.mergeCells(`A${i + 6}:C${i + 6}`);
@@ -309,6 +325,11 @@ export async function exportWorkbook(
       if (c.role === 'salary') formula = `IF(EDATE(A${ri},-1)>=$D$10,$D$9,$D$7)`;
       if (c.role === 'emi' && !c.loanId)
         formula = `IF(AND($D$12="Early closure",A${ri}>$D$13),0,SUMIFS('Loan schedule'!$C$5:$C$${Math.max(5, 4 + exportState.loan.rows.length)},'Loan schedule'!$A$5:$A$${Math.max(5, 4 + exportState.loan.rows.length)},A${ri},'Loan schedule'!$G$5:$G$${Math.max(5, 4 + exportState.loan.rows.length)},FALSE))`;
+      if (
+        c.role === 'emi' &&
+        (s.emiPreviousMonth || p.entries.some((e) => e.categoryId === c.id && e.loanRowId))
+      )
+        formula = String(fullAmount(p, c, m));
       if (c.role === 'closure') formula = String(fullAmount(p, c, m));
       if (c.loanId) formula = String(fullAmount(p, c, m));
       if (c.role === 'regular' && c.months.length)
@@ -322,15 +343,18 @@ export async function exportWorkbook(
           ? p.overrides[key(m, c.id)]
           : { formula, result: fullAmount(p, c, m) },
         categoryPlan(p, c, m, date),
-        c.timing,
-        c.day,
+        c.role === 'emi' && s.emiPreviousMonth ? 'Fixed day' : c.timing,
+        c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day,
       ];
       budget.getCell(ri, 1).numFmt = 'mmm yyyy';
       budget.getCell(ri, 4).numFmt = budget.getCell(ri, 5).numFmt = currency;
       budget.getCell(ri, 4).fill = fill('FFFFF0C2');
       ri++;
     }
-  budget.autoFilter = { from: { row: lr - 1, column: 1 }, to: { row: ri - 1, column: 7 } };
+  budget.autoFilter = {
+    from: { row: lr - 1, column: 1 },
+    to: { row: ri - 1, column: 7 },
+  };
   const metadata = JSON.stringify(exportState),
     chunks = metadata.match(/[\s\S]{1,30000}/g) ?? [];
   budget.getCell('M1').value = 'Savings and Expense Tracker metadata v1';
@@ -445,7 +469,10 @@ export async function exportWorkbook(
         operator: 'lessThan',
         formulae: ['0'],
         priority: 1,
-        style: { font: { color: { argb: 'FFB43455' } }, fill: fill('FFFCE7EB') },
+        style: {
+          font: { color: { argb: 'FFB43455' } },
+          fill: fill('FFFCE7EB'),
+        },
       },
     ],
   });

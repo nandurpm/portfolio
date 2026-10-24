@@ -83,6 +83,23 @@ export function IncomeSettings() {
         {monthLabel(addMonths(p.settings.selectedMonth, -1), true)} salary. This is the expected
         full salary with no leave deductions; enter the amount actually received in Daily Entries.
       </p>
+      <Field
+        label="EMI payment timing"
+        hint="Applies to all loans. Forecasts use the payment month; due dates and actual receipts stay separate."
+      >
+        <select
+          aria-label="EMI payment timing"
+          value={p.settings.emiPreviousMonth ? 'advance' : 'due'}
+          onChange={(e) =>
+            store.change('Change EMI payment timing', (d) => {
+              d.settings.emiPreviousMonth = e.target.value === 'advance';
+            })
+          }
+        >
+          <option value="due">Pay in the due month</option>
+          <option value="advance">Pay next month's EMI on this month's salary day</option>
+        </select>
+      </Field>
       <div className="form-grid three">
         <SettingNumber
           name="opening"

@@ -45,45 +45,45 @@ export function closureAmount(p: Plan, m = p.settings.closureMonth) {
 }
 export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
   if (!c.active) return 0;
-  if (c.loanId) {
-    const linked = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId);
+  if (c.role === 'emi') {
+    const rows = c.loanId
+      ? (p.additionalLoans?.find((l) => l.id === c.loanId)?.rows ?? [])
+      : p.loan.rows;
     return round(
-      (p.additionalLoans?.find((l) => l.id === c.loanId)?.rows ?? []).reduce((n, r) => {
-        const receipts = linked.filter((e) => e.loanRowId === r.id);
-        const early = receipts.filter((e) => e.date.slice(0, 7) < r.month);
-        // Legacy schedule-only payments retain their original timing until reconciled.
-        const legacyEarly = !receipts.length && r.paidDate && r.paidDate.slice(0, 7) < r.month;
-        const prepaid = receipts.length
-          ? early.reduce((sum, e) => sum + e.amount, 0)
-          : legacyEarly
-            ? r.paidAmount
-            : 0;
-        const paidThisMonth = receipts.length
-          ? early.filter((e) => e.date.slice(0, 7) === m).reduce((sum, e) => sum + e.amount, 0)
-          : legacyEarly && r.paidDate.slice(0, 7) === m
-            ? r.paidAmount
-            : 0;
-        return n + (r.month === m ? Math.max(0, r.emi - prepaid) : 0) + paidThisMonth;
+      rows.reduce((total, row) => {
+        if (!c.loanId && row.paidBeforeOpening) return total;
+        if (!c.loanId && mode === 'Early closure' && row.month > p.settings.closureMonth)
+          return total;
+        const paymentMonth = p.settings.emiPreviousMonth ? addMonths(row.month, -1) : row.month;
+        const receipts = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId === row.id);
+        const early = receipts.length
+          ? receipts.filter((e) => e.date.slice(0, 7) < paymentMonth)
+          : row.paidDate && row.paidDate.slice(0, 7) < paymentMonth
+            ? [{ date: row.paidDate, amount: row.paidAmount }]
+            : [];
+        const prepaid = early.reduce((sum, e) => sum + e.amount, 0);
+        const paidHere = early
+          .filter((e) => e.date.slice(0, 7) === m)
+          .reduce((sum, e) => sum + e.amount, 0);
+        // Keep actual early receipts in their cash month; budget only the unpaid remainder.
+        return total + paidHere + (paymentMonth === m ? Math.max(0, row.emi - prepaid) : 0);
       }, 0),
     );
   }
   if (c.months.length && !c.months.includes(+m.slice(5, 7))) return 0;
   if (c.role === 'salary') return salary(p, m);
-  if (c.role === 'emi')
-    return mode === 'Early closure' && m > p.settings.closureMonth
-      ? 0
-      : round(
-          p.loan.rows
-            .filter((r) => r.month === m && !r.paidBeforeOpening)
-            .reduce((n, r) => n + r.emi, 0),
-        );
   if (c.role === 'closure')
     return mode === 'Early closure' && m === p.settings.closureMonth ? closureAmount(p) : 0;
   return c.amount;
 }
 export function fullAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
   if (!c.active) return 0;
-  if (c.role === 'emi' && !c.loanId && mode === 'Early closure' && m > p.settings.closureMonth)
+  if (
+    c.role === 'emi' &&
+    !c.loanId &&
+    mode === 'Early closure' &&
+    (m > p.settings.closureMonth || (p.settings.emiPreviousMonth && m === p.settings.closureMonth))
+  )
     return 0;
   if (c.role === 'closure' && (mode !== 'Early closure' || m !== p.settings.closureMonth)) return 0;
   return p.overrides[key(m, c.id)] ?? defaultAmount(p, c, m, mode);
@@ -102,7 +102,16 @@ export function categoryPlan(
   mode = p.settings.mode,
 ) {
   const amount = fullAmount(p, c, m, mode);
-  return date ? timedAmount(amount, c, m, date) : amount;
+  return date
+    ? timedAmount(
+        amount,
+        c.role === 'emi' && p.settings.emiPreviousMonth
+          ? { ...c, timing: 'Fixed day', day: p.settings.salaryDay }
+          : c,
+        m,
+        date,
+      )
+    : amount;
 }
 export function planned(p: Plan, m: string, date?: string, mode = p.settings.mode): Totals {
   const t = emptyTotals();
@@ -133,6 +142,16 @@ export function actualCategory(p: Plan, c: Category, m: string, date = reportDat
   const t = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m), c.id);
   return c.group === 'Income' ? t.income : c.group === 'Living' ? t.living : t.debt;
 }
+// A same-month settlement replaces the advance installment for the following due month.
+function releasedAdvance(p: Plan, m: string) {
+  return p.settings.emiPreviousMonth
+    ? round(
+        p.categories
+          .filter((c) => c.role === 'emi' && !c.loanId)
+          .reduce((sum, c) => sum + fullAmount(p, c, m, 'Scheduled'), 0),
+      )
+    : 0;
+}
 export function forecast(p: Plan, mode = p.settings.mode): ForecastRow[] {
   let cash = p.settings.opening;
   return monthsBetween(p.settings.planStart, p.settings.planEnd).map((m) => {
@@ -148,11 +167,13 @@ export function forecast(p: Plan, mode = p.settings.mode): ForecastRow[] {
           .filter((c) => c.role === 'closure')
           .reduce((n, c) => n + fullAmount(p, c, m, mode), 0),
       );
-    const reserve = round(
-      p.categories
-        .filter((c) => c.role === 'emi')
-        .reduce((n, c) => n + fullAmount(p, c, addMonths(m, 1), mode), 0),
-    );
+    const reserve = p.settings.emiPreviousMonth
+      ? 0
+      : round(
+          p.categories
+            .filter((c) => c.role === 'emi')
+            .reduce((n, c) => n + fullAmount(p, c, addMonths(m, 1), mode), 0),
+        );
     const balance = contractBalance(p, m);
     return {
       month: m,
@@ -164,7 +185,9 @@ export function forecast(p: Plan, mode = p.settings.mode): ForecastRow[] {
       spendable: round(cash - reserve),
       balance,
       headroom: round(
-        cash - (mode === 'Early closure' && m >= p.settings.closureMonth ? 0 : closureAmount(p, m)),
+        cash +
+          (mode === 'Early closure' && m >= p.settings.closureMonth ? 0 : releasedAdvance(p, m)) -
+          (mode === 'Early closure' && m >= p.settings.closureMonth ? 0 : closureAmount(p, m)),
       ),
     };
   });
@@ -228,12 +251,13 @@ export function closureAnalysis(p: Plan) {
     m = p.settings.closureMonth,
     r = normal.find((x) => x.month === m),
     quote = closureAmount(p);
-  const after = r ? round(r.cash - quote) : null;
+  const available = r ? round(r.cash + releasedAdvance(p, m)) : null;
+  const after = available === null ? null : round(available - quote);
   const earliest = normal.find(
     (x) =>
       x.balance > 0 &&
       x.month >= (p.loan.rows[0]?.month ?? '9999-12') &&
-      round(x.cash - closureAmount(p, x.month)) >= p.settings.cushion,
+      round(x.cash + releasedAdvance(p, x.month) - closureAmount(p, x.month)) >= p.settings.cushion,
   );
   const interest = round(
     p.loan.rows.filter((x) => x.month > m).reduce((n, x) => n + x.interest, 0) -
@@ -243,7 +267,7 @@ export function closureAnalysis(p: Plan) {
   return {
     principal: contractBalance(p, m),
     quote,
-    available: r?.cash ?? null,
+    available,
     after,
     assessment:
       after === null
@@ -289,4 +313,3 @@ export function regenerateLoan(p: Plan): LoanRow[] {
   }
   return rows;
 }
-

@@ -278,11 +278,16 @@ export default function Budget() {
                 )}
                 <p>
                   {c.timing}
-                  {c.timing === 'Fixed day' ? ` · day ${c.day}` : ''} ·{' '}
+                  {c.timing === 'Fixed day'
+                    ? ` · day ${c.role === 'emi' && p.settings.emiPreviousMonth ? p.settings.salaryDay : c.day}`
+                    : ''}{' '}
+                  ·{' '}
                   {c.months.length
                     ? c.months
                         .map((m) =>
-                          new Date(2026, m - 1, 1).toLocaleDateString('en-IN', { month: 'short' }),
+                          new Date(2026, m - 1, 1).toLocaleDateString('en-IN', {
+                            month: 'short',
+                          }),
                         )
                         .join(', ')
                     : 'Every month'}
@@ -395,7 +400,14 @@ export default function Budget() {
                     </td>
                     <td>
                       {c.timing}
-                      {c.timing === 'Fixed day' && <small className="subtle">Day {c.day}</small>}
+                      {c.timing === 'Fixed day' && (
+                        <small className="subtle">
+                          Day{' '}
+                          {c.role === 'emi' && p.settings.emiPreviousMonth
+                            ? p.settings.salaryDay
+                            : c.day}
+                        </small>
+                      )}
                     </td>
                     <td>
                       {c.months.length
@@ -675,7 +687,11 @@ export default function Budget() {
                               title="Drag to fill"
                               className="budget-fill-handle"
                               onDragStart={() => {
-                                drag.current = { month: m, id: c.id, value: fullAmount(p, c, m) };
+                                drag.current = {
+                                  month: m,
+                                  id: c.id,
+                                  value: fullAmount(p, c, m),
+                                };
                               }}
                             >
                               <Grip size={9} />
@@ -755,7 +771,12 @@ export default function Budget() {
             <Field label="Group">
               <select
                 value={edit.group}
-                onChange={(e) => setEdit({ ...edit, group: e.target.value as Category['group'] })}
+                onChange={(e) =>
+                  setEdit({
+                    ...edit,
+                    group: e.target.value as Category['group'],
+                  })
+                }
               >
                 {['Income', 'Living', 'Debt'].map((x) => (
                   <option key={x}>{x}</option>
@@ -785,7 +806,12 @@ export default function Budget() {
             <Field label="Timing">
               <select
                 value={edit.timing}
-                onChange={(e) => setEdit({ ...edit, timing: e.target.value as Category['timing'] })}
+                onChange={(e) =>
+                  setEdit({
+                    ...edit,
+                    timing: e.target.value as Category['timing'],
+                  })
+                }
               >
                 <option>Daily</option>
                 <option>Fixed day</option>
@@ -817,7 +843,9 @@ export default function Budget() {
                       })
                     }
                   />
-                  {new Date(2026, m - 1, 1).toLocaleDateString('en-IN', { month: 'short' })}
+                  {new Date(2026, m - 1, 1).toLocaleDateString('en-IN', {
+                    month: 'short',
+                  })}
                 </label>
               ))}
             </div>

@@ -136,3 +136,33 @@ export function saveOriginalPayment(
     edited: true,
   });
 }
+
+/** Correct contractual dates without replacing installment IDs or payment receipts. */
+export function correctInstallmentDates(
+  p: Plan,
+  loanId: string,
+  firstDueDate: string,
+  note: string,
+) {
+  if (!validDate(firstDueDate)) throw Error('Enter a valid first due date.');
+  if (note.length > 4000) throw Error('Notes must be at most 4000 characters.');
+  const loan = p.additionalLoans?.find((l) => l.id === loanId);
+  const category = p.categories.find((c) => c.loanId === loanId);
+  if (!loan || !category) throw Error('Loan was not found.');
+  const oldNote = loan.note;
+  const day = Number(firstDueDate.slice(8));
+  loan.rows.forEach((r, i) => {
+    const oldDate = r.dueDate;
+    r.month = addMonths(firstDueDate.slice(0, 7), i);
+    r.dueDate = monthDay(r.month, day);
+    for (const entry of p.entries.filter((e) => e.loanRowId === r.id)) {
+      entry.description = entry.description.replace(oldDate, r.dueDate);
+      if (oldNote) entry.notes = entry.notes.replace(oldNote, note);
+    }
+  });
+  loan.firstDueDate = firstDueDate;
+  loan.note = note;
+  category.note = note;
+  category.day = day;
+  category.edited = true;
+}

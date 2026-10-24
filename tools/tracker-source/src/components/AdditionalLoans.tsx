@@ -5,7 +5,11 @@ import { money, round } from '../domain/calculate';
 import { today } from '../domain/dates';
 import { usePhone } from './usePhone';
 import { loanSummary } from '../domain/loan-summary';
-import { addInstallmentLoan, saveInstallmentPayment } from '../domain/installments';
+import {
+  addInstallmentLoan,
+  saveInstallmentPayment,
+  correctInstallmentDates,
+} from '../domain/installments';
 import { Section, Modal, Field, useUi } from './UI';
 import { PaymentReceipts } from './PaymentReceipts';
 
@@ -14,6 +18,9 @@ export default function AdditionalLoans() {
   const p = usePlan(),
     { toast } = useUi();
   const [adding, setAdding] = useState(false);
+  const [editingDates, setEditingDates] = useState(false);
+  const [correctedFirst, setCorrectedFirst] = useState('');
+  const [correctedNote, setCorrectedNote] = useState('');
   const [name, setName] = useState(''),
     [principal, setPrincipal] = useState(''),
     [emi, setEmi] = useState(''),
@@ -22,7 +29,10 @@ export default function AdditionalLoans() {
     [note, setNote] = useState('');
   const [selected, setSelected] = useState('');
   const [receiptId, setReceiptId] = useState('');
-  const [payment, setPayment] = useState<{ loanId: string; rowId: string } | null>(null);
+  const [payment, setPayment] = useState<{
+    loanId: string;
+    rowId: string;
+  } | null>(null);
   const [paidDate, setPaidDate] = useState(today()),
     [paidAmount, setPaidAmount] = useState(''),
     [method, setMethod] = useState('Not specified');
@@ -134,6 +144,16 @@ export default function AdditionalLoans() {
               charges
             </p>
             {loan.note && <p className="muted">{loan.note}</p>}
+            <button
+              className="button small secondary"
+              onClick={() => {
+                setCorrectedFirst(loan.firstDueDate);
+                setCorrectedNote(loan.note);
+                setEditingDates(true);
+              }}
+            >
+              Correct loan dates and notes
+            </button>
             <p className="loan-next-payment">
               {summary?.next ? (
                 <>
@@ -233,6 +253,58 @@ export default function AdditionalLoans() {
           </>
         )}
       </Section>
+      {editingDates && loan && (
+        <Modal title="Correct loan dates and notes" onClose={() => setEditingDates(false)}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              try {
+                store.change('Correct loan dates and notes', (d) =>
+                  correctInstallmentDates(d, loan.id, correctedFirst, correctedNote),
+                );
+                setEditingDates(false);
+                toast('Schedule dates corrected. Payment dates and amounts preserved.');
+              } catch (err) {
+                toast(String(err), true);
+              }
+            }}
+          >
+            <Field label="Correct first installment due date">
+              <input
+                aria-label="Correct first installment due date"
+                type="date"
+                required
+                value={correctedFirst}
+                onChange={(e) => setCorrectedFirst(e.target.value)}
+              />
+            </Field>
+            <Field label="Correct loan notes">
+              <textarea
+                aria-label="Correct loan notes"
+                maxLength={4000}
+                value={correctedNote}
+                onChange={(e) => setCorrectedNote(e.target.value)}
+              />
+            </Field>
+            <p>
+              All installments keep their amounts and receipt links. Due dates are rebuilt monthly
+              from the corrected first date. Actual payment dates are preserved.
+            </p>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setEditingDates(false)}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="button">
+                Save corrected schedule
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
       {adding && (
         <Modal title="Add loan" onClose={() => setAdding(false)}>
           <form onSubmit={saveLoan}>

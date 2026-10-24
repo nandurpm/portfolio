@@ -44,6 +44,7 @@ export interface LoanRow {
   edited?: boolean;
 }
 export interface Settings {
+  emiPreviousMonth?: boolean;
   planStart: string;
   planEnd: string;
   opening: number;
@@ -71,7 +72,12 @@ export interface Settings {
   autoStart: boolean;
   tray: boolean;
   backupFolder: string;
-  reminders: { salary: boolean; emi: boolean; recharge: boolean; missing: boolean };
+  reminders: {
+    salary: boolean;
+    emi: boolean;
+    recharge: boolean;
+    missing: boolean;
+  };
 }
 export interface Plan {
   additionalLoans?: InstallmentLoan[];
@@ -92,7 +98,12 @@ export interface Plan {
     rows: LoanRow[];
   };
   celebrated: string[];
-  source: { filename: string; importedAt: string; originalStart: string; originalEnd: string };
+  source: {
+    filename: string;
+    importedAt: string;
+    originalStart: string;
+    originalEnd: string;
+  };
 }
 export interface InstallmentLoan {
   id: string;

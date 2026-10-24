@@ -15,7 +15,10 @@ export default function Forecast() {
   const milestones = [10000, 25000, 50000, 100000, 200000];
   const dates = p.categories
     .filter((c) => c.active && c.timing === 'Fixed day' && fullAmount(p, c, s.selectedMonth) > 0)
-    .map((c) => ({ c, date: monthDay(s.selectedMonth, c.day) }));
+    .map((c) => ({
+      c,
+      date: monthDay(s.selectedMonth, c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day),
+    }));
   return (
     <>
       <PageHead
@@ -41,14 +44,22 @@ export default function Forecast() {
         <Stat
           label="Spendable after EMI reserve"
           value={end?.spendable ?? s.opening}
-          caption="Closing cash minus the following month’s EMI"
+          caption={
+            s.emiPreviousMonth
+              ? 'Next month’s EMI is already included in this month’s expenses'
+              : 'Closing cash minus the following month’s EMI'
+          }
           tone="green"
           icon={<PiggyBank />}
         />
         <Stat
           label="Next EMI reserve"
           value={end?.reserve ?? 0}
-          caption={`Following ${monthLabel(s.viewEnd)}`}
+          caption={
+            s.emiPreviousMonth
+              ? 'No second deduction for the EMI already budgeted early'
+              : `Following ${monthLabel(s.viewEnd)}`
+          }
           tone="orange"
           icon={<CalendarDays />}
         />
@@ -74,7 +85,11 @@ export default function Forecast() {
       <SavingsCharts />
       <Section
         title="Full-month forecast"
-        caption="All amounts use complete months, including future months. Cash and reserves continue from the plan start."
+        caption={
+          s.emiPreviousMonth
+            ? 'EMIs are budgeted on the salary day before their due month. No extra EMI reserve is deducted. Contract balance follows the lender’s due-date schedule; advance payments do not assume an interest rebate.'
+            : 'All amounts use complete months, including future months. Cash and reserves continue from the plan start.'
+        }
       >
         <div className="table-scroll">
           <table className="data-table">

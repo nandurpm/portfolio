@@ -201,7 +201,9 @@ export default function Loan() {
       <div className="loan-hero">
         <div
           className="paid-ring"
-          style={{ background: `conic-gradient(var(--accent) ${percent}%,var(--ring-track) 0)` }}
+          style={{
+            background: `conic-gradient(var(--accent) ${percent}%,var(--ring-track) 0)`,
+          }}
         >
           <div>
             <strong>{Math.round(percent)}%</strong>
@@ -215,9 +217,11 @@ export default function Loan() {
           </h2>
           <p>
             EMI due day: {p.loan.dueDay}. Salary day: {s.salaryDay}.{' '}
-            {p.loan.dueDay < s.salaryDay
-              ? 'Keep next month’s EMI aside before salary arrives.'
-              : 'Set aside the installment when salary arrives.'}
+            {s.emiPreviousMonth
+              ? `Pay next month’s EMI on salary day ${s.salaryDay}. The forecast counts it in this payment month.`
+              : p.loan.dueDay < s.salaryDay
+                ? 'Keep next month’s EMI aside before salary arrives.'
+                : 'Set aside the installment when salary arrives.'}
           </p>
           <div className="pill-row">
             {p.loan.rows.some((r) => r.paidBeforeOpening) && (
