@@ -147,7 +147,7 @@ describe('provision liability and export integrity', () => {
       },
     ];
     p.overrides['2027-02|bill'] = 125;
-    const result = (await readWorkbook(await exportWorkbook(p), p)).plan;
+    const result = (await readWorkbook(await exportWorkbook(p, '2026-12', '2026-12'), p)).plan;
     expect(result.settings.planStart).toBe('2026-11');
     expect(result.settings.planEnd).toBe('2027-02');
     expect(result.source.originalEnd).toBe('2026-12');
@@ -155,6 +155,32 @@ describe('provision liability and export integrity', () => {
     expect(result.entries.map((e) => e.id).sort()).toEqual(['archive', 'early', 'visible']);
     expect(result.entries.find((e) => e.id === 'early')!.billDueMonth).toBe('2026-12');
     expect(result.overrides['2027-02|bill']).toBe(125);
+  });
+  it('exports provision formulas that stay correct when Excel recalculates', async () => {
+    const p = financialFixture().data;
+    p.provisions = [
+      {
+        id: 'power',
+        categoryId: 'bill',
+        startMonth: '2026-11',
+        firstDueMonth: '2026-12',
+        everyMonths: 2,
+        monthlyAmount: 50,
+        billAmount: 100,
+        openingReserve: 0,
+        allocationDay: 10,
+        dueDay: 5,
+        enabled: true,
+      },
+    ];
+    const { default: ExcelJS } = await import('exceljs');
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load((await exportWorkbook(p)) as never);
+    const budget = wb.getWorksheet('Budget')!;
+    expect(budget.getCell('D55').value).toMatchObject({ formula: '0' });
+    expect(budget.getCell('D59').value).toMatchObject({ formula: '100', result: 100 });
+    expect(budget.getCell('F59').value).toBe('Fixed day');
+    expect(budget.getCell('G59').value).toBe(5);
   });
   it('round-trips literal CSV formula-like text without creating a second entry', () => {
     const p = financialFixture().data;

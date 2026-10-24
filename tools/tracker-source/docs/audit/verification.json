@@ -10,11 +10,11 @@
     "command": "npm run check",
     "exit_code": 0,
     "test_files": 6,
-    "tests_passed": 55,
+    "tests_passed": 56,
     "lint": "passed",
     "quality_typecheck": "passed",
     "production_web_build": "passed",
-    "reports_chunk_bytes": 41286,
+    "reports_chunk_bytes": 41386,
     "reports_budget_bytes": 120000
   },
   "dependency_audit": {
@@ -45,11 +45,10 @@
       "1366x768",
       "1920x1080"
     ],
-    "hosted_run": 40066310420,
-    "hosted_job": 120790198072,
-    "tested_commit": "b59b94fbd59afce7e4738aed816407bdf703f2ba",
+    "hosted_run": 40066488958,
+    "hosted_job": 120790732433,
+    "tested_commit": "e100f7433364ef1161f3f6fedf31e0a5cdccfdd6",
     "tests_passed": 5,
-    "duration_seconds": 28.8,
     "production_requests": false,
     "authenticated_test": false
   },

@@ -317,6 +317,8 @@ export async function exportWorkbook(
       if (c.loanId) formula = String(fullAmount(p, c, m));
       if (c.role === 'regular' && c.months.length)
         formula = `IF(OR(${c.months.map((n) => `MONTH(A${ri})=${n}`).join(',')}),$D$${cr},0)`;
+      const provision = p.provisions?.find((x) => x.enabled && x.categoryId === c.id);
+      if (provision) formula = String(fullAmount(p, c, m));
       if (!c.active) formula = '0';
       budget.getRow(ri).values = [
         d(m + '-01'),
@@ -326,8 +328,8 @@ export async function exportWorkbook(
           ? p.overrides[key(m, c.id)]
           : { formula, result: fullAmount(p, c, m) },
         categoryPlan(p, c, m, date),
-        c.role === 'emi' && s.emiPreviousMonth ? 'Fixed day' : c.timing,
-        c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day,
+        provision || (c.role === 'emi' && s.emiPreviousMonth) ? 'Fixed day' : c.timing,
+        provision ? provision.dueDay : c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day,
       ];
       budget.getCell(ri, 1).numFmt = 'mmm yyyy';
       budget.getCell(ri, 4).numFmt = budget.getCell(ri, 5).numFmt = currency;
