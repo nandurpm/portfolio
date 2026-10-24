@@ -19,6 +19,8 @@ const category = z.object({
   edited: z.boolean().optional(),
 });
 const entry = z.object({
+  provisionId: z.string().min(1).optional(),
+  billDueMonth: month.optional(),
   id: z.string().min(1),
   date,
   categoryId: z.string().min(1),
@@ -44,6 +46,39 @@ const loanRow = z.object({
   edited: z.boolean().optional(),
 });
 export const planSchema = z.object({
+  reconciliations: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().trim().min(1).max(100),
+        fromDate: date,
+        throughDate: date,
+        openingBalance: z.number().finite().min(-1e12).max(1e12),
+        statementBalance: z.number().finite().min(-1e12).max(1e12),
+        methods: z.array(z.string().min(1).max(100)),
+        note: z.string().max(1000),
+      }),
+    )
+    .max(10000)
+    .optional(),
+  provisions: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        categoryId: z.string().min(1),
+        startMonth: month,
+        firstDueMonth: month,
+        everyMonths: z.number().int().min(1).max(60),
+        monthlyAmount: nonnegative,
+        billAmount: nonnegative,
+        openingReserve: z.number().finite().min(-1e12).max(1e12),
+        allocationDay: z.number().int().min(1).max(31),
+        dueDay: z.number().int().min(1).max(31),
+        enabled: z.boolean(),
+      }),
+    )
+    .max(1000)
+    .optional(),
   additionalLoans: z
     .array(
       z.object({
@@ -142,6 +177,24 @@ export function validatePlan(p: unknown): Plan {
   )
     throw Error('Selected month must lie inside the plan range.');
   const ids = new Set(v.categories.map((c) => c.id));
+  if (new Set(v.reconciliations?.map((r) => r.id)).size !== (v.reconciliations?.length ?? 0))
+    throw Error('Reconciliation IDs must be unique.');
+  if (v.reconciliations?.some((r) => r.fromDate > r.throughDate))
+    throw Error('Reconciliation end must follow its start date.');
+  if (new Set(v.provisions?.map((r) => r.id)).size !== (v.provisions?.length ?? 0))
+    throw Error('Provision IDs must be unique.');
+  if (
+    new Set(v.provisions?.filter((r) => r.enabled).map((r) => r.categoryId)).size !==
+    (v.provisions?.filter((r) => r.enabled).length ?? 0)
+  )
+    throw Error('Only one active provision is allowed per category.');
+  for (const provision of v.provisions ?? []) {
+    const c = v.categories.find((c) => c.id === provision.categoryId);
+    if (!c || c.group !== 'Living' || c.role !== 'regular')
+      throw Error('A provision must use a regular Living category.');
+    if (provision.firstDueMonth < provision.startMonth)
+      throw Error('First bill must not precede the provision start.');
+  }
   const extra = v.additionalLoans ?? [];
   if (new Set(extra.map((l) => l.id)).size !== extra.length)
     throw Error('Loan IDs must be unique.');
@@ -168,6 +221,45 @@ export function validatePlan(p: unknown): Plan {
     throw Error('Entry IDs must be unique.');
   if (v.entries.some((e) => !ids.has(e.categoryId)))
     throw Error('An entry refers to a missing category.');
+  const owners = new Map(
+    allRows.map((r) => [r.id, extra.find((l) => l.rows.some((x) => x.id === r.id))?.id]),
+  );
+  const receiptTotals = new Map<string, number>();
+  for (const e of v.entries) {
+    if (e.provisionId || e.billDueMonth) {
+      const provision = v.provisions?.find((x) => x.id === e.provisionId);
+      if (
+        !provision ||
+        !e.billDueMonth ||
+        provision.categoryId !== e.categoryId ||
+        e.billDueMonth < provision.firstDueMonth ||
+        (monthsBetween(provision.firstDueMonth, e.billDueMonth).length - 1) %
+          provision.everyMonths !==
+          0 ||
+        e.loanRowId
+      )
+        throw Error('Invalid bill liability link. Select the correct provision and due month.');
+    }
+    if (!e.loanRowId) continue;
+    const row = allRows.find((r) => r.id === e.loanRowId);
+    const cat = v.categories.find((c) => c.id === e.categoryId);
+    if (
+      !row ||
+      cat?.role !== 'emi' ||
+      cat.group !== 'Debt' ||
+      cat.loanId !== owners.get(e.loanRowId)
+    )
+      throw Error(
+        `Invalid loan receipt link for transaction ${e.id}. Restore the original backup and review its installment/category link; no transaction was removed.`,
+      );
+    if (row.paidBeforeOpening && !owners.get(e.loanRowId))
+      throw Error(
+        'An original-loan installment marked paid before opening cannot also have receipt entries. Review the duplicate payment source.',
+      );
+    const total = Math.round(((receiptTotals.get(row.id) ?? 0) + e.amount) * 100) / 100;
+    if (total > row.emi) throw Error('Combined receipts cannot exceed the scheduled installment.');
+    receiptTotals.set(row.id, total);
+  }
   if (new Set(v.loan.rows.map((r) => r.month)).size !== v.loan.rows.length)
     throw Error('Loan schedule months must be unique.');
   for (const r of v.loan.rows)

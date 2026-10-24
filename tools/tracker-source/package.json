@@ -12,7 +12,14 @@
     "build:web": "tsc --noEmit && vite build --mode web --outDir dist-web",
     "typecheck:quality": "tsc -p tsconfig.quality.json",
     "check:bundle": "node scripts/check-bundle.mjs",
-    "test:planning": "vitest run tests"
+    "test:planning": "vitest run tests --exclude=tests/browser/**",
+    "test": "vitest run tests --exclude=tests/browser/**",
+    "build": "npm run build:web",
+    "lint": "eslint src tests --ignore-pattern tests/browser",
+    "audit": "npm audit",
+    "check": "npm run lint && npm test && npm run typecheck:quality && npm run build && npm run check:bundle",
+    "test:browser": "playwright test",
+    "test:security": "node --import tsx scripts/test-security.ts"
   },
   "build": {
     "appId": "com.nandakumar.savingsandexpencetracker",
@@ -91,7 +98,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "5.2.0",
-    "electron": "44.7.2",
+    "electron": "44.9.3",
     "electron-builder": "26.15.3",
     "esbuild": "0.28.2",
     "eslint": "10.12.0",
@@ -109,6 +116,12 @@
   },
   "overrides": {
     "exceljs": {
+      "uuid": "11.1.1"
+    },
+    "undici@6.29.0": "6.29.1",
+    "undici@7.30.0": "7.30.1",
+    "fast-uri": "3.1.9",
+    "xcode": {
       "uuid": "11.1.1"
     }
   }

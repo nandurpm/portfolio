@@ -219,30 +219,13 @@ export async function exportWorkbook(
   daily.views = [{ state: 'frozen', ySplit: 7, showGridLines: false }];
   daily.autoFilter = { from: 'A7', to: `H${Math.max(8, 7 + entries.length)}` };
   const exportState = structuredClone(p);
-  exportState.settings.planStart = start;
-  exportState.settings.planEnd = end;
+  // The visible report range must never truncate the restorable financial plan.
   exportState.settings.viewStart = start;
   exportState.settings.viewEnd = end;
   exportState.settings.selectedMonth = month;
-  // Keep linked installment receipts even outside the exported budget window.
-  const extraRowIds = new Set([
-    ...p.loan.rows.map((r) => r.id),
-    ...(p.additionalLoans ?? []).flatMap((l) => l.rows.map((r) => r.id)),
-  ]);
-  exportState.entries = p.entries.filter(
-    (e) => entries.some((x) => x.id === e.id) || (e.loanRowId && extraRowIds.has(e.loanRowId)),
-  );
-  exportState.overrides = Object.fromEntries(
-    Object.entries(p.overrides).filter(([k]) => k.slice(0, 7) >= start && k.slice(0, 7) <= end),
-  );
-  exportState.loan.rows = p.loan.rows.filter((r) => r.month >= start && r.month <= end);
-  if (start > p.settings.planStart) {
-    exportState.settings.opening =
-      forecastRows.filter((r) => r.month < start).at(-1)?.cash ?? p.settings.opening;
-    budget.mergeCells('A4:G4');
-    budget.getCell('A4').value =
-      'Range export: opening savings carries the forecast cash before this range. Original cumulative balances are shown on Dashboard.';
-  }
+  budget.getCell('O1').value = 'Tracker visible entry range v1';
+  budget.getCell('O2').value = start;
+  budget.getCell('O3').value = end;
   const s = exportState.settings;
   const settingsRows = [
     ['Opening savings', s.opening],
@@ -269,9 +252,9 @@ export async function exportWorkbook(
   });
   budget.getCell('D11').numFmt = '0';
   budget.getCell('F6').value = 'Plan starts';
-  budget.getCell('I6').value = d(start + '-01');
+  budget.getCell('I6').value = d(p.settings.planStart + '-01');
   budget.getCell('F7').value = 'Plan ends';
-  budget.getCell('I7').value = d(monthEnd(end));
+  budget.getCell('I7').value = d(monthEnd(p.settings.planEnd));
   budget.getCell('I6').numFmt = budget.getCell('I7').numFmt = 'dd-mmm-yyyy';
   header(budget, 25, [
     'Category',
@@ -334,6 +317,8 @@ export async function exportWorkbook(
       if (c.loanId) formula = String(fullAmount(p, c, m));
       if (c.role === 'regular' && c.months.length)
         formula = `IF(OR(${c.months.map((n) => `MONTH(A${ri})=${n}`).join(',')}),$D$${cr},0)`;
+      const provision = p.provisions?.find((x) => x.enabled && x.categoryId === c.id);
+      if (provision) formula = String(fullAmount(p, c, m));
       if (!c.active) formula = '0';
       budget.getRow(ri).values = [
         d(m + '-01'),
@@ -343,8 +328,8 @@ export async function exportWorkbook(
           ? p.overrides[key(m, c.id)]
           : { formula, result: fullAmount(p, c, m) },
         categoryPlan(p, c, m, date),
-        c.role === 'emi' && s.emiPreviousMonth ? 'Fixed day' : c.timing,
-        c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day,
+        provision || (c.role === 'emi' && s.emiPreviousMonth) ? 'Fixed day' : c.timing,
+        provision ? provision.dueDay : c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day,
       ];
       budget.getCell(ri, 1).numFmt = 'mmm yyyy';
       budget.getCell(ri, 4).numFmt = budget.getCell(ri, 5).numFmt = currency;

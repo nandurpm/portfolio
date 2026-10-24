@@ -168,6 +168,7 @@ export async function readWorkbook(
   if (!budget || !daily) throw Error('Workbook must contain Budget and Daily entries sheets.');
   let p = structuredClone(base);
   const warnings: string[] = [];
+  let hasMetadata = false;
   if (
     ['Savings and Expense Tracker metadata v1', 'Savings and Expence Tracker metadata v1'].includes(
       str(value(budget.getCell('M1'))),
@@ -180,12 +181,19 @@ export async function readWorkbook(
         str(value(budget.getCell(i + 2, 13))),
       ).join('');
       p = validatePlan(JSON.parse(json));
+      hasMetadata = true;
     } catch {
-      warnings.push('App metadata could not be read; visible workbook values were used.');
+      throw Error(
+        'Tracker metadata is invalid. Import stopped to protect archived records and receipt links; restore a verified JSON backup instead.',
+      );
     }
   }
   const s = p.settings;
-  const controls: { cell: string; field: keyof typeof s; type: 'number' | 'month' | 'mode' }[] = [
+  const controls: {
+    cell: string;
+    field: keyof typeof s;
+    type: 'number' | 'month' | 'mode';
+  }[] = [
     { cell: 'D6', field: 'opening', type: 'number' },
     { cell: 'D7', field: 'salary31', type: 'number' },
     { cell: 'D9', field: 'raisedSalary', type: 'number' },
@@ -283,7 +291,21 @@ export async function readWorkbook(
     });
   }
   if (loanRows.length) p.loan.rows = loanRows;
-  p.overrides = {};
+  const visibleStart =
+    hasMetadata && str(value(budget.getCell('O1'))) === 'Tracker visible entry range v1'
+      ? str(value(budget.getCell('O2')))
+      : s.planStart;
+  const visibleEnd =
+    hasMetadata && str(value(budget.getCell('O1'))) === 'Tracker visible entry range v1'
+      ? str(value(budget.getCell('O3')))
+      : s.planEnd;
+  if (!validMonth(visibleStart) || !validMonth(visibleEnd) || visibleEnd < visibleStart)
+    throw Error('Invalid workbook visible range');
+  p.overrides = Object.fromEntries(
+    Object.entries(p.overrides).filter(
+      ([k]) => k.slice(0, 7) < visibleStart || k.slice(0, 7) > visibleEnd,
+    ),
+  );
   for (let r = 45; r <= budget.rowCount; r++) {
     const month = iso(value(budget.getCell(r, 1))).slice(0, 7),
       name = str(value(budget.getCell(r, 2))),
@@ -300,7 +322,7 @@ export async function readWorkbook(
     ),
   );
   const parsed = importRows(data, h.headers, p, map, h.row + 1);
-  const linked = p.entries.filter((e) => e.loanRowId);
+  const linked = p.entries;
   const used = new Set<string>();
   for (const entry of parsed.entries) {
     const saved = linked.find(
@@ -313,11 +335,13 @@ export async function readWorkbook(
     if (saved) {
       entry.id = saved.id;
       entry.loanRowId = saved.loanRowId;
+      entry.provisionId = saved.provisionId;
+      entry.billDueMonth = saved.billDueMonth;
       used.add(saved.id);
     }
   }
   const archived = linked.filter(
-    (e) => !used.has(e.id) && (e.date < s.planStart + '-01' || e.date > monthEnd(s.planEnd)),
+    (e) => !used.has(e.id) && (e.date < visibleStart + '-01' || e.date > monthEnd(visibleEnd)),
   );
   p.entries = [...parsed.entries, ...archived];
   for (const l of p.additionalLoans ?? [])
@@ -349,7 +373,7 @@ export async function readWorkbook(
       );
     }
   }
-  p.source = {
+  if (!hasMetadata) p.source = {
     filename: 'Imported workbook',
     importedAt: new Date().toISOString(),
     originalStart: s.planStart,

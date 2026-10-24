@@ -19,6 +19,8 @@ export interface Category {
   edited?: boolean;
 }
 export interface Entry {
+  provisionId?: string;
+  billDueMonth?: string;
   id: string;
   date: string;
   categoryId: string;
@@ -80,6 +82,8 @@ export interface Settings {
   };
 }
 export interface Plan {
+  reconciliations?: Reconciliation[];
+  provisions?: Provision[];
   additionalLoans?: InstallmentLoan[];
   schemaVersion: 1;
   settings: Settings;
@@ -180,4 +184,28 @@ export interface ImportPreview {
   summary: string[];
   unknownCategories: string[];
   sourceRows: number;
+}
+
+export interface Reconciliation {
+  id: string;
+  label: string;
+  fromDate: string;
+  throughDate: string;
+  openingBalance: number;
+  statementBalance: number;
+  methods: string[];
+  note: string;
+}
+export interface Provision {
+  id: string;
+  categoryId: string;
+  startMonth: string;
+  firstDueMonth: string;
+  everyMonths: number;
+  monthlyAmount: number;
+  billAmount: number;
+  openingReserve: number;
+  allocationDay: number;
+  dueDay: number;
+  enabled: boolean;
 }

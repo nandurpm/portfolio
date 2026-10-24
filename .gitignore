@@ -22,3 +22,8 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+
+# Reproducible tracker audit output (never financial backups)
+tools/tracker-source/dist-web/
+tools/tracker-source/test-results/
+tools/tracker-source/playwright-report/

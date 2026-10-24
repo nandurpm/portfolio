@@ -85,6 +85,17 @@ async function fetchRemote(): Promise<Remote | null> {
     throw Error(
       'Another device saved an older plan format. Your additional loans are preserved locally. Update that device before syncing again.',
     );
+  if (data)
+    for (const field of ['reconciliations', 'provisions'] as const) {
+      if (
+        store.get().sync?.base[field]?.length &&
+        store.get().data[field]?.length &&
+        data.data[field] === undefined
+      )
+        throw Error(
+          `Another device omitted ${field}. Sync paused to preserve the local records. Update all devices and review a full backup before continuing.`,
+        );
+    }
   if (data) data.data = cloudPlan(localPlan(data.data, store.get().data));
   return data;
 }

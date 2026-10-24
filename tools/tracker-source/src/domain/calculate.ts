@@ -70,6 +70,27 @@ export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings
       }, 0),
     );
   }
+  const provision = p.provisions?.find((r) => r.enabled && r.categoryId === c.id);
+  if (provision) {
+    if (m < provision.startMonth) return 0;
+    const end = m > p.settings.planEnd ? m : p.settings.planEnd;
+    const dueMonths = monthsBetween(provision.firstDueMonth, end).filter(
+      (_, i) => i % provision.everyMonths === 0,
+    );
+    return round(
+      dueMonths.reduce((sum, due) => {
+        const early = p.entries.filter(
+          (e) =>
+            e.provisionId === provision.id && e.billDueMonth === due && e.date.slice(0, 7) < due,
+        );
+        const prepaid = early.reduce((n, e) => n + e.amount, 0);
+        const paidHere = early
+          .filter((e) => e.date.slice(0, 7) === m)
+          .reduce((n, e) => n + e.amount, 0);
+        return sum + paidHere + (due === m ? Math.max(0, provision.billAmount - prepaid) : 0);
+      }, 0),
+    );
+  }
   if (c.months.length && !c.months.includes(+m.slice(5, 7))) return 0;
   if (c.role === 'salary') return salary(p, m);
   if (c.role === 'closure')
@@ -102,12 +123,40 @@ export function categoryPlan(
   mode = p.settings.mode,
 ) {
   const amount = fullAmount(p, c, m, mode);
+  const provision = p.provisions?.find((r) => r.enabled && r.categoryId === c.id);
+  if (
+    date &&
+    provision &&
+    c.active &&
+    m >= provision.startMonth &&
+    !(key(m, c.id) in p.overrides)
+  ) {
+    const earlyHere = p.entries.filter(
+      (e) =>
+        e.categoryId === c.id &&
+        e.provisionId === provision.id &&
+        e.billDueMonth &&
+        e.billDueMonth > m &&
+        e.date.slice(0, 7) === m,
+    );
+    const earlyTotal = earlyHere.reduce((sum, e) => sum + e.amount, 0);
+    return round(
+      timedAmount(
+        Math.max(0, amount - earlyTotal),
+        { ...c, timing: 'Fixed day', day: provision.dueDay },
+        m,
+        date,
+      ) + earlyHere.filter((e) => e.date <= date).reduce((sum, e) => sum + e.amount, 0),
+    );
+  }
   return date
     ? timedAmount(
         amount,
-        c.role === 'emi' && p.settings.emiPreviousMonth
-          ? { ...c, timing: 'Fixed day', day: p.settings.salaryDay }
-          : c,
+        provision
+          ? { ...c, timing: 'Fixed day', day: provision.dueDay }
+          : c.role === 'emi' && p.settings.emiPreviousMonth
+            ? { ...c, timing: 'Fixed day', day: p.settings.salaryDay }
+            : c,
         m,
         date,
       )

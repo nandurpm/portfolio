@@ -1,3 +1,5 @@
+import { ArchivedPayments } from '../components/ArchivedPayments';
+import { receiptScope } from '../domain/archive';
 import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { saveOriginalPayment } from '../domain/installments';
 import { PaymentReceipts } from '../components/PaymentReceipts';
@@ -141,6 +143,17 @@ export default function Loan() {
     }
     try {
       if (
+        receiptScope(p, paidDate) !== 'inside plan' &&
+        !(await confirm(
+          'Record an out-of-range loan receipt?',
+          `This payment is ${receiptScope(p, paidDate)}. It updates lifetime loan repayment but is excluded from this plan's actual cash. Before-opening payments must already be reflected in opening savings. No plan dates or opening balance will be changed.`,
+          false,
+          'Save archived receipt',
+        ))
+      )
+        return;
+
+      if (
         possibleDuplicates(p.entries, {
           id: receiptId,
           date: paidDate,
@@ -210,6 +223,7 @@ export default function Loan() {
           {p.loan.rows.length - summary.paidCount} remaining
         </p>
       </Section>
+      <ArchivedPayments />
       <AdditionalLoans />
       <h2>Original loan · schedule & early closure</h2>
       <p className="muted">

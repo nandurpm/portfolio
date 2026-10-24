@@ -126,7 +126,11 @@ export const store = {
   restore(e: Envelope) {
     const validated = envelopeFrom(e);
     const previous = current;
-    const replaced = commit(previous, 'Restore backup', (d) => Object.assign(d, validated.data));
+    const replaced = commit(previous, 'Restore backup', (d) => {
+      for (const field of ['additionalLoans', 'provisions', 'reconciliations'] as const)
+        if (validated.data[field] === undefined && d[field] !== undefined) d[field] = [];
+      Object.assign(d, validated.data);
+    });
     const item = replaced === previous ? null : replaced.audit.at(-1)!;
     current = trimHistory({
       ...validated,
@@ -146,7 +150,8 @@ export const store = {
     const plan = localPlan(data, current.data);
     current = {
       ...commit(current, 'Synchronize financial plan', (d) => {
-        if (plan.additionalLoans === undefined) delete d.additionalLoans;
+        for (const field of ['additionalLoans', 'provisions', 'reconciliations'] as const)
+          if (plan[field] === undefined && d[field] !== undefined) d[field] = [];
         Object.assign(d, plan);
       }),
       sync: meta,

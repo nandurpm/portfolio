@@ -53,6 +53,18 @@ export function presetRange(
     year = +m.slice(0, 4),
     fy = +m.slice(5, 7) < 4 ? year - 1 : year;
   switch (preset) {
+    case 'Current month':
+      return [m, m];
+    case 'Previous month':
+      return [addMonths(m, -1), addMonths(m, -1)];
+    case 'Next month':
+      return [addMonths(m, 1), addMonths(m, 1)];
+    case 'Last 3 months':
+      return [addMonths(m, -2), m];
+    case 'Next 3 months':
+      return [m, addMonths(m, 2)];
+    case 'Next 6 months':
+      return [m, addMonths(m, 5)];
     case 'This year':
       return [`${year}-01`, `${year}-12`];
     case 'This financial year (Apr–Mar)':
