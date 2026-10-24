@@ -29,6 +29,12 @@ jobs:
       - name: Build the sign-in-required website
         run: npm run test:planning && npm run typecheck:quality && npm run build:web && npm run check:bundle
         working-directory: tools/tracker-source
+      - name: Retain the exact production web build and trusted manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracker-production-web-build
+          path: tools/tracker-source/dist-web
+          retention-days: 14
       - name: Stage only the public web build
         run: node scripts/stage-tracker.mjs
       - name: Save generated assets for Cloudflare deployment
