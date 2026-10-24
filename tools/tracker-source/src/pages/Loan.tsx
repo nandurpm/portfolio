@@ -512,7 +512,12 @@ export default function Loan() {
             ))}
           </div>
         ) : (
-          <div className="table-scroll long-table-scroll">
+          <div
+            className="table-scroll long-table-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label="Original loan repayment schedule"
+          >
             <table className="data-table loan-table">
               <thead>
                 <tr>

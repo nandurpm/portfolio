@@ -29,7 +29,7 @@ assert.ok(
 let schema = await fs.readFile('database/test-fixture/schema.sql', 'utf8');
 schema = schema.slice(schema.indexOf('CREATE TABLE public.tracker_plans'));
 schema =
-  'CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS; GRANT USAGE ON SCHEMA auth,public TO tracker_plan_writer; GRANT EXECUTE ON FUNCTION auth.uid() TO tracker_plan_writer;\n' +
+  'CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS; GRANT tracker_plan_writer TO postgres; GRANT USAGE ON SCHEMA public TO tracker_plan_writer;\n' +
   schema;
 const existing = await run('psql', [
   '--dbname',

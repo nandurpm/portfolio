@@ -10,6 +10,7 @@ GRANT USAGE ON SCHEMA auth, public TO anon,authenticated,tracker_plan_writer;
 GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,tracker_plan_writer;
 CREATE TABLE public.tracker_plans(user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,data jsonb NOT NULL CHECK(jsonb_typeof(data)='object'),revision bigint NOT NULL DEFAULT 1 CHECK(revision>0),mutation_id uuid NOT NULL,updated_at timestamptz NOT NULL DEFAULT now());
 ALTER TABLE public.tracker_plans ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.tracker_plans FROM PUBLIC,anon,authenticated;
 GRANT SELECT ON public.tracker_plans TO authenticated;
 GRANT SELECT,INSERT,UPDATE ON public.tracker_plans TO tracker_plan_writer;
 CREATE POLICY "tracker_insert_own" ON public.tracker_plans FOR INSERT TO tracker_plan_writer WITH CHECK ((user_id = ( SELECT (COALESCE(NULLIF(current_setting('request.jwt.claim.sub'::text, true), ''::text), ((NULLIF(current_setting('request.jwt.claims'::text, true), ''::text))::jsonb ->> 'sub'::text)))::uuid AS "coalesce")));

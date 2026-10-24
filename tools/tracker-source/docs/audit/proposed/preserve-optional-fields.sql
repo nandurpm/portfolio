@@ -47,7 +47,7 @@ BEGIN
  ) THEN RAISE EXCEPTION 'Invalid loan receipt link' USING ERRCODE='22023'; END IF;
  RETURN NEW;
 END $$;
-REVOKE ALL ON FUNCTION public.tracker_preserve_optional_fields() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.tracker_preserve_optional_fields() FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.tracker_preserve_optional_fields() TO tracker_plan_writer;
 DROP TRIGGER IF EXISTS tracker_preserve_optional_fields ON public.tracker_plans;
 CREATE TRIGGER tracker_preserve_optional_fields BEFORE INSERT OR UPDATE OF data ON public.tracker_plans

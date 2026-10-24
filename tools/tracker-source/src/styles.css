@@ -92,9 +92,9 @@ html {
   --muted: #596579;
   --border: #e9ecf4;
   --shadow: 0 7px 26px #27346606;
-  --green: #159e83;
-  --orange: #d88635;
-  --red: #cc4b6b;
+  --green: #087861;
+  --orange: #95500c;
+  --red: #b33b59;
   --ring-track: #e9e5fb;
   color-scheme: light;
 }
@@ -976,7 +976,7 @@ code {
   background: var(--accent-soft);
 }
 .badge.past {
-  color: #7288ab;
+  color: #4b607e;
   background: #7288ab12;
 }
 .progress-cell {
@@ -2234,11 +2234,11 @@ html[data-animations='false'] *::after {
   margin-bottom: 12px;
 }
 .income-action {
-  background: linear-gradient(120deg, #109a7a, #20b69c);
+  background: linear-gradient(120deg, #087861, #0a7d69);
   color: white;
 }
 .expense-action {
-  background: linear-gradient(120deg, #d96a2d, #ef9a40);
+  background: linear-gradient(120deg, #a94b18, #95500c);
   color: white;
 }
 .comparison-controls {
@@ -3149,3 +3149,6 @@ html[data-platform='android'] .workspace::before {
 .year-jump {display:flex;gap:12px;align-items:center;margin:12px 0;flex-wrap:wrap;}
 .year-jump select {width:auto;min-width:130px;}
 @media(max-width:600px){.monthly-checklist,.budget-alert-list{grid-template-columns:1fr;}.sync-status-details{gap:14px;padding:14px;}.sync-status-details>div{min-width:120px;flex:1;}.long-table-scroll{max-height:460px;}.checklist-item p{line-height:1.7;}}
+
+.table-scroll:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+html[data-theme="dark"] .badge.past { color: #b5c5df; }

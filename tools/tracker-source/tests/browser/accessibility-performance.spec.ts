@@ -54,6 +54,8 @@ for (const width of [320, 390, 768, 1366])
       ['Forecast & Month-by-month', 'See where your plan takes you.'],
       ['Dashboard', 'A little progress. Every day.'],
     ];
+    const issues: { screen: string; id: string; target: unknown; summary: string | undefined }[] =
+      [];
     for (const [name, title] of screens) {
       if (name !== 'Loan & Closure') await navigate(page, name!);
       await expect(page.getByRole('heading', { name: title!, exact: true })).toBeVisible();
@@ -63,17 +65,20 @@ for (const width of [320, 390, 768, 1366])
       const serious = result.violations.filter(
         (v) => v.impact === 'critical' || v.impact === 'serious',
       );
-      expect(
-        serious,
-        JSON.stringify(
-          serious.map((v) => ({
-            id: v.id,
-            description: v.description,
-            nodes: v.nodes.map((n) => n.target),
-          })),
-        ),
-      ).toEqual([]);
+      for (const violation of serious)
+        for (const node of violation.nodes)
+          issues.push({
+            screen: name!,
+            id: violation.id,
+            target: node.target,
+            summary: node.failureSummary,
+          });
     }
+    await testInfo.attach('axe-findings.json', {
+      body: JSON.stringify(issues, null, 2),
+      contentType: 'application/json',
+    });
+    expect(issues, JSON.stringify(issues)).toEqual([]);
     await navigate(page, 'Forecast & Month-by-month');
     await page.getByRole('button', { name: /VIEW RANGE/ }).click();
     const dialog = page.getByRole('dialog', { name: 'Choose a view range' });

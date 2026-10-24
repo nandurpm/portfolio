@@ -189,8 +189,8 @@ export default function AdditionalLoans() {
               {summary?.next ? (
                 <>
                   Next unpaid installment:{' '}
-                  <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> →
-                  Due <strong>{showDate(summary.next.dueDate)}</strong> ·{' '}
+                  <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> → Due{' '}
+                  <strong>{showDate(summary.next.dueDate)}</strong> ·{' '}
                   <strong>{money(summary.nextAmount)}</strong>
                 </>
               ) : (
@@ -237,7 +237,12 @@ export default function AdditionalLoans() {
                 ))}
               </div>
             ) : (
-              <div className="table-scroll long-table-scroll">
+              <div
+                className="table-scroll long-table-scroll"
+                tabIndex={0}
+                role="region"
+                aria-label="Additional loan installment schedule"
+              >
                 <table className="data-table">
                   <thead>
                     <tr>

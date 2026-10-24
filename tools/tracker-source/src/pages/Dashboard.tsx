@@ -90,7 +90,12 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
     ? rows
     : rows.filter((r) => r.month >= p.settings.viewStart && r.month <= p.settings.viewEnd);
   return (
-    <div className="table-scroll long-table-scroll">
+    <div
+      className="table-scroll long-table-scroll"
+      tabIndex={0}
+      role="region"
+      aria-label="Recorded monthly progress"
+    >
       <table className="data-table progress-table">
         <thead>
           <tr>
@@ -270,7 +275,12 @@ export default function Dashboard({
             : 'Green means favourable. Actuals include only the transactions you enter.'
         }
       >
-        <div className="table-scroll">
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Monthly comparison table"
+        >
           <table className="data-table comparison">
             <thead>
               <tr>
@@ -338,7 +348,7 @@ export default function Dashboard({
         title="Every category, accounted for"
         caption="Remaining compares actuals with the full-month budget. Fixed-day items become due on their chosen date."
       >
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Category budget table">
           <table className="data-table">
             <thead>
               <tr>
