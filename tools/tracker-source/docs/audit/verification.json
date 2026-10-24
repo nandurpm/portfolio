@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-24",
+  "base_commit": "0d4fc2ed9a9281667c767114807ad5fadad19395",
+  "node": "24.19.0",
+  "clean_install": {
+    "command": "npm ci --ignore-scripts",
+    "exit_code": 0
+  },
+  "quality": {
+    "command": "npm run check",
+    "exit_code": 0,
+    "test_files": 6,
+    "tests_passed": 55,
+    "lint": "passed",
+    "quality_typecheck": "passed",
+    "production_web_build": "passed",
+    "reports_chunk_bytes": 41281,
+    "reports_budget_bytes": 120000
+  },
+  "dependency_audit": {
+    "before": {
+      "info": 0,
+      "low": 0,
+      "moderate": 4,
+      "high": 2,
+      "critical": 0,
+      "total": 6
+    },
+    "after": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    }
+  },
+  "browser": {
+    "status": "Blocked",
+    "viewport_sizes": [
+      "360x800",
+      "393x873",
+      "768x1024",
+      "1366x768",
+      "1920x1080"
+    ],
+    "reason": "Chromium and headless-shell download failures; no executable browser available; launch attempted, assertions not run"
+  },
+  "two_user_security": {
+    "status": "Blocked",
+    "harness_exit_code": 2,
+    "reason": "No authorized disposable project/test credentials; no requests made by harness"
+  },
+  "database_changes_applied": false,
+  "production_data_touched": false,
+  "deployed": false
+}

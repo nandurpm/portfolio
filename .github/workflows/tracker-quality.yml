@@ -1,0 +1,26 @@
+name: Tracker quality (no deployment)
+on:
+  pull_request:
+    paths: ['tools/tracker-source/**', '.github/workflows/tracker-quality.yml']
+  push:
+    branches: ['fix/tracker-audit-*']
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm audit
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser

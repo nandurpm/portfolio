@@ -1,3 +1,4 @@
+import { receiptScope } from '../domain/archive';
 import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
@@ -80,6 +81,17 @@ export default function AdditionalLoans() {
     e.preventDefault();
     if (!payment) return;
     try {
+      if (
+        receiptScope(p, paidDate) !== 'inside plan' &&
+        !(await confirm(
+          'Record an out-of-range loan receipt?',
+          `This payment is ${receiptScope(p, paidDate)}. It updates lifetime loan repayment but is excluded from this plan's actual cash. Before-opening payments must already be reflected in opening savings. No plan dates or opening balance will be changed.`,
+          false,
+          'Save archived receipt',
+        ))
+      )
+        return;
+
       const category = p.categories.find((c) => c.loanId === payment.loanId);
       if (
         category &&

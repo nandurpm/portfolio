@@ -1,3 +1,4 @@
+import { ArchivedPayments } from '../components/ArchivedPayments';
 import { WEB_APP } from '../web-mode';
 import { possibleDuplicates, duplicateGroups } from '../domain/insights';
 import { usePhone } from '../components/usePhone';
@@ -65,7 +66,11 @@ export default function Entries({
     [sort, setSort] = useState('date-desc'),
     [selection, setSelection] = useState<Set<string>>(new Set()),
     [bulk, setBulk] = useState(false),
-    [bulkValues, setBulkValues] = useState({ categoryId: '', date: '', payment: '' });
+    [bulkValues, setBulkValues] = useState({
+      categoryId: '',
+      date: '',
+      payment: '',
+    });
   const defaultDate = inRange(today(), s.planStart, s.planEnd) ? today() : `${s.selectedMonth}-01`;
   const [draft, setDraft] = useState({
     date: defaultDate,
@@ -88,7 +93,9 @@ export default function Entries({
     : (quickCategories.find((c) => c.role === 'salary' || c.id === 'food')?.id ??
       quickCategories[0]?.id ??
       '');
+  const [billDueMonth, setBillDueMonth] = useState('');
   const selectedCategory = p.categories.find((c) => c.id === activeCategoryId);
+  const activeProvision = p.provisions?.find((x) => x.enabled && x.categoryId === activeCategoryId);
   const entryMonth = validMonth(draft.date.slice(0, 7)) ? draft.date.slice(0, 7) : s.selectedMonth;
   const draftBudget = selectedCategory ? categoryPlan(p, selectedCategory, entryMonth) : 0;
   const draftSpent = selectedCategory
@@ -192,6 +199,9 @@ export default function Entries({
       const n: Entry = {
         id: crypto.randomUUID(),
         ...draft,
+        ...(activeProvision && billDueMonth
+          ? { provisionId: activeProvision.id, billDueMonth }
+          : {}),
         categoryId: activeCategoryId,
         amount: Number(draft.amount),
         edited: true,
@@ -212,6 +222,7 @@ export default function Entries({
         d.entries.push(n);
       });
       setDraft((x) => ({ ...x, description: '', amount: '', notes: '' }));
+      setBillDueMonth('');
       amountRef.current?.focus();
       try {
         await store.flush();
@@ -243,7 +254,14 @@ export default function Entries({
     )
       return;
     safe(() => {
-      const entry = { ...row, id: crypto.randomUUID(), loanRowId: undefined, edited: true };
+      const entry = {
+        ...row,
+        id: crypto.randomUUID(),
+        loanRowId: undefined,
+        provisionId: undefined,
+        billDueMonth: undefined,
+        edited: true,
+      };
       validateEntry(entry, p);
       store.change('Duplicate transaction', (d) => {
         d.entries.push(entry);
@@ -255,7 +273,10 @@ export default function Entries({
     safe(() => {
       for (const row of p.entries.filter((e) => selection.has(e.id)))
         validateEntry(
-          { ...row, ...Object.fromEntries(Object.entries(bulkValues).filter(([, v]) => v)) },
+          {
+            ...row,
+            ...Object.fromEntries(Object.entries(bulkValues).filter(([, v]) => v)),
+          },
           p,
           archive && !bulkValues.date,
         );
@@ -441,6 +462,19 @@ export default function Entries({
               onChange={(e) => setDraft({ ...draft, amount: e.target.value })}
             />
           </Field>
+          {activeProvision && (
+            <Field
+              label="Bill due month (optional)"
+              hint="For an early bill payment, select its liability month to avoid a second forecast charge."
+            >
+              <input
+                aria-label="New bill due month"
+                type="month"
+                value={billDueMonth}
+                onChange={(e) => setBillDueMonth(e.target.value)}
+              />
+            </Field>
+          )}
           <Field label="Payment">
             <select
               value={draft.payment}
@@ -470,6 +504,7 @@ export default function Entries({
           </Field>
         </form>
       </Section>
+      {archive && <ArchivedPayments />}
       {duplicates.length > 0 && (
         <div className="callout error" role="status">
           <strong>Possible duplicate entries</strong>
@@ -777,7 +812,11 @@ export default function Entries({
                         <button
                           draggable
                           onDragStart={() => {
-                            drag.current = { id: row.id, field: 'date', value: row.date };
+                            drag.current = {
+                              id: row.id,
+                              field: 'date',
+                              value: row.date,
+                            };
                           }}
                           className="fill-handle"
                           title="Drag to fill dates"
@@ -852,7 +891,11 @@ export default function Entries({
                         <button
                           draggable
                           onDragStart={() => {
-                            drag.current = { id: row.id, field: 'payment', value: row.payment };
+                            drag.current = {
+                              id: row.id,
+                              field: 'payment',
+                              value: row.payment,
+                            };
                           }}
                           className="fill-handle"
                           title="Drag to fill payment"
@@ -916,7 +959,14 @@ export default function Entries({
               <select
                 aria-label="Edit transaction category"
                 value={editEntry.categoryId}
-                onChange={(e) => setEditEntry({ ...editEntry, categoryId: e.target.value })}
+                onChange={(e) =>
+                  setEditEntry({
+                    ...editEntry,
+                    categoryId: e.target.value,
+                    provisionId: undefined,
+                    billDueMonth: undefined,
+                  })
+                }
               >
                 {p.categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -925,6 +975,26 @@ export default function Entries({
                 ))}
               </select>
             </Field>
+            {p.provisions?.some((x) => x.categoryId === editEntry.categoryId && x.enabled) && (
+              <Field label="Bill liability due month (optional)">
+                <input
+                  aria-label="Edit bill liability due month"
+                  type="month"
+                  value={editEntry.billDueMonth ?? ''}
+                  onChange={(e) =>
+                    setEditEntry({
+                      ...editEntry,
+                      billDueMonth: e.target.value || undefined,
+                      provisionId: e.target.value
+                        ? p.provisions?.find(
+                            (x) => x.categoryId === editEntry.categoryId && x.enabled,
+                          )?.id
+                        : undefined,
+                    })
+                  }
+                />
+              </Field>
+            )}
             <Field label="Description">
               <input
                 aria-label="Edit transaction description"

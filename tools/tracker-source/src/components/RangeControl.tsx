@@ -12,10 +12,17 @@ import {
 import { Modal, Field, useUi } from './UI';
 const presets = [
   'Full plan',
+  'Current month',
+  'Previous month',
+  'Next month',
+  'Last 3 months',
+  'Last 6 months',
+  'Next 3 months',
+  'Next 6 months',
+  'Next 12 months',
   'This year',
   'This financial year (Apr–Mar)',
-  'Last 6 months',
-  'Next 12 months',
+  'Original imported range',
   'Custom',
 ];
 export function RangeControl({
@@ -107,11 +114,11 @@ export function RangeControl({
             <select
               defaultValue="Custom"
               onChange={(e) => {
-                const [a, b] = presetRange(
-                  e.target.value,
-                  kind === 'plan' ? p.source.originalStart : s.planStart,
-                  kind === 'plan' ? p.source.originalEnd : s.planEnd,
-                );
+                if (e.target.value === 'Custom') return;
+                const [a, b] =
+                  e.target.value === 'Original imported range'
+                    ? [p.source.originalStart, p.source.originalEnd]
+                    : presetRange(e.target.value, s.planStart, s.planEnd);
                 setStart(kind === 'view' ? clampMonth(a, s.planStart, s.planEnd) : a);
                 setEnd(kind === 'view' ? clampMonth(b, s.planStart, s.planEnd) : b);
               }}

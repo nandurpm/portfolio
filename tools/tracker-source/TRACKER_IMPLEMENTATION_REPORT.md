@@ -1,0 +1,90 @@
+# Tracker implementation report
+
+Date: 2026-10-24. Repository: `nandurpm/portfolio`. Source: `tools/tracker-source`.
+Working branch: `fix/tracker-audit-20261024`.
+Audited/latest-main checkpoint: `0d4fc2ed9a9281667c767114807ad5fadad19395` (rechecked before publication; unchanged).
+Primary register: supplied `TRACKER_FULL_AUDIT_REPORT.md`. Findings independently checked against that exact current baseline.
+
+**Review branch only. Not merged, deployed, or approved for production.** Financial/domain checks pass; authenticated security and visual release gates remain blocked. No production financial records were read or changed. No live migration, grant, policy, database write, reset or destructive operation was performed. No production backup was copied into Git.
+
+Paths below are relative to the source directory unless prefixed with repository root.
+
+| ID | Issue | Files Changed | Fix Applied | Tests | Result |
+| -- | ----- | ------------- | ----------- | ----- | ------ |
+| BUG-001 | Full plan reverted to imported range | `src/components/RangeControl.tsx`, `src/domain/dates.ts`, `tests/audit-corrections.test.ts` | Use current settings for Full plan; explicit Original imported range action; preserve display/plan separation | Extended-plan/current-versus-source fixture, preset boundaries, view-only state | **Fixed** |
+| BUG-002 | Standard npm test/build absent | `package.json`, `eslint.config.mjs`, repository root `.github/workflows/tracker-quality.yml` | Add test/build/check/lint/audit/browser/security commands and read-only quality workflow | `npm test`, `npm run build`, full `npm run check` succeeded locally | **Fixed** |
+| BUG-003 | Reproducibility under wrong Node engine | `.nvmrc`, `.node-version`, `README.md`, repository root `.github/workflows/build-tracker.yml` and `tracker-quality.yml` | Pin Node 24.19.0; use version file in workflows; retain supported >=24 <25 | Clean `npm ci --ignore-scripts` under Node 24.19.0; no engine bypass | **Fixed** for supported environment; Node 22 remains unsupported |
+| BUG-004 | Orphan/cross-loan receipt links accepted on load | `src/domain/validation.ts`, `tests/audit-corrections.test.ts` | Validate row existence, original/additional loan ownership, EMI category, duplicate paid-before-opening state and receipt totals; reject invalid backups without changing their input | Malformed/valid legacy backups, wrong owner, overpayment, atomic rejection | **Fixed** |
+| BUG-005 | Out-of-range EMI archive/cash behavior unclear | `src/domain/archive.ts`, `src/components/ArchivedPayments.tsx`, `src/pages/Loan.tsx`, `src/components/AdditionalLoans.tsx`, `src/pages/Entries.tsx` | Explicit lifetime receipt ledger and confirmation for before/after-plan receipts; explain opening cash; no automatic opening/range mutation | Before-start/after-end/original/additional-loan and cross-month partial fixtures | **Fixed** at domain/source level; visual confirmation checks remain blocked below |
+| FIN-001 | Advance/partial/edit/delete/double-count integrity | `tests/audit-corrections.test.ts`, `tests/fixtures/financial.ts` | Retain verified cash-basis EMI semantics; independently calculated regression fixtures | Advance scenarios A/B, partial receipts, edit/delete/undo, reject overpayment, legitimate separate partial receipts, negative carry-forward, salary raise, closure | **Fixed** for covered regressions; no broad claim for every possible plan |
+| RANGE-001 | Forecast presets and month/year selection | `src/components/RangeControl.tsx`, `src/domain/dates.ts` | Current/previous/next, last 3/6, next 3/6/12, full current plan, imported range and custom month inputs | Calendar/leap/year boundaries and plan/view independence | **Fixed**; view remains inside current plan; explicitly extend plan to forecast further |
+| DATA-001 | Selected-range XLSX could omit unrelated records/loan rows | `src/io/export.ts`, `src/io/import.ts`, `tests/io-and-provision.test.ts` | Keep full-plan metadata/loan schedule; visible-range marker; retain entries and overrides outside visible interval; preserve receipt/provision IDs; reject corrupt tracker metadata | Full/selected-range XLSX round trips including archive, links, optional records, overrides; JSON/CSV tests | **Fixed** for tested valid formats; malformed metadata is intentionally blocked |
+| DATA-002 | Restore could retain optional records absent from older backup | `src/store.ts`, `tests/persistence.test.ts` | Clear absent optional collections explicitly on restore/cloud replacement; retain undo of restore | Legacy backup restore and undo | **Fixed** locally; mixed-client server protection remains separate |
+| BAL-001 | Bank-balance reconciliation | `src/domain/balances.ts`, `src/domain/types.ts`, `src/domain/validation.ts`, `src/pages/Balances.tsx`, `src/App.tsx` | Statement comparison using opening + recorded income − expenses and chosen payment methods; display difference; never insert adjustment | Filtered synthetic statement, totals/difference, validation | **Partially Fixed**: domain/UI implemented; authenticated/responsive checks blocked; account transfers not modeled |
+| PROV-001 | Separate reserves for bills every two months | Same balance/domain/UI files; `src/domain/calculate.ts`, `src/components/MoneyGuidance.tsx`, `src/pages/Entries.tsx` | Opt-in bill schedule, independent earmarked reserve, actual liability link for early payments; monthly allocations never extra cash expenses | Two-month bill cycle, reserve drawdown, early payment scenario C, due-day boundary, liability validation/backup | **Partially Fixed**: calculations pass; mixed-client guard/release UI gates outstanding |
+| SYNC-001 | Older clients may omit new optional fields | `src/cloud/sync.ts`, `docs/audit/proposed/preserve-optional-fields.sql`, `docs/audit/SECURITY_VERIFICATION.md` | Client detection preserves local data and reports omitted fields; prepare server guard only | Source review; merge/conflict unit fixtures pass; SQL not executed/tested | **Partially Fixed**; do not enable mixed-version writes until guard reviewed/staged/approved and clients upgraded |
+| SEC-001 | RLS/user ownership/RPC authorization | `scripts/test-security.ts`, `docs/audit/SECURITY_VERIFICATION.md` | Inspect actual metadata/policies/grants/function; add production-refusing opt-in disposable-project harness | Metadata inspection completed; test command exits 2 Blocked without credentials and makes no requests | **Blocked** for required two-user runtime isolation; not claimed secure |
+| AUTH-001 | Google/password/session/logout verification | `README.md`, security documentation/harness | Retain existing auth; document required isolated tests | No authorized test credentials/project available; no production accounts used | **Blocked** |
+| UI-001 | Five viewports, charts/forms/navigation/modals/accessibility | `playwright.config.ts`, `tests/browser/harness.html`, `harness.tsx`, `responsive.spec.ts` | Synthetic real-shell fixture, network block, five viewport tests/navigation/range/forms/overflow/screenshots | Browser command attempted; launch blocked by missing Chromium; full Chromium and headless-shell downloads both failed/truncated | **Blocked**; authenticated UI, keyboard/safe area/charts not certified |
+| SAVE-001 | Save failure/retry/corrupt-data protection | `tests/persistence.test.ts`; existing store/failure UI retained | Prove in-memory changes survive failed storage, retry persists, corrupt input locks editing without overwriting | Three persistence tests including old-backup undo | **Fixed** for local tested paths; network lifecycle remains unverified |
+| UX-001 | Unnecessary Saved locally web message | Existing `src/App.tsx` guard retained | Baseline already hides normal web success message, retains failure/recovery/cloud indicators | Source evidence: `!WEB_APP || status !== 'Saved locally'` | **Not Reproducible** in latest source; visual check blocked |
+| NATIVE-001 | TrackerNative double registration | No native rewrite | Latest source has one `registerPlugin('TrackerNative')` in `src/native-tracker.ts`; installed native artifact unavailable | Source search only | **Not Reproducible** in source; native runtime verification **Blocked** |
+| DEP-001 | Full dependency audit six advisories | `package.json`, `package-lock.json` | Electron 44.9.3; targeted patched undici/fast-uri and xcode UUID override | Full audit 6 → 0; clean install; xcode UUID/CJS smoke and Capacitor CLI 8.5.3 pass | **Fixed** for dependency tree; native installers not built |
+| CI-001 | Repeatable quality workflow | Repository root `.github/workflows/tracker-quality.yml`, `build-tracker.yml`, `.gitignore` | Read-only branch/PR checks; production writer job restricted to main; ignore generated test/build artifacts | Local commands pass; hosted workflow run not observed at report preparation | **Partially Fixed** until hosted CI passes |
+| REL-001 | Loading/error/performance reliability | Existing Boundary/Suspense/save retry and online sync retry retained; new Balances lazy route | Avoid unnecessary rewrite; retain visible errors and recovery; preserve deferred Excel/chart chunks | Build and existing Reports chunk gate pass | **Partially Fixed**: source/build reviewed, complete interruption/accessibility E2E blocked |
+
+## Financial semantics and independently calculated examples
+
+Synthetic fixtures deliberately use different amounts from production. No example was inserted into any real account.
+
+- **A:** November 5, 2026 installment 100 paid October 20 once. Lifetime repayment increases by 100, October receipt remains archived, November does not deduct that installment again. Opening plan cash must already reflect the October payment. This verified behavior is retained, not replaced with a second November expense.
+- **B:** December installment 100 paid November 10. A single receipt satisfies December liability; November cash forecast includes 100, December includes zero for that installment. With fixture opening 500, salary 1000 and living 100, November ending forecast cash is **1300**.
+- **Partial B:** 40 paid in November, 60 in December; receipt total 100, outstanding 60 then zero. In due-month mode including the other November installment, EMI budgets are November **140**, December **60**. Actual cash follows each receipt date.
+- **Overpayment/duplicates:** EMI receipt totals above installment EMI are rejected atomically, not silently written off as interest or moved to another installment. Duplicate permanent IDs are invalid. Two distinct legitimate 50 receipts are allowed; the UI's existing suspicious-duplicate confirmation is retained. Do not automatically deduplicate equal-value real transfers.
+- **C:** A bill due December 5 paid November 10 for 100 links to the December liability. November/December bill cash forecasts are **100/0**, with a single actual expense. The contractual due month remains December.
+- **Carry-forward:** Independent negative-cash fixture checks month-end balances **−1100, −1700, −2200, −2500**. Editing/deleting receipts changes all dependent summaries and paid flags; undo restores prior values. Salary increase uses earning month and following-month receipt rules.
+- Actual cash reports sum recorded entries once within their accounting/date scope. Forecasts remain budget predictions, not historical actual transactions. Planned payment date is derived from due date and the previous-month salary-day rule; actual date is the entry date, accounting month is its calendar month. Due date and installment identity remain on the liability row; paid amount is receipt sum and outstanding is EMI less that sum.
+
+### New opt-in behavior, before and after
+
+Previously every regular bill category forecast used its flat monthly base amount. With an enabled provision, that category instead uses the expected full bill amount in scheduled due months, zero in intervening months, and linked advance payments move the corresponding cash budget to their actual month. Existing monthly overrides still win. Without a provision, calculations are unchanged.
+
+A synthetic 100 bill every two months with 50 monthly reserve allocation forecasts November/December/January/February bill cash **0/100/0/100**. Reserve is opening reserve + allocations through the report date − actual category bill payments since reserve start. Before December payment the earmarked reserve is 100; paying 100 reduces reserve to zero. Allocation is neither another expense nor a bank transfer. A reserve may be negative, revealing underfunding. This is a simple earmarking ledger, not a real bank subaccount or available-cash guarantee.
+
+Reconciliation compares statement minus opening-plus-ledger balance, filtered by exact payment method names. It does not change opening savings, create balancing transactions or perform bank imports. Internal account transfers/multi-account double-entry accounting are outside the existing data model; use a combined balance or methods that accurately represent the statement.
+
+## Verification results
+
+- Node **24.19.0**. Clean `npm ci --ignore-scripts` with engine checks supported; native install downloads intentionally skipped. No `--force`/engine bypass.
+- `npm run check`: **passed** lint, **55 tests in 6 files**, strict quality TypeScript check, authenticated web production build and bundle guard.
+- `npm run audit`: **0 vulnerabilities**, full dependency tree (before: 2 high + 4 moderate). Registry advisories are a point-in-time check, not a lifetime security guarantee.
+- xcode UUID override/CJS compatibility smoke: **passed**; Capacitor CLI version smoke: **8.5.3**, passed. Native packaging/platform SDK validation **Deferred**.
+- Production build: passed. Reports JS **41,281 bytes**, below 120,000 byte guard. ExcelJS remains a large action-loaded chunk; no broad dependency rewrite. Nonfatal upstream Zod annotation warnings remain.
+- Browser tests: **Blocked**, five cases could not launch. No viewport assertion or authenticated screenshot is claimed to have passed. Download failures affect full Chromium and the headless-shell fallback.
+- Security command: **Blocked** (exit 2, no requests). Two-user authorization/concurrent RPC tests have not run. Source merge tests are not database authorization tests.
+- No hosted CI result is claimed here; inspect the branch/PR checks before release.
+
+Test files: existing `advance-emi`, `insights`, `guidance-ui` suites plus `tests/audit-corrections.test.ts`, `tests/io-and-provision.test.ts`, `tests/persistence.test.ts`; shared synthetic fixture in `tests/fixtures/financial.ts`. See `docs/audit/changed-files.txt` for the complete changed-file inventory.
+
+## Security checks and remaining access requirements
+
+See `docs/audit/SECURITY_VERIFICATION.md` for actual inspected policies/grants/RPC behavior. RLS is enabled, authenticated table writes are restricted, and the RPC derives owner from claims, checks revisions/mutation IDs and serializes owner writes. This is metadata evidence only. Required cross-user tests, real password/OAuth/session lifecycle, and network/concurrent database verification remain **Blocked** pending an authorized isolated project with two empty test accounts. Leaked-password protection is disabled; no setting changed. Authenticated SECURITY DEFINER execution is an advisor warning requiring runtime authorization review, not a passed finding.
+
+No automatic messages, emails or user invitations were sent.
+
+## Data compatibility, proposed migration and rollback
+
+There is **no applied database change** and no transaction conversion. Optional JSON fields are additive; valid older backups load, malformed links reject without rewriting their original file. Restore of an older backup is explicitly undoable. XLSX reports now preserve full-plan metadata, all loan rows and out-of-view/archived records; the visible range is separate. Legacy exports that already omitted records cannot recover data that was never present: retain existing JSON backups.
+
+Before an approved release:
+
+1. Export full JSON backups on every active device; verify them with the new validator and compare counts/receipt IDs using copies. Retain originals outside Git. Inspect any rejected legacy file rather than silently repairing or discarding records.
+2. Upgrade all web/native clients. Review and test `docs/audit/proposed/preserve-optional-fields.sql` in staging. This server guard is only a proposal and requires separate approval; it blocks omitted collections/EMI settings, does not replace full server field/reference validation, and does not guarantee preservation against deliberate deletes.
+3. Complete two-account isolation/auth/session/duplicate/concurrent write tests, five authenticated viewport checks and native compatibility/build verification. Do not use production financial records for tests.
+4. Obtain merge/deployment approval, retain previous assets/installers and record cloud revision. Do not trigger the production writer workflow from this branch.
+
+Before merge, rollback is simply leaving this branch unmerged: main/live/data are unchanged. After a separately approved release, use a new revert commit and restore the prior assets/installers. Export current data first; prevent incompatible clients from syncing; never reset production or blindly restore an old backup over later transactions. Keep newer optional records in verified backups. Proposed guard rollback only drops its trigger/function, never financial rows; review separately before executing. Full steps: `docs/audit/SAFETY_AND_ROLLBACK.md`.
+
+## Deployment readiness
+
+**Not ready for production approval yet.** Source financial/import/persistence regressions and web build pass. Security isolation/authentication, authenticated responsive QA, mixed-client compatibility approval, hosted CI and native validation remain release gates. Branch changes are reviewable; no merge/deployment/live policy alteration was performed. No unrelated rewrite or new account-transfer architecture was introduced.

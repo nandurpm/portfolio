@@ -94,10 +94,11 @@ export function MonthlyChecklist() {
     >
       <div className="monthly-checklist">
         {regular.map((c) => {
+          const provision = p.provisions?.find((r) => r.enabled && r.categoryId === c.id);
           const expected = categoryPlan(p, c, month),
             recorded = actualCategory(p, c, month, cutoff),
             income = c.group === 'Income',
-            fixed = c.timing === 'Fixed day',
+            fixed = c.timing === 'Fixed day' || !!provision,
             left = round(Math.max(0, expected - recorded));
           const status = income
             ? recorded >= expected
@@ -126,7 +127,7 @@ export function MonthlyChecklist() {
               </p>
               <small>
                 {fixed
-                  ? `${income ? 'Receive' : 'Pay'} ${displayDate(monthDay(month, c.day))} · `
+                  ? `${income ? 'Receive' : 'Pay'} ${displayDate(monthDay(month, provision?.dueDay ?? c.day))} · `
                   : ''}
                 {money(left)} {income ? 'still expected' : 'budget remaining'}
               </small>

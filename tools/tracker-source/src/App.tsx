@@ -38,12 +38,14 @@ const Entries = lazy(() => import('./pages/Entries')),
   Loan = lazy(() => import('./pages/Loan')),
   Forecast = lazy(() => import('./pages/Forecast')),
   Reports = lazy(() => import('./pages/Reports')),
+  Balances = lazy(() => import('./pages/Balances')),
   Settings = lazy(() => import('./pages/Settings'));
 const pages = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
   { id: 'entries', name: 'Daily Entries', icon: ReceiptText },
   { id: 'budget', name: 'Budget & Plan', icon: WalletCards },
   { id: 'loan', name: 'Loan & Closure', icon: Landmark },
+  { id: 'balances', name: 'Balances & provisions', icon: WalletCards },
   { id: 'forecast', name: 'Forecast & Month-by-month', icon: ChartNoAxesCombined },
   { id: 'reports', name: 'Reports & Export/Import', icon: FileDown },
   { id: 'settings', name: 'Settings', icon: SettingsIcon },
@@ -66,7 +68,7 @@ class Boundary extends Component<{ children: ReactNode }, { error: string }> {
     return this.props.children;
   }
 }
-function Shell() {
+export function Shell() {
   const cloud = useCloud();
   const p = usePlan(),
     env = useEnvelope(),
@@ -288,6 +290,7 @@ function Shell() {
                     forecast: 'Forecast',
                     reports: 'Reports',
                     settings: 'Settings',
+                    balances: 'Balances',
                   } as Record<string, string>
                 )[page]
               }
@@ -411,6 +414,8 @@ function Shell() {
                       <Loan />
                     ) : page === 'forecast' ? (
                       <Forecast />
+                    ) : page === 'balances' ? (
+                      <Balances />
                     ) : page === 'reports' ? (
                       <Reports />
                     ) : (
@@ -448,7 +453,9 @@ function Shell() {
           <button
             aria-label="More screens"
             aria-expanded={more}
-            aria-current={['loan', 'reports', 'settings'].includes(page) ? 'page' : undefined}
+            aria-current={
+              ['loan', 'balances', 'reports', 'settings'].includes(page) ? 'page' : undefined
+            }
             onClick={() => setMore(true)}
           >
             <MoreHorizontal size={22} />
@@ -459,15 +466,17 @@ function Shell() {
           <Modal title="More screens & tools" onClose={() => setMore(false)}>
             <div className="phone-menu">
               {pages
-                .filter((x) => ['loan', 'reports', 'settings'].includes(x.id))
+                .filter((x) => ['loan', 'balances', 'reports', 'settings'].includes(x.id))
                 .map((x) => (
                   <button key={x.id} className="button secondary" onClick={() => navigate(x.id)}>
                     <x.icon size={22} />
-                    {x.id === 'loan'
-                      ? 'Loan & Closure'
-                      : x.id === 'reports'
-                        ? 'Reports & Export/Import'
-                        : 'Settings'}
+                    {x.id === 'balances'
+                      ? 'Balances & provisions'
+                      : x.id === 'loan'
+                        ? 'Loan & Closure'
+                        : x.id === 'reports'
+                          ? 'Reports & Export/Import'
+                          : 'Settings'}
                   </button>
                 ))}
               <div className="phone-menu-actions">
