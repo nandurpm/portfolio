@@ -1,3 +1,4 @@
+import { WEB_APP } from '../web-mode';
 import { useState } from 'react';
 import {
   FileSpreadsheet,
@@ -423,24 +424,30 @@ export default function Reports() {
             <Upload size={17} />
             Restore JSON backup
           </button>
-          <button
-            className="button secondary"
-            disabled={!!busy || !window.desktop}
-            title={!window.desktop ? 'Automatic backup folder is available in the desktop app' : ''}
-            onClick={() =>
-              void run('Automatic backup', async () => {
-                await store.flush();
-                return store.backup();
-              })
-            }
-          >
-            Back up now
-          </button>
+          {!WEB_APP && (
+            <button
+              className="button secondary"
+              disabled={!!busy || !window.desktop}
+              title={
+                !window.desktop ? 'Automatic backup folder is available in the desktop app' : ''
+              }
+              onClick={() =>
+                void run('Automatic backup', async () => {
+                  await store.flush();
+                  return store.backup();
+                })
+              }
+            >
+              Back up now
+            </button>
+          )}
         </div>
         <p className="footnote">
-          {window.desktop?.platform === 'android'
-            ? 'Changed data is backed up when the app moves to the background. The latest ten distinct snapshots are kept. Use Export full backup to choose a phone folder.'
-            : 'Windows backs up on exit and retains ten copies. A second backup folder can be selected in Settings.'}
+          {WEB_APP
+            ? 'Export a full JSON backup to keep a separate copy of your complete plan and history.'
+            : window.desktop?.platform === 'android'
+              ? 'Changed data is backed up when the app moves to the background. The latest ten distinct snapshots are kept. Use Export full backup to choose a phone folder.'
+              : 'Windows backs up on exit and retains ten copies. A second backup folder can be selected in Settings.'}
         </p>
       </Section>
       {busy && (

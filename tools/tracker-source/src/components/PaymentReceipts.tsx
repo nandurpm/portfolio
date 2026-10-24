@@ -1,9 +1,12 @@
+import { displayDate } from '../domain/dates';
 import type { Entry } from '../domain/types';
 import { money } from '../domain/calculate';
 export function PaymentReceipts({
   receipts,
   onEdit,
+  dateFormat = 'dd-MMM-yyyy',
 }: {
+  dateFormat?: string;
   receipts: Entry[];
   onEdit: (receipt: Entry) => void;
 }) {
@@ -17,7 +20,7 @@ export function PaymentReceipts({
       {receipts.map((e) => (
         <div className="receipt-row" key={e.id}>
           <span>
-            {e.date} · {money(e.amount)} · {e.payment}
+            {displayDate(e.date, dateFormat)} · {money(e.amount)} · {e.payment}
           </span>
           <button className="button small secondary" type="button" onClick={() => onEdit(e)}>
             Edit receipt

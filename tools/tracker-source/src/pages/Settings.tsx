@@ -154,7 +154,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           Open Budget &amp; Plan
         </button>
       </Section>
-      {window.desktop?.platform !== 'android' && (
+      {!WEB_APP && window.desktop && window.desktop.platform !== 'android' && (
         <Section
           title="Reminders & desktop behaviour"
           caption="Windows notifications run while the app is open or in the tray. Enable start at login to keep them available after a restart."
@@ -225,7 +225,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           </div>
         )}
         <BackupStatus />
-        {window.desktop?.platform !== 'android' && (
+        {!WEB_APP && window.desktop && window.desktop.platform !== 'android' && (
           <Field label="Additional backup folder">
             <input
               readOnly
@@ -234,7 +234,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
             />
           </Field>
         )}
-        {window.desktop?.platform !== 'android' && (
+        {!WEB_APP && window.desktop && window.desktop.platform !== 'android' && (
           <div className="backup-actions">
             <button
               className="button secondary"
@@ -291,14 +291,11 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
                 ? 'Android'
                 : window.desktop
                   ? 'Windows app'
-                  : 'Browser preview'}
+                  : WEB_APP
+                    ? 'Web app'
+                    : 'Browser preview'}
             </p>
             <p>Source plan: {p.source.filename}</p>
-            <p>
-              Calculation difference resolved from the workbook: closure uses closing cash, releases
-              the next EMI reserve, and retains “Insufficient cash”, “Below cushion” and “Meets
-              cushion”.
-            </p>
           </div>
           <Info size={22} />
         </div>

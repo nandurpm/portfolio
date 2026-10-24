@@ -1,3 +1,4 @@
+import { defaultViewRange } from '../domain/view-range';
 import { useState } from 'react';
 import { CalendarRange, ChevronDown, Check } from 'lucide-react';
 import { store, usePlan } from '../store';
@@ -70,12 +71,12 @@ export function RangeControl({
     }
     try {
       store.change(`${kind === 'plan' ? 'Plan' : 'View'} range: ${start} → ${end}`, (d) => {
+        d.settings.displayRangeVersion = 1;
         if (kind === 'plan') {
           d.settings.planStart = start;
           d.settings.planEnd = end;
           d.settings.selectedMonth = clampMonth(d.settings.selectedMonth, start, end);
-          d.settings.viewStart = start;
-          d.settings.viewEnd = end;
+          [d.settings.viewStart, d.settings.viewEnd] = defaultViewRange(start, end);
         } else {
           d.settings.viewStart = start;
           d.settings.viewEnd = end;

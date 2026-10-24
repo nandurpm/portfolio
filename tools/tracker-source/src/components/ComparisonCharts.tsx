@@ -1,3 +1,4 @@
+import { currencyAxis } from '../domain/display';
 import { useMemo, useState } from 'react';
 import {
   Bar,
@@ -85,9 +86,9 @@ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'm
                     tick={{ fill: 'var(--muted)', fontSize: 11 }}
                   />
                   <YAxis
-                    width={56}
+                    width={94}
                     tick={{ fill: 'var(--muted)', fontSize: 11 }}
-                    tickFormatter={(v) => `${Number(v) / 1000}k`}
+                    tickFormatter={currencyAxis}
                   />
                   <Tooltip
                     formatter={(value) => money(Number(value))}

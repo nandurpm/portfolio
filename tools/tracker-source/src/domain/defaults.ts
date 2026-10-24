@@ -1,3 +1,4 @@
+import { initializeDisplayRange } from './view-range';
 import seed from './seed.json' with { type: 'json' };
 import type { Plan, Envelope } from './types';
 import { APP_NAME } from './types';
@@ -11,7 +12,7 @@ export function freshPlan(): Plan {
     p.settings.planStart,
     p.settings.planEnd,
   );
-  return p;
+  return initializeDisplayRange(p);
 }
 export const freshEnvelope = (): Envelope => ({
   format: APP_NAME,
