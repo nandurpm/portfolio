@@ -1,6 +1,5 @@
 import { createClient, type Session } from '@supabase/supabase-js';
 import config from './config.json';
-import { WEB_APP } from '../web-mode';
 const storage = {
   getItem: async (key: string) =>
     window.desktop?.sessionGet ? window.desktop.sessionGet(key) : sessionStorage.getItem(key),
@@ -18,7 +17,7 @@ export const supabase = createClient(config.url, config.publishableKey, {
     storage,
     storageKey: 'tracker-auth-v1',
     persistSession: true,
-    autoRefreshToken: WEB_APP,
+    autoRefreshToken: true,
     detectSessionInUrl: false,
     flowType: 'pkce',
   },

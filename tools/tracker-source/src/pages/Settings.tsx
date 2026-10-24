@@ -219,7 +219,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           <div className="storage-info">
             <Shield size={28} />
             <div>
-              <strong>{status}</strong>
+              {status !== 'Saved locally' && <strong role="status">{status}</strong>}
               <code>{dataPath}</code>
             </div>
             <Badge tone="income">{env.sync ? 'Private sync' : 'Local only'}</Badge>

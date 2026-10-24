@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
       {
         name: 'tracker-build-manifest',
         async writeBundle(options) {
-          if (mode !== 'web') return;
+          if (mode !== 'web' && mode !== 'release') return;
           const root = path.resolve(options.dir ?? 'dist-web');
           const files: Record<string, string> = {};
           async function walk(dir: string) {
@@ -35,7 +35,7 @@ export default defineConfig(({ command, mode }) => {
           await walk(root);
           await fs.writeFile(
             path.join(root, 'build.json'),
-            JSON.stringify({ ...info, requiresSignIn: true, route: '/track/', files }, null, 2) +
+            JSON.stringify({ ...info, requiresSignIn: mode === 'web', route: mode === 'web' ? '/track/' : null, files }, null, 2) +
               '\n',
           );
         },

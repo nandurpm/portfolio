@@ -4,7 +4,9 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   timeout: 120000,
   workers: 1,
-  use: { baseURL: 'http://127.0.0.1:5173', headless: true },
+  use: { baseURL: 'http://127.0.0.1:5173', headless: true,
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : undefined },
   webServer: {
     command: 'npx vite --host 127.0.0.1 --mode audit-ui',
     url: 'http://127.0.0.1:5173/tests/browser/harness.html',

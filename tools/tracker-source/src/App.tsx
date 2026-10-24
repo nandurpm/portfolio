@@ -312,7 +312,7 @@ export function Shell() {
               <fieldset disabled={recovery} className="edit-controls">
                 <RangeControl compact />
               </fieldset>
-              {(!WEB_APP || status !== 'Saved locally') && (
+              {status !== 'Saved locally' && (
                 <span className={`save-indicator ${status === 'Save failed' ? 'failed' : ''}`}>
                   <Check size={14} />
                   {status}
@@ -510,7 +510,7 @@ export function Shell() {
                 </button>
               </div>
               <p className="muted">
-                {(!WEB_APP || status !== 'Saved locally') && <>{status} · </>}
+                {status !== 'Saved locally' && <>{status} · </>}
                 Your plan range and appearance are in Settings.
               </p>
             </div>

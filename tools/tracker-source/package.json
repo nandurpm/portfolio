@@ -21,7 +21,10 @@
     "test:browser": "playwright test",
     "test:security": "node --import tsx scripts/test-security.ts",
     "verify:deployment": "node scripts/verify-deployment.mjs",
-    "test:database": "node --import tsx scripts/test-database.ts"
+    "test:database": "node --import tsx scripts/test-database.ts",
+    "build:release": "tsc --noEmit && vite build --mode release && node scripts/build-electron.mjs --release",
+    "android:release": "npm run build:release && cap sync android && node scripts/build-android.mjs --release",
+    "dist:win": "npm run build:release && node scripts/build-windows-installer.mjs"
   },
   "build": {
     "appId": "com.nandakumar.savingsandexpencetracker",

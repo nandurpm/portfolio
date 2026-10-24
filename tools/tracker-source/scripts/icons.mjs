@@ -1,0 +1,10 @@
+import sharp from 'sharp';
+import pngToIco from 'png-to-ico';
+import fs from 'node:fs/promises';
+await fs.mkdir('build', { recursive: true });
+const svg = await fs.readFile('public/icon.svg');
+await sharp(svg).resize(512, 512).png().toFile('build/icon.png');
+const sizes = [16, 24, 32, 48, 64, 128, 256];
+const buffers = await Promise.all(sizes.map((n) => sharp(svg).resize(n, n).png().toBuffer()));
+await fs.writeFile('build/icon.ico', await pngToIco(buffers));
+console.log('Created 512px PNG and seven-size Windows ICO.');

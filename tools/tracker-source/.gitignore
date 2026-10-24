@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-electron/
+release/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+
+android/.gradle/
+android/**/build/
+android/local.properties
+android/app/src/main/assets/public/
+.signing/
+*.jks
+*.keystore
+dist-web/

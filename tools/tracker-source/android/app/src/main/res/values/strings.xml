@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Savings and Expense Tracker</string>
+    <string name="title_activity_main">Savings and Expense Tracker</string>
+    <string name="package_name">com.nandakumar.savingsexpensetracker</string>
+    <string name="custom_url_scheme">com.nandakumar.savingsexpensetracker</string>
+</resources>
