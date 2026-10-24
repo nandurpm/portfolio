@@ -1,3 +1,4 @@
+import { buildInfo } from '../build-info';
 import { WEB_APP } from '../web-mode';
 import { CloudButton } from '../cloud/CloudPanel';
 import { RangeControl } from '../components/RangeControl';
@@ -295,6 +296,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
                     ? 'Web app'
                     : 'Browser preview'}
             </p>
+            <p>Build {buildInfo.sourceCommit.slice(0, 12)}{buildInfo.dirty ? ' · local changes' : ''} · {new Date(buildInfo.builtAt).toLocaleString()}</p>
             <p>Source plan: {p.source.filename}</p>
           </div>
           <Info size={22} />

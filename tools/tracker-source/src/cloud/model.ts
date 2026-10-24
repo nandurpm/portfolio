@@ -72,13 +72,16 @@ export function mergePlans(base: CloudPlan, local: CloudPlan, remote: CloudPlan)
   function merge(b: any, l: any, r: any, path: (string | number)[]): any {
     if (equal(l, r) || equal(b, r)) return structuredClone(l);
     if (equal(b, l)) return structuredClone(r);
+    const baseRecords = b === undefined ? [] : b;
     if (
       Array.isArray(l) &&
       Array.isArray(r) &&
-      Array.isArray(b) &&
-      [...b, ...l, ...r].every((x) => x && typeof x === 'object' && typeof x.id === 'string')
+      Array.isArray(baseRecords) &&
+      [...baseRecords, ...l, ...r].every(
+        (x) => x && typeof x === 'object' && typeof x.id === 'string',
+      )
     ) {
-      const bm = new Map(b.map((x) => [x.id, x])),
+      const bm = new Map(baseRecords.map((x: any) => [x.id, x])),
         lm = new Map(l.map((x) => [x.id, x])),
         rm = new Map(r.map((x) => [x.id, x]));
       const ids = [...new Set([...l.map((x) => x.id), ...r.map((x) => x.id)])];
@@ -88,7 +91,7 @@ export function mergePlans(base: CloudPlan, local: CloudPlan, remote: CloudPlan)
       // Conflicting category/loan ordering is handled separately from record edits.
       const order = (a: any[]) =>
         a.map((x) => x.id).filter((id) => bm.has(id) && lm.has(id) && rm.has(id));
-      const bo = order(b),
+      const bo = order(baseRecords),
         lo = order(l),
         ro = order(r);
       if (!equal(lo, ro) && !equal(bo, lo) && !equal(bo, ro))

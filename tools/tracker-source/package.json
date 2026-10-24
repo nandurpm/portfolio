@@ -11,7 +11,7 @@
   "scripts": {
     "build:web": "tsc --noEmit && vite build --mode web --outDir dist-web",
     "typecheck:quality": "tsc -p tsconfig.quality.json",
-    "check:bundle": "node scripts/check-bundle.mjs",
+    "check:bundle": "node scripts/check-bundle.mjs && node scripts/verify-build.mjs",
     "test:planning": "vitest run tests --exclude=tests/browser/**",
     "test": "vitest run tests --exclude=tests/browser/**",
     "build": "npm run build:web",
@@ -19,7 +19,9 @@
     "audit": "npm audit",
     "check": "npm run lint && npm test && npm run typecheck:quality && npm run build && npm run check:bundle",
     "test:browser": "playwright test",
-    "test:security": "node --import tsx scripts/test-security.ts"
+    "test:security": "node --import tsx scripts/test-security.ts",
+    "verify:deployment": "node scripts/verify-deployment.mjs",
+    "test:database": "node --import tsx scripts/test-database.ts"
   },
   "build": {
     "appId": "com.nandakumar.savingsandexpencetracker",
@@ -90,6 +92,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@capacitor/cli": "8.5.3",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.1",

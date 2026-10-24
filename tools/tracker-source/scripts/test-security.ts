@@ -22,7 +22,11 @@ if (
   process.exit(2);
 }
 const url = new URL(env.TRACKER_TEST_URL!);
-if (url.hostname === 'svqtisipjyymguswxteb.supabase.co' || url.protocol !== 'https:')
+if (
+  url.hostname === 'svqtisipjyymguswxteb.supabase.co' ||
+  (url.protocol !== 'https:' &&
+    !(url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)))
+)
   throw Error('Production project and insecure URLs are prohibited');
 const options = {
   auth: {
@@ -48,6 +52,10 @@ try {
   const aid = aa.data.user!.id,
     bid = bb.data.user!.id;
   assert.notEqual(aid, bid);
+  assert.equal((await a.auth.getUser()).data.user?.id, aid);
+  const refreshed = await a.auth.refreshSession();
+  assert.ifError(refreshed.error);
+  assert.equal(refreshed.data.user?.id, aid);
   for (const client of [a, b]) {
     const q = await client.from('tracker_plans').select('user_id');
     assert.ifError(q.error);

@@ -21,6 +21,79 @@ jobs:
           cache-dependency-path: tools/tracker-source/package-lock.json
       - run: npm ci --ignore-scripts
       - run: npm run check
+      - name: Verify the served build against its trusted manifest
+        run: |
+          npx vite preview --outDir dist-web --host 127.0.0.1 --port 4173 >/tmp/tracker-preview.log 2>&1 &
+          tracker_preview_pid=$!
+          trap 'kill "$tracker_preview_pid"' EXIT
+          for attempt in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/track/build.json >/dev/null; then break; fi
+            sleep 1
+          done
+          npm run verify:deployment -- http://127.0.0.1:4173/track/ "$GITHUB_SHA" dist-web/build.json
+      - name: Retain public web build and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracker-web-build
+          path: tools/tracker-source/dist-web
+          retention-days: 7
       - run: npm audit
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      - name: Retain synthetic browser results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracker-synthetic-browser-results
+          path: tools/tracker-source/test-results
+          retention-days: 7
+
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: tracker-test-only
+          POSTGRES_DB: tracker_test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    env:
+      TRACKER_TEST_DATABASE_URL: postgresql://postgres:tracker-test-only@127.0.0.1:5432/tracker_test
+      TRACKER_DISPOSABLE_DATABASE: I_AUTHORIZE_SYNTHETIC_TEST_RECORDS
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+      - run: npm ci --ignore-scripts
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: npm run test:database
+  local-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    env:
+      TRACKER_LOCAL_SUPABASE_DIR: /tmp/tracker-local-supabase
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+      - run: npm ci --ignore-scripts
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Initialize disposable local stack (never link a cloud project)
+        run: |
+          mkdir -p "$TRACKER_LOCAL_SUPABASE_DIR"
+          npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" init
+          npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" start --exclude studio,imgproxy,realtime,storage-api,postgres-meta,edge-runtime,logflare,vector,supavisor
+      - run: node --import tsx scripts/prepare-local-supabase.ts
+      - run: npm run test:security
+      - name: Stop disposable containers
+        if: always()
+        run: npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" stop --no-backup
