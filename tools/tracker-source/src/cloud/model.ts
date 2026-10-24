@@ -13,6 +13,7 @@ const deviceFields = [
   'reportDate',
   'liveDate',
   'selectedMonth',
+  'displayRangeVersion',
   'viewStart',
   'viewEnd',
   'applyViewToExport',

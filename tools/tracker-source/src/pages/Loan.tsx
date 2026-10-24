@@ -47,6 +47,7 @@ export default function Loan() {
     rows = p.loan.rows.filter((r) => outside || (r.month >= s.planStart && r.month <= s.planEnd)),
     paid = p.loan.rows.filter((r) => r.paid),
     percent = p.loan.rows.length ? (paid.length / p.loan.rows.length) * 100 : 0;
+  const showDate = (date: string) => displayDate(date, s.dateFormat);
   const summary = loanSummary(p.loan.rows);
   function detail(field: keyof Omit<typeof p.loan, 'rows'>, value: number | string) {
     store.change(`Change loan ${field}`, (d) => {
@@ -210,8 +211,8 @@ export default function Loan() {
           {summary.next ? (
             <>
               Next unpaid installment:{' '}
-              <strong>Pay {displayDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> → Due{' '}
-              <strong>{displayDate(summary.next.dueDate)}</strong> ·{' '}
+              <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> → Due{' '}
+              <strong>{showDate(summary.next.dueDate)}</strong> ·{' '}
               <strong>{money(summary.nextAmount)}</strong>
             </>
           ) : (
@@ -443,7 +444,7 @@ export default function Loan() {
                 <dl>
                   <div>
                     <dt>Planned pay date</dt>
-                    <dd>{displayDate(plannedPaymentDate(p, r.dueDate))}</dd>
+                    <dd>{showDate(plannedPaymentDate(p, r.dueDate))}</dd>
                   </div>
                   <div>
                     <dt>Due date</dt>
@@ -542,7 +543,7 @@ export default function Loan() {
                         {r.edited && <Edited />}
                         {inconsistent && <Badge tone="debt">EMI ≠ principal + interest</Badge>}
                       </td>
-                      <td>{displayDate(plannedPaymentDate(p, r.dueDate))}</td>
+                      <td>{showDate(plannedPaymentDate(p, r.dueDate))}</td>
                       <td>
                         <input
                           aria-label={`${r.month} due date`}
@@ -623,6 +624,7 @@ export default function Loan() {
           onClose={() => setPayment(null)}
         >
           <PaymentReceipts
+            dateFormat={p.settings.dateFormat}
             receipts={p.entries.filter((e) => e.loanRowId === payment.id)}
             onEdit={(e) => {
               setReceiptId(e.id);

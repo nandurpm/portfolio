@@ -114,6 +114,7 @@ export const planSchema = z.object({
     reportDate: date,
     liveDate: z.boolean(),
     selectedMonth: month,
+    displayRangeVersion: z.literal(1).optional(),
     viewStart: month,
     viewEnd: month,
     applyViewToExport: z.boolean(),

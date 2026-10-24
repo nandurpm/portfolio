@@ -509,7 +509,10 @@ export function Shell() {
                   Redo
                 </button>
               </div>
-              <p className="muted">{status} · Your plan range and appearance are in Settings.</p>
+              <p className="muted">
+                {(!WEB_APP || status !== 'Saved locally') && <>{status} · </>}
+                Your plan range and appearance are in Settings.
+              </p>
             </div>
           </Modal>
         )}

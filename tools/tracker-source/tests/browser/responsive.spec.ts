@@ -30,6 +30,7 @@ async function navigate(page: Page, name: string) {
     return;
   }
   await page.getByRole('button', { name: 'More screens', exact: true }).click();
+  await expect(page.getByRole('dialog')).not.toContainText('Saved locally');
   await page.getByRole('dialog').getByRole('button', { name, exact: true }).click();
 }
 for (const [width, height] of sizes)
@@ -49,8 +50,13 @@ for (const [width, height] of sizes)
     await expect(
       page.getByRole('heading', { name: 'Full-month forecast', exact: true }),
     ).toBeVisible();
+    await expect(page.getByText(/Showing 12 of 98 months/)).toBeVisible();
     await page.getByRole('button', { name: /VIEW RANGE/ }).click();
     await expect(page.getByRole('dialog', { name: 'Choose a view range' })).toBeVisible();
+    await page.getByRole('combobox', { name: 'Quick preset' }).selectOption('Full plan');
+    await page.getByRole('button', { name: 'Apply range', exact: true }).click();
+    await expect(page.getByText(/Showing 98 of 98 months/)).toBeVisible();
+    await page.getByRole('button', { name: /VIEW RANGE/ }).click();
     await page.getByRole('combobox', { name: 'Quick preset' }).selectOption('Next 3 months');
     await page.getByRole('button', { name: 'Apply range', exact: true }).click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -85,5 +91,16 @@ for (const [width, height] of sizes)
       path: `test-results/loan-${width}x${height}.png`,
       fullPage: true,
     });
+    await expect(page.getByText('05-Nov-2026', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(/20-Oct-2026/).first()).toBeVisible();
+    await navigate(page, 'Settings');
+    await expect(page.getByRole('heading', { name: 'Make it feel like you.' })).toBeVisible();
+    await expect(page.getByText(/Version .*Web app/)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Reminders & desktop behaviour' })).toHaveCount(
+      0,
+    );
+    await expect(page.getByRole('button', { name: 'Choose backup folder' })).toHaveCount(0);
+    await expect(page.getByText('Browser preview', { exact: true })).toHaveCount(0);
+    await expect(page.getByText(/Calculation difference resolved/)).toHaveCount(0);
     expect(errors).toEqual([]);
   });

@@ -58,6 +58,7 @@ export interface Settings {
   reportDate: string;
   liveDate: boolean;
   selectedMonth: string;
+  displayRangeVersion?: 1;
   viewStart: string;
   viewEnd: string;
   applyViewToExport: boolean;

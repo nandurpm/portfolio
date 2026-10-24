@@ -1,3 +1,4 @@
+import { currencyAxis } from '../domain/display';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -78,7 +79,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 6" vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="name" {...axis} minTickGap={28} />
-                <YAxis {...axis} tickFormatter={(v) => `${Number(v) / 1000}k`} />
+                <YAxis width={94} {...axis} tickFormatter={currencyAxis} />
                 <Tooltip {...tip} />
                 <Legend />
                 <Line
@@ -122,7 +123,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 </defs>
                 <CartesianGrid strokeDasharray="3 6" vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="name" {...axis} minTickGap={28} />
-                <YAxis {...axis} tickFormatter={(v) => `${Number(v) / 1000}k`} />
+                <YAxis width={94} {...axis} tickFormatter={currencyAxis} />
                 <Tooltip {...tip} />
                 <Legend />
                 <Area

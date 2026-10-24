@@ -19,6 +19,7 @@ export default function AdditionalLoans() {
   const phone = usePhone();
   const p = usePlan(),
     { toast, confirm } = useUi();
+  const showDate = (date: string) => displayDate(date, p.settings.dateFormat);
   const [adding, setAdding] = useState(false);
   const [editingDates, setEditingDates] = useState(false);
   const [correctedFirst, setCorrectedFirst] = useState('');
@@ -188,8 +189,8 @@ export default function AdditionalLoans() {
               {summary?.next ? (
                 <>
                   Next unpaid installment:{' '}
-                  <strong>Pay {displayDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> →
-                  Due <strong>{displayDate(summary.next.dueDate)}</strong> ·{' '}
+                  <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> →
+                  Due <strong>{showDate(summary.next.dueDate)}</strong> ·{' '}
                   <strong>{money(summary.nextAmount)}</strong>
                 </>
               ) : (
@@ -209,11 +210,11 @@ export default function AdditionalLoans() {
                     <dl>
                       <div>
                         <dt>Planned pay date</dt>
-                        <dd>{displayDate(plannedPaymentDate(p, r.dueDate))}</dd>
+                        <dd>{showDate(plannedPaymentDate(p, r.dueDate))}</dd>
                       </div>
                       <div>
                         <dt>Due date</dt>
-                        <dd>{r.dueDate}</dd>
+                        <dd>{showDate(r.dueDate)}</dd>
                       </div>
                       <div>
                         <dt>Amount</dt>
@@ -225,7 +226,7 @@ export default function AdditionalLoans() {
                       </div>
                       <div>
                         <dt>Payment date</dt>
-                        <dd>{r.paidDate || '—'}</dd>
+                        <dd>{r.paidDate ? showDate(r.paidDate) : '—'}</dd>
                       </div>
                     </dl>
                     {r.paidDate && r.paidDate < r.dueDate && <p>Paid early</p>}
@@ -257,12 +258,12 @@ export default function AdditionalLoans() {
                     {loan.rows.map((r, i) => (
                       <tr key={r.id} className={r.paid ? 'paid-row' : ''}>
                         <td>{i + 1}</td>
-                        <td>{displayDate(plannedPaymentDate(p, r.dueDate))}</td>
-                        <td>{r.dueDate}</td>
+                        <td>{showDate(plannedPaymentDate(p, r.dueDate))}</td>
+                        <td>{showDate(r.dueDate)}</td>
                         <td>{money(r.emi)}</td>
                         <td>{r.paidAmount ? money(r.paidAmount) : '—'}</td>
                         <td>
-                          {r.paidDate || '—'}
+                          {r.paidDate ? showDate(r.paidDate) : '—'}
                           {r.paidDate && r.paidDate < r.dueDate && <small> · Paid early</small>}
                         </td>
                         <td>
@@ -416,6 +417,7 @@ export default function AdditionalLoans() {
       {payment && (
         <Modal title="Record installment payment" onClose={() => setPayment(null)}>
           <PaymentReceipts
+            dateFormat={p.settings.dateFormat}
             receipts={p.entries.filter((e) => e.loanRowId === payment.rowId)}
             onEdit={(e) => {
               setReceiptId(e.id);

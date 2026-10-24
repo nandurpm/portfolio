@@ -1,3 +1,4 @@
+import { initializeDisplayRange } from './domain/view-range';
 import { useSyncExternalStore } from 'react';
 import { localPlan, type CloudPlan, type SyncMeta } from './cloud/model';
 import type { Draft } from 'immer';
@@ -84,6 +85,7 @@ export const store = {
           }
         }
       }
+      current = { ...current, data: initializeDisplayRange(current.data) };
       if (window.desktop?.storageStatus) {
         const health = await window.desktop
           .storageStatus()
