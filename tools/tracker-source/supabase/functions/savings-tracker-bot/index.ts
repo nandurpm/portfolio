@@ -20,7 +20,8 @@ const num=(x:unknown) => typeof x==="number"&&Number.isFinite(x)?x:Number(x)||0;
 function escape(t:unknown):string {return String(t??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");}
 function button(label:string,code:string){return {text:label,callback_data:code};}
 const homeKeyboard = () => ({inline_keyboard:[
- [button("📊 Dashboard","dashboard"),button("📅 Month","month")],
+ [button("➕ New Entry","e:add"),button("📊 Dashboard","dashboard")],
+ [button("🏦 Balance Explained","balance"),button("📅 Month","month")],
  [button("🧾 Entries","entries"),button("🗂️ Plan","plan")],
  [button("💸 Budgets","budgets"),button("🏦 Reconcile","reconcile")],
  [button("💳 EMI & Loans","emi"),button("📈 Forecast","forecast")],
@@ -28,7 +29,7 @@ const homeKeyboard = () => ({inline_keyboard:[
  [button("🔄 Sync Check","sync"),button("⚙️ Settings","settings")],
  [button("🗄️ Backups","backups"),button("🛡️ Edit History","history")],
  [button("🔐 Edit Mode","e:open"),button("📊 Today","day")],
- [button("➕ New Entry","e:add"),button("ℹ️ Help & Privacy","help")],
+ [button("ℹ️ Help & Privacy","help")],
  [{text:"🔐 Open Full Tracker",url:APP_URL},button("🟢 Status","status")]
 ]});
 const back=(code="menu")=>({inline_keyboard:[[button("🏠 Main Menu",code)]]});
@@ -190,13 +191,20 @@ function reportText(plan:AnyRow,mode:"day"|"month",date:string,updated:string) {
  return lines.join("\n")+syncInfo(updated);
 }
 function balanceText(plan:AnyRow,updated:string) {
- const today=keyDate();
- const s=plan.settings, active=today>=planPeriod(plan)&&today<=String(s.planEnd)+"-31";
- return "🏦 <b>BALANCE OVERVIEW</b>\n━━━━━━━━━━━━━━━━━━\n"+
- "💰 Plan opening savings: <b>"+amt(num(s.opening))+"</b>\n"+
- "📈 Recorded cash estimate: <b>"+amt(cashEstimate(plan,today))+"</b>\n"+
- (active?"":"⚠️ <i>The plan is not active on today's date.</i>\n")+
- "\n<i>This is opening savings plus recorded in-plan transactions, not an independently reconciled bank or UPI balance. Transfers are not assumed.</i>"+syncInfo(updated);
+ const today=keyDate(),start=planPeriod(plan),end=String(plan.settings.planEnd)+"-31";
+ const actual=today<start?{income:0,living:0,debt:0,unknown:0}:dateRange(plan,start,today>end?end:today);
+ const opening=num(plan.settings.opening),cash=cashEstimate(plan,today);
+ return "🏦 <b>BALANCE EXPLAINED</b>\n━━━━━━━━━━━━━━━━━━\n"+
+ "Opening savings: "+amt(opening)+"\n+ Recorded income: "+amt(actual.income)+
+ "\n− Living expenses: "+amt(actual.living)+"\n− Debt payments: "+amt(actual.debt)+
+ "\n= Recorded cash estimate: <b>"+amt(cash)+"</b>\n\n"+
+ (cash<0?"⚠️ Recorded spending exceeds opening savings plus recorded income by "+amt(-cash)+". Check for missing income, duplicate expenses or an incorrect opening balance.\n\n":"")+
+ (actual.unknown?"⚠️ Unclassified entries total "+amt(actual.unknown)+" and are excluded from this estimate.\n\n":"")+
+ (today<start||today>end?"⚠️ Today is outside the active plan period.\n\n":"")+
+ "<i>Future planned payments and provision reserves are not subtracted here. A negative forecast or budget remaining is different from a negative recorded cash estimate. Use Reconcile to compare with your bank and cash balances.</i>"+syncInfo(updated);
+}
+function possibleDuplicate(plan:AnyRow,p:AnyRow) {
+ return (plan.entries||[]).some((e:AnyRow)=>e.id!==p.id&&e.date===p.date&&e.categoryId===p.categoryId&&Math.round(num(e.amount)*100)===Math.round(num(p.amount)*100));
 }
 function emiText(plan:AnyRow,updated:string) {
  const today=keyDate();
@@ -550,6 +558,7 @@ function updatePreview(state:EditState,plan:AnyRow):string {
   "💰 Amount: "+amt(p.amount)+"\n"+
   "📝 Details: "+escape(p.description)+"\n"+
   "💳 Paid via: "+escape(p.payment)+"\n\n"+
+  (possibleDuplicate(plan,p)?"⚠️ <b>Possible duplicate:</b> an entry with the same date, category and amount already exists. Save only if this is a separate transaction.\n\n":"")+
   "<b>Save this transaction to your synced tracker?</b>";
  }
  if(p.action==="budget"){
@@ -638,7 +647,7 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
     await editSend(token,owner,"⚠️ Enter a valid nonnegative amount in rupees with up to 2 decimal places.");return;
    }
    p.amount=n;
-   if(state.step==="amount"){state.step="date";await writeEditState(state);await editSend(token,owner,"📅 Enter the transaction date as <b>YYYY-MM-DD</b>.\n\nIt must be within the plan period.");return;}
+   if(state.step==="amount"){state.step="date";await writeEditState(state);await editSend(token,owner,"📅 Enter the date as <b>YYYY-MM-DD</b>, or tap Today.",{inline_keyboard:[[button("📅 Today","e:today")],[button("❌ Cancel","e:cancel")]]});return;}
    state.step="confirm";await writeEditState(state);
    const {plan}=await syncedPlan();
    await editSend(token,owner,updatePreview(state,plan),saveKeyboard());return;
@@ -652,7 +661,7 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
     await editSend(token,owner,"⚠️ Date is outside your plan. Choose a date between "+escape(plan.settings.planStart)+" and "+escape(plan.settings.planEnd)+".");return;
    }
    p.date=raw;state.step="description";await writeEditState(state);
-   await editSend(token,owner,"📝 Enter a short transaction description (up to 100 characters).");return;
+   await editSend(token,owner,"📝 Enter a description, or use the category name.",{inline_keyboard:[[button("⏭ Use category name","e:skipdescription")],[button("❌ Cancel","e:cancel")]]});return;
   }
   if(state.step==="description"){
    const value=raw.trim();
@@ -734,6 +743,18 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
   state.pending.action="delete";state.step="confirm";await writeEditState(state);
   const {plan}=await syncedPlan();await editSend(token,owner,updatePreview(state,plan),saveKeyboard());return;
  }
+ if(raw==="e:today"&&state.step==="date"){await handleEdit({...update,message:{text:keyDate()}},keyDate(),token,owner);return;}
+ if(raw==="e:skipdescription"&&state.step==="description"){
+  const {plan}=await syncedPlan();const cat=plan.categories.find((c:AnyRow)=>c.id===state.pending.categoryId);
+  await handleEdit({...update,message:{text:"Transaction"}},String(cat?.name||"Transaction").slice(0,100),token,owner);return;
+ }
+ if(raw==="e:undo"&&state.step==="menu"&&state.pending.undoId){
+  const {plan,revision}=await syncedPlan();
+  const entry=plan.entries.find((e:AnyRow)=>e.id===state.pending.undoId&&!e.loanRowId&&!e.provisionId);
+  if(!entry){await editSend(token,owner,"This entry is no longer available to undo.",editMenu());return;}
+  state.pending={action:"delete",entryId:entry.id,revision};state.step="confirm";await writeEditState(state);
+  await editSend(token,owner,updatePreview(state,plan),saveKeyboard());return;
+ }
  if(raw.startsWith("e:pay:")){
   if(state.step!=="payment"||state.pending.action!=="add")return;
   const payment=raw.slice(6);
@@ -747,8 +768,9 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
   let saved=false;
   try{saved=await saveEdit(plan,userId,revision,state);}
   catch(e){console.error("Tracker edit rejected: ",e instanceof Error?e.message:"invalid");}
-  state.step="menu";state.pending={};await writeEditState(state);
-  await editSend(token,owner,saved?"✅ <b>Saved successfully!</b>\nYour tracker will receive the change at its next cloud sync.":"⚠️ <b>Change was NOT saved.</b>\nThe tracker changed or the update was invalid. Refresh your tracker and retry.",editMenu());return;
+  const undoId=saved&&state.pending.action==="add"?state.pending.id:null;
+  state.step="menu";state.pending=undoId?{undoId}:{};await writeEditState(state);
+  await editSend(token,owner,saved?"✅ <b>Saved successfully!</b>\nYour tracker will receive the change at its next cloud sync.":"⚠️ <b>Change was NOT saved.</b>\nThe tracker changed or the update was invalid. Refresh your tracker and retry.",undoId?{inline_keyboard:[[button("↩️ Undo this entry","e:undo")],[button("➕ Add another","e:add"),button("🏠 Home","menu")]]}:editMenu());return;
  }
  await editSend(token,owner,editIntro(),editMenu());
 }
