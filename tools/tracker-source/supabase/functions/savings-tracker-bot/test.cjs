@@ -1,0 +1,28 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const {stripTypeScriptTypes}=require('node:module');
+let code=fs.readFileSync(require('node:path').join(__dirname,'index.ts'),'utf8').replace(/^import .*;\n/gm,'');
+code=stripTypeScriptTypes(code);
+const sandbox={console,Intl,Date,TextEncoder,Uint8Array,Map,structuredClone,crypto:require('node:crypto').webcrypto,Response,Request,Blob,FormData,atob,AbortSignal,Deno:{env:{get:()=>undefined},serve:()=>{}}};
+vm.createContext(sandbox);vm.runInContext(code,sandbox);
+const evaluate=x=>vm.runInContext(x,sandbox);
+assert.equal(evaluate('validDate("2026-99-99")'),false);
+assert.equal(evaluate('validDate("2026-02-29")'),false);
+assert.equal(evaluate('validDate("2028-02-29")'),true);
+assert.equal(evaluate('displayDate("2026-11-05")'),'05-Nov-2026');
+assert.equal(evaluate('previousMonth("2026-01")'),'2025-12');
+assert.equal(evaluate('owns({message:{chat:{type:"private",id:123},from:{id:123,is_bot:false}}},"123")'),true);
+assert.equal(evaluate('owns({message:{chat:{type:"private",id:123},from:{id:999}}},"123")'),false);
+assert.equal(evaluate('owns({callback_query:{message:{chat:{type:"group",id:123}},from:{id:123}}},"123")'),false);
+assert.equal(evaluate('owns({callback_query:{message:{chat:{type:"private",id:123}},from:{id:123}}},"123")'),true);
+assert.equal(evaluate('homeKeyboard().inline_keyboard.flat().some(b=>b.callback_data==="e:add")'),true);
+assert.equal(evaluate('isUnlocked({...defaultEditState("123"),pin_hash:"hash",unlocked_until:new Date(Date.now()-1).toISOString()})'),false);
+evaluate('telegram=async(method,token,body)=>{globalThis.calls.push({method,body});if(method==="getMe")return {id:1};if(method==="getUserProfilePhotos")return {total_count:1};if(method==="getMyShortDescription")return {short_description:"Your private money dashboard"};return true;}');
+sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
+(async()=>{
+ const result=await evaluate('configureBranding("test-token","123")');
+ assert.equal(result.profile_verified,true);
+ const command=sandbox.calls.find(c=>c.method==='setMyCommands');
+ assert.equal(command.body.scope.type,'chat');assert.equal(command.body.scope.chat_id,123);
+ assert.equal(sandbox.calls.filter(c=>c.method==='deleteMyCommands').length,4);
+ console.log('Savings bot: 15 privacy, date, navigation and branding checks passed.');
+})().catch(e=>{console.error(e);process.exitCode=1});
