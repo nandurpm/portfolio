@@ -390,6 +390,27 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  else if(action==="backups")report=await backupText();
  else if(action==="alerts")report=alertPreview(plan,updated,await botPreferences(owner));
  else if(action==="settings"){const prefs=await botPreferences(owner);report=settingsText(prefs);kb=settingsKeyboard(prefs);}
+ else if(action==="pref:threshold") {
+  report="💰 <b>CHANGE LOW-CASH THRESHOLD</b>\n━━━━━━━━━━━━━━━━━━\nSend a command such as:\n\n<code>/threshold 1500</code>\n\nThe threshold is based on estimated recorded cash, not your actual bank balance.";
+  kb=back("settings");
+ }
+ else if(action==="/threshold"){
+  report="Usage: <code>/threshold 1500</code>\nEnter an amount from ₹0 to ₹1,00,00,000.";
+  kb=back("settings");
+ }
+ else if(action.startsWith("/threshold ")){
+  const match=action.match(/^\/threshold\s+([0-9]+(?:\.[0-9]{1,2})?)$/);
+  const amount=match?Number(match[1]):NaN;
+  if(!Number.isFinite(amount)||amount<0||amount>10000000)report="⚠️ Invalid threshold. Send <code>/threshold 1500</code>.";
+  else{
+    const pref=await botPreferences(owner);
+    const {error}=await adminClient().from("tracker_bot_preferences")
+    .upsert({...pref,owner_chat_id:owner,low_balance_threshold:amount,updated_at:new Date().toISOString()},{onConflict:"owner_chat_id"});
+    if(error)throw Error("Unable to set threshold");
+    report="✅ New low estimated-cash threshold: <b>"+amt(amount)+"</b>.";
+  }
+  kb=back("settings");
+ }
  else if(action.startsWith("pref:")){
   const prefs=await togglePreference(owner,action.slice(5));
   report="✅ <b>Notification setting updated.</b>\n\n"+settingsText(prefs);kb=settingsKeyboard(prefs);
@@ -864,6 +885,7 @@ function settingsKeyboard(p:AnyRow) {
   [b("EMI reminders","emi",p.emi_reminders),b("Budget alerts","budget",p.budget_alerts)],
   [b("Sync warnings","sync",p.sync_alerts),b("Low balance","balance",p.low_balance_alerts)],
   [b("Monthly PDF","pdf",p.monthly_pdf_enabled)],
+  [button("💰 Change low-cash threshold","pref:threshold")],
   [button("🔄 Sync status","sync"),button("🏠 Main Menu","menu")]
  ]};
 }
@@ -919,7 +941,7 @@ function forecastText(plan:AnyRow,updated:string){
    const categories=plan.categories||[];
    const regular=categories.filter((c:AnyRow)=>c.role==="regular"&&c.group!=="Income")
      .map((c:AnyRow)=>budgetAmount(plan,c,month)).filter((v:number|null)=>v!==null).reduce((a:number,b:number)=>a+b,0);
-   const salary=month<plan.settings.raiseStart?num(plan.settings.salary31):num(plan.settings.raisedSalary);
+   const salary=previousMonth(month)<plan.settings.raiseStart?num(plan.settings.salary31):num(plan.settings.raisedSalary);
    const due=[...(plan.loan?.rows||[]),...(plan.additionalLoans||[]).flatMap((l:AnyRow)=>l.rows||[])];
    const emi=due.filter((r:AnyRow)=>{
      const dueMonth=String(r.dueDate||"").slice(0,7);
@@ -967,6 +989,43 @@ function alertItems(plan:AnyRow,updated:string,prefs:AnyRow,date=keyDate()){
    ".\n<i>Check the tracker to confirm any advance payment before paying again.</i>"});
   }
  }
+
+ // Salary is an expected income event, not actual income until recorded.
+ if(prefs.emi_reminders){
+  const salaryCat=(plan.categories||[]).find((c:AnyRow)=>c.role==="salary"&&c.active);
+  const payDay=Math.min(31,Math.max(1,num(plan.settings.salaryDay)));
+  if(salaryCat && Number(date.slice(8,10))>=payDay && !plan.entries.some((e:AnyRow)=>e.categoryId===salaryCat.id&&e.date.slice(0,7)===month)){
+   list.push({key:"salary:"+month,html:"💵 <b>SALARY CHECK</b>\nSalary has not been recorded in your synced tracker for "+
+    escape(month)+".\n<i>Verify whether salary arrived; this is not confirmation of nonpayment.</i>"});
+  }
+  for(const c of (plan.categories||[])){
+   if(!c.active||c.role!=="regular"||c.group!=="Living"||c.timing!=="Fixed day"||
+    !/(mobile|recharge|dth)/i.test(String(c.name||"")))continue;
+   if(Array.isArray(c.months)&&c.months.length&&!c.months.includes(Number(month.slice(5,7))))continue;
+   const todayDay=Number(date.slice(8,10)),dueDay=Math.min(num(c.day),new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate());
+   const remaining=dueDay-todayDay;
+   if(remaining<0||remaining>2)continue;
+   if(plan.entries.some((e:AnyRow)=>e.categoryId===c.id&&e.date.slice(0,7)===month))continue;
+   list.push({key:"recharge:"+month+":"+c.id,html:"📱 <b>UPCOMING RECHARGE</b>\n"+
+    escape(c.name)+" scheduled for day "+dueDay+" of "+escape(month)+".\n"+
+    "<i>Check actual billing and recorded payment before paying.</i>"});
+  }
+  for(const pr of (plan.provisions||[])){
+   if(!pr.enabled||!pr.firstDueMonth||!pr.everyMonths)continue;
+   const first=String(pr.firstDueMonth),diff=(+month.slice(0,4)-+first.slice(0,4))*12+
+     +month.slice(5,7)-+first.slice(5,7);
+   if(diff<0||diff%pr.everyMonths!==0)continue;
+   const dueDay=Math.min(num(pr.dueDay),new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate());
+   const delta=dueDay-Number(date.slice(8,10));if(delta<0||delta>3)continue;
+   const paid=plan.entries.some((e:AnyRow)=>e.categoryId===pr.categoryId&&e.date.slice(0,7)===month);
+   if(paid)continue;
+   const cat=(plan.categories||[]).find((c:AnyRow)=>c.id===pr.categoryId);
+   list.push({key:"bill:"+month+":"+pr.id,html:"⚡ <b>UPCOMING PERIODIC BILL</b>\n"+
+    escape(cat?.name||"Bill")+" due around "+dueDay+"-"+escape(month)+
+    ". Planned bill: "+amt(num(pr.billAmount))+".\n<i>The monthly provision is a reserve, not a payment.</i>"});
+  }
+ }
+
  if(prefs.low_balance_alerts){
   const amount=cashEstimate(plan,date);
   if(amount<num(prefs.low_balance_threshold))list.push({key:"balance:"+date,html:"⚠️ <b>LOW ESTIMATED CASH</b>\n"+
@@ -1032,7 +1091,7 @@ Deno.serve(async (request:Request) => {
    "/start":"menu","/menu":"menu","/help":"help","/today":"day","/day":"day",
    "/month":"month","/plan":"plan","/entries":"entries","/budget":"budgets","/budgets":"budgets",
    "/balance":"balance","/emi":"emi","/savings":"savings","/pdf":"reports",
-   "/status":"status","/pdfdaily":"pdfday","/pdfmonth":"pdfmonth","/add":"/edit", "/dashboard":"dashboard","/reconcile":"reconcile","/compare":"compare","/forecast":"forecast","/sync":"sync","/alerts":"alerts","/settings":"settings","/history":"history","/backups":"backups","/edit":"/edit","/lock":"/lock","/cancel":"/cancel"
+   "/status":"status","/pdfdaily":"pdfday","/pdfmonth":"pdfmonth","/add":"/edit", "/dashboard":"dashboard","/reconcile":"reconcile","/compare":"compare","/forecast":"forecast","/sync":"sync","/alerts":"alerts","/settings":"settings","/reminders":"alerts","/history":"history","/backups":"backups","/edit":"/edit","/lock":"/lock","/cancel":"/cancel"
   };
   const action=String(route[raw]||raw);
   if(action==="/edit" || action==="/lock" || action==="/cancel" || action.startsWith("e:")) {
