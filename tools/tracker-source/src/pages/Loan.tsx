@@ -6,7 +6,7 @@ import { PaymentReceipts } from '../components/PaymentReceipts';
 import { useMemo, useState } from 'react';
 import AdditionalLoans from '../components/AdditionalLoans';
 import { usePhone } from '../components/usePhone';
-import { loanSummary } from '../domain/loan-summary';
+import { loanSummary, paymentRows } from '../domain/loan-summary';
 import { RefreshCw, Check, Wallet, ShieldCheck, TrendingDown } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -43,12 +43,13 @@ export default function Loan() {
     [paidDate, setPaidDate] = useState(''),
     [paidAmount, setPaidAmount] = useState(0),
     [outside, setOutside] = useState(false);
+  const effectiveRows = paymentRows(p, p.loan.rows);
   const analysis = useMemo(() => closureAnalysis(p), [p]),
-    rows = p.loan.rows.filter((r) => outside || (r.month >= s.planStart && r.month <= s.planEnd)),
-    paid = p.loan.rows.filter((r) => r.paid),
+    rows = effectiveRows.filter((r) => outside || (r.month >= s.planStart && r.month <= s.planEnd)),
+    paid = effectiveRows.filter((r) => r.paid),
     percent = p.loan.rows.length ? (paid.length / p.loan.rows.length) * 100 : 0;
   const showDate = (date: string) => displayDate(date, s.dateFormat);
-  const summary = loanSummary(p.loan.rows);
+  const summary = loanSummary(effectiveRows);
   function detail(field: keyof Omit<typeof p.loan, 'rows'>, value: number | string) {
     store.change(`Change loan ${field}`, (d) => {
       (d.loan as any)[field] = value;
@@ -130,9 +131,9 @@ export default function Loan() {
       return;
     }
     setReceiptId('');
-    setPayment(r);
+    setPayment(p.loan.rows.find((row) => row.id === r.id)!);
     setPaidDate(inRange(today(), s.planStart, s.planEnd) ? today() : r.dueDate);
-    setPaidAmount(Math.max(0, r.emi - r.paidAmount));
+    setPaidAmount(Math.max(0, r.emi - (p.loan.rows.find((row) => row.id === r.id)?.paidAmount ?? 0)));
   }
   const [receiptId, setReceiptId] = useState('');
   async function savePayment() {
@@ -470,7 +471,7 @@ export default function Loan() {
                   <button
                     className="button small secondary"
                     onClick={() => {
-                      setPayment(r);
+                      setPayment(p.loan.rows.find((row) => row.id === r.id)!);
                       setReceiptId(
                         p.entries.filter((e) => e.loanRowId === r.id).length === 1
                           ? p.entries.find((e) => e.loanRowId === r.id)!.id
@@ -600,7 +601,7 @@ export default function Loan() {
                           <button
                             className="text-button"
                             onClick={() => {
-                              setPayment(r);
+                              setPayment(p.loan.rows.find((row) => row.id === r.id)!);
                               setReceiptId(
                                 p.entries.filter((e) => e.loanRowId === r.id).length === 1
                                   ? p.entries.find((e) => e.loanRowId === r.id)!.id
