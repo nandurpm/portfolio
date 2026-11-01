@@ -8,7 +8,6 @@ import {
   planned,
   actual,
   cumulative,
-  categoryPlan,
   actualCategory,
   fullAmount,
   reportDate,
