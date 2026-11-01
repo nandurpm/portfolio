@@ -172,7 +172,7 @@ export default function Dashboard({
     ['Living expenses', 'living', 'living'],
     ['Loan payments', 'debt', 'debt'],
     ['Total expenses', 'expenses', 'living'],
-    ['Saved this month', 'savings', 'income'],
+    ['Savings / deficit', 'savings', 'income'],
   ] as const;
   return (
     <>
@@ -271,7 +271,7 @@ export default function Dashboard({
         caption={
           beforeMonth
             ? `Forecast only: the report date (${displayDate(date)}) is before this month. Date-based comparisons are not yet applicable. Full-month plan shows the expected budget.`
-            : 'Full-month budget versus actual entries. Remaining budget changes only when your budget or entries change.'
+            : 'Monthly budget versus recorded transactions. Remaining budgets are unspent allocations, not savings or confirmation that bills are paid.'
         }
       >
         <div
@@ -286,24 +286,44 @@ export default function Dashboard({
                 <th scope="col">Metric</th>
                 <th scope="col">Full-month plan</th>
                 <th scope="col">Actual entered</th>
-                <th scope="col">Difference from monthly plan</th>
+                <th scope="col">Monthly status</th>
               </tr>
             </thead>
             <tbody>
               {metrics.map(([label, k, tone]) => {
-                const gap = k === 'income' || k === 'savings' ? act[k] - full[k] : full[k] - act[k];
+                const remaining = full[k] - act[k];
+                const statusText =
+                  k === 'savings'
+                    ? act.income === 0 && act.expenses === 0
+                      ? 'No income or expenses recorded'
+                      : act.savings < 0
+                        ? 'Recorded expenses exceed recorded income'
+                        : 'Recorded income minus recorded expenses'
+                    : k === 'income'
+                      ? remaining > 0
+                        ? `${money(remaining)} income not yet recorded`
+                        : remaining < 0
+                          ? `${money(-remaining)} above planned income`
+                          : 'Planned income recorded'
+                      : remaining < 0
+                        ? `${money(-remaining)} over budget`
+                        : `${money(remaining)} ${k === 'debt' ? 'loan budget remaining' : 'budget remaining'}`;
+                const overBudget = k !== 'income' && k !== 'savings' && remaining < 0;
                 return (
                   <tr key={k} className={k === 'savings' ? 'total-row' : ''}>
                     <td>
                       <span className={`category-dot ${tone}`} />
                       {label}
                     </td>
-                    <td>{money(full[k])}</td>
+                    <td>
+                      {money(full[k])}
+                      {k === 'savings' && full.savings < 0 && <small> Planned deficit</small>}
+                    </td>
                     <td className="strong">{beforeMonth ? 'Not yet applicable' : money(act[k])}</td>
                     <td
-                      className={beforeMonth ? 'muted' : gap >= 0 ? 'favourable' : 'unfavourable'}
+                      className={!beforeMonth && overBudget ? 'unfavourable' : 'muted'}
                     >
-                      {beforeMonth ? 'Not yet applicable' : `${gap > 0 ? '+' : ''}${money(gap)}`}
+                      {beforeMonth ? 'Not yet applicable' : statusText}
                     </td>
                   </tr>
                 );
