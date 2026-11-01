@@ -1,4 +1,4 @@
-import { displayDate } from '../domain/dates';
+import { displayDate, today } from '../domain/dates';
 import type { Entry } from '../domain/types';
 import { money } from '../domain/calculate';
 export function PaymentReceipts({
@@ -21,6 +21,7 @@ export function PaymentReceipts({
         <div className="receipt-row" key={e.id}>
           <span>
             {displayDate(e.date, dateFormat)} · {money(e.amount)} · {e.payment}
+            {e.date > today() && ' · Future payment (pending)'}
           </span>
           <button className="button small secondary" type="button" onClick={() => onEdit(e)}>
             Edit receipt
