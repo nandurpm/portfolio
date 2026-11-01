@@ -245,7 +245,8 @@ export function cumulative(p: Plan, date = reportDate(p)) {
   const t = emptyTotals();
   for (const m of monthsBetween(p.settings.planStart, p.settings.planEnd)) {
     if (m > date.slice(0, 7)) break;
-    const v = planned(p, m, date);
+    // Monthly reporting uses the complete budget; only actual entries are date-limited.
+    const v = planned(p, m);
     t.income += v.income;
     t.living += v.living;
     t.debt += v.debt;
@@ -261,8 +262,7 @@ export function cumulative(p: Plan, date = reportDate(p)) {
 }
 export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
   let pc = p.settings.opening,
-    ac = p.settings.opening,
-    hadEntries = false;
+    ac = p.settings.opening;
   const cats = new Map(p.categories.map((c) => [c.id, c]));
   const buckets = new Map<string, { t: Totals; count: number }>();
   for (const e of p.entries) {
@@ -278,18 +278,19 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
   }
   return monthsBetween(p.settings.planStart, p.settings.planEnd).map((m) => {
     const future = m > date.slice(0, 7),
-      t = planned(p, m, date),
+      // Keep the current month comparable with its full-month budget.
+      t = planned(p, m),
       bucket = buckets.get(m),
       a = bucket ? finish(bucket.t) : null;
     pc = round(pc + t.savings);
     ac = round(ac + (a?.savings ?? 0));
-    hadEntries ||= !!a;
     return {
       month: m,
       plan: t,
       actual: a,
       expectedCash: future ? null : pc,
-      recordedCash: future || !hadEntries ? null : ac,
+      // The opening balance is real even before the first transaction.
+      recordedCash: future ? null : ac,
       count: bucket?.count ?? 0,
       status: future ? 'Future' : m === date.slice(0, 7) ? 'Current' : 'Past',
     };
