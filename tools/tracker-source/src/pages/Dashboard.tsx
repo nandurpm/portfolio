@@ -164,7 +164,6 @@ export default function Dashboard({
     date = reportDate(p),
     beforeMonth = date < `${m}-01`,
     full = planned(p, m),
-    due = planned(p, m, date),
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
     cum = cumulative(p),
     status = m > today().slice(0, 7) ? 'future' : m < today().slice(0, 7) ? 'past' : 'current';
@@ -237,7 +236,7 @@ export default function Dashboard({
         <Stat
           label="Income entered"
           value={act.income}
-          caption={`${money(due.income, 0)} planned by date`}
+          caption={`${money(full.income, 0)} full-month plan`}
           tone="green"
           icon={<ArrowDownLeft />}
         />
@@ -251,7 +250,7 @@ export default function Dashboard({
         <Stat
           label="Saved this month"
           value={act.savings}
-          caption={`${money(due.savings, 0)} planned by date`}
+          caption={`${money(full.savings, 0)} full-month plan`}
           tone="violet"
           icon={<PiggyBank />}
         />
@@ -272,7 +271,7 @@ export default function Dashboard({
         caption={
           beforeMonth
             ? `Forecast only: the report date (${displayDate(date)}) is before this month. Date-based comparisons are not yet applicable. Full-month plan shows the expected budget.`
-            : 'Green means favourable. Actuals include only the transactions you enter.'
+            : 'Full-month budget versus actual entries. Remaining budget changes only when your budget or entries change.'
         }
       >
         <div
@@ -286,14 +285,13 @@ export default function Dashboard({
               <tr>
                 <th scope="col">Metric</th>
                 <th scope="col">Full-month plan</th>
-                <th scope="col">Plan by date</th>
                 <th scope="col">Actual entered</th>
-                <th scope="col">Difference by date</th>
+                <th scope="col">Difference from monthly plan</th>
               </tr>
             </thead>
             <tbody>
               {metrics.map(([label, k, tone]) => {
-                const gap = k === 'income' || k === 'savings' ? act[k] - due[k] : due[k] - act[k];
+                const gap = k === 'income' || k === 'savings' ? act[k] - full[k] : full[k] - act[k];
                 return (
                   <tr key={k} className={k === 'savings' ? 'total-row' : ''}>
                     <td>
@@ -301,7 +299,6 @@ export default function Dashboard({
                       {label}
                     </td>
                     <td>{money(full[k])}</td>
-                    <td>{beforeMonth ? 'Not yet applicable' : money(due[k])}</td>
                     <td className="strong">{beforeMonth ? 'Not yet applicable' : money(act[k])}</td>
                     <td
                       className={beforeMonth ? 'muted' : gap >= 0 ? 'favourable' : 'unfavourable'}
@@ -346,7 +343,7 @@ export default function Dashboard({
       <SavingsCharts all />
       <Section
         title="Every category, accounted for"
-        caption="Remaining compares actuals with the full-month budget. Fixed-day items become due on their chosen date."
+        caption="Remaining = full-month budget minus actual entries. No daily budget allocation."
       >
         <div className="table-scroll" tabIndex={0} role="region" aria-label="Category budget table">
           <table className="data-table">
@@ -354,7 +351,6 @@ export default function Dashboard({
               <tr>
                 <th scope="col">Category</th>
                 <th scope="col">Full-month plan</th>
-                <th scope="col">Plan by date</th>
                 <th scope="col">Actual</th>
                 <th scope="col">Remaining / income gap</th>
                 <th scope="col">Budget used</th>
@@ -365,8 +361,7 @@ export default function Dashboard({
                 .filter((c) => c.active || p.entries.some((e) => e.categoryId === c.id))
                 .map((c) => {
                   const a = actualCategory(p, c, m, date),
-                    b = categoryPlan(p, c, m),
-                    due = categoryPlan(p, c, m, date);
+                    b = categoryPlan(p, c, m);
                   return (
                     <tr key={c.id}>
                       <td>
@@ -375,7 +370,6 @@ export default function Dashboard({
                         {!c.active && <Badge>Archived</Badge>}
                       </td>
                       <td>{money(b)}</td>
-                      <td>{money(due)}</td>
                       <td className="strong">{money(a)}</td>
                       <td className={c.group !== 'Income' && a > b ? 'unfavourable' : ''}>
                         {money(b - a)}
