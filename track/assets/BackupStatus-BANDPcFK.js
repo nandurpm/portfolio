@@ -1,0 +1,1 @@
+import{j as s}from"./index-BDrZmfOU.js";import{D as t,a,K as o}from"./App-hudvIpq4.js";import{r as e}from"./google-BSakTuEp.js";function j({compact:u=!1}){const[r,,,c,p]=t(),[m,n]=e.useState(!1),{toast:i}=a();return s.jsx(o,{})}export{j as B};
