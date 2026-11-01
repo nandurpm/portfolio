@@ -70,7 +70,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
   );
   return (
     <div className="chart-grid">
-      <Section title="Savings over time" caption="Cumulative savings added from the plan start">
+      <Section title="Savings over time" caption="Full-month planned savings compared with recorded income minus expenses through the report date">
         <div className="chart-box">
           {!data.length ? (
             empty
@@ -83,7 +83,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 <Tooltip {...tip} />
                 <Legend />
                 <Line
-                  name="Plan savings"
+                  name="Full-month plan savings"
                   dataKey="plan"
                   stroke="var(--accent)"
                   strokeWidth={2}
@@ -107,7 +107,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
       </Section>
       <Section
         title="Cash, month by month"
-        caption="Opening savings + cumulative income − expenses"
+        caption="Planned month-end cash uses complete monthly budgets; recorded cash uses actual transactions and opening savings"
       >
         <div className="chart-box">
           {!data.length ? (
@@ -127,7 +127,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 <Tooltip {...tip} />
                 <Legend />
                 <Area
-                  name="Expected cash"
+                  name="Planned month-end cash"
                   dataKey="expected"
                   stroke="#aaa2cf"
                   fill="none"
