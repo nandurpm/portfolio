@@ -11,15 +11,15 @@ import {
   YAxis,
 } from 'recharts';
 import { usePlan } from '../store';
-import { monthlyComparison, type PlanBasis } from '../domain/comparison';
+import { monthlyComparison } from '../domain/comparison';
 import { money, reportDate } from '../domain/calculate';
 import { displayDate, monthLabel } from '../domain/dates';
 import { Section } from './UI';
 
 export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'month' | 'range' }) {
   const p = usePlan();
-  const [scope, setScope] = useState(initialScope),
-    [basis, setBasis] = useState<PlanBasis>('full');
+  const [scope, setScope] = useState(initialScope);
+  const basis = 'full' as const;
   const start = scope === 'month' ? p.settings.selectedMonth : p.settings.viewStart;
   const end = scope === 'month' ? p.settings.selectedMonth : p.settings.viewEnd;
   const rows = useMemo(
@@ -45,17 +45,6 @@ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'm
             >
               <option value="month">Selected month</option>
               <option value="range">View range</option>
-            </select>
-          </label>
-          <label>
-            Compare with{' '}
-            <select
-              aria-label="Comparison plan basis"
-              value={basis}
-              onChange={(e) => setBasis(e.target.value as PlanBasis)}
-            >
-              <option value="full">Full-month plan</option>
-              <option value="by-date">Plan by date</option>
             </select>
           </label>
         </div>
