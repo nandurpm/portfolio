@@ -184,7 +184,7 @@ export default function AdditionalLoans() {
                 If confirmed and not already recorded, link the receipt to the correct
                 installment using its actual payment date. Do not record the same payment twice.
               </p>
-            )
+            )}
             <button
               className="button small secondary"
               onClick={() => {
