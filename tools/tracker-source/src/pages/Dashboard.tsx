@@ -101,13 +101,13 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
           <tr>
             {[
               'Month',
-              'Plan income',
+              'Full-month income plan',
               'Actual income',
-              'Plan expenses',
+              'Full-month expense plan',
               'Actual expenses',
-              'Plan savings',
+              'Full-month savings plan',
               'Actual savings',
-              'Savings gap',
+              'Savings vs full-month plan',
               'Expected cash',
               'Recorded cash',
               'Entries',
@@ -134,7 +134,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
               ].map((v, i) => (
                 <td
                   key={i}
-                  className={i === 6 && v != null ? (v >= 0 ? 'favourable' : 'unfavourable') : ''}
+                  className={i === 6 ? 'muted' : ''}
                 >
                   {v == null ? '—' : money(v)}
                 </td>
@@ -333,37 +333,52 @@ export default function Dashboard({
         </div>
       </Section>
       <Section
-        title="From the start, up to now"
-        caption={`${monthLabel(s.planStart)} → ${displayDate(date, s.dateFormat)} · opening savings ${money(s.opening)}`}
+        title="From plan start — full-month plan vs actual"
+        caption={`Planned totals use complete monthly budgets through ${monthLabel(date.slice(0, 7), true)}. Recorded totals include only transactions through ${displayDate(date, s.dateFormat)}. Unspent budgets are not savings. Opening savings: ${money(s.opening)}.`}
       >
         <div className="cumulative-grid">
           {[
-            ['Income received', cum.plan.income, cum.actual.income],
-            ['Total expenses', cum.plan.expenses, cum.actual.expenses],
-            ['Savings added', cum.plan.savings, cum.actual.savings],
-            ['Cash balance', cum.expectedCash, cum.actualCash],
-          ].map(([label, a, b], i) => (
-            <div className="cumulative-item" key={String(label)}>
-              <span>{label}</span>
-              <strong>{money(Number(b))}</strong>
-              <small>Expected {money(Number(a))}</small>
-              <span
-                className={
-                  (i === 1 ? Number(a) - Number(b) : Number(b) - Number(a)) >= 0
-                    ? 'favourable'
-                    : 'unfavourable'
-                }
-              >
-                {money(i === 1 ? Number(a) - Number(b) : Number(b) - Number(a))} difference
-              </span>
-            </div>
-          ))}
+            ['Income received', cum.plan.income, cum.actual.income, 'income'],
+            ['Total expenses', cum.plan.expenses, cum.actual.expenses, 'expenses'],
+            ['Savings added', cum.plan.savings, cum.actual.savings, 'savings'],
+            ['Cash balance', cum.expectedCash, cum.actualCash, 'cash'],
+          ].map(([label, plannedValue, actualValue, kind]) => {
+            const delta = Number(actualValue) - Number(plannedValue);
+            const explanation =
+              delta === 0
+                ? 'Matches full-month plan'
+                : kind === 'expenses'
+                  ? delta > 0
+                    ? 'Over full-month budget'
+                    : 'Unspent budget — not savings'
+                  : kind === 'income'
+                    ? delta > 0
+                      ? 'Income above plan'
+                      : 'Planned income not yet recorded'
+                    : kind === 'cash'
+                      ? delta > 0
+                        ? 'Above planned month-end cash'
+                        : 'Below planned month-end cash'
+                      : delta > 0
+                        ? 'Savings above plan'
+                        : 'Below planned month-end savings';
+            return (
+              <div className="cumulative-item" key={String(label)}>
+                <span>{label}</span>
+                <strong>{money(Number(actualValue))}</strong>
+                <small>Full-month plan {money(Number(plannedValue))}</small>
+                <span className="muted">
+                  {delta === 0 ? '' : `${money(Math.abs(delta))} · `}{explanation}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </Section>
       <SavingsCharts all />
       <Section
         title="Every category, accounted for"
-        caption="Remaining = full-month budget minus actual entries. No daily budget allocation."
+        caption="Income progress is measured by receipts; expense progress is measured by spending. Remaining budgets are not savings."
       >
         <div className="table-scroll" tabIndex={0} role="region" aria-label="Category budget table">
           <table className="data-table">
@@ -373,7 +388,7 @@ export default function Dashboard({
                 <th scope="col">Full-month plan</th>
                 <th scope="col">Actual</th>
                 <th scope="col">Remaining / income gap</th>
-                <th scope="col">Budget used</th>
+                <th scope="col">Progress</th>
               </tr>
             </thead>
             <tbody>
@@ -399,7 +414,19 @@ export default function Dashboard({
                           value={b > 0 ? (a / b) * 100 : a > 0 ? 100 : 0}
                           tone={c.group.toLowerCase()}
                         />
-                        <small>{b > 0 ? `${Math.round((a / b) * 100)}%` : 'No budget'}</small>
+                        <small>
+                          {c.group === 'Income'
+                            ? b > 0
+                              ? `Income received ${Math.round((a / b) * 100)}%`
+                              : a > 0
+                                ? 'Unplanned income received'
+                                : 'No income plan'
+                            : b > 0
+                              ? `Budget used ${Math.round((a / b) * 100)}%`
+                              : a > 0
+                                ? 'Unbudgeted spending'
+                                : 'No budget'}
+                        </small>
                       </td>
                     </tr>
                   );
@@ -410,7 +437,7 @@ export default function Dashboard({
       </Section>
       <Section
         title="Month-by-month progress"
-        caption="The entire plan. Future periods stay blank until the report date reaches them."
+        caption="Complete monthly planned amounts, not daily allocations. Actual amounts count recorded transactions through the report date. Future actuals remain blank."
       >
         <ProgressTable whole />
       </Section>

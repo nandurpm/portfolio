@@ -3,7 +3,7 @@ import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { store, usePlan } from '../store';
-import { money, round } from '../domain/calculate';
+import { money, reportDate, round } from '../domain/calculate';
 import { today, displayDate } from '../domain/dates';
 import { usePhone } from './usePhone';
 import { loanSummary, paymentRows } from '../domain/loan-summary';
@@ -176,6 +176,15 @@ export default function AdditionalLoans() {
               charges
             </p>
             {loan.note && <p className="muted">{loan.note}</p>}
+            {paid === 0 && /\b(paid|settled|payment made|payment completed)\b/i.test(loan.note) && (
+              <p className="callout" role="status">
+                This loan note mentions a payment, but the installment summary counts ₹0 paid
+                through {showDate(reportDate(p))}. A note does not create a payment record.
+                Check Saved receipts and Daily Entries → Archive for the original bank payment.
+                If confirmed and not already recorded, link the receipt to the correct
+                installment using its actual payment date. Do not record the same payment twice.
+              </p>
+            )}
             <button
               className="button small secondary"
               onClick={() => {
