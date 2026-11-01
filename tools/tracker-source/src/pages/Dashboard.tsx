@@ -113,7 +113,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
               'Entries',
               'Status',
             ].map((h) => (
-              <th key={h}>{h}</th>
+              <th scope="col" key={h}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -284,11 +284,11 @@ export default function Dashboard({
           <table className="data-table comparison">
             <thead>
               <tr>
-                <th>Metric</th>
-                <th>Full-month plan</th>
-                <th>Plan by date</th>
-                <th>Actual entered</th>
-                <th>Difference by date</th>
+                <th scope="col">Metric</th>
+                <th scope="col">Full-month plan</th>
+                <th scope="col">Plan by date</th>
+                <th scope="col">Actual entered</th>
+                <th scope="col">Difference by date</th>
               </tr>
             </thead>
             <tbody>
@@ -352,12 +352,12 @@ export default function Dashboard({
           <table className="data-table">
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Full-month plan</th>
-                <th>Plan by date</th>
-                <th>Actual</th>
-                <th>Remaining / income gap</th>
-                <th>Budget used</th>
+                <th scope="col">Category</th>
+                <th scope="col">Full-month plan</th>
+                <th scope="col">Plan by date</th>
+                <th scope="col">Actual</th>
+                <th scope="col">Remaining / income gap</th>
+                <th scope="col">Budget used</th>
               </tr>
             </thead>
             <tbody>

@@ -92,9 +92,9 @@ export function CloudPanel() {
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th>Plan</th>
-                        <th>Entries</th>
-                        <th>Categories</th>
+                        <th scope="col">Plan</th>
+                        <th scope="col">Entries</th>
+                        <th scope="col">Categories</th>
                       </tr>
                     </thead>
                     <tbody>

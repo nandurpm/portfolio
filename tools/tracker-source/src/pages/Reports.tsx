@@ -1,5 +1,5 @@
-import { WEB_APP } from '../web-mode';
-import { useState } from 'react';
+import { WEB_APP } from "../web-mode";
+import { useState } from "react";
 import {
   FileSpreadsheet,
   FileText,
@@ -9,14 +9,15 @@ import {
   ArrowRight,
   Check,
   RefreshCw,
-} from 'lucide-react';
-import { store, usePlan, useEnvelope } from '../store';
-import type { ImportPreview } from '../domain/types';
-import { APP_NAME } from '../domain/types';
-import { envelopeFrom } from '../domain/history';
-import { monthLabel } from '../domain/dates';
-import { saveBytes, saveText, chooseFile } from '../io/files';
-import { exportWorkbook, exportRange, monthlyReport } from '../io/export';
+} from "lucide-react";
+import { store, usePlan, useEnvelope } from "../store";
+import type { ImportPreview } from "../domain/types";
+import { APP_NAME } from "../domain/types";
+import { envelopeFrom } from "../domain/history";
+import { money } from "../domain/calculate";
+import { monthLabel } from "../domain/dates";
+import { saveBytes, saveText, chooseFile } from "../io/files";
+import { exportWorkbook, exportRange, monthlyReport } from "../io/export";
 import {
   readWorkbook,
   readCSV,
@@ -24,20 +25,30 @@ import {
   inspectColumns,
   csvExport,
   type ColumnMapping,
-} from '../io/import';
-import { RangeControl } from '../components/RangeControl';
-import { PageHead, Section, Field, Badge, Toggle, useUi, Modal } from '../components/UI';
+} from "../io/import";
+import { RangeControl } from "../components/RangeControl";
+import {
+  PageHead,
+  Section,
+  Field,
+  Badge,
+  Toggle,
+  useUi,
+  Modal,
+} from "../components/UI";
 export default function Reports() {
   const p = usePlan(),
     env = useEnvelope(),
     { toast, confirm } = useUi(),
-    [busy, setBusy] = useState(''),
-    [file, setFile] = useState<{ name: string; bytes: Uint8Array } | null>(null),
+    [busy, setBusy] = useState(""),
+    [file, setFile] = useState<{ name: string; bytes: Uint8Array } | null>(
+      null,
+    ),
     [headers, setHeaders] = useState<string[]>([]),
     [mapping, setMapping] = useState<ColumnMapping>(defaultMapping),
     [preview, setPreview] = useState<ImportPreview | null>(null),
-    [error, setError] = useState(''),
-    [mode, setMode] = useState('replace'),
+    [error, setError] = useState(""),
+    [mode, setMode] = useState("replace"),
     [remap, setRemap] = useState<Record<string, string>>({}),
     [pdfPreview, setPdfPreview] = useState(false);
   const [start, end] = exportRange(p);
@@ -49,15 +60,15 @@ export default function Reports() {
     } catch (e) {
       toast(e instanceof Error ? e.message : String(e), true);
     } finally {
-      setBusy('');
+      setBusy("");
     }
   }
   async function loadPreview(f = file, map = mapping) {
     if (!f) return;
-    setBusy('Reading workbook');
-    setError('');
+    setBusy("Reading workbook");
+    setError("");
     try {
-      const pre = f.name.toLowerCase().endsWith('.csv')
+      const pre = f.name.toLowerCase().endsWith(".csv")
         ? readCSV(new TextDecoder().decode(f.bytes), p, map)
         : await readWorkbook(f.bytes, p, map);
       pre.plan.source.filename = f.name;
@@ -67,14 +78,14 @@ export default function Reports() {
       setPreview(null);
       setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setBusy('');
+      setBusy("");
     }
   }
   async function openImport() {
-    const f = await chooseFile(['xlsx', 'csv']);
+    const f = await chooseFile(["xlsx", "csv"]);
     if (!f) return;
     setFile(f);
-    setMode(f.name.toLowerCase().endsWith('.csv') ? 'append' : 'replace');
+    setMode(f.name.toLowerCase().endsWith(".csv") ? "append" : "replace");
     try {
       const h = await inspectColumns(f.bytes, f.name);
       setHeaders(h);
@@ -88,33 +99,39 @@ export default function Reports() {
     if (!preview) return;
     if (
       !(await confirm(
-        mode === 'replace' ? 'Replace the current plan?' : 'Append imported entries?',
-        `${preview.plan.entries.length} entries are ready. ${preview.warnings.length} warnings were reported. ${mode === 'replace' ? 'Your current plan can be restored with Undo or a backup.' : 'Existing transactions will be kept; identical imports can create duplicates.'}`,
+        mode === "replace"
+          ? "Replace the current plan?"
+          : "Append imported entries?",
+        `${preview.plan.entries.length} entries are ready. ${preview.warnings.length} warnings were reported. ${mode === "replace" ? "Your current plan can be restored with Undo or a backup." : "Existing transactions will be kept; identical imports can create duplicates."}`,
         false,
-        'Import',
+        "Import",
       ))
     )
       return;
     try {
       const imported = structuredClone(preview.plan);
       for (const e of imported.entries) {
-        const name = imported.categories.find((c) => c.id === e.categoryId)?.name ?? '';
+        const name =
+          imported.categories.find((c) => c.id === e.categoryId)?.name ?? "";
         if (remap[name]) e.categoryId = remap[name];
       }
       const additions = p.categories.filter(
         (c) =>
-          Object.values(remap).includes(c.id) && !imported.categories.some((i) => i.id === c.id),
+          Object.values(remap).includes(c.id) &&
+          !imported.categories.some((i) => i.id === c.id),
       );
       imported.categories.push(...additions);
       store.change(`Import ${file?.name}`, (d) => {
-        if (mode === 'replace') Object.assign(d, imported);
+        if (mode === "replace") Object.assign(d, imported);
         else {
           for (const c of imported.categories)
             if (!d.categories.some((x) => x.id === c.id)) d.categories.push(c);
-          d.entries.push(...imported.entries.map((e) => ({ ...e, id: crypto.randomUUID() })));
+          d.entries.push(
+            ...imported.entries.map((e) => ({ ...e, id: crypto.randomUUID() })),
+          );
         }
       });
-      toast('Import applied and saved.');
+      toast("Import applied and saved.");
       setFile(null);
       setPreview(null);
     } catch (e) {
@@ -124,7 +141,10 @@ export default function Reports() {
   async function pdf() {
     const html = monthlyReport(p);
     if (window.desktop)
-      return window.desktop.pdf(html, `${APP_NAME} - ${p.settings.selectedMonth}.pdf`);
+      return window.desktop.pdf(
+        html,
+        `${APP_NAME} - ${p.settings.selectedMonth}.pdf`,
+      );
     setPdfPreview(true);
     return null;
   }
@@ -138,7 +158,7 @@ export default function Reports() {
       />
       <div className="export-range">
         <span>
-          Export range{' '}
+          Export range{" "}
           <strong>
             {monthLabel(start)} → {monthLabel(end)}
           </strong>
@@ -146,7 +166,7 @@ export default function Reports() {
         <Toggle
           checked={p.settings.applyViewToExport}
           onChange={(v) =>
-            store.change('Apply view range to export', (d) => {
+            store.change("Apply view range to export", (d) => {
               d.settings.applyViewToExport = v;
             })
           }
@@ -160,15 +180,19 @@ export default function Reports() {
           </span>
           <h2>Excel workbook</h2>
           <p>
-            Five formatted sheets, native editable charts, frozen headings and your monthly
-            overrides.
+            Five formatted sheets, native editable charts, frozen headings and
+            your monthly overrides.
           </p>
           <button
             disabled={!!busy}
             className="button"
             onClick={() =>
-              void run('Excel export', async () =>
-                saveBytes(`${APP_NAME}.xlsx`, await exportWorkbook(p, start, end), 'xlsx'),
+              void run("Excel export", async () =>
+                saveBytes(
+                  `${APP_NAME}.xlsx`,
+                  await exportWorkbook(p, start, end),
+                  "xlsx",
+                ),
               )
             }
           >
@@ -182,16 +206,16 @@ export default function Reports() {
           </span>
           <h2>Monthly PDF</h2>
           <p>
-            Selected-month comparisons, category totals and your cumulative savings in a printable
-            report.
+            Selected-month comparisons, category totals and your cumulative
+            savings in a printable report.
           </p>
           <button
             disabled={!!busy}
             className="button secondary"
-            onClick={() => void run('PDF report', pdf)}
+            onClick={() => void run("PDF report", pdf)}
           >
             <Download size={17} />
-            {window.desktop ? 'Save PDF' : 'Print / save PDF'}
+            {window.desktop ? "Save PDF" : "Print / save PDF"}
           </button>
         </div>
         <div className="export-card">
@@ -200,15 +224,19 @@ export default function Reports() {
           </span>
           <h2>Transactions CSV</h2>
           <p>
-            Plain, portable transaction records for the chosen range, with safe spreadsheet text
-            cells.
+            Plain, portable transaction records for the chosen range, with safe
+            spreadsheet text cells.
           </p>
           <button
             disabled={!!busy}
             className="button secondary"
             onClick={() =>
-              void run('CSV export', () =>
-                saveText(`${APP_NAME} - Transactions.csv`, csvExport(p, start, end), 'csv'),
+              void run("CSV export", () =>
+                saveText(
+                  `${APP_NAME} - Transactions.csv`,
+                  csvExport(p, start, end),
+                  "csv",
+                ),
               )
             }
           >
@@ -224,7 +252,7 @@ export default function Reports() {
           <button
             className="button"
             disabled={!!busy}
-            onClick={() => void run('Open import', openImport)}
+            onClick={() => void run("Open import", openImport)}
           >
             <Upload size={17} />
             Import Excel or CSV
@@ -236,8 +264,9 @@ export default function Reports() {
           <div>
             <h3>Settings, categories, loan schedule and overrides</h3>
             <p>
-              Formula defaults stay formulas. Typed monthly values stay overrides. Date and category
-              mappings are shown before applying changes.
+              Formula defaults stay formulas. Typed monthly values stay
+              overrides. Date and category mappings are shown before applying
+              changes.
             </p>
           </div>
           <ArrowRight size={22} />
@@ -265,7 +294,9 @@ export default function Reports() {
                   <select
                     aria-label={`Map ${k}`}
                     value={v}
-                    onChange={(e) => setMapping({ ...mapping, [k]: e.target.value })}
+                    onChange={(e) =>
+                      setMapping({ ...mapping, [k]: e.target.value })
+                    }
                   >
                     <option value="">Not present</option>
                     {[...new Set([v, ...headers])].filter(Boolean).map((h) => (
@@ -297,15 +328,17 @@ export default function Reports() {
                 {preview.unknownCategories.length > 0 && (
                   <>
                     <p>
-                      New category names: keep them as new categories, or map their entries to an
-                      existing category.
+                      New category names: keep them as new categories, or map
+                      their entries to an existing category.
                     </p>
                     <div className="form-grid">
                       {preview.unknownCategories.map((name) => (
                         <Field key={name} label={name}>
                           <select
-                            value={remap[name] ?? ''}
-                            onChange={(e) => setRemap({ ...remap, [name]: e.target.value })}
+                            value={remap[name] ?? ""}
+                            onChange={(e) =>
+                              setRemap({ ...remap, [name]: e.target.value })
+                            }
                           >
                             <option value="">Keep new category (Living)</option>
                             {p.categories.map((c) => (
@@ -329,8 +362,9 @@ export default function Reports() {
                     </ul>
                     {preview.warnings.length > 30 && (
                       <p>
-                        {preview.warnings.length - 30} additional warnings. Correct the source file
-                        before import if those records are needed.
+                        {preview.warnings.length - 30} additional warnings.
+                        Correct the source file before import if those records
+                        are needed.
                       </p>
                     )}
                   </div>
@@ -339,10 +373,10 @@ export default function Reports() {
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th>Date</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -350,24 +384,31 @@ export default function Reports() {
                         <tr key={e.id}>
                           <td>{e.date}</td>
                           <td>
-                            {preview.plan.categories.find((c) => c.id === e.categoryId)?.name}
+                            {
+                              preview.plan.categories.find(
+                                (c) => c.id === e.categoryId,
+                              )?.name
+                            }
                           </td>
                           <td>{e.description}</td>
-                          <td>{e.amount.toFixed(2)}</td>
+                          <td>{money(e.amount)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                   {!preview.plan.entries.length && (
                     <p className="muted">
-                      No transactions in this file. The plan settings and loan schedule are ready to
-                      import.
+                      No transactions in this file. The plan settings and loan
+                      schedule are ready to import.
                     </p>
                   )}
                 </div>
                 <div className="import-actions">
                   <Field label="Import mode">
-                    <select value={mode} onChange={(e) => setMode(e.target.value)}>
+                    <select
+                      value={mode}
+                      onChange={(e) => setMode(e.target.value)}
+                    >
                       <option value="replace">Replace plan and entries</option>
                       <option value="append">Append entries only</option>
                     </select>
@@ -391,8 +432,12 @@ export default function Reports() {
             className="button secondary"
             disabled={!!busy}
             onClick={() =>
-              void run('Backup export', () =>
-                saveText(`${APP_NAME} - Backup.json`, JSON.stringify(env, null, 2), 'json'),
+              void run("Backup export", () =>
+                saveText(
+                  `${APP_NAME} - Backup.json`,
+                  JSON.stringify(env, null, 2),
+                  "json",
+                ),
               )
             }
           >
@@ -403,16 +448,18 @@ export default function Reports() {
             className="button secondary"
             disabled={!!busy}
             onClick={() =>
-              void run('Restore backup', async () => {
-                const f = await chooseFile(['json']);
+              void run("Restore backup", async () => {
+                const f = await chooseFile(["json"]);
                 if (!f) return null;
-                const backup = envelopeFrom(JSON.parse(new TextDecoder().decode(f.bytes)));
+                const backup = envelopeFrom(
+                  JSON.parse(new TextDecoder().decode(f.bytes)),
+                );
                 if (
                   !(await confirm(
-                    'Restore this backup?',
+                    "Restore this backup?",
                     `Replace the current plan with ${backup.data.entries.length} entries and ${backup.audit.length} history records?`,
                     false,
-                    'Restore',
+                    "Restore",
                   ))
                 )
                   return null;
@@ -429,10 +476,12 @@ export default function Reports() {
               className="button secondary"
               disabled={!!busy || !window.desktop}
               title={
-                !window.desktop ? 'Automatic backup folder is available in the desktop app' : ''
+                !window.desktop
+                  ? "Automatic backup folder is available in the desktop app"
+                  : ""
               }
               onClick={() =>
-                void run('Automatic backup', async () => {
+                void run("Automatic backup", async () => {
                   await store.flush();
                   return store.backup();
                 })
@@ -444,10 +493,10 @@ export default function Reports() {
         </div>
         <p className="footnote">
           {WEB_APP
-            ? 'Export a full JSON backup to keep a separate copy of your complete plan and history.'
-            : window.desktop?.platform === 'android'
-              ? 'Changed data is backed up when the app moves to the background. The latest ten distinct snapshots are kept. Use Export full backup to choose a phone folder.'
-              : 'Windows backs up on exit and retains ten copies. A second backup folder can be selected in Settings.'}
+            ? "Export a full JSON backup to keep a separate copy of your complete plan and history."
+            : window.desktop?.platform === "android"
+              ? "Changed data is backed up when the app moves to the background. The latest ten distinct snapshots are kept. Use Export full backup to choose a phone folder."
+              : "Windows backs up on exit and retains ten copies. A second backup folder can be selected in Settings."}
         </p>
       </Section>
       {busy && (
@@ -457,17 +506,26 @@ export default function Reports() {
         </div>
       )}
       {pdfPreview && (
-        <Modal title="Monthly report preview" onClose={() => setPdfPreview(false)} wide>
+        <Modal
+          title="Monthly report preview"
+          onClose={() => setPdfPreview(false)}
+          wide
+        >
           <p className="muted">
-            Use the browser’s Print dialog and choose Save as PDF. The installed desktop app saves
-            PDF directly.
+            Use the browser’s Print dialog and choose Save as PDF. The installed
+            desktop app saves PDF directly.
           </p>
-          <iframe title="Monthly report" srcDoc={monthlyReport(p)} className="report-frame" />
+          <iframe
+            title="Monthly report"
+            srcDoc={monthlyReport(p)}
+            className="report-frame"
+          />
           <div className="modal-actions">
             <button
               className="button"
               onClick={() => {
-                const frame = document.querySelector<HTMLIFrameElement>('.report-frame');
+                const frame =
+                  document.querySelector<HTMLIFrameElement>(".report-frame");
                 frame?.contentWindow?.print();
               }}
             >

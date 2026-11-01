@@ -151,7 +151,7 @@ export default function Forecast() {
                   'Contract balance',
                   'Closure headroom',
                 ].map((x) => (
-                  <th key={x}>{x}</th>
+                  <th scope="col" key={x}>{x}</th>
                 ))}
               </tr>
             </thead>

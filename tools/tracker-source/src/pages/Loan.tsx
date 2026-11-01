@@ -535,7 +535,7 @@ export default function Loan() {
                     'Paid date',
                     'Status',
                   ].map((x) => (
-                    <th key={x}>{x}</th>
+                    <th scope="col" key={x}>{x}</th>
                   ))}
                 </tr>
               </thead>
@@ -645,7 +645,7 @@ export default function Loan() {
           </p>
           <Field label="Actual paid amount (₹)">
             <input
-              type="number"
+              type="number" inputMode="decimal"
               min=".01"
               step=".01"
               value={paidAmount}

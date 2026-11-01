@@ -306,7 +306,7 @@ export function NumberField({
     <input
       className={className}
       aria-label={label}
-      type="number"
+      type="number" inputMode="decimal"
       min={min}
       step={step}
       value={v}

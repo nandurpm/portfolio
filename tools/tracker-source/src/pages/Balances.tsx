@@ -128,7 +128,7 @@ export default function Balances() {
               <input
                 aria-label="Reconciliation opening balance"
                 required
-                type="number"
+                type="number" inputMode="decimal"
                 step=".01"
                 value={r.openingBalance}
                 onChange={(e) => setR({ ...r, openingBalance: Number(e.target.value) })}
@@ -138,7 +138,7 @@ export default function Balances() {
               <input
                 aria-label="Statement balance"
                 required
-                type="number"
+                type="number" inputMode="decimal"
                 step=".01"
                 value={statement}
                 onChange={(e) => setStatement(e.target.value)}
@@ -250,7 +250,7 @@ export default function Balances() {
                 <input
                   aria-label={label}
                   required
-                  type="number"
+                  type="number" inputMode="decimal"
                   min={min}
                   max={max}
                   step={['everyMonths', 'allocationDay', 'dueDay'].includes(key) ? '1' : '.01'}
