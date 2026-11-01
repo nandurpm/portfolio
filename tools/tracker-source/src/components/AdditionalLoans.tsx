@@ -6,7 +6,7 @@ import { store, usePlan } from '../store';
 import { money, round } from '../domain/calculate';
 import { today, displayDate } from '../domain/dates';
 import { usePhone } from './usePhone';
-import { loanSummary } from '../domain/loan-summary';
+import { loanSummary, paymentRows } from '../domain/loan-summary';
 import {
   addInstallmentLoan,
   saveInstallmentPayment,
@@ -42,8 +42,9 @@ export default function AdditionalLoans() {
   const loans = p.additionalLoans ?? [],
     loan = loans.find((l) => l.id === selected) ?? loans[0];
   const total = loan ? round(loan.monthlyEmi * loan.tenure) : 0;
-  const paid = loan ? round(loan.rows.reduce((n, r) => n + r.paidAmount, 0)) : 0;
-  const summary = loan ? loanSummary(loan.rows) : null;
+  const rows = loan ? paymentRows(p, loan.rows) : [];
+  const summary = loan ? loanSummary(rows) : null;
+  const paid = summary?.paid ?? 0;
   function openPayment(rowId: string) {
     if (!loan) return;
     const r = loan.rows.find((r) => r.id === rowId)!;
@@ -170,7 +171,7 @@ export default function AdditionalLoans() {
               </div>
             </div>
             <p>
-              {loan.rows.filter((r) => r.paid).length} of {loan.tenure} installments paid ·{' '}
+              {summary?.paidCount ?? 0} of {loan.tenure} installments paid ·{' '}
               {money(loan.monthlyEmi)} monthly · {money(round(total - loan.principal))} total
               charges
             </p>
@@ -199,7 +200,7 @@ export default function AdditionalLoans() {
             </p>
             {phone ? (
               <div className="installment-cards">
-                {loan.rows.map((r, i) => (
+                {rows.map((r, i) => (
                   <article key={r.id} className="installment-card">
                     <div className="installment-card-head">
                       <strong>
@@ -260,7 +261,7 @@ export default function AdditionalLoans() {
                     </tr>
                   </thead>
                   <tbody>
-                    {loan.rows.map((r, i) => (
+                    {rows.map((r, i) => (
                       <tr key={r.id} className={r.paid ? 'paid-row' : ''}>
                         <td>{i + 1}</td>
                         <td>{showDate(plannedPaymentDate(p, r.dueDate))}</td>
@@ -291,8 +292,8 @@ export default function AdditionalLoans() {
             )}
             <p className="muted">
               Payments before the plan’s opening month are kept in Daily Entries → Archive. They are
-              not deducted again from opening savings. Future budgets exclude amounts already paid
-              early.
+              not deducted again from opening savings. Paid totals use the report date. Future-dated
+              receipts remain pending until that date; review them in Saved receipts.
             </p>
           </>
         )}
