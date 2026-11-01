@@ -1,12 +1,24 @@
-import { listenForAndroidBack, exitAndroid, applySystemBarTheme } from './native-ui';
-import { closeTopDialog, handleBack } from './navigation';
-import { sync, useCloud } from './cloud/sync';
-import { CloudButton, CloudGate } from './cloud/CloudPanel';
-import { WEB_APP } from './web-mode';
-import { WebAccess } from './cloud/WebAccess';
-import { Component, lazy, Suspense, useEffect, useState, useRef, type ReactNode } from 'react';
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
-import confetti from 'canvas-confetti';
+import {
+  listenForAndroidBack,
+  exitAndroid,
+  applySystemBarTheme,
+} from "./native-ui";
+import { closeTopDialog, handleBack } from "./navigation";
+import { sync, useCloud } from "./cloud/sync";
+import { CloudButton, CloudGate } from "./cloud/CloudPanel";
+import { WEB_APP } from "./web-mode";
+import { WebAccess } from "./cloud/WebAccess";
+import {
+  Component,
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  useRef,
+  type ReactNode,
+} from "react";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+import confetti from "canvas-confetti";
 import {
   LayoutDashboard,
   ReceiptText,
@@ -25,33 +37,37 @@ import {
   ShieldCheck,
   ChevronRight,
   MoreHorizontal,
-} from 'lucide-react';
-import { store, usePlan, useEnvelope, useSaveStatus } from './store';
-import { APP_NAME } from './domain/types';
-import { cumulative, progress } from './domain/calculate';
-import { today, monthsBetween } from './domain/dates';
-import { RangeControl } from './components/RangeControl';
-import { UiProvider, useUi, Modal } from './components/UI';
-import Dashboard from './pages/Dashboard';
-const Entries = lazy(() => import('./pages/Entries')),
-  Budget = lazy(() => import('./pages/Budget')),
-  Loan = lazy(() => import('./pages/Loan')),
-  Forecast = lazy(() => import('./pages/Forecast')),
-  Reports = lazy(() => import('./pages/Reports')),
-  Balances = lazy(() => import('./pages/Balances')),
-  Settings = lazy(() => import('./pages/Settings'));
+} from "lucide-react";
+import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
+import { APP_NAME } from "./domain/types";
+import { cumulative, progress } from "./domain/calculate";
+import { today, monthsBetween } from "./domain/dates";
+import { RangeControl } from "./components/RangeControl";
+import { UiProvider, useUi, Modal } from "./components/UI";
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Entries = lazy(() => import("./pages/Entries")),
+  Budget = lazy(() => import("./pages/Budget")),
+  Loan = lazy(() => import("./pages/Loan")),
+  Forecast = lazy(() => import("./pages/Forecast")),
+  Reports = lazy(() => import("./pages/Reports")),
+  Balances = lazy(() => import("./pages/Balances")),
+  Settings = lazy(() => import("./pages/Settings"));
 const pages = [
-  { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
-  { id: 'entries', name: 'Daily Entries', icon: ReceiptText },
-  { id: 'budget', name: 'Budget & Plan', icon: WalletCards },
-  { id: 'loan', name: 'Loan & Closure', icon: Landmark },
-  { id: 'balances', name: 'Balances & provisions', icon: WalletCards },
-  { id: 'forecast', name: 'Forecast & Month-by-month', icon: ChartNoAxesCombined },
-  { id: 'reports', name: 'Reports & Export/Import', icon: FileDown },
-  { id: 'settings', name: 'Settings', icon: SettingsIcon },
+  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
+  { id: "entries", name: "Daily Entries", icon: ReceiptText },
+  { id: "budget", name: "Budget & Plan", icon: WalletCards },
+  { id: "loan", name: "Loan & Closure", icon: Landmark },
+  { id: "balances", name: "Balances & provisions", icon: WalletCards },
+  {
+    id: "forecast",
+    name: "Forecast & Month-by-month",
+    icon: ChartNoAxesCombined,
+  },
+  { id: "reports", name: "Reports & Export/Import", icon: FileDown },
+  { id: "settings", name: "Settings", icon: SettingsIcon },
 ];
 class Boundary extends Component<{ children: ReactNode }, { error: string }> {
-  override state = { error: '' };
+  override state = { error: "" };
   static getDerivedStateFromError(e: Error) {
     return { error: e.message };
   }
@@ -60,7 +76,16 @@ class Boundary extends Component<{ children: ReactNode }, { error: string }> {
       return (
         <div className="fatal">
           <h1>We couldn’t open this screen.</h1>
-          <p>{this.state.error}</p>
+          <p>Please reload the app to try again.</p>
+          <button
+            onClick={() =>
+              void navigator.clipboard
+                .writeText(this.state.error)
+                .catch(() => {})
+            }
+          >
+            Copy error details
+          </button>
           <p>Your saved data remains on this device.</p>
           <button onClick={() => location.reload()}>Reload app</button>
         </div>
@@ -74,9 +99,9 @@ export function Shell() {
     env = useEnvelope(),
     [status, warning] = useSaveStatus(),
     { toast } = useUi(),
-    [page, setPage] = useState('dashboard'),
+    [page, setPage] = useState("dashboard"),
     [more, setMore] = useState(false),
-    [entryKind, setEntryKind] = useState<'Income' | 'Expense'>('Expense'),
+    [entryKind, setEntryKind] = useState<"Income" | "Expense">("Expense"),
     [collapsed, setCollapsed] = useState(false),
     [loading, setLoading] = useState(true),
     [tick, setTick] = useState(0);
@@ -85,8 +110,8 @@ export function Shell() {
   const navigate = (next: string) => {
     setPage(next);
     setMore(false);
-    document.querySelector('.main-scroll')?.scrollTo(0, 0);
-    document.querySelector('.workspace')?.scrollTo(0, 0);
+    document.querySelector(".main-scroll")?.scrollTo(0, 0);
+    document.querySelector(".workspace")?.scrollTo(0, 0);
   };
   useEffect(
     () =>
@@ -94,15 +119,20 @@ export function Shell() {
         void handleBack({
           page: pageRef.current,
           closeDialog: closeTopDialog,
-          dashboard: () => navigate('dashboard'),
+          dashboard: () => navigate("dashboard"),
           flush: () => store.flush(),
           exit: exitAndroid,
-        }).catch((e) => toast(`Please save before exiting: ${String(e)}`, true));
+        }).catch((e) =>
+          toast(`Please save before exiting: ${String(e)}`, true),
+        );
       }),
     [],
   );
-  const recovery = status === 'Recovery needed';
+  const recovery = status === "Recovery needed";
   const current = pages.find((x) => x.id === page)!;
+  useEffect(() => {
+    document.title = `${current.name} — ${APP_NAME}`;
+  }, [current.name]);
   useEffect(() => {
     void store
       .load()
@@ -119,32 +149,50 @@ export function Shell() {
   }, []);
   useEffect(() => {
     const dark =
-      p.settings.theme === 'dark' ||
-      (p.settings.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      p.settings.theme === "dark" ||
+      (p.settings.theme === "system" &&
+        matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    try {
+      localStorage.setItem("tracker-theme", p.settings.theme);
+    } catch {
+      /* Optional UI preference. */
+    }
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", dark ? "#1d2134" : "#ffffff");
     document.documentElement.dataset.palette = p.settings.palette;
     void applySystemBarTheme(dark, {
-      topColor: getComputedStyle(document.documentElement).getPropertyValue('--surface').trim(),
-      bottomColor: getComputedStyle(document.documentElement)
-        .getPropertyValue('--sidebar-b')
+      topColor: getComputedStyle(document.documentElement)
+        .getPropertyValue("--surface")
         .trim(),
-    }).catch((e) => console.warn('System bar style:', e));
+      bottomColor: getComputedStyle(document.documentElement)
+        .getPropertyValue("--sidebar-b")
+        .trim(),
+    }).catch((e) => console.warn("System bar style:", e));
     document.documentElement.dataset.palette = p.settings.palette;
     document.documentElement.dataset.animations = String(p.settings.animations);
-    const media = matchMedia('(prefers-color-scheme: dark)');
+    const media = matchMedia("(prefers-color-scheme: dark)");
     const listener = () => {
-      if (p.settings.theme === 'system') {
-        document.documentElement.dataset.theme = media.matches ? 'dark' : 'light';
+      if (p.settings.theme === "system") {
+        document.documentElement.dataset.theme = media.matches
+          ? "dark"
+          : "light";
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute("content", media.matches ? "#1d2134" : "#ffffff");
         void applySystemBarTheme(media.matches, {
-          topColor: getComputedStyle(document.documentElement).getPropertyValue('--surface').trim(),
-          bottomColor: getComputedStyle(document.documentElement)
-            .getPropertyValue('--sidebar-b')
+          topColor: getComputedStyle(document.documentElement)
+            .getPropertyValue("--surface")
             .trim(),
-        }).catch((e) => console.warn('System bar style:', e));
+          bottomColor: getComputedStyle(document.documentElement)
+            .getPropertyValue("--sidebar-b")
+            .trim(),
+        }).catch((e) => console.warn("System bar style:", e));
       }
     };
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
   }, [p.settings.theme, p.settings.palette, p.settings.animations]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -157,7 +205,7 @@ export function Shell() {
           ))
       )
         return;
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         if ((e.target as HTMLElement).closest('[role="dialog"]')) return;
         e.preventDefault();
         try {
@@ -167,7 +215,7 @@ export function Shell() {
           toast(String(err), true);
         }
       }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
         e.preventDefault();
         try {
           store.redo();
@@ -175,13 +223,13 @@ export function Shell() {
           toast(String(err), true);
         }
       }
-      if (e.ctrlKey && e.key.toLowerCase() === 'n') {
+      if (e.ctrlKey && e.key.toLowerCase() === "n") {
         e.preventDefault();
-        setPage('entries');
+        setPage("entries");
       }
     };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
   }, [toast, cloud.locked, cloud.review, cloud.initial]);
   useEffect(() => {
     if (
@@ -208,23 +256,35 @@ export function Shell() {
       .map((r) => `month-${r.month}`);
     const all = [...achieved, ...completed];
     if (!all.length) return;
-    store.change('Celebrate savings milestone', (d) => {
+    store.change("Celebrate savings milestone", (d) => {
       d.celebrated.push(...all);
     });
     void confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.35 },
-      colors: ['#6255df', '#20b69c', '#ffbd59'],
+      colors: ["#6255df", "#20b69c", "#ffbd59"],
       disableForReducedMotion: true,
     });
-    toast('A savings milestone reached. Keep the progress going!');
-  }, [p, loading, recovery, tick, toast, cloud.locked, cloud.review, cloud.initial]);
+    toast("A savings milestone reached. Keep the progress going!");
+  }, [
+    p,
+    loading,
+    recovery,
+    tick,
+    toast,
+    cloud.locked,
+    cloud.review,
+    cloud.initial,
+  ]);
   if (!loading && (cloud.locked || cloud.review || cloud.initial !== undefined))
     return <CloudGate />;
   return (
-    <MotionConfig reducedMotion={p.settings.animations ? 'user' : 'always'}>
-      <div className={`app-shell ${collapsed ? 'sidebar-collapsed' : ''}`}>
+    <MotionConfig reducedMotion={p.settings.animations ? "user" : "always"}>
+      <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
         <aside className="sidebar">
           <div className="brand">
             <img src="./icon.svg" alt="" />
@@ -239,7 +299,7 @@ export function Shell() {
             {pages.map((x) => (
               <button
                 key={x.id}
-                className={page === x.id ? 'active' : ''}
+                className={page === x.id ? "active" : ""}
                 onClick={() => {
                   navigate(x.id);
                 }}
@@ -261,10 +321,12 @@ export function Shell() {
             </div>
             <div className="profile">
               <div className="avatar">
-                {cloud.session?.user.email?.slice(0, 1).toUpperCase() ?? 'P'}
+                {cloud.session?.user.email?.slice(0, 1).toUpperCase() ?? "P"}
               </div>
               <div>
-                <strong>{cloud.session?.user.email ?? 'Personal finance'}</strong>
+                <strong>
+                  {cloud.session?.user.email ?? "Personal finance"}
+                </strong>
                 <span>Personal finance</span>
               </div>
               <button
@@ -272,7 +334,11 @@ export function Shell() {
                 aria-label="Collapse sidebar"
                 onClick={() => setCollapsed(!collapsed)}
               >
-                {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+                {collapsed ? (
+                  <PanelLeftOpen size={18} />
+                ) : (
+                  <PanelLeftClose size={18} />
+                )}
               </button>
             </div>
           </div>
@@ -283,14 +349,14 @@ export function Shell() {
               {
                 (
                   {
-                    dashboard: 'Home',
-                    entries: 'Entries',
-                    budget: 'Budget',
-                    loan: 'Loan',
-                    forecast: 'Forecast',
-                    reports: 'Reports',
-                    settings: 'Settings',
-                    balances: 'Balances',
+                    dashboard: "Home",
+                    entries: "Entries",
+                    budget: "Budget",
+                    loan: "Loan",
+                    forecast: "Forecast",
+                    reports: "Reports",
+                    settings: "Settings",
+                    balances: "Balances",
                   } as Record<string, string>
                 )[page]
               }
@@ -305,15 +371,17 @@ export function Shell() {
               <button
                 className="icon-button phone-settings"
                 aria-label="Open Settings"
-                onClick={() => navigate('settings')}
+                onClick={() => navigate("settings")}
               >
                 <SettingsIcon size={21} />
               </button>
               <fieldset disabled={recovery} className="edit-controls">
                 <RangeControl compact />
               </fieldset>
-              {status !== 'Saved locally' && (
-                <span className={`save-indicator ${status === 'Save failed' ? 'failed' : ''}`}>
+              {(!WEB_APP || status !== "Saved locally") && (
+                <span
+                  className={`save-indicator ${status === "Save failed" ? "failed" : ""}`}
+                >
                   <Check size={14} />
                   {status}
                 </span>
@@ -353,24 +421,34 @@ export function Shell() {
                 aria-label="Toggle light and dark theme"
                 disabled={recovery}
                 onClick={() =>
-                  store.change('Toggle theme', (d) => {
+                  store.change("Toggle theme", (d) => {
                     d.settings.theme =
-                      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+                      document.documentElement.dataset.theme === "dark"
+                        ? "light"
+                        : "dark";
                   })
                 }
               >
-                {p.settings.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                {p.settings.theme === "dark" ? (
+                  <Sun size={18} />
+                ) : (
+                  <Moon size={18} />
+                )}
               </button>
             </div>
           </header>
-          <main className="main-scroll">
+          <main id="main-content" tabIndex={-1} className="main-scroll">
             {warning && (
               <div className="callout error" role="alert">
                 {warning}
-                {status === 'Save failed' && (
+                {status === "Save failed" && (
                   <button
                     className="button secondary"
-                    onClick={() => void store.retrySave().catch((e) => toast(String(e), true))}
+                    onClick={() =>
+                      void store
+                        .retrySave()
+                        .catch((e) => toast(String(e), true))
+                    }
                   >
                     Retry save
                   </button>
@@ -378,14 +456,16 @@ export function Shell() {
               </div>
             )}
             <fieldset
-              disabled={recovery && page !== 'reports'}
+              disabled={recovery && page !== "reports"}
               className="edit-controls"
               aria-label="Screen controls"
             >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={page}
-                  initial={p.settings.animations ? { opacity: 0, y: 12 } : false}
+                  initial={
+                    p.settings.animations ? { opacity: 0, y: 12 } : false
+                  }
                   animate={{ opacity: 1, y: 0 }}
                   exit={p.settings.animations ? { opacity: 0 } : undefined}
                   transition={{ duration: p.settings.animations ? 0.16 : 0 }}
@@ -398,25 +478,25 @@ export function Shell() {
                       </div>
                     }
                   >
-                    {page === 'dashboard' ? (
+                    {page === "dashboard" ? (
                       <Dashboard
                         navigate={navigate}
                         addEntry={(kind) => {
                           setEntryKind(kind);
-                          setPage('entries');
+                          setPage("entries");
                         }}
                       />
-                    ) : page === 'entries' ? (
+                    ) : page === "entries" ? (
                       <Entries initialKind={entryKind} />
-                    ) : page === 'budget' ? (
+                    ) : page === "budget" ? (
                       <Budget />
-                    ) : page === 'loan' ? (
+                    ) : page === "loan" ? (
                       <Loan />
-                    ) : page === 'forecast' ? (
+                    ) : page === "forecast" ? (
                       <Forecast />
-                    ) : page === 'balances' ? (
+                    ) : page === "balances" ? (
                       <Balances />
-                    ) : page === 'reports' ? (
+                    ) : page === "reports" ? (
                       <Reports />
                     ) : (
                       <Settings navigate={navigate} />
@@ -428,22 +508,22 @@ export function Shell() {
             <footer className="app-footer">
               <span>{APP_NAME}</span>
               <span>
-                {monthsBetween(p.settings.planStart, p.settings.planEnd).length} months in your plan
-                · All amounts in INR
+                {monthsBetween(p.settings.planStart, p.settings.planEnd).length}{" "}
+                months in your plan · All amounts in INR
               </span>
             </footer>
           </main>
         </div>
         <nav className="phone-nav" aria-label="Phone navigation">
           {[
-            { id: 'dashboard', name: 'Home', icon: LayoutDashboard },
-            { id: 'entries', name: 'Entries', icon: ReceiptText },
-            { id: 'budget', name: 'Budget', icon: WalletCards },
-            { id: 'forecast', name: 'Forecast', icon: ChartNoAxesCombined },
+            { id: "dashboard", name: "Home", icon: LayoutDashboard },
+            { id: "entries", name: "Entries", icon: ReceiptText },
+            { id: "budget", name: "Budget", icon: WalletCards },
+            { id: "forecast", name: "Forecast", icon: ChartNoAxesCombined },
           ].map((x) => (
             <button
               key={x.id}
-              aria-current={page === x.id ? 'page' : undefined}
+              aria-current={page === x.id ? "page" : undefined}
               onClick={() => navigate(x.id)}
             >
               <x.icon size={22} />
@@ -454,7 +534,9 @@ export function Shell() {
             aria-label="More screens"
             aria-expanded={more}
             aria-current={
-              ['loan', 'balances', 'reports', 'settings'].includes(page) ? 'page' : undefined
+              ["loan", "balances", "reports", "settings"].includes(page)
+                ? "page"
+                : undefined
             }
             onClick={() => setMore(true)}
           >
@@ -466,17 +548,23 @@ export function Shell() {
           <Modal title="More screens & tools" onClose={() => setMore(false)}>
             <div className="phone-menu">
               {pages
-                .filter((x) => ['loan', 'balances', 'reports', 'settings'].includes(x.id))
+                .filter((x) =>
+                  ["loan", "balances", "reports", "settings"].includes(x.id),
+                )
                 .map((x) => (
-                  <button key={x.id} className="button secondary" onClick={() => navigate(x.id)}>
+                  <button
+                    key={x.id}
+                    className="button secondary"
+                    onClick={() => navigate(x.id)}
+                  >
                     <x.icon size={22} />
-                    {x.id === 'balances'
-                      ? 'Balances & provisions'
-                      : x.id === 'loan'
-                        ? 'Loan & Closure'
-                        : x.id === 'reports'
-                          ? 'Reports & Export/Import'
-                          : 'Settings'}
+                    {x.id === "balances"
+                      ? "Balances & provisions"
+                      : x.id === "loan"
+                        ? "Loan & Closure"
+                        : x.id === "reports"
+                          ? "Reports & Export/Import"
+                          : "Settings"}
                   </button>
                 ))}
               <div className="phone-menu-actions">
@@ -510,7 +598,7 @@ export function Shell() {
                 </button>
               </div>
               <p className="muted">
-                {status !== 'Saved locally' && <>{status} · </>}
+                {(!WEB_APP || status !== "Saved locally") && <>{status} · </>}
                 Your plan range and appearance are in Settings.
               </p>
             </div>
@@ -518,7 +606,11 @@ export function Shell() {
         )}
         <AnimatePresence>
           {loading && (
-            <motion.div className="splash" exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <motion.div
+              className="splash"
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
               <motion.img
                 src="./icon.svg"
                 alt=""

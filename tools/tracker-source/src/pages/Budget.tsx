@@ -353,13 +353,13 @@ export default function Budget() {
             <table className="data-table categories-table">
               <thead>
                 <tr>
-                  <th>Category</th>
-                  <th>Group</th>
-                  <th>Base amount</th>
-                  <th>Timing</th>
-                  <th>Rule</th>
-                  <th>Active</th>
-                  <th>Order / Edit</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Group</th>
+                  <th scope="col">Base amount</th>
+                  <th scope="col">Timing</th>
+                  <th scope="col">Rule</th>
+                  <th scope="col">Active</th>
+                  <th scope="col">Order / Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -645,9 +645,9 @@ export default function Budget() {
             <table className="data-table budget-grid">
               <thead>
                 <tr>
-                  <th>Category / Month</th>
+                  <th scope="col">Category / Month</th>
                   {months.map((m) => (
-                    <th key={m}>{monthLabel(m)}</th>
+                    <th scope="col" key={m}>{monthLabel(m)}</th>
                   ))}
                 </tr>
               </thead>
@@ -739,7 +739,7 @@ export default function Budget() {
           </button>
           <Field label="Increase / decrease %">
             <input
-              type="number"
+              type="number" inputMode="decimal"
               aria-label="Budget percentage change"
               value={percent}
               onChange={(e) => setPercent(Number(e.target.value))}
@@ -785,7 +785,7 @@ export default function Budget() {
             </Field>
             <Field label="Base amount (₹)">
               <input
-                type="number"
+                type="number" inputMode="decimal"
                 min="0"
                 step=".01"
                 value={edit.amount}
@@ -819,7 +819,7 @@ export default function Budget() {
             </Field>
             <Field label="Day of month">
               <input
-                type="number"
+                type="number" inputMode="decimal"
                 min="1"
                 max="31"
                 value={edit.day}
