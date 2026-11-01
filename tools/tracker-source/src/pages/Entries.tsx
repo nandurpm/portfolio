@@ -453,7 +453,7 @@ export default function Entries({
             <input
               ref={amountRef}
               aria-label="New transaction amount"
-              type="number"
+              type="number" inputMode="decimal"
               step=".01"
               min=".01"
               value={draft.amount}
@@ -1005,7 +1005,7 @@ export default function Entries({
             <Field label="Amount (₹)">
               <input
                 aria-label="Edit transaction amount"
-                type="number"
+                type="number" inputMode="decimal"
                 min="0.01"
                 step="0.01"
                 value={editEntry.amount}

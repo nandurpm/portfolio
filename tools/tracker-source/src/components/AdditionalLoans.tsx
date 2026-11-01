@@ -256,7 +256,7 @@ export default function AdditionalLoans() {
                         'Payment date',
                         'Status',
                       ].map((h) => (
-                        <th key={h}>{h}</th>
+                        <th scope="col" key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -365,7 +365,7 @@ export default function AdditionalLoans() {
               <Field label="Financed amount (₹)">
                 <input
                   required
-                  type="number"
+                  type="number" inputMode="decimal"
                   min="0.01"
                   step="0.01"
                   value={principal}
@@ -375,7 +375,7 @@ export default function AdditionalLoans() {
               <Field label="Monthly EMI (₹)">
                 <input
                   required
-                  type="number"
+                  type="number" inputMode="decimal"
                   min="0.01"
                   step="0.01"
                   value={emi}
@@ -385,7 +385,7 @@ export default function AdditionalLoans() {
               <Field label="Number of installments">
                 <input
                   required
-                  type="number"
+                  type="number" inputMode="decimal"
                   min="1"
                   max="600"
                   step="1"
@@ -449,7 +449,7 @@ export default function AdditionalLoans() {
             <Field label="Amount paid (₹)">
               <input
                 required
-                type="number"
+                type="number" inputMode="decimal"
                 min="0.01"
                 step="0.01"
                 value={paidAmount}
