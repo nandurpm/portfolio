@@ -5,6 +5,7 @@ export const publishGoogleState = (next: typeof state) => {
   state = next;
   listeners.forEach((fn) => fn());
 };
+export const getGoogleState = () => state;
 export const useGoogleAuth = () =>
   useSyncExternalStore(
     (fn) => {
