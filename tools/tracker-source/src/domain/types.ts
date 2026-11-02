@@ -2,8 +2,8 @@ export const APP_NAME = 'Savings and Expense Tracker';
 /** Pre-1.0.1 spelling. Kept only so existing data, backups and workbooks keep loading. */
 export const LEGACY_APP_NAME = 'Savings and Expence Tracker';
 export const isAppFormat = (v: unknown) => v === APP_NAME || v === LEGACY_APP_NAME;
-export type Group = 'Income' | 'Living' | 'Debt';
-export type Role = 'regular' | 'salary' | 'emi' | 'closure';
+export type Group = 'Income' | 'Living' | 'Debt' | 'Asset';
+export type Role = 'regular' | 'salary' | 'salary-history' | 'pf-account' | 'emi' | 'closure';
 export interface Category {
   loanId?: string;
   id: string;
@@ -82,7 +82,24 @@ export interface Settings {
     missing: boolean;
   };
 }
+export interface SalaryChange {
+  id: string;
+  effectiveDate: string;
+  monthlySalary: number;
+  monthlyPfContribution: number;
+}
+export interface PfMovement {
+  id: string;
+  date: string;
+  kind: 'contribution' | 'claim';
+  source: 'payroll' | 'cash';
+  amount: number;
+  payment: string;
+  note: string;
+}
 export interface Plan {
+  salaryChanges?: SalaryChange[];
+  pfMovements?: PfMovement[];
   reconciliations?: Reconciliation[];
   provisions?: Provision[];
   additionalLoans?: InstallmentLoan[];

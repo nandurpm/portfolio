@@ -65,7 +65,7 @@ export function WebSignIn({
   return (
     <section className="web-signin" aria-labelledby="signin-title">
       <header className="web-signin-heading">
-        <p className="signin-eyebrow">YOUR PERSONAL FINANCE WORKSPACE</p>
+        <p className="signin-eyebrow">PRIVATE FINANCE WORKSPACE</p>
         <h1 id="signin-title">
           Sign in to your
           <br className="signin-title-break" /> Savings Tracker
@@ -159,6 +159,7 @@ export function WebSignIn({
         </p>
       </form>
       <footer className="signin-trust">
+        <p>Your tracker data is stored in this browser and your connected sync account.</p>
         <p>
           Your existing app account is used for synchronization. Signing out removes the locally
           cached financial data from this browser after changes have synced.

@@ -93,13 +93,13 @@ test('inline validation, pending request and authentication errors use the real 
 });
 
 test('bundle startup failure offers retry without a blank page', async ({ page }) => {
-  await page.route('**/src/main.tsx', (route) => route.abort());
+  await page.route('**/src/main.tsx*', (route) => route.abort());
   await page.goto('/');
   await expect(page.getByRole('alert')).toContainText(
     'We couldn’t load the tracker. Check your connection and try again.',
   );
   await expect(page.getByRole('button', { name: 'Retry', exact: true })).toBeVisible();
-  await page.unroute('**/src/main.tsx');
+  await page.unroute('**/src/main.tsx*');
   await page.getByRole('button', { name: 'Retry', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: /Sign in to your Savings Tracker/ }),
@@ -182,4 +182,15 @@ test('all palette combinations keep readable text at 360px and 1280px', async ({
       }
     }
   }
+});
+
+
+test('an invalid recovery link stays isolated and offers a return to sign in', async ({page}) => {
+  await page.route('https://*.supabase.co/**', route => route.abort());
+  await page.goto('/?recovery=1');
+  await expect(page.getByRole('heading', {name: 'Reset your password'})).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('Recovery link is incomplete');
+  await expect(page.getByRole('navigation', {name: 'Main navigation'})).toHaveCount(0);
+  await page.getByRole('button', {name: 'Return to sign in'}).click();
+  await expect(page.getByRole('heading', {name: /Sign in to your Savings Tracker/})).toBeVisible();
 });

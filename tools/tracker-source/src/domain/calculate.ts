@@ -1,3 +1,4 @@
+import { isSalaryCategory, salaryForReceiptMonth, pfCashEffect } from './employment';
 import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
 import { formatMoney, compactMoney } from './format-money';
 import { today, daysIn, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
@@ -23,9 +24,7 @@ export function finish(t: Totals): Totals {
   };
 }
 export function salary(p: Plan, m: string) {
-  const s = p.settings;
-  // A receipt-month budget contains the preceding month's earned salary.
-  return addMonths(m, -1) >= s.raiseStart ? s.raisedSalary : s.salary31;
+  return salaryForReceiptMonth(p, m);
 }
 export function contractBalance(p: Plan, m: string) {
   const row = [...p.loan.rows]
@@ -88,12 +87,13 @@ export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings
     );
   }
   if (c.months.length && !c.months.includes(+m.slice(5, 7))) return 0;
-  if (c.role === 'salary') return salary(p, m);
+  if (isSalaryCategory(c)) return salary(p, m);
   if (c.role === 'closure')
     return mode === 'Early closure' && m === p.settings.closureMonth ? closureAmount(p) : 0;
   return c.amount;
 }
 export function fullAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
+  if (c.group === 'Asset') return 0;
   if (!c.active) return 0;
   if (
     c.role === 'emi' &&
@@ -161,6 +161,7 @@ export function categoryPlan(
 export function planned(p: Plan, m: string, date?: string, mode = p.settings.mode): Totals {
   const t = emptyTotals();
   for (const c of p.categories) {
+    if (c.group === 'Asset') continue;
     const a = categoryPlan(p, c, m, date, mode);
     t[c.group === 'Income' ? 'income' : c.group === 'Living' ? 'living' : 'debt'] += a;
   }
@@ -178,7 +179,7 @@ export function actual(p: Plan, start: string, end: string, catId?: string): Tot
     )
       continue;
     const c = cats.get(e.categoryId);
-    if (c)
+    if (c && c.group !== 'Asset')
       t[c.group === 'Income' ? 'income' : c.group === 'Living' ? 'living' : 'debt'] += e.amount;
   }
   return finish(t);
@@ -270,7 +271,7 @@ export function cumulative(p: Plan, date = reportDate(p)) {
     plan,
     actual: a,
     expectedCash: round(p.settings.opening + plan.savings),
-    actualCash: round(p.settings.opening + a.savings),
+    actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date)),
   };
 }
 export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
@@ -296,7 +297,7 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
       bucket = buckets.get(m),
       a = bucket ? finish(bucket.t) : null;
     pc = round(pc + t.savings);
-    ac = round(ac + (a?.savings ?? 0));
+    ac = round(ac + (a?.savings ?? 0) + pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)));
     return {
       month: m,
       plan: t,

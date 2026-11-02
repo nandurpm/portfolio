@@ -1,6 +1,6 @@
+import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
-import { BackupStatus } from '../components/BackupStatus';
 import { lazy, Suspense, useMemo } from 'react';
 import {
   ArrowDownLeft,
@@ -185,8 +185,8 @@ export default function Dashboard({
   return (
     <>
       <PageHead
-        eyebrow="YOUR MONEY, AT A GLANCE"
-        title="A little progress. Every day."
+        eyebrow="PRIVATE FINANCE WORKSPACE"
+        title="Monthly snapshot"
         description="Know what’s planned, what’s spent, and what’s yours to keep."
         action={
           <div className="entry-kind">
@@ -239,8 +239,17 @@ export default function Dashboard({
           </button>
         </div>
       )}
-      <BackupStatus compact />
+      <div className="workspace-cash">        <Stat
+          label="Calculated cash balance"
+          value={cum.actualCash}
+          caption="Opening savings + net savings + PF cash transfers · not bank-verified"
+          tone="blue"
+          icon={<Wallet />}
+        />
+      </div>
+      <WorkspaceOverview navigate={navigate} addEntry={addEntry} />
       <div className="stats-grid savings-overview">
+
         <Stat
           label="Income entered"
           value={act.income}
@@ -276,13 +285,7 @@ export default function Dashboard({
           tone={savings.lifetime < 0 ? 'orange' : 'violet'}
           icon={<TrendingUp />}
         />
-        <Stat
-          label="Calculated cash balance"
-          value={cum.actualCash}
-          caption="Opening savings + recorded net savings · not bank-verified"
-          tone="blue"
-          icon={<Wallet />}
-        />
+
       </div>
       <CashAlerts />
       <BudgetAlerts />

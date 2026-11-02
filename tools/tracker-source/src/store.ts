@@ -131,6 +131,8 @@ export const store = {
     const replaced = commit(previous, 'Restore backup', (d) => {
       for (const field of ['additionalLoans', 'provisions', 'reconciliations'] as const)
         if (validated.data[field] === undefined && d[field] !== undefined) d[field] = [];
+      if (validated.data.salaryChanges === undefined) delete d.salaryChanges;
+      if (validated.data.pfMovements === undefined) delete d.pfMovements;
       Object.assign(d, validated.data);
     });
     const item = replaced === previous ? null : replaced.audit.at(-1)!;

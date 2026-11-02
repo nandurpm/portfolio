@@ -1,3 +1,4 @@
+import { isSalaryCategory } from '../domain/employment';
 import type ExcelJS from 'exceljs';
 import { excelCompatible } from './normalize';
 import { freshPlan } from '../domain/defaults';
@@ -225,7 +226,7 @@ export async function readWorkbook(
   for (let r = 26; r < 500; r++) {
     const name = str(value(budget.getCell(r, 1))).trim(),
       group = str(value(budget.getCell(r, 2)));
-    if (!name || !['Income', 'Living', 'Debt'].includes(group)) break;
+    if (!name || !['Income', 'Living', 'Debt', 'Asset'].includes(group)) break;
     const original =
       originalCats.find((c) => c.name.toLowerCase() === name.toLowerCase()) ?? originalCats[r - 26];
     const note = str(value(budget.getCell(r, 7))),
@@ -491,7 +492,7 @@ export function compareImported(p: Plan) {
   return {
     november: fullAmount(
       p,
-      p.categories.find((c) => c.role === 'salary')!,
+      p.categories.find((c) => isSalaryCategory(c))!,
       p.settings.planStart,
     ),
     closing: forecast(p).at(-1)?.cash,

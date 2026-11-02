@@ -1,3 +1,4 @@
+import { isSalaryCategory } from '../domain/employment';
 import { store, usePlan } from '../store';
 import type { Settings } from '../domain/types';
 import { addMonths, monthLabel } from '../domain/dates';
@@ -30,7 +31,7 @@ export function SettingNumber({
             if (name === 'salary31') d.settings.salaryShort = value;
             if (name === 'salaryDay')
               d.categories
-                .filter((c) => c.role === 'salary' || c.role === 'closure')
+                .filter((c) => isSalaryCategory(c) || c.role === 'closure')
                 .forEach((c) => {
                   c.day = value;
                   c.edited = true;
@@ -109,15 +110,15 @@ export function IncomeSettings() {
         />
         <SettingNumber
           name="salary31"
-          label="Expected full-month salary (₹)"
+          label="Starting monthly take-home salary (₹)"
           hint="Same expected salary for 28-, 29-, 30- and 31-day months. Leave deductions belong in actual income."
         />
-        <SettingNumber name="raisedSalary" label="Raised salary (₹)" />
-        <SettingMonth
+        {p.salaryChanges === undefined && <SettingNumber name="raisedSalary" label="Legacy raised salary (₹)" />}
+        {p.salaryChanges === undefined && <SettingMonth
           name="raiseStart"
           label="Raise effective for salary month"
-          hint="An April salary raise is received in May."
-        />
+          hint="An April salary raise is received in May. Add multiple dated changes in Salary & PF."
+        />}
         <SettingNumber
           name="salaryDay"
           label="Salary received by day"

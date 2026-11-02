@@ -48,6 +48,7 @@ import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
 import { UiProvider, useUi, Modal } from "./components/UI";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Employment = lazy(() => import("./pages/Employment"));
 const Entries = lazy(() => import("./pages/Entries")),
   Budget = lazy(() => import("./pages/Budget")),
   Loan = lazy(() => import("./pages/Loan")),
@@ -60,6 +61,7 @@ const pages = [
   { id: "entries", name: "Daily Entries", icon: ReceiptText },
   { id: "budget", name: "Budget & Plan", icon: WalletCards },
   { id: "loan", name: "Loan & Closure", icon: Landmark },
+  { id: "employment", name: "Salary & PF", icon: Landmark },
   { id: "balances", name: "Balances & provisions", icon: WalletCards },
   {
     id: "forecast",
@@ -500,6 +502,8 @@ export function Shell() {
                       />
                     ) : page === "entries" ? (
                       <Entries initialKind={entryKind} />
+                    ) : page === "employment" ? (
+                      <Employment />
                     ) : page === "budget" ? (
                       <Budget />
                     ) : page === "loan" ? (

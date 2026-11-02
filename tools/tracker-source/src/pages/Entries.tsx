@@ -1,3 +1,4 @@
+import { isSalaryCategory } from '../domain/employment';
 import { ArchivedPayments } from '../components/ArchivedPayments';
 import { WEB_APP } from '../web-mode';
 import { possibleDuplicates, duplicateGroups } from '../domain/insights';
@@ -90,7 +91,7 @@ export default function Entries({
   );
   const activeCategoryId = quickCategories.some((c) => c.id === draft.categoryId)
     ? draft.categoryId
-    : (quickCategories.find((c) => c.role === 'salary' || c.id === 'food')?.id ??
+    : (quickCategories.find((c) => isSalaryCategory(c) || c.id === 'food')?.id ??
       quickCategories[0]?.id ??
       '');
   const [billDueMonth, setBillDueMonth] = useState('');

@@ -41,7 +41,7 @@ for (const [width, height] of sizes)
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto('/tests/browser/harness.html');
     await expect(
-      page.getByRole('heading', { name: 'A little progress. Every day.' }),
+      page.getByRole('heading', { name: 'Monthly snapshot' }),
     ).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2),

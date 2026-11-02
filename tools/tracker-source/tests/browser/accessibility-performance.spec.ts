@@ -30,7 +30,7 @@ for (const width of [320, 390, 768, 1366])
     await page.route('https://*.supabase.co/**', (r) => r.abort());
     await page.goto('/tests/browser/harness.html');
     await expect(
-      page.getByRole('heading', { name: 'A little progress. Every day.' }),
+      page.getByRole('heading', { name: 'Monthly snapshot' }),
     ).toBeVisible();
     const t = Date.now();
     await navigate(page, 'Loan & Closure');
@@ -52,7 +52,7 @@ for (const width of [320, 390, 768, 1366])
       ['Reports & Export/Import', 'Your data. Always yours.'],
       ['Settings', 'Make it feel like you.'],
       ['Forecast & Month-by-month', 'See where your plan takes you.'],
-      ['Dashboard', 'A little progress. Every day.'],
+      ['Dashboard', 'Monthly snapshot'],
     ];
     const issues: { screen: string; id: string; target: unknown; summary: string | undefined }[] =
       [];
