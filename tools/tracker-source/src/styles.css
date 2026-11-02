@@ -99,28 +99,28 @@ html {
   color-scheme: light;
 }
 html[data-palette="ocean"] {
-  --accent: #238bc3;
+  --accent: #176b93;
   --accent-deep: #156487;
   --accent-soft: #e7f5ff;
   --sidebar-a: #163850;
   --sidebar-b: #2f91b7;
 }
 html[data-palette="emerald"] {
-  --accent: #129c7e;
+  --accent: #08735e;
   --accent-deep: #127a64;
   --accent-soft: #e2f7ef;
   --sidebar-a: #174337;
   --sidebar-b: #299d82;
 }
 html[data-palette="rose"] {
-  --accent: #ce5482;
+  --accent: #aa3f6a;
   --accent-deep: #aa3e69;
   --accent-soft: #fff0f6;
   --sidebar-a: #532d49;
   --sidebar-b: #b76098;
 }
 html[data-palette="sunset"] {
-  --accent: #d67436;
+  --accent: #a95121;
   --accent-deep: #ad5922;
   --accent-soft: #fff0e5;
   --sidebar-a: #51342f;
