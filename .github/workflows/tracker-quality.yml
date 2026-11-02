@@ -37,9 +37,10 @@ jobs:
           name: tracker-web-build
           path: tools/tracker-source/dist-web
           retention-days: 7
-      - run: npm audit
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      # Keep security checks strict, but do not let known advisories prevent UI regression tests.
+      - run: npm audit
       - name: Retain synthetic browser results
         if: always()
         uses: actions/upload-artifact@v4
