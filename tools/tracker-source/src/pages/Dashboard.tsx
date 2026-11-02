@@ -1,4 +1,5 @@
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
+import { HelpTerm } from '../components/HelpTerm';
 const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
 const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 import { BackupStatus } from '../components/BackupStatus';
@@ -69,6 +70,7 @@ export function MonthControls() {
         />
         {!s.liveDate && <Edited />}
       </label>
+      <HelpTerm term="report through" />
       <button
         className="icon-button"
         aria-label="Reset report date to today"
