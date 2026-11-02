@@ -27,14 +27,27 @@ export function CloudPanel() {
     [errorDetail, setErrorDetail] = useState(''),
     [choices, setChoices] = useState<('local' | 'remote')[]>([]);
   useEffect(() => setChoices([]), [c.review]);
-  const [recovery, setRecovery] = useState(
-    () => WEB_APP && new URLSearchParams(window.location.search).get('recovery') === '1',
-  );
+  const [recovery, setRecovery] = useState(() => {
+    if (!WEB_APP) return false;
+    const query = new URLSearchParams(window.location.search);
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    return query.get('recovery') === '1' ||
+      (fragment.has('error_code') && fragment.get('error') === 'access_denied');
+  });
   const [recoveryReady, setRecoveryReady] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
     if (!WEB_APP || !recovery) return;
     let active = true;
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const query = new URLSearchParams(window.location.search);
+    const recoveryError = fragment.get('error_code') ?? query.get('error_code');
+    if (recoveryError) {
+      setRecoveryReady(false);
+      setError('This password-reset link is invalid or expired. Return to sign in to request a fresh link. Your existing password is not changed by requesting a reset.');
+      window.history.replaceState(null, '', '/track/?recovery=1');
+      return () => { active = false; };
+    }
     const flag = 'tracker-recovery-verified-v1';
     const code = new URLSearchParams(window.location.search).get('code');
     if (!code) {
@@ -48,12 +61,12 @@ export function CloudPanel() {
             setError('');
           } else {
             sessionStorage.removeItem(flag);
-            setError('Recovery link is incomplete. Request a new link.');
+            setError('This password-reset link is missing or expired. Return to sign in to request a new link.');
           }
         }).catch(() => {
           if (active) setError('Could not verify the recovery session.');
         });
-      } else setError('Recovery link is incomplete. Request a new link.');
+      } else setError('This password-reset link is missing or expired. Return to sign in to request a new link.');
       return () => { active = false; };
     }
     void supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
@@ -167,7 +180,7 @@ export function CloudPanel() {
     return (
       <section className="cloud-panel" aria-label="Password recovery">
         <h2>Reset your password</h2>
-        <p className="muted">Use the recovery link on the same browser where you requested it.</p>
+        <p className="muted">Open a new recovery email in the same browser used to request it. Requesting a reset does not change your existing password.</p>
         {error && <p className="callout error" role="alert">{error}</p>}
         {recoveryReady ? (
           <form onSubmit={(event) => { event.preventDefault(); void finishRecovery(); }}>
@@ -177,7 +190,7 @@ export function CloudPanel() {
             </label>
             <button className="button" disabled={busy || newPassword.length < 8}>Save new password</button>
           </form>
-        ) : <p role="status">Verifying recovery link…</p>}
+        ) : !error ? <p role="status">Verifying recovery link…</p> : null}
         <button type="button" className="button secondary" onClick={() => { sessionStorage.removeItem('tracker-recovery-verified-v1'); setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
       </section>
     );
