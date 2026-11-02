@@ -7,6 +7,8 @@ import {
   ArrowUpRight,
   Wallet,
   PiggyBank,
+  CalendarRange,
+  TrendingUp,
   CalendarDays,
   RotateCcw,
   Plus,
@@ -21,6 +23,7 @@ import {
   reportDate,
   money,
   progress,
+  savingsOverview,
 } from '../domain/calculate';
 import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
@@ -166,6 +169,7 @@ export default function Dashboard({
     full = planned(p, m),
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
     cum = cumulative(p),
+    savings = savingsOverview(p, m, date),
     status = m > today().slice(0, 7) ? 'future' : m < today().slice(0, 7) ? 'past' : 'current';
   const metrics = [
     ['Income', 'income', 'income'],
@@ -232,7 +236,7 @@ export default function Dashboard({
         </div>
       )}
       <BackupStatus compact />
-      <div className="stats-grid">
+      <div className="stats-grid savings-overview">
         <Stat
           label="Income entered"
           value={act.income}
@@ -249,10 +253,24 @@ export default function Dashboard({
         />
         <Stat
           label="Saved this month"
-          value={act.savings}
-          caption={`${money(full.savings, 0)} full-month plan`}
-          tone="violet"
+          value={savings.month}
+          caption={`${monthLabel(m, true)} · income less expenses`}
+          tone={savings.month < 0 ? 'orange' : 'violet'}
           icon={<PiggyBank />}
+        />
+        <Stat
+          label="Saved this year"
+          value={savings.year}
+          caption={`${savings.calendarYear} year-to-date · through ${displayDate(date, s.dateFormat)}`}
+          tone={savings.year < 0 ? 'orange' : 'violet'}
+          icon={<CalendarRange />}
+        />
+        <Stat
+          label="Saved till now"
+          value={savings.lifetime}
+          caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`}
+          tone={savings.lifetime < 0 ? 'orange' : 'violet'}
+          icon={<TrendingUp />}
         />
         <Stat
           label="Recorded cash balance"
