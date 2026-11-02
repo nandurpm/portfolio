@@ -641,6 +641,7 @@ export default function Budget() {
             </div>
           </div>
         ) : (
+          <>
           <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more months →</p>
           <div className="budget-grid-scroll" tabIndex={0} role="region" aria-label="Monthly budget: horizontally scrollable grid">
             <table className="data-table budget-grid">
@@ -705,6 +706,7 @@ export default function Budget() {
               </tbody>
             </table>
           </div>
+          </>
         )}
         <div className="copy-budget">
           <Field label="Copy from">
