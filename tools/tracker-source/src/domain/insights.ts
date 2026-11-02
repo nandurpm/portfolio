@@ -1,4 +1,5 @@
 import type { Plan, Entry } from './types';
+import { paymentDisplayStatus } from './payment-status';
 import { addMonths, monthDay } from './dates';
 import { actualCategory, categoryPlan, forecast, reportDate, round } from './calculate';
 
@@ -48,14 +49,7 @@ export function installmentTasks(p: Plan, month: string, cutoff = reportDate(p))
             expected: row.emi,
             paid,
             remaining,
-            status:
-              remaining <= 0
-                ? 'Paid'
-                : paid > 0
-                  ? 'Part paid'
-                  : payDate < cutoff
-                    ? 'Overdue in plan'
-                    : 'Planned',
+            status: paymentDisplayStatus({ emi: row.emi, paidAmount: paid, paidBeforeOpening: row.paidBeforeOpening }, payDate, row.dueDate, cutoff),
           };
         });
     })
