@@ -3,6 +3,7 @@ import { AnimatePresence, motion, animate, useMotionValue, useTransform } from '
 import { X, Check, AlertCircle, ChevronRight, ArrowUpRight } from 'lucide-react';
 import { registerDialog, isTopDialog } from '../navigation';
 import { money } from '../domain/calculate';
+import { userError } from '../domain/user-error';
 import { usePlan, useEnvelope } from '../store';
 type Confirm = {
   title: string;
@@ -17,11 +18,11 @@ const Ui = createContext({
 });
 export const useUi = () => useContext(Ui);
 export function UiProvider({ children }: { children: ReactNode }) {
-  const [notices, setNotices] = useState<{ id: number; text: string; error: boolean }[]>([]),
+  const [notices, setNotices] = useState<{ id: number; text: string; error: boolean; detail: string }[]>([]),
     [question, setQuestion] = useState<Confirm | null>(null);
   const toast = (text: string, error = false) => {
     const id = Date.now() + Math.random();
-    setNotices((x) => [...x, { id, text, error }]);
+    setNotices((x) => [...x, { id, text: error ? userError(text) : text, error, detail: text }]);
     setTimeout(() => setNotices((x) => x.filter((n) => n.id !== id)), 6500);
   };
   const confirm = (title: string, body: ReactNode, danger = false, label = 'Continue') =>
@@ -41,6 +42,7 @@ export function UiProvider({ children }: { children: ReactNode }) {
             >
               {n.error ? <AlertCircle size={19} /> : <Check size={19} />}
               <span>{n.text}</span>
+              {n.error && <button type="button" className="toast-detail-button" onClick={() => void navigator.clipboard?.writeText(n.detail).catch(() => {})}>Copy error details</button>}
               <button
                 aria-label="Dismiss notification"
                 onClick={() => setNotices((x) => x.filter((q) => q.id !== n.id))}

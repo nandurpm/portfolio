@@ -41,3 +41,15 @@ npm run verify:deployment -- https://nandakumarm.dpdns.org/track/ APPROVED_40_CH
 The trusted manifest must come from the approved CI artifact or versioned generated release, not from the live site being tested. This detects mixed/stale assets and identity mismatch; it is not a signed software attestation. `SOURCE_DATE_EPOCH` can fix the timestamp for reproducible rebuilds.
 
 Axe/keyboard and cold Loan-route smoke tests use synthetic data at 320, 390, 768 and 1366 CSS pixels. Their artifacts contain no real accounts. Automated WCAG checks do not replace a screen-reader/manual accessibility assessment. Installed Windows/Android storage/backup validation requires the actual native source and builds, absent from this web-source repository. Google OAuth must still be tested with an authorized provider/test account. Proposed SQL is not a production migration and requires separate approval.
+
+### Website sign-in experience
+
+The web-only signed-out form lives in `src/cloud/WebSignIn.tsx` and `web-signin.css`. `CloudPanel` retains the same Supabase password authentication and synchronization actions; signed-in dashboard and native layouts are preserved. Password recovery is not implemented by this app, so Help links to existing support information rather than presenting a nonfunctional reset link.
+
+`public/startup.css` and `startup.js` provide a branded loading/failure screen even when the application bundle cannot load. `WebAccess` also handles failed or stalled storage/session initialization with a retry screen. Neither retry path clears financial records.
+
+`tests/browser/login-ui.spec.ts` covers desktop, tablet, mobile, a reduced-height keyboard-sized viewport, dark-mode contrast, keyboard order, validation, pending/error states and startup recovery. The existing authentication-boundary tests continue to check verified, revoked, mismatched-account and signed-out scenarios with synthetic HTTP responses. Physical mobile keyboard behavior and real account sign-in still need device/manual verification. The production workflow builds and stages `/track/` from committed source; local `dist-web` builds are marked dirty while source edits are uncommitted.
+
+### Supply-chain remediation (issue #41)
+
+See [the dependency remediation report](docs/security/issue-41.md) for affected production/dev paths, patched overrides, the private legacy glob adapter, native/export compatibility checks and removal criteria. `npm run check` now includes `test:dependencies`; `npm audit` remains unsuppressed.

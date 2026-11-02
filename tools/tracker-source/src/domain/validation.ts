@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { validatePfMovements } from './employment';
 import { validDate, validMonth, monthsBetween, inRange } from './dates';
 import { isAppFormat, type Plan, type Entry } from './types';
 const nonnegative = z.number().finite().min(0).max(1e12),
@@ -8,13 +9,13 @@ const category = z.object({
   loanId: z.string().optional(),
   id: z.string().min(1),
   name: z.string().trim().min(1).max(100),
-  group: z.enum(['Income', 'Living', 'Debt']),
+  group: z.enum(['Income', 'Living', 'Debt', 'Asset']),
   amount: nonnegative,
   timing: z.enum(['Daily', 'Fixed day']),
   day: z.number().int().min(1).max(31),
   months: z.array(z.number().int().min(1).max(12)),
   active: z.boolean(),
-  role: z.enum(['regular', 'salary', 'emi', 'closure']),
+  role: z.enum(['regular', 'salary', 'salary-history', 'pf-account', 'emi', 'closure']),
   note: z.string(),
   edited: z.boolean().optional(),
 });
@@ -46,6 +47,8 @@ const loanRow = z.object({
   edited: z.boolean().optional(),
 });
 export const planSchema = z.object({
+  salaryChanges: z.array(z.object({ id: z.string().min(1), effectiveDate: date, monthlySalary: nonnegative, monthlyPfContribution: nonnegative })).max(1000).optional(),
+  pfMovements: z.array(z.object({ id: z.string().min(1), date, kind: z.enum(['contribution', 'claim']), source: z.enum(['payroll', 'cash']), amount: nonnegative.positive().refine(value => Math.abs(value * 100 - Math.round(value * 100)) < 1e-6, 'Use at most two decimal places'), payment: z.string().trim().min(1).max(100), note: z.string().max(1000) })).max(10000).optional(),
   reconciliations: z
     .array(
       z.object({
@@ -88,6 +91,7 @@ export const planSchema = z.object({
         monthlyEmi: nonnegative.positive(),
         tenure: z.number().int().min(1).max(600),
         firstDueDate: date,
+        plannedPayDay: z.number().int().min(1).max(31).optional(),
         note: z.string().max(5000),
         rows: z.array(
           loanRow.omit({
@@ -178,6 +182,20 @@ export function validatePlan(p: unknown): Plan {
   )
     throw Error('Selected month must lie inside the plan range.');
   const ids = new Set(v.categories.map((c) => c.id));
+  if (v.categories.some(c => c.role === 'salary-history' && c.group !== 'Income')) throw Error('Salary history belongs to an income category.');
+  if (v.salaryChanges !== undefined && !v.categories.some(c => c.role === 'salary-history')) throw Error('Salary history needs an updated salary category. Use Salary & PF to enable it.');
+  if (v.categories.some(c => c.role === 'salary-history') && v.salaryChanges === undefined) throw Error('Salary history is missing. Update all tracker clients before syncing this plan.');
+  if (new Set(v.salaryChanges?.map(row => row.id)).size !== (v.salaryChanges?.length ?? 0) || new Set(v.salaryChanges?.map(row => row.effectiveDate)).size !== (v.salaryChanges?.length ?? 0)) throw Error('Salary changes need unique IDs and effective dates. Edit the existing change for that date.');
+  const pfAccounts = v.categories.filter(c => c.role === 'pf-account');
+  if (pfAccounts.length > 1 || v.categories.some(c => (c.group === 'Asset') !== (c.role === 'pf-account')) || pfAccounts.some(c => c.active || c.amount !== 0)) throw Error('PF uses one separate inactive asset account, not an income or expense category.');
+  if (v.pfMovements !== undefined && pfAccounts.length !== 1) throw Error('PF records need their separate PF account.');
+  if (pfAccounts.length && v.pfMovements === undefined) throw Error('PF records are missing. Update all tracker clients before syncing this plan.');
+  if (new Set(v.pfMovements?.map(row => row.id)).size !== (v.pfMovements?.length ?? 0)) throw Error('PF record IDs must be unique.');
+  for (const row of v.pfMovements ?? []) {
+    if (row.kind === 'claim' && row.source !== 'cash') throw Error('PF claims must transfer to cash.');
+    if ((row.kind === 'claim' || row.source === 'cash') && !inRange(row.date, v.settings.planStart, v.settings.planEnd)) throw Error('PF cash transfers must be inside your plan dates. Extend the plan range first.');
+  }
+  validatePfMovements(v.pfMovements ?? []);
   if (new Set(v.reconciliations?.map((r) => r.id)).size !== (v.reconciliations?.length ?? 0))
     throw Error('Reconciliation IDs must be unique.');
   if (v.reconciliations?.some((r) => r.fromDate > r.throughDate))
@@ -220,6 +238,7 @@ export function validatePlan(p: unknown): Plan {
     throw Error('Category names must be unique.');
   if (new Set(v.entries.map((e) => e.id)).size !== v.entries.length)
     throw Error('Entry IDs must be unique.');
+  if (v.entries.some(e => v.categories.find(c => c.id === e.categoryId)?.group === 'Asset')) throw Error('Record PF allocations and claims in Salary & PF, not as income or expense entries.');
   if (v.entries.some((e) => !ids.has(e.categoryId)))
     throw Error('An entry refers to a missing category.');
   const owners = new Map(
@@ -270,6 +289,7 @@ export function validatePlan(p: unknown): Plan {
 }
 export function validateEntry(e: Entry, p: Plan, allowArchive = false) {
   entry.parse(e);
+  if (p.categories.find(c => c.id === e.categoryId)?.group === 'Asset') throw Error('Use the PF ledger for this account.');
   if (!p.categories.some((c) => c.id === e.categoryId)) throw Error('Select a valid category.');
   if (!allowArchive && !inRange(e.date, p.settings.planStart, p.settings.planEnd))
     throw Error('Date must be inside the plan range. Extend the range first if needed.');

@@ -37,9 +37,12 @@ jobs:
           name: tracker-web-build
           path: tools/tracker-source/dist-web
           retention-days: 7
-      - run: npm audit
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      # Keep the independent dependency audit after browser tests: known findings
+      # must remain visible without preventing unrelated accessibility verification.
+      # Keep security checks strict, but do not let known advisories prevent UI regression tests.
+      - run: npm audit
       - name: Retain synthetic browser results
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,9 +94,46 @@ jobs:
         run: |
           mkdir -p "$TRACKER_LOCAL_SUPABASE_DIR"
           npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" init
+          # Inbucket default 54324 collided with an existing process on the hosted runner.
+          # Only the disposable test stack is affected; production ports are untouched.
+          sed -i 's/^port = 54324$/port = 57324/' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
+          # Permit only the exact disposable recovery callback in the local Auth stack.
+          sed -i 's@^additional_redirect_urls = .*@additional_redirect_urls = ["http://127.0.0.1:4173/track/?recovery=1"]@' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
+          grep -Fq 'additional_redirect_urls = ["http://127.0.0.1:4173/track/?recovery=1"]' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
           npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" start --exclude studio,imgproxy,realtime,storage-api,postgres-meta,edge-runtime,logflare,vector,supavisor
       - run: node --import tsx scripts/prepare-local-supabase.ts
       - run: npm run test:security
+      - name: Exercise synthetic email password reset end to end
+        run: node --import tsx scripts/test-password-recovery.ts
       - name: Stop disposable containers
         if: always()
         run: npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" stop --no-backup
+
+  native-dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    env:
+      TRACKER_ELECTRON_SMOKE: '1'
+      TRACKER_WINDOWS_PACKAGE: '1'
+      TRACKER_ANDROID_COMPILE: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --ignore-scripts
+      - name: Install the pinned Electron runtime and Android SDK packages
+        run: |
+          node node_modules/electron/install.js
+          "${ANDROID_HOME:?}/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Exercise archive/export APIs and disposable unsigned native packages
+        run: npm run test:dependencies

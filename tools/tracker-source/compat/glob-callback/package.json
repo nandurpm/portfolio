@@ -1,0 +1,15 @@
+{
+  "name": "glob",
+  "version": "14.0.3-compat.1",
+  "private": true,
+  "description": "Scoped callback/sync bridge for the installed legacy glob consumers; all matching uses patched upstream glob",
+  "main": "index.cjs",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "dependencies": {
+    "glob-modern": "npm:glob@14.0.3",
+    "minimatch": "11.0.4"
+  }
+}

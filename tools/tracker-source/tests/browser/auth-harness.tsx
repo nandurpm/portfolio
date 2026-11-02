@@ -46,6 +46,15 @@ void (async () => {
     import('../../src/components/UI'),
     import('../../src/cloud/sync'),
   ]);
+  if (mode === 'storage-failed' || mode === 'startup-stalled') {
+    const { store } = await import('../../src/store');
+    store.load =
+      mode === 'storage-failed'
+        ? async () => {
+            throw new Error('Synthetic unavailable storage');
+          }
+        : () => new Promise<void>(() => {});
+  }
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <UiProvider>
       <WebAccess>

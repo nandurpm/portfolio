@@ -1,3 +1,4 @@
+import { isSalaryCategory } from '../domain/employment';
 import { usePhone } from '../components/usePhone';
 import { useRef, useState, useEffect } from 'react';
 import {
@@ -43,7 +44,7 @@ export default function Budget() {
   const [budgetMonth, setBudgetMonth] = useState(p.settings.selectedMonth);
   const drag = useRef<{ month: string; id: string; value: number } | null>(null);
   const months = monthsBetween(p.settings.planStart, p.settings.planEnd),
-    cats = p.categories;
+    cats = p.categories.filter(c => c.group !== 'Asset');
   useEffect(() => {
     setBudgetMonth((m) => clampMonth(m, p.settings.planStart, p.settings.planEnd));
     setSource((m) => clampMonth(m, p.settings.planStart, p.settings.planEnd));
@@ -269,7 +270,7 @@ export default function Budget() {
                   </Field>
                 ) : (
                   <p>
-                    {c.role === 'salary'
+                    {isSalaryCategory(c)
                       ? 'Salary rule'
                       : c.role === 'emi'
                         ? 'Loan schedule'
@@ -390,7 +391,7 @@ export default function Budget() {
                         />
                       ) : (
                         <span className="muted">
-                          {c.role === 'salary'
+                          {isSalaryCategory(c)
                             ? 'Salary rule'
                             : c.role === 'emi'
                               ? 'Loan schedule'
@@ -485,7 +486,7 @@ export default function Budget() {
         caption={
           phone
             ? `${months.length} months · Choose one month to edit. Copy or apply a percentage below.`
-            : `${months.length} months · Click a cell to select it · Drag its square handle to fill a rectangle`
+            : `${months.length} months · Select a cell and use Fill right or Fill down by keyboard, or drag the square handle`
         }
         action={
           cell && (
@@ -641,7 +642,9 @@ export default function Budget() {
             </div>
           </div>
         ) : (
-          <div className="budget-grid-scroll">
+          <>
+          <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more months →</p>
+          <div className="budget-grid-scroll" tabIndex={0} role="region" aria-label="Monthly budget: horizontally scrollable grid">
             <table className="data-table budget-grid">
               <thead>
                 <tr>
@@ -704,6 +707,7 @@ export default function Budget() {
               </tbody>
             </table>
           </div>
+          </>
         )}
         <div className="copy-budget">
           <Field label="Copy from">
@@ -799,6 +803,7 @@ export default function Budget() {
               >
                 <option value="regular">Base amount</option>
                 <option value="salary">Salary rule</option>
+                {edit.role === 'salary-history' && <option value="salary-history">Dated salary history</option>}
                 <option value="emi">Loan EMI schedule</option>
                 <option value="closure">Loan closure</option>
               </select>

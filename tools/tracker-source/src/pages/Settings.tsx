@@ -98,23 +98,41 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           onChange={(v) => toggle('animations', v)}
         />
         <div className="animation-preview">
-          <motion.div
-            key={animationPreview}
-            className="animation-token"
-            aria-hidden="true"
-            animate={
-              s.animations && animationPreview > 0
-                ? { rotate: [0, -15, 15, 0], scale: [1, 1.18, 1], y: [0, -12, 0] }
-                : { rotate: 0, scale: 1, y: 0 }
-            }
-            transition={{ duration: 0.8 }}
-          >
-            ₹
-          </motion.div>
+          <div className="animation-preview-scene" aria-hidden="true">
+            <motion.div
+              key={`token-${animationPreview}`}
+              className="animation-token"
+              animate={
+                s.animations && animationPreview > 0
+                  ? { rotate: [0, -15, 15, 0], scale: [1, 1.18, 1], y: [0, -12, 0] }
+                  : { rotate: 0, scale: 1, y: 0 }
+              }
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
+              ₹
+            </motion.div>
+            <motion.div
+              key={`spark-${animationPreview}`}
+              className="animation-spark"
+              animate={s.animations && animationPreview > 0 ? { opacity: [0, 1, 0], scale: [0.6, 1.2, 0.8], rotate: [0, 18, 36] } : { opacity: 0, scale: 0.6 }}
+              transition={{ duration: 0.8, delay: 0.08 }}
+            >
+              ✦
+            </motion.div>
+            <div className="animation-bars">
+              {[38, 62, 48, 78, 58].map((height, index) => (
+                <motion.span
+                  key={`${animationPreview}-${index}`}
+                  animate={s.animations && animationPreview > 0 ? { height: [`${height * 0.55}%`, `${height}%`, `${height * 0.8}%`] } : { height: `${height}%` }}
+                  transition={{ duration: 0.65, delay: index * 0.06, ease: 'easeOut' }}
+                />
+              ))}
+            </div>
+          </div>
           <div>
             <strong>{s.animations ? 'Animations are on' : 'Animations are off'}</strong>
             <p className="footnote">
-              Preview the motion. Chart transitions play when values or the selected month change.
+              Preview coordinated motion: page entrances, number counters, chart bars, month changes and milestone celebrations.
             </p>
           </div>
           <button

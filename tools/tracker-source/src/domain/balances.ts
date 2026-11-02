@@ -1,3 +1,4 @@
+import { pfCashEffect } from './employment';
 import type { Plan, Reconciliation, Provision } from "./types";
 import { monthsBetween, monthDay } from "./dates";
 import { round } from "./calculate";
@@ -22,7 +23,7 @@ export function reconciliationResult(p: Plan, r: Omit<Reconciliation, "id">) {
   }
   income = round(income);
   expenses = round(expenses);
-  const calculated = round(r.openingBalance + income - expenses);
+  const calculated = round(r.openingBalance + income - expenses + pfCashEffect(p, r.fromDate, r.throughDate, r.methods));
   return {
     income,
     expenses,

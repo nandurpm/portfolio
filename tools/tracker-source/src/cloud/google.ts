@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { publishGoogleState as publish, getGoogleState } from './google-state';
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from './client';
@@ -8,22 +8,6 @@ export const ANDROID_GOOGLE_REDIRECT = 'com.nandakumar.savingsexpensetracker://a
 export const WINDOWS_GOOGLE_REDIRECT = 'http://127.0.0.1:43819/auth/callback';
 const pendingKey = 'tracker-auth-v1-google-pending';
 const lifetime = 10 * 60 * 1000;
-let state = { pending: false, error: '' };
-const listeners = new Set<() => void>();
-const publish = (next: typeof state) => {
-  state = next;
-  listeners.forEach((fn) => fn());
-};
-export const useGoogleAuth = () =>
-  useSyncExternalStore(
-    (fn) => {
-      listeners.add(fn);
-      return () => {
-        listeners.delete(fn);
-      };
-    },
-    () => state,
-  );
 const readPending = async (): Promise<{ started: number; redirect: string } | null> => {
   const raw = await window.desktop?.sessionGet?.(pendingKey);
   if (!raw) return null;
@@ -94,7 +78,7 @@ export async function cancelGoogleSignIn() {
   publish({ pending: false, error: '' });
 }
 export async function startGoogleSignIn() {
-  if (state.pending || completing) return;
+  if (getGoogleState().pending || completing) return;
   const attempt = ++generation;
   publish({ pending: true, error: '' });
   try {
@@ -142,7 +126,7 @@ export async function startGoogleSignIn() {
     if (attempt === generation && callback) await finishGoogleSignIn(callback);
   } catch (e) {
     // Cancellation may already have cleared this attempt.
-    if (attempt === generation && state.pending) {
+    if (attempt === generation && getGoogleState().pending) {
       await clearPending();
       publish({
         pending: false,

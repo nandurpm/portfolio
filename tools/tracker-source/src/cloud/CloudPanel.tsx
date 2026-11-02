@@ -1,11 +1,14 @@
 import { useSyncSummary, SyncStatusDetails } from './SyncStatus';
-import { useEffect, useState } from 'react';
-import { useGoogleAuth, startGoogleSignIn, cancelGoogleSignIn } from './google';
+import { useEffect, useState, type FormEvent } from 'react';
+import { useGoogleAuth } from './google-state';
+import { userError, errorDetails } from '../domain/user-error';
 import { supabase } from './client';
 import { sync, useCloud } from './sync';
 import { useEnvelope } from '../store';
 import { Modal, useUi } from '../components/UI';
 import { WEB_APP } from '../web-mode';
+import { WebSignIn } from './WebSignIn';
+const WEB_RECOVERY_REDIRECT = 'https://nandakumarm.dpdns.org/track/?recovery=1';
 const summary = (value: unknown) =>
   value === undefined
     ? 'Deleted'
@@ -19,18 +22,93 @@ export function CloudPanel() {
     { toast, confirm } = useUi();
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
+    [showPassword, setShowPassword] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
+    [errorDetail, setErrorDetail] = useState(''),
     [choices, setChoices] = useState<('local' | 'remote')[]>([]);
   useEffect(() => setChoices([]), [c.review]);
+  const [recovery, setRecovery] = useState(() => {
+    if (!WEB_APP) return false;
+    const query = new URLSearchParams(window.location.search);
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    return query.get('recovery') === '1' ||
+      (fragment.get('error') === 'access_denied' && fragment.has('error_code'));
+  });
+  const [recoveryReady, setRecoveryReady] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  useEffect(() => {
+    if (!WEB_APP || !recovery) return;
+    let active = true;
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const query = new URLSearchParams(window.location.search);
+    if (fragment.has('error_code') || query.has('error_code')) {
+      setRecoveryReady(false);
+      setError('This password-reset link is invalid or expired. Return to sign in to request a new link. Requesting a reset does not change your existing password.');
+      window.history.replaceState(null, '', '/track/?recovery=1');
+      return () => { active = false; };
+    }
+    // URL detection/code exchange belongs to the SDK. A second exchange would
+    // consume an already-used code and lose a valid recovery session.
+    void supabase.auth.getSession().then(({ data, error: sessionError }) => {
+      if (!active) return;
+      if (!sessionError && data.session && sessionStorage.getItem('tracker-recovery-verified-v1') === '1') {
+        setRecoveryReady(true);
+        setError('');
+        window.history.replaceState(null, '', '/track/?recovery=1');
+      } else setError('This password-reset link is missing or expired. Return to sign in to request a new link.');
+    }).catch(() => {
+      if (active) setError('Could not verify the recovery session.');
+    });
+    return () => { active = false; };
+  }, [recovery]);
+  async function finishRecovery() {
+    if (newPassword.length < 8) { setError('Use a password of at least 8 characters.'); return; }
+    setBusy(true);
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateError) throw updateError;
+      sessionStorage.removeItem('tracker-recovery-verified-v1');
+      setNewPassword('');
+      setRecovery(false);
+      window.history.replaceState(null, '', '/track/');
+      toast('Password updated. You can now sign in with your new password.');
+      await supabase.auth.signOut();
+    } catch {
+      setError('Could not update your password. Please request a new recovery link.');
+    } finally { setBusy(false); }
+  }
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+  async function completePasswordReset(e: FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 8) return;
+    setBusy(true); setError(''); setErrorDetail('');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setNewPassword(''); setRecovery(false);
+      toast('Password updated. Please sign in using your new password.');
+      await supabase.auth.signOut();
+    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
+    finally { setBusy(false); }
+  }
   async function auth(mode: 'signin' | 'signup') {
     if (busy || c.busy || google.pending) return;
     setBusy(true);
     setError('');
+    setErrorDetail('');
     try {
       const r =
         mode === 'signin'
-          ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
+          ? await supabase.auth.signInWithPassword({
+              email: email.trim(),
+              password,
+            })
           : await supabase.auth.signUp({ email: email.trim(), password });
       if (r.error) throw r.error;
       setPassword('');
@@ -39,7 +117,27 @@ export function CloudPanel() {
           'Check your email to confirm your account, then return here and sign in. If no email arrives, your project may need email-delivery configuration.',
         );
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(userError(e));
+      setErrorDetail(errorDetails(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function forgotPassword() {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Enter your email address before requesting a password reset.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: WEB_APP ? WEB_RECOVERY_REDIRECT : undefined,
+      });
+      if (resetError) throw resetError;
+      toast('If an account exists for that email, a recovery link has been sent.');
+    } catch (error) {
+      setError('Could not request a password reset. Check your connection and try again.');
     } finally {
       setBusy(false);
     }
@@ -47,29 +145,73 @@ export function CloudPanel() {
   async function action(fn: () => Promise<unknown>) {
     setBusy(true);
     setError('');
+    setErrorDetail('');
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(userError(e));
+      setErrorDetail(errorDetails(e));
     } finally {
       setBusy(false);
     }
   }
   const blocked = busy || c.busy || google.pending;
+  if (WEB_APP && recovery)
+    return (
+      <section className="cloud-panel" aria-label="Password recovery">
+        <h2>Reset your password</h2>
+        <p className="muted">Open the newest reset email in the same browser where you requested it. Requesting a reset does not change your existing password.</p>
+        {error && <p className="callout error" role="alert">{error}</p>}
+        {recoveryReady ? (
+          <form onSubmit={(event) => { event.preventDefault(); void finishRecovery(); }}>
+            <label>New password
+              <input type="password" autoComplete="new-password" required minLength={8}
+                value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+            </label>
+            <button className="button" disabled={busy || newPassword.length < 8}>Save new password</button>
+          </form>
+        ) : !error ? <p role="status">Verifying recovery link…</p> : null}
+        <button type="button" className="button secondary" onClick={() => { sessionStorage.removeItem('tracker-recovery-verified-v1'); setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
+      </section>
+    );
+  if (WEB_APP && !c.session && !recovery)
+    return (
+      <WebSignIn
+        email={email}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        busy={blocked}
+        error={error || (c.error ? userError(c.error) : '') || (google.error ? userError(google.error) : '')}
+        onSignIn={() => void auth('signin')}
+        onForgotPassword={() => void forgotPassword()}
+        onCopyErrorDetails={() => void navigator.clipboard?.writeText(errorDetail || c.error || google.error).catch(() => {})}
+      />
+    );
   return (
     <div className="cloud-panel">
-      <h2>{WEB_APP ? 'Your private tracker' : 'One plan. Phone and Windows.'}</h2>
+      <h2>{WEB_APP ? 'Your synced financial data' : 'One plan. Phone and Windows.'}</h2>
       <p className="muted">
         {WEB_APP
-          ? 'Sign in with the same email and password you use in the Windows or Android app. Then open your existing cloud plan.'
+          ? 'Manage the financial data synced with your Windows or Android app.'
           : 'Sign in with the same app account on both devices. Local entries remain available offline; synchronization resumes when connected.'}
       </p>
       {(error || c.error || google.error) && (
         <div className="callout error" role="alert">
-          {error || c.error || google.error}
+          {error || (c.error ? userError(c.error) : '') || (google.error ? userError(google.error) : '')}
+          <button type="button" className="text-button" onClick={() => void navigator.clipboard?.writeText(errorDetail || c.error || google.error).catch(() => {})}>Copy error details</button>
         </div>
       )}
-      {c.session ? (
+      {recovery ? (
+        <form onSubmit={(e) => void completePasswordReset(e)}>
+          <p className="muted">Set a new password for your account. Existing financial records are unchanged.</p>
+          <label>New password
+            <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" required minLength={8} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+          </label>
+          <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((x) => !x)}>{showPassword ? 'Hide password' : 'Show password'}</button>
+          <button type="submit" className="button" disabled={blocked || newPassword.length < 8}>Update password</button>
+        </form>
+      ) : c.session ? (
         <>
           <p>
             Signed in as <strong>{c.session.user.email}</strong>
@@ -245,7 +387,7 @@ export function CloudPanel() {
               type="button"
               className="button secondary google-signin"
               disabled={blocked}
-              onClick={() => void startGoogleSignIn()}
+              onClick={() => void import('./google').then((m) => m.startGoogleSignIn())}
             >
               <span aria-hidden="true" className="google-letter">
                 G
@@ -259,7 +401,7 @@ export function CloudPanel() {
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => void cancelGoogleSignIn()}
+                onClick={() => void import('./google').then((m) => m.cancelGoogleSignIn())}
               >
                 Cancel Google sign-in
               </button>
@@ -281,7 +423,7 @@ export function CloudPanel() {
           <label>
             Password
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               minLength={8}
               required
@@ -289,6 +431,10 @@ export function CloudPanel() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </label>
+          <div className="auth-controls">
+            <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide password' : 'Show password'}</button>
+            <button type="button" className="text-button" disabled={blocked} onClick={() => void forgotPassword()}>Forgot password?</button>
+          </div>
           <div className="entry-kind">
             <button className="button" disabled={blocked}>
               Sign in
@@ -338,11 +484,20 @@ export function CloudButton() {
     </>
   );
 }
-export function CloudGate() {
+export function CloudGate({ notice }: { notice?: import('react').ReactNode } = {}) {
+  const c = useCloud();
   return (
-    <main className="cloud-gate">
+    <main className={`cloud-gate${WEB_APP && !c.session ? ' cloud-gate--signin' : ''}`}>
       <div className="cloud-gate-card">
-        <img src="./icon.svg" alt="" width="64" height="64" />
+        {WEB_APP ? (
+          <div className="tracker-brand">
+            <img src="./icon.svg" alt="" aria-hidden="true" width="44" height="44" />
+            <span>Savings Tracker</span>
+          </div>
+        ) : (
+          <img src="./icon.svg" alt="" width="64" height="64" />
+        )}
+        {notice}
         <CloudPanel />
       </div>
     </main>

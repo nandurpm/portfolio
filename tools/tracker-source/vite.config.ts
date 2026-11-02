@@ -16,8 +16,8 @@ export default defineConfig(({ command, mode }) => {
       {
         name: "tracker-build-manifest",
         async writeBundle(options) {
-          if (mode !== 'web' && mode !== 'release') return;
-          const root = path.resolve(options.dir ?? 'dist-web');
+          if (mode !== "web" && mode !== "release") return;
+          const root = path.resolve(options.dir ?? "dist-web");
           const files: Record<string, string> = {};
           async function walk(dir: string) {
             for (const entry of await fs.readdir(dir, {
@@ -38,9 +38,17 @@ export default defineConfig(({ command, mode }) => {
           }
           await walk(root);
           await fs.writeFile(
-            path.join(root, 'build.json'),
-            JSON.stringify({ ...info, requiresSignIn: mode === 'web', route: mode === 'web' ? '/track/' : null, files }, null, 2) +
-              '\n',
+            path.join(root, "build.json"),
+            JSON.stringify(
+              {
+                ...info,
+                requiresSignIn: mode === "web",
+                route: mode === "web" ? "/track/" : null,
+                files,
+              },
+              null,
+              2,
+            ) + "\n",
           );
         },
       },
@@ -65,6 +73,11 @@ export default defineConfig(({ command, mode }) => {
             "__TRACKER_CONNECT_SRC__",
             `${endpoint.origin} wss://${endpoint.host}`,
           );
+          if (mode === "web")
+            html = html.replace(
+              "<title>Savings and Expense Tracker</title>",
+              "<title>Sign in · Savings Tracker</title>",
+            );
           if (mode === "web")
             html = html.replace(
               "<head>",

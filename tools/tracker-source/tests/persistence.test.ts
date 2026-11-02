@@ -1,3 +1,4 @@
+import { enableSalaryHistory, enablePfAccount } from '../src/domain/employment';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { financialFixture } from './fixtures/financial';
 afterEach(() => {
@@ -51,6 +52,9 @@ describe('local persistence protection', () => {
   });
   it('restores a valid older backup without leaving newer optional records attached, and supports undo', async () => {
     const current = financialFixture();
+    enableSalaryHistory(current.data);
+    enablePfAccount(current.data);
+    current.data.pfMovements = [{id: 'pf-restore', date: '2026-11-01', kind: 'contribution', source: 'payroll', amount: 100, payment: 'Bank', note: ''}];
     current.data.reconciliations = [
       {
         id: 'new',
@@ -68,8 +72,14 @@ describe('local persistence protection', () => {
     await store.load();
     store.restore(financialFixture());
     expect(store.get().data.reconciliations).toEqual([]);
+    expect(store.get().data.salaryChanges).toBeUndefined();
+    expect(store.get().data.pfMovements).toBeUndefined();
     store.undo();
     expect(store.get().data.reconciliations).toHaveLength(1);
+    expect(store.get().data.salaryChanges).toHaveLength(1);
+    expect(store.get().data.pfMovements).toHaveLength(1);
+    store.redo();
+    expect(store.get().data.pfMovements).toBeUndefined();
     await store.retrySave();
   });
 });

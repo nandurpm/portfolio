@@ -1,3 +1,4 @@
+import { salaryHistory, pfSummary } from '../domain/employment';
 import type ExcelJS from 'exceljs';
 
 import type { Plan, Category } from '../domain/types';
@@ -16,6 +17,9 @@ import {
 } from '../domain/calculate';
 import { monthLabel, monthsBetween, monthEnd, displayDate, clampMonth } from '../domain/dates';
 import { xmlEscape } from './files';
+import { paymentRows } from '../domain/loan-summary';
+import { paymentDisplayStatus } from '../domain/payment-status';
+import { plannedPaymentDate } from '../domain/insights';
 const currency = '"₹" #,##0.00;[Red]("₹" #,##0.00);"–"';
 const fill = (argb: string): ExcelJS.Fill => ({
   type: 'pattern',
@@ -101,6 +105,14 @@ export async function exportWorkbook(
     budget = baseSheet(wb, 'Budget', APP_NAME + ' · Budget'),
     loan = baseSheet(wb, 'Loan schedule', APP_NAME + ' · Loan schedule'),
     fc = baseSheet(wb, 'Forecast', APP_NAME + ' · Forecast');
+  const salarySheet = baseSheet(wb, 'Salary history', 'Salary changes · take-home pay, separate from PF');
+  header(salarySheet, 4, ['Effective date', 'Monthly take-home salary', 'Monthly PF reference']);
+  salaryHistory(p).forEach(row => salarySheet.addRow([d(row.effectiveDate), row.monthlySalary, row.monthlyPfContribution]));
+  salarySheet.getColumn(1).numFmt = 'dd-mmm-yyyy';
+  const pfSheet = baseSheet(wb, 'PF account', 'PF transfers · not income or expenses');
+  header(pfSheet, 4, ['Date', 'Type', 'Source', 'Amount', 'Payment account', 'Note']);
+  [...(p.pfMovements ?? [])].sort((a,b) => a.date.localeCompare(b.date)).forEach(row => pfSheet.addRow([d(row.date), row.kind, row.source, row.amount, row.payment, row.note]));
+  pfSheet.getColumn(1).numFmt = 'dd-mmm-yyyy';
   const month = clampMonth(p.settings.selectedMonth, start, end),
     date = reportDate(p),
     full = planned(p, month),
@@ -149,7 +161,7 @@ export async function exportWorkbook(
   ].forEach((r, i) => {
     dash.getRow(14 + i).values = [
       ...r,
-      i === 1 ? Number(r[1]) - Number(r[2]) : Number(r[2]) - Number(r[1]),
+      Number(r[2]) - Number(r[1]),
     ];
   });
   bands(dash, 14, 17, 4);
@@ -287,7 +299,11 @@ export async function exportWorkbook(
     for (const [i, c] of p.categories.entries()) {
       const cr = i + 26;
       let formula = `$D$${cr}`;
-      if (c.role === 'salary') formula = `IF(EDATE(A${ri},-1)>=$D$10,$D$9,$D$7)`;
+      if (c.role === 'salary-history' || (c.role === 'salary' && p.salaryChanges !== undefined)) {
+        formula = '$D$7';
+        salaryHistory(p).forEach(row => { formula = `IF(EOMONTH(A${ri},-1)>=DATE(${row.effectiveDate.split('-').map(Number).join(',')}),${row.monthlySalary},${formula})`; });
+      }
+      if (c.role === 'salary' && p.salaryChanges === undefined) formula = `IF(EDATE(A${ri},-1)>=$D$10,$D$9,$D$7)`;
       if (c.role === 'emi' && !c.loanId)
         formula = `IF(AND($D$12="Early closure",A${ri}>$D$13),0,SUMIFS('Loan schedule'!$C$5:$C$${Math.max(5, 4 + exportState.loan.rows.length)},'Loan schedule'!$A$5:$A$${Math.max(5, 4 + exportState.loan.rows.length)},A${ri},'Loan schedule'!$G$5:$G$${Math.max(5, 4 + exportState.loan.rows.length)},FALSE))`;
       if (
@@ -337,9 +353,9 @@ export async function exportWorkbook(
     'Interest',
     'Balance after EMI',
     'Paid before opening',
-    'Paid',
-    'Actual paid',
-    'Paid date',
+    'Recorded in full (all dates)',
+    'Total paid (all dates)',
+    'Last payment date (all dates)',
     'Edited',
     'ID',
   ]);
@@ -372,13 +388,14 @@ export async function exportWorkbook(
       'Installment',
       'Due date',
       'EMI',
-      'Actual paid',
-      'Payment date',
-      'Status',
+      'Paid through report date',
+      'Payment date through report date',
+      'Status through report date',
     ]);
     let index = 5;
     for (const l of p.additionalLoans)
-      for (const [i, r] of l.rows.entries()) {
+      for (const [i, stored] of l.rows.entries()) {
+        const r = paymentRows(p, [stored], date)[0]!;
         additional.getRow(index).values = [
           l.name,
           l.principal,
@@ -388,7 +405,7 @@ export async function exportWorkbook(
           r.emi,
           r.paidAmount,
           r.paidDate ? d(r.paidDate) : '',
-          r.paid ? 'Paid' : r.paidAmount ? 'Partial' : 'Unpaid',
+          paymentDisplayStatus(r, plannedPaymentDate(p, r.dueDate, l.id), r.dueDate, date),
         ];
         additional.getCell(index, 5).numFmt = additional.getCell(index, 8).numFmt = 'dd-mmm-yyyy';
         index++;
@@ -558,5 +575,5 @@ export function monthlyReport(p: Plan) {
   const html = (s: unknown) => xmlEscape(s);
   const row = (c: Category) =>
     `<tr><td>${html(c.name)}</td><td>${html(money(fullAmount(p, c, m)))}</td><td>${html(money(actualCategory(p, c, m, date)))}</td></tr>`;
-  return `<!doctype html><html><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none';style-src 'unsafe-inline';img-src data:;font-src data:"><title>${APP_NAME}</title><style>body{font:12px Arial,sans-serif;color:#23364d;margin:28px}h1{font-size:24px;color:#6255df}h2{font-size:17px;margin-top:30px}small{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#087f8c;color:white;text-align:right;padding:10px}th:first-child,td:first-child{text-align:left}td{text-align:right;padding:9px;border-bottom:1px solid #e4e9f0}tr:nth-child(even){background:#f3f6fc}.kpis{display:flex;gap:12px;margin-top:22px}.card{flex:1;background:#eeeafb;padding:18px;border-radius:12px}.card strong{display:block;font-size:20px;margin-top:8px}footer{margin-top:30px;font-size:10px;color:#64748b}thead{display:table-header-group}tr{break-inside:avoid}</style></head><body><h1>${APP_NAME}</h1><h2>${html(monthLabel(m, true))} · Monthly report</h2><small>Report through ${html(displayDate(date))}. Plan range ${html(monthLabel(p.settings.planStart))} – ${html(monthLabel(p.settings.planEnd))}.</small><div class="kpis"><div class="card">Actual income<strong>${html(money(a.income))}</strong></div><div class="card">Actual expenses<strong>${html(money(a.expenses))}</strong></div><div class="card">Saved this month<strong>${html(money(a.savings))}</strong></div></div><table><thead><tr><th>Metric</th><th>Full-month plan</th><th>Actual recorded</th></tr></thead><tbody>${(['income', 'living', 'debt', 'expenses', 'savings'] as const).map((k, i) => `<tr><td>${['Income', 'Living expenses', 'Loan payments', 'Total expenses', 'Saved this month'][i]}</td><td>${html(money(full[k]))}</td><td>${html(money(a[k]))}</td></tr>`).join('')}</tbody></table><h2>Full-month plan through the report month vs recorded totals through the report date</h2><p>Expected cash ${html(money(c.expectedCash))} · Recorded cash ${html(money(c.actualCash))}</p><h2>Category comparison</h2><table><thead><tr><th>Category</th><th>Full-month plan</th><th>Actual recorded</th></tr></thead><tbody>${p.categories.map(row).join('')}</tbody></table><footer>Actual totals include entered transactions only. Planned totals use complete monthly budgets, never daily allocations. Unspent budgets are not actual savings. Generated offline by ${APP_NAME}.</footer></body></html>`;
+  return `<!doctype html><html><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none';style-src 'unsafe-inline';img-src data:;font-src data:"><title>${APP_NAME}</title><style>*{box-sizing:border-box}body{font:14px/1.5 system-ui,Arial,sans-serif;color:#23364d;margin:32px;max-width:1160px}h1{font-size:28px;color:#26314f;border-bottom:3px solid #6255df;padding-bottom:12px}h2{font-size:18px;margin:28px 0 10px;color:#26314f}small{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:12px;font-variant-numeric:tabular-nums}th{background:#26345a;color:white;text-align:right;padding:11px 10px;font-size:12px}th:first-child,td:first-child{text-align:left}td{text-align:right;padding:10px;border-bottom:1px solid #e4e9f0}tr:nth-child(even){background:#f5f7fc}.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px}.card{background:#f1f4fb;border:1px solid #dae0ed;padding:17px;border-radius:14px;color:#58657b;font-size:12px}.card strong{display:block;font-size:24px;margin-top:6px;color:#223452;font-variant-numeric:tabular-nums}footer{margin-top:30px;border-top:1px solid #e4e9f0;padding-top:14px;font-size:11px;color:#64748b}thead{display:table-header-group}tr{break-inside:avoid}@media(max-width:650px){body{margin:14px}h1{font-size:23px}.kpis{grid-template-columns:1fr}th,td{padding:7px 5px;font-size:11px}}@media print{body{margin:13mm;max-width:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.card{break-inside:avoid}h2{break-after:avoid}}</style></head><body><h1>${APP_NAME}</h1><h2>${html(monthLabel(m, true))} · Monthly report</h2><small>Report through ${html(displayDate(date))}. Plan range ${html(monthLabel(p.settings.planStart))} – ${html(monthLabel(p.settings.planEnd))}.</small><div class="kpis"><div class="card">Actual income<strong>${html(money(a.income))}</strong></div><div class="card">Actual expenses<strong>${html(money(a.expenses))}</strong></div><div class="card">Recorded net savings<strong>${html(money(a.savings))}</strong></div></div><table><thead><tr><th>Metric</th><th>Full-month plan</th><th>Actual recorded</th></tr></thead><tbody>${(['income', 'living', 'debt', 'expenses', 'savings'] as const).map((k, i) => `<tr><td>${['Income', 'Living expenses', 'Loan payments', 'Total expenses', 'Saved this month'][i]}</td><td>${html(money(full[k]))}</td><td>${html(money(a[k]))}</td></tr>`).join('')}</tbody></table><h2>Full-month plan through the report month vs recorded totals through the report date</h2><p>Planned month-end cash ${html(money(c.expectedCash))} · Calculated cash ${html(money(c.actualCash))}. This is based on opening savings, recorded entries and PF cash transfers, not a verified bank statement.</p><h2>PF account · separate from cash flow</h2><p>PF balance pending claim: ${html(money(pfSummary(p, date).balance))}. Payroll contributions are not salary income or expenses. Claims return funds to cash.</p><h2>Category comparison</h2><table><thead><tr><th>Category</th><th>Full-month plan</th><th>Actual recorded</th></tr></thead><tbody>${p.categories.map(row).join('')}</tbody></table><footer>Actual totals include entered transactions only. Planned totals use complete monthly budgets, never daily allocations. Unspent budgets are not actual savings. Generated offline by ${APP_NAME}.</footer></body></html>`;
 }

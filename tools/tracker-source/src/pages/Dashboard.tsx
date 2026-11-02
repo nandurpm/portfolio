@@ -1,12 +1,14 @@
+import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
-import { ComparisonCharts } from '../components/ComparisonCharts';
-import { BackupStatus } from '../components/BackupStatus';
-import { useMemo } from 'react';
+import { HelpTerm } from '../components/HelpTerm';
+import { lazy, Suspense, useMemo } from 'react';
 import {
   ArrowDownLeft,
   ArrowUpRight,
   Wallet,
   PiggyBank,
+  CalendarRange,
+  TrendingUp,
   CalendarDays,
   RotateCcw,
   Plus,
@@ -21,11 +23,15 @@ import {
   reportDate,
   money,
   progress,
+  savingsOverview,
 } from '../domain/calculate';
 import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
-import { SavingsCharts } from '../components/Charts';
+
 import { RangeControl } from '../components/RangeControl';
+const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
+const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
+
 export function MonthControls() {
   const p = usePlan(),
     s = p.settings;
@@ -65,6 +71,7 @@ export function MonthControls() {
         />
         {!s.liveDate && <Edited />}
       </label>
+      <HelpTerm term="report through" />
       <button
         className="icon-button"
         aria-label="Reset report date to today"
@@ -136,7 +143,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
                   key={i}
                   className={i === 6 ? 'muted' : ''}
                 >
-                  {v == null ? '—' : money(v)}
+                  {v == null ? (r.status === 'Future' ? 'Future' : r.count === 0 ? 'No entries recorded' : '—') : money(v)}
                 </td>
               ))}
               <td>{r.count || '—'}</td>
@@ -166,7 +173,8 @@ export default function Dashboard({
     full = planned(p, m),
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
     cum = cumulative(p),
-    status = m > today().slice(0, 7) ? 'future' : m < today().slice(0, 7) ? 'past' : 'current';
+    savings = savingsOverview(p, m, date),
+    status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
   const metrics = [
     ['Income', 'income', 'income'],
     ['Living expenses', 'living', 'living'],
@@ -177,8 +185,8 @@ export default function Dashboard({
   return (
     <>
       <PageHead
-        eyebrow="YOUR MONEY, AT A GLANCE"
-        title="A little progress. Every day."
+        eyebrow="PRIVATE FINANCE WORKSPACE"
+        title="Monthly snapshot"
         description="Know what’s planned, what’s spent, and what’s yours to keep."
         action={
           <div className="entry-kind">
@@ -231,8 +239,17 @@ export default function Dashboard({
           </button>
         </div>
       )}
-      <BackupStatus compact />
-      <div className="stats-grid">
+      <div className="workspace-cash">        <Stat
+          label="Calculated cash balance"
+          value={cum.actualCash}
+          caption="Opening savings + net savings + PF cash transfers · not bank-verified"
+          tone="blue"
+          icon={<Wallet />}
+        />
+      </div>
+      <WorkspaceOverview navigate={navigate} addEntry={addEntry} />
+      <div className="stats-grid savings-overview">
+
         <Stat
           label="Income entered"
           value={act.income}
@@ -249,23 +266,31 @@ export default function Dashboard({
         />
         <Stat
           label="Saved this month"
-          value={act.savings}
-          caption={`${money(full.savings, 0)} full-month plan`}
-          tone="violet"
+          value={savings.month}
+          caption={`${monthLabel(m, true)} · income less expenses`}
+          tone={savings.month < 0 ? 'orange' : 'violet'}
           icon={<PiggyBank />}
         />
         <Stat
-          label="Recorded cash balance"
-          value={cum.actualCash}
-          caption="Opening savings + all recorded savings"
-          tone="blue"
-          icon={<Wallet />}
+          label="Saved this year"
+          value={savings.year}
+          caption={`${savings.calendarYear} year-to-date · through ${displayDate(date, s.dateFormat)}`}
+          tone={savings.year < 0 ? 'orange' : 'violet'}
+          icon={<CalendarRange />}
         />
+        <Stat
+          label="Saved till now"
+          value={savings.lifetime}
+          caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`}
+          tone={savings.lifetime < 0 ? 'orange' : 'violet'}
+          icon={<TrendingUp />}
+        />
+
       </div>
       <CashAlerts />
       <BudgetAlerts />
-      <MonthlyChecklist />
-      <ComparisonCharts />
+      <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
+      <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
       <Section
         title={`${monthLabel(m, true)}, side by side`}
         caption={
@@ -341,7 +366,7 @@ export default function Dashboard({
             ['Income received', cum.plan.income, cum.actual.income, 'income'],
             ['Total expenses', cum.plan.expenses, cum.actual.expenses, 'expenses'],
             ['Savings added', cum.plan.savings, cum.actual.savings, 'savings'],
-            ['Cash balance', cum.expectedCash, cum.actualCash, 'cash'],
+            ['Calculated cash balance', cum.expectedCash, cum.actualCash, 'cash'],
           ].map(([label, plannedValue, actualValue, kind]) => {
             const delta = Number(actualValue) - Number(plannedValue);
             const explanation =
@@ -375,7 +400,7 @@ export default function Dashboard({
           })}
         </div>
       </Section>
-      <SavingsCharts all />
+      <Suspense fallback={<p className="muted" role="status">Loading savings charts…</p>}><SavingsCharts all /></Suspense>
       <Section
         title="Every category, accounted for"
         caption="Income progress is measured by receipts; expense progress is measured by spending. Remaining budgets are not savings."
