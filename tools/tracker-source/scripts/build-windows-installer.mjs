@@ -53,7 +53,7 @@ const result = spawnSync(compiler, args, { stdio: 'inherit', windowsHide: true }
 if (result.status !== 0) throw Error('Windows installer compilation failed');
 await fs.copyFile(
   path.join(compiled, 'Savings-and-Expense-Tracker-Setup.exe'),
-  path.join(output, 'Savings-and-Expense-Tracker-Setup.exe'),
+  path.join(output, `Savings-and-Expense-Tracker-Setup-${version}.exe`),
 );
 if (!path.resolve(temporary).startsWith(path.resolve(os.tmpdir()) + path.sep))
   throw Error('Unexpected temporary build path');
