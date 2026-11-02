@@ -49,8 +49,8 @@ describe('display-only default range', () => {
 });
 describe('readable currency axes', () => {
   it('preserves rupees and paise instead of tiny k values', () => {
-    expect(currencyAxis(-311.91)).toBe('-₹311.91');
-    expect(currencyAxis(100000)).toBe('₹1,00,000');
+    expect(currencyAxis(-311.91)).toBe('−₹311.91');
+    expect(currencyAxis(100000)).toBe('₹1L');
     expect(currencyAxis(-0)).toBe('₹0');
   });
 });
