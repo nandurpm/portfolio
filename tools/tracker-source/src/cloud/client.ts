@@ -24,6 +24,16 @@ export const supabase = createClient(config.url, config.publishableKey, {
   },
 });
 
+// The SDK handles the one-use PKCE code before React mounts. Capture its verified
+// recovery event here so the gate can survive initialization and auth remounts.
+supabase.auth.onAuthStateChange(event => {
+  if (!WEB_APP) return;
+  try {
+    if (event === 'PASSWORD_RECOVERY') sessionStorage.setItem('tracker-recovery-verified-v1', '1');
+    if (event === 'SIGNED_OUT') sessionStorage.removeItem('tracker-recovery-verified-v1');
+  } catch { /* The recovery gate fails closed if session storage is unavailable. */ }
+});
+
 // A previously signed-in native device may open its local plan while offline.
 // This cached identity never authorizes cloud requests: Supabase still verifies every token.
 export async function readCachedSession(): Promise<Session | null> {

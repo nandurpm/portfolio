@@ -35,37 +35,17 @@ export function CloudPanel() {
   useEffect(() => {
     if (!WEB_APP || !recovery) return;
     let active = true;
-    const flag = 'tracker-recovery-verified-v1';
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (!code) {
-      // The Auth event can remount this gate after a successful code exchange.
-      // Do not demand the consumed single-use code again; verify the saved session.
-      if (sessionStorage.getItem(flag) === '1') {
-        void supabase.auth.getSession().then(({ data, error: sessionError }) => {
-          if (!active) return;
-          if (!sessionError && data.session) {
-            setRecoveryReady(true);
-            setError('');
-          } else {
-            sessionStorage.removeItem(flag);
-            setError('Recovery link is incomplete. Request a new link.');
-          }
-        }).catch(() => {
-          if (active) setError('Could not verify the recovery session.');
-        });
+    // URL detection/code exchange belongs to the SDK. A second exchange would
+    // consume an already-used code and lose a valid recovery session.
+    void supabase.auth.getSession().then(({ data, error: sessionError }) => {
+      if (!active) return;
+      if (!sessionError && data.session && sessionStorage.getItem('tracker-recovery-verified-v1') === '1') {
+        setRecoveryReady(true);
+        setError('');
+        window.history.replaceState(null, '', '/track/?recovery=1');
       } else setError('Recovery link is incomplete. Request a new link.');
-      return () => { active = false; };
-    }
-    void supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-      if (exchangeError) {
-        if (active) setError('Recovery link has expired or could not be verified.');
-        return;
-      }
-      sessionStorage.setItem(flag, '1');
-      window.history.replaceState(null, '', '/track/?recovery=1');
-      if (active) { setRecoveryReady(true); setError(''); }
     }).catch(() => {
-      if (active) setError('Could not verify the recovery link.');
+      if (active) setError('Could not verify the recovery session.');
     });
     return () => { active = false; };
   }, [recovery]);
