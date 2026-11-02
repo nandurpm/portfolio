@@ -741,6 +741,7 @@ export default function Entries({
             </div>
           </div>
         ) : (
+          <>
           <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more entry columns →</p>
           <div className="entry-grid-wrap" tabIndex={0} role="region" aria-label="Transactions: horizontally scrollable grid">
             <div className="entry-grid header">
@@ -941,6 +942,7 @@ export default function Entries({
               </div>
             </div>
           </div>
+          </>
         )}
       </Section>
       {editEntry && (
