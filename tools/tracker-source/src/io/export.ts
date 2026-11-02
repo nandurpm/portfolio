@@ -133,7 +133,7 @@ export async function exportWorkbook(
   ]);
   (['income', 'living', 'debt', 'expenses', 'savings'] as const).forEach((k, i) => {
     dash.getRow(6 + i).values = [
-      ['Income', 'Living expenses', 'Loan payments', 'Total expenses', 'Saved this month'][i],
+      ['Income', 'Living expenses', 'Loan payments', 'Total expenses', 'Savings / deficit'][i],
       full[k],
       act[k],
       full[k] - act[k],

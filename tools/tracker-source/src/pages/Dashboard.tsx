@@ -201,7 +201,7 @@ export default function Dashboard({
         </div>
         <div className="dashboard-hero-insights">
           <div>
-            <span>Saved this month</span>
+            <span>{savings.month < 0 ? 'Savings shortfall' : 'Saved this month'}</span>
             <strong className={savings.month < 0 ? 'unfavourable' : ''}>{money(savings.month)}</strong>
             <small>Income less expenses</small>
           </div>
