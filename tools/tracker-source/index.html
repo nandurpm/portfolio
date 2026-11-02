@@ -10,6 +10,17 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' __TRACKER_CONNECT_SRC__; worker-src 'self' blob:; object-src 'none'; base-uri 'none'"
     />
+    <style>
+      #root .boot-screen{min-height:100dvh;display:grid;place-content:center;justify-items:center;gap:14px;padding:24px;background:#f6f7fc;color:#28324b;font:500 14px/1.5 system-ui,sans-serif;text-align:center}
+      #root .boot-logo{width:76px;height:76px;object-fit:contain}
+      #root .boot-title{font-size:19px;font-weight:700}
+      #root .boot-message{color:#596579}
+      #root .boot-skeleton{width:min(240px,65vw);height:7px;background:#ddddea;border-radius:999px;overflow:hidden}
+      #root .boot-skeleton::before{content:"";display:block;width:38%;height:100%;background:#6255df;border-radius:999px;animation:boot-sweep 1.5s ease-in-out infinite alternate}
+      @keyframes boot-sweep{to{transform:translateX(165%)}}
+      @media(prefers-color-scheme:dark){#root .boot-screen{background:#141625;color:#e7eaf6}#root .boot-message{color:#bdc7dc}#root .boot-skeleton{background:#30364c}}
+      @media(prefers-reduced-motion:reduce){#root .boot-skeleton::before{animation:none;width:100%}}
+    </style>
     <meta name="theme-color" content="#ffffff" />
     <script src="/theme-init.js"></script>
     <meta
@@ -20,7 +31,7 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
   <body>
-    <div id="root">Loading Savings and Expense Tracker…</div>
+    <div id="root"><div class="boot-screen" role="status" aria-live="polite"><img class="boot-logo" src="./icon.svg" alt="" width="76" height="76" /><strong class="boot-title">Savings &amp; Expense Tracker</strong><span class="boot-message">Opening your private workspace…</span><span class="boot-skeleton" aria-hidden="true"></span></div></div>
     <noscript>Enable JavaScript to use Savings and Expense Tracker.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
