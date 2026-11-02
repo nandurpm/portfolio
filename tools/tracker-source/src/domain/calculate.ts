@@ -187,6 +187,23 @@ export function actual(p: Plan, start: string, end: string, catId?: string): Tot
   }
   return finish(t);
 }
+/**
+ * Recorded net savings only: income received minus expenses actually entered.
+ * Annual savings use the calendar year of the report date (not the selected
+ * review month); lifetime starts with the plan, excluding opening cash and
+ * archived payments before the plan. No prorated budgets are involved.
+ */
+export function savingsOverview(p: Plan, selectedMonth: string, date = reportDate(p)) {
+  const planStart = `${p.settings.planStart}-01`;
+  const calendarYear = date.slice(0, 4);
+  const yearStart = `${calendarYear}-01-01`;
+  return {
+    month: actual(p, `${selectedMonth}-01`, date < monthEnd(selectedMonth) ? date : monthEnd(selectedMonth)).savings,
+    year: actual(p, yearStart > planStart ? yearStart : planStart, date).savings,
+    lifetime: actual(p, planStart, date).savings,
+    calendarYear,
+  };
+}
 export function actualCategory(p: Plan, c: Category, m: string, date = reportDate(p)) {
   const t = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m), c.id);
   return c.group === 'Income' ? t.income : c.group === 'Living' ? t.living : t.debt;
