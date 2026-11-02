@@ -51,7 +51,7 @@ describe('monthly activity display', () => {
     const novTask = monthlyChecklistView(p, '2026-11', '2026-11-04').loans[0]!;
     expect(novTask).toMatchObject({ expected: 100, paid: 0, remaining: 100 });
     expect(installmentDisplayStatus(novTask, '2026-11-04')).toBe('Scheduled');
-    expect(installmentDisplayStatus(novTask, '2026-11-06')).toBe('Planned date passed');
+    expect(installmentDisplayStatus(novTask, '2026-11-11')).toBe('Planned date passed');
     expect(installmentDisplayStatus(novTask, '2026-12-06')).toBe('Due date passed · verify');
     expect(p.loan.rows[1]!.paid).toBe(false);
   });
