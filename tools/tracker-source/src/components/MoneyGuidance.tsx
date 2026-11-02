@@ -3,7 +3,8 @@ import { money, reportDate } from '../domain/calculate';
 import { budgetAlerts, projectedShortfalls } from '../domain/insights';
 import { monthLabel, displayDate } from '../domain/dates';
 import { monthlyChecklistView, installmentDisplayStatus, type ChecklistCategory } from '../domain/monthly-checklist';
-import { CalendarClock, ChevronDown, Landmark, Plus, ReceiptText, ShoppingBasket, Wallet } from 'lucide-react';
+import { ChevronDown, Landmark, Plus, ReceiptText, ShoppingBasket, Wallet } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Section, Badge } from './UI';
 
 export function CashAlerts() {
@@ -169,9 +170,9 @@ function ChecklistGroup({
 }: {
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   count: number;
-  children: React.ReactNode;
+  children: ReactNode;
   actionLabel: string;
   onAction: () => void;
   defaultOpen?: boolean;
