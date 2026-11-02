@@ -189,7 +189,7 @@ test('an invalid recovery link stays isolated and offers a return to sign in', a
   await page.route('https://*.supabase.co/**', route => route.abort());
   await page.goto('/?recovery=1');
   await expect(page.getByRole('heading', {name: 'Reset your password'})).toBeVisible();
-  await expect(page.getByRole('alert')).toContainText('Recovery link is incomplete');
+  await expect(page.getByRole('alert')).toContainText('password-reset link is missing or expired');
   await expect(page.getByRole('navigation', {name: 'Main navigation'})).toHaveCount(0);
   await page.getByRole('button', {name: 'Return to sign in'}).click();
   await expect(page.getByRole('heading', {name: /Sign in to your Savings Tracker/})).toBeVisible();
