@@ -19,7 +19,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { store, usePlan } from '../store';
-import { closureAnalysis, regenerateLoan, money, round } from '../domain/calculate';
+import { closureAnalysis, regenerateLoan, money, round, reportDate } from '../domain/calculate';
 import { monthLabel, monthDay, inRange, today, displayDate } from '../domain/dates';
 import type { LoanRow } from '../domain/types';
 import {
