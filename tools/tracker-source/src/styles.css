@@ -3555,3 +3555,26 @@ html[data-theme="dark"] .badge.past {
 @media (prefers-reduced-motion: reduce) {
   .checklist-group-chevron { transition: none; }
 }
+
+/* Mobile quick actions sit above the tab bar, never behind device safe areas. */
+.phone-quick-actions { display: none; }
+@media (max-width: 600px) {
+  .phone-quick-actions {
+    position: fixed;
+    z-index: 41;
+    right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--phone-nav-height) + var(--safe-bottom) + 12px);
+    display: flex;
+    gap: 8px;
+  }
+  .phone-quick-actions button {
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 10px 13px;
+    background: var(--accent-deep);
+    color: #fff;
+    box-shadow: 0 4px 15px #0003;
+    font: 650 12px/1.2 Inter, system-ui, sans-serif;
+  }
+  .phone-quick-actions button:first-child { background: var(--surface); color: var(--text); }
+}
