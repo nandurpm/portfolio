@@ -12,7 +12,7 @@ export type HelpTermName = keyof typeof definitions;
 export function HelpTerm({ term }: { term: HelpTermName }): ReactNode {
   return (
     <details className="help-term">
-      <summary aria-label={`What does ${term} mean?`}><span aria-hidden="true">ⓘ</span> {term}</summary>
+      <summary><span aria-hidden="true">ⓘ</span> {term}</summary>
       <span className="help-term-content">{definitions[term]}</span>
     </details>
   );
