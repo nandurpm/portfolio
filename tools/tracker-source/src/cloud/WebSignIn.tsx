@@ -144,7 +144,6 @@ export function WebSignIn({
         <button className="signin-forgot" type="button" onClick={onForgotPassword} disabled={busy}>
           Forgot password?
         </button>
-        <button className="text-button" type="button" disabled={busy} onClick={onForgotPassword}>Forgot password?</button>
         <button
           className="button signin-submit"
           type="submit"

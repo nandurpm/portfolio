@@ -97,9 +97,14 @@ jobs:
           # Inbucket default 54324 collided with an existing process on the hosted runner.
           # Only the disposable test stack is affected; production ports are untouched.
           sed -i 's/^port = 54324$/port = 57324/' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
+          # Permit only the exact disposable recovery callback in the local Auth stack.
+          sed -i 's@^additional_redirect_urls = .*@additional_redirect_urls = ["http://127.0.0.1:4173/track/?recovery=1"]@' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
+          grep -Fq 'additional_redirect_urls = ["http://127.0.0.1:4173/track/?recovery=1"]' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
           npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" start --exclude studio,imgproxy,realtime,storage-api,postgres-meta,edge-runtime,logflare,vector,supavisor
       - run: node --import tsx scripts/prepare-local-supabase.ts
       - run: npm run test:security
+      - name: Exercise synthetic email password reset end to end
+        run: node --import tsx scripts/test-password-recovery.ts
       - name: Stop disposable containers
         if: always()
         run: npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" stop --no-backup

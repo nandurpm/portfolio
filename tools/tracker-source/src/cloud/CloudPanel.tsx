@@ -1,5 +1,5 @@
 import { useSyncSummary, SyncStatusDetails } from './SyncStatus';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useGoogleAuth } from './google-state';
 import { userError, errorDetails } from '../domain/user-error';
 import { supabase } from './client';
@@ -22,8 +22,6 @@ export function CloudPanel() {
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
     [showPassword, setShowPassword] = useState(false),
-    [recovery, setRecovery] = useState(false),
-    [newPassword, setNewPassword] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [errorDetail, setErrorDetail] = useState(''),
@@ -35,18 +33,40 @@ export function CloudPanel() {
   const [recoveryReady, setRecoveryReady] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
-    if (!recovery) return;
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (!code) { setError('Recovery link is incomplete. Request a new link.'); return; }
+    if (!WEB_APP || !recovery) return;
     let active = true;
+    const flag = 'tracker-recovery-verified-v1';
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (!code) {
+      // The Auth event can remount this gate after a successful code exchange.
+      // Do not demand the consumed single-use code again; verify the saved session.
+      if (sessionStorage.getItem(flag) === '1') {
+        void supabase.auth.getSession().then(({ data, error: sessionError }) => {
+          if (!active) return;
+          if (!sessionError && data.session) {
+            setRecoveryReady(true);
+            setError('');
+          } else {
+            sessionStorage.removeItem(flag);
+            setError('Recovery link is incomplete. Request a new link.');
+          }
+        }).catch(() => {
+          if (active) setError('Could not verify the recovery session.');
+        });
+      } else setError('Recovery link is incomplete. Request a new link.');
+      return () => { active = false; };
+    }
     void supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-      if (!active) return;
-      if (exchangeError) setError('Recovery link has expired or could not be verified.');
-      else {
-        setRecoveryReady(true);
-        window.history.replaceState(null, '', '/track/?recovery=1');
+      if (exchangeError) {
+        if (active) setError('Recovery link has expired or could not be verified.');
+        return;
       }
-    }).catch(() => { if (active) setError('Could not verify the recovery link.'); });
+      sessionStorage.setItem(flag, '1');
+      window.history.replaceState(null, '', '/track/?recovery=1');
+      if (active) { setRecoveryReady(true); setError(''); }
+    }).catch(() => {
+      if (active) setError('Could not verify the recovery link.');
+    });
     return () => { active = false; };
   }, [recovery]);
   async function finishRecovery() {
@@ -55,6 +75,7 @@ export function CloudPanel() {
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;
+      sessionStorage.removeItem('tracker-recovery-verified-v1');
       setNewPassword('');
       setRecovery(false);
       window.history.replaceState(null, '', '/track/');
@@ -63,24 +84,14 @@ export function CloudPanel() {
     } catch {
       setError('Could not update your password. Please request a new recovery link.');
     } finally { setBusy(false); }
+  }
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
     });
     return () => subscription.unsubscribe();
   }, []);
-  async function forgotPassword() {
-    if (!email.trim()) { setError('Enter your account email to request a password reset.'); return; }
-    setBusy(true); setError(''); setErrorDetail('');
-    try {
-      const redirectTo = WEB_APP ? `${window.location.origin}/track/` : undefined;
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
-      if (error) throw error;
-      toast('If that email has an account, a password reset email will arrive. Open the link in the same browser.');
-    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
-    finally { setBusy(false); }
-  }
-  async function completePasswordReset(e: React.FormEvent) {
+  async function completePasswordReset(e: FormEvent) {
     e.preventDefault();
     if (newPassword.length < 8) return;
     setBusy(true); setError(''); setErrorDetail('');
@@ -128,7 +139,7 @@ export function CloudPanel() {
     setError('');
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/track/?recovery=1`,
+        redirectTo: WEB_APP ? `${window.location.origin}/track/?recovery=1` : undefined,
       });
       if (resetError) throw resetError;
       toast('If an account exists for that email, a recovery link has been sent.');
@@ -152,7 +163,7 @@ export function CloudPanel() {
     }
   }
   const blocked = busy || c.busy || google.pending;
-  if (recovery)
+  if (WEB_APP && recovery)
     return (
       <section className="cloud-panel" aria-label="Password recovery">
         <h2>Reset your password</h2>
@@ -167,10 +178,9 @@ export function CloudPanel() {
             <button className="button" disabled={busy || newPassword.length < 8}>Save new password</button>
           </form>
         ) : <p role="status">Verifying recovery link…</p>}
-        <button type="button" className="button secondary" onClick={() => { setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
+        <button type="button" className="button secondary" onClick={() => { sessionStorage.removeItem('tracker-recovery-verified-v1'); setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
       </section>
     );
-  if (WEB_APP && !c.session)
   if (WEB_APP && !c.session && !recovery)
     return (
       <WebSignIn
@@ -384,7 +394,6 @@ export function CloudPanel() {
               type="button"
               className="button secondary google-signin"
               disabled={blocked}
-              onClick={() => void import('./google').then(({ startGoogleSignIn }) => startGoogleSignIn())}
               onClick={() => void import('./google').then((m) => m.startGoogleSignIn())}
             >
               <span aria-hidden="true" className="google-letter">
@@ -399,7 +408,6 @@ export function CloudPanel() {
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => void import('./google').then(({ cancelGoogleSignIn }) => cancelGoogleSignIn())}
                 onClick={() => void import('./google').then((m) => m.cancelGoogleSignIn())}
               >
                 Cancel Google sign-in

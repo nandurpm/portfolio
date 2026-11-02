@@ -1,4 +1,3 @@
-import { googleState as state, publishGoogleAuth as publish } from './google-state';
 import { publishGoogleState as publish, getGoogleState } from './google-state';
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
