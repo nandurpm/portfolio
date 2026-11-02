@@ -132,7 +132,7 @@ export function Shell() {
   const recovery = status === "Recovery needed";
   const current = pages.find((x) => x.id === page)!;
   useEffect(() => {
-    document.title = `${current.name} — ${APP_NAME}`;
+    document.title = `${current.name} · Tracker`;
   }, [current.name]);
   useEffect(() => {
     void store
@@ -283,6 +283,7 @@ export function Shell() {
   return (
     <MotionConfig reducedMotion={p.settings.animations ? "user" : "always"}>
       <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{current.name} screen</div>
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
