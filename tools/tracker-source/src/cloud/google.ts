@@ -1,4 +1,4 @@
-import { publishGoogleState as publish } from './google-state';
+import { publishGoogleState as publish, getGoogleState } from './google-state';
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from './client';
@@ -78,7 +78,7 @@ export async function cancelGoogleSignIn() {
   publish({ pending: false, error: '' });
 }
 export async function startGoogleSignIn() {
-  if (state.pending || completing) return;
+  if (getGoogleState().pending || completing) return;
   const attempt = ++generation;
   publish({ pending: true, error: '' });
   try {
@@ -126,7 +126,7 @@ export async function startGoogleSignIn() {
     if (attempt === generation && callback) await finishGoogleSignIn(callback);
   } catch (e) {
     // Cancellation may already have cleared this attempt.
-    if (attempt === generation && state.pending) {
+    if (attempt === generation && getGoogleState().pending) {
       await clearPending();
       publish({
         pending: false,
