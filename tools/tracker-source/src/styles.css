@@ -668,6 +668,11 @@ code {
 .stats-grid.three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+/* Six overview KPIs: two balanced rows on desktop, readable pairs on mobile. */
+.stats-grid.savings-overview {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .stat-card {
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -3355,5 +3360,11 @@ html[data-theme="dark"] .badge.past {
   input[type="radio"] {
     min-width: 24px;
     min-height: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .stats-grid.savings-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
