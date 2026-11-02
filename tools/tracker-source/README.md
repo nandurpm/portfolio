@@ -49,3 +49,7 @@ The web-only signed-out form lives in `src/cloud/WebSignIn.tsx` and `web-signin.
 `public/startup.css` and `startup.js` provide a branded loading/failure screen even when the application bundle cannot load. `WebAccess` also handles failed or stalled storage/session initialization with a retry screen. Neither retry path clears financial records.
 
 `tests/browser/login-ui.spec.ts` covers desktop, tablet, mobile, a reduced-height keyboard-sized viewport, dark-mode contrast, keyboard order, validation, pending/error states and startup recovery. The existing authentication-boundary tests continue to check verified, revoked, mismatched-account and signed-out scenarios with synthetic HTTP responses. Physical mobile keyboard behavior and real account sign-in still need device/manual verification. The production workflow builds and stages `/track/` from committed source; local `dist-web` builds are marked dirty while source edits are uncommitted.
+
+### Supply-chain remediation (issue #41)
+
+See [the dependency remediation report](docs/security/issue-41.md) for affected production/dev paths, patched overrides, the private legacy glob adapter, native/export compatibility checks and removal criteria. `npm run check` now includes `test:dependencies`; `npm audit` remains unsuppressed.

@@ -103,3 +103,32 @@ jobs:
       - name: Stop disposable containers
         if: always()
         run: npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" stop --no-backup
+
+  native-dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    env:
+      TRACKER_ELECTRON_SMOKE: '1'
+      TRACKER_WINDOWS_PACKAGE: '1'
+      TRACKER_ANDROID_COMPILE: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --ignore-scripts
+      - name: Install the pinned Electron runtime and Android SDK packages
+        run: |
+          node node_modules/electron/install.js
+          "${ANDROID_HOME:?}/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Exercise archive/export APIs and disposable unsigned native packages
+        run: npm run test:dependencies
