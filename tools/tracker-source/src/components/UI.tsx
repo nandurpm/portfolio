@@ -3,6 +3,7 @@ import { AnimatePresence, motion, animate, useMotionValue, useTransform } from '
 import { X, Check, AlertCircle, ChevronRight, ArrowUpRight } from 'lucide-react';
 import { registerDialog, isTopDialog } from '../navigation';
 import { money } from '../domain/calculate';
+import { errorMessage } from '../domain/user-errors';
 import { usePlan, useEnvelope } from '../store';
 type Confirm = {
   title: string;
@@ -21,7 +22,7 @@ export function UiProvider({ children }: { children: ReactNode }) {
     [question, setQuestion] = useState<Confirm | null>(null);
   const toast = (text: string, error = false) => {
     const id = Date.now() + Math.random();
-    setNotices((x) => [...x, { id, text, error }]);
+    setNotices((x) => [...x, { id, text: error ? errorMessage(text) : text, error }]);
     setTimeout(() => setNotices((x) => x.filter((n) => n.id !== id)), 6500);
   };
   const confirm = (title: string, body: ReactNode, danger = false, label = 'Continue') =>
