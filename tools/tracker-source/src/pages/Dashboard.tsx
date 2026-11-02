@@ -1,7 +1,5 @@
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
-const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
-const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 import { BackupStatus } from '../components/BackupStatus';
 import { lazy, Suspense, useMemo } from 'react';
 import {
@@ -31,6 +29,9 @@ import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../doma
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
+const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
+const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
+
 export function MonthControls() {
   const p = usePlan(),
     s = p.settings;

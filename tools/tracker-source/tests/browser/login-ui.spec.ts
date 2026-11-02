@@ -165,7 +165,7 @@ test('all palette combinations keep readable text at 360px and 1280px', async ({
           const colors = [style.color, style.backgroundColor];
           probe.remove();
           const lum = (rgb: string) => {
-            const channels = rgb.match(/[\\d.]+/g)?.slice(0, 3).map(Number);
+            const channels = rgb.match(/[0-9.]+/g)?.slice(0, 3).map(Number);
             if (!channels || channels.length !== 3 || channels.some((v) => !Number.isFinite(v)))
               throw new Error('Unexpected resolved color ' + rgb);
             const linear = channels.map((v) => {
