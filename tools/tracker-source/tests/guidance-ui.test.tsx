@@ -93,8 +93,8 @@ describe('guidance and sync UI', () => {
     ];
     expect(renderToStaticMarkup(<BudgetAlerts />)).toContain('80% warning');
     state.plan.entries = [];
-    const html = renderToStaticMarkup(<MonthlyChecklist />);
-    expect(html).toContain('No entries');
+    const html = renderToStaticMarkup(<MonthlyChecklist navigate={() => {}} addEntry={() => {}} />);
+    expect(html).toContain('No entry recorded');
     expect(html).not.toContain('Payment recorded');
   });
 });
