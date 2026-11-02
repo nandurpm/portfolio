@@ -1,1 +1,0 @@
-import{j as s}from"./index-59Lp3bgE.js";import{K as t,a,W as o}from"./App-S3SEXyiY.js";import{r as e}from"./client-CgusMEJC.js";function j({compact:u=!1}){const[r,,,c,p]=t(),[m,n]=e.useState(!1),{toast:i}=a();return s.jsx(o,{})}export{j as B};
