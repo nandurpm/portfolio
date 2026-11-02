@@ -20,11 +20,45 @@ export function CloudPanel() {
     { toast, confirm } = useUi();
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
+    [showPassword, setShowPassword] = useState(false),
+    [recovery, setRecovery] = useState(false),
+    [newPassword, setNewPassword] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [errorDetail, setErrorDetail] = useState(''),
     [choices, setChoices] = useState<('local' | 'remote')[]>([]);
   useEffect(() => setChoices([]), [c.review]);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+  async function forgotPassword() {
+    if (!email.trim()) { setError('Enter your account email to request a password reset.'); return; }
+    setBusy(true); setError(''); setErrorDetail('');
+    try {
+      const redirectTo = WEB_APP ? `${window.location.origin}/track/` : undefined;
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+      if (error) throw error;
+      toast('If that address has an account, a password reset email will arrive. Open the link in this browser.');
+    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
+    finally { setBusy(false); }
+  }
+  async function completePasswordReset(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 8) return;
+    setBusy(true); setError(''); setErrorDetail('');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setNewPassword('');
+      setRecovery(false);
+      toast('Password updated. Please sign in with your new password.');
+      await supabase.auth.signOut();
+    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
+    finally { setBusy(false); }
+  }
   async function auth(mode: 'signin' | 'signup') {
     if (busy || c.busy || google.pending) return;
     setBusy(true);
@@ -76,7 +110,16 @@ export function CloudPanel() {
           <button type="button" className="text-button" onClick={() => void navigator.clipboard?.writeText(errorDetail || c.error || google.error).catch(() => {})}>Copy error details</button>
         </div>
       )}
-      {c.session ? (
+      {recovery ? (
+        <form onSubmit={(e) => void completePasswordReset(e)}>
+          <p className="muted">Enter a new password for your account. Your financial records are not changed.</p>
+          <label>New password
+            <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+          </label>
+          <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide password' : 'Show password'}</button>
+          <button className="button" type="submit" disabled={blocked || newPassword.length < 8}>Update password</button>
+        </form>
+      ) : c.session ? (
         <>
           <p>
             Signed in as <strong>{c.session.user.email}</strong>
@@ -288,7 +331,7 @@ export function CloudPanel() {
           <label>
             Password
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               minLength={8}
               required
@@ -296,6 +339,10 @@ export function CloudPanel() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </label>
+          <div className="auth-controls">
+            <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide password' : 'Show password'}</button>
+            <button type="button" className="text-button" disabled={blocked || !email.trim()} onClick={() => void forgotPassword()}>Forgot password?</button>
+          </div>
           <div className="entry-kind">
             <button className="button" disabled={blocked}>
               Sign in
