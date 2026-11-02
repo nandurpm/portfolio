@@ -141,7 +141,7 @@ export function WebSignIn({
             <button type="button" className="text-button" onClick={onCopyErrorDetails}>Copy error details</button>
           </p>
         )}
-        <button className="text-button" type="button" disabled={busy || !email.trim()} onClick={onForgotPassword}>Forgot password?</button>
+        <button className="text-button" type="button" disabled={busy} onClick={onForgotPassword}>Forgot password?</button>
         <button
           className="button signin-submit"
           type="submit"

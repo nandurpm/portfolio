@@ -358,7 +358,7 @@ export function CloudPanel() {
           </label>
           <div className="auth-controls">
             <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide password' : 'Show password'}</button>
-            <button type="button" className="text-button" disabled={blocked || !email.trim()} onClick={() => void forgotPassword()}>Forgot password?</button>
+            <button type="button" className="text-button" disabled={blocked} onClick={() => void forgotPassword()}>Forgot password?</button>
           </div>
           <div className="entry-kind">
             <button className="button" disabled={blocked}>

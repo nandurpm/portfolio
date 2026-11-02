@@ -157,18 +157,25 @@ test('all palette combinations keep readable text at 360px and 1280px', async ({
       for (const palette of ['indigo', 'ocean', 'emerald', 'rose', 'sunset']) {
         const ratio = await page.evaluate((name) => {
           document.documentElement.dataset.palette = name;
-          const vars = getComputedStyle(document.documentElement);
-          const fromHex = (hex: string) => {
-            const nums = hex.trim().replace('#', '').match(/.{2}/g);
-            if (!nums) throw new Error('Unexpected palette color');
-            const channels = nums.slice(0, 3).map((v) => parseInt(v, 16) / 255).map((v) => v <= 0.04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
-            return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
+          const probe = document.createElement('span');
+          probe.style.color = 'var(--accent-ink)';
+          probe.style.backgroundColor = 'var(--surface)';
+          document.body.appendChild(probe);
+          const style = getComputedStyle(probe);
+          const colors = [style.color, style.backgroundColor];
+          probe.remove();
+          const lum = (rgb: string) => {
+            const channels = rgb.match(/[\\d.]+/g)?.slice(0, 3).map(Number);
+            if (!channels || channels.length !== 3 || channels.some((v) => !Number.isFinite(v)))
+              throw new Error('Unexpected resolved color ' + rgb);
+            const linear = channels.map((v) => {
+              const c = v / 255;
+              return c <= 0.04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4;
+            });
+            return linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722;
           };
-          const fg = vars.getPropertyValue('--accent-ink').trim();
-          const bg = vars.getPropertyValue('--surface').trim();
-          const dark = vars.getPropertyValue('--accent-soft').trim();
-          const l1 = fromHex(fg), l2 = fromHex(bg);
-          return { ratio: (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05), soft: dark, overflow: document.documentElement.scrollWidth > innerWidth };
+          const l1 = lum(colors[0]), l2 = lum(colors[1]);
+          return { ratio: (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05), overflow: document.documentElement.scrollWidth > innerWidth };
         }, palette);
         expect(ratio.ratio, `${theme} ${palette} @ ${width}`).toBeGreaterThanOrEqual(4.5);
         expect(ratio.overflow, `${theme} ${palette} @ ${width}`).toBe(false);

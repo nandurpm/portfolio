@@ -12,7 +12,7 @@ async function navigate(page: Page, name: string) {
     Dashboard: 'Home',
     'Daily Entries': 'Entries',
     'Budget & Plan': 'Budget',
-    'Forecast & Month-by-month': 'Forecast',
+    'Loan & Closure': 'Loan',
   };
   if (names[name])
     await page
@@ -28,7 +28,9 @@ for (const width of [320, 390, 768, 1366])
   test(`accessibility and cold loan route ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await page.route('https://*.supabase.co/**', (r) => r.abort());
+    page.on('pageerror', (error) => console.log('SYNTHETIC HARNESS ERROR:', error.message));
     await page.goto('/tests/browser/harness.html');
+    console.log('SYNTHETIC HARNESS ROOT', width, (await page.locator('#root').innerText()).slice(0, 1600));
     await expect(
       page.getByRole('heading', { name: 'A little progress. Every day.' }),
     ).toBeVisible();
