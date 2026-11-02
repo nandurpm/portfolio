@@ -24,7 +24,7 @@ export default function Forecast() {
     .filter((c) => c.active && c.timing === 'Fixed day' && fullAmount(p, c, s.selectedMonth) > 0)
     .map((c) => ({
       c,
-      date: monthDay(s.selectedMonth, c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day),
+      date: monthDay(s.selectedMonth, c.role === 'emi' && s.emiPreviousMonth ? (c.loanId ? p.additionalLoans?.find((l) => l.id === c.loanId)?.plannedPayDay ?? s.salaryDay : s.salaryDay) : c.day),
     }));
   return (
     <>
