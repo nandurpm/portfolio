@@ -6,6 +6,7 @@ import {
   equal,
   localPlan,
   mergePlans,
+  assertModernLedgerPreserved,
   resolveConflicts,
   type CloudPlan,
   type Conflict,
@@ -96,7 +97,10 @@ async function fetchRemote(): Promise<Remote | null> {
           `Another device omitted ${field}. Sync paused to preserve the local records. Update all devices and review a full backup before continuing.`,
         );
     }
-  if (data) data.data = cloudPlan(localPlan(data.data, store.get().data));
+  if (data) {
+    assertModernLedgerPreserved(store.get().sync?.base, store.get().data, data.data);
+    data.data = cloudPlan(localPlan(data.data, store.get().data));
+  }
   return data;
 }
 export const sync = {
