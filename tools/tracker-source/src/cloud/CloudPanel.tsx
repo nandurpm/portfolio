@@ -48,6 +48,25 @@ export function CloudPanel() {
       setBusy(false);
     }
   }
+  async function forgotPassword() {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Enter your email address before requesting a password reset.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/track/`,
+      });
+      if (resetError) throw resetError;
+      toast('If an account exists for that email, a recovery link has been sent.');
+    } catch (error) {
+      setError('Could not request a password reset. Check your connection and try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
   async function action(fn: () => Promise<unknown>) {
     setBusy(true);
     setError('');
@@ -70,6 +89,7 @@ export function CloudPanel() {
         busy={blocked}
         error={error || c.error || google.error}
         onSignIn={() => void auth('signin')}
+        onForgotPassword={() => void forgotPassword()}
       />
     );
   return (
