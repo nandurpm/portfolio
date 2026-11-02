@@ -1,0 +1,75 @@
+/* Available before the application bundle, including when that bundle fails. */
+.tracker-startup {
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 20px;
+  padding: 32px 20px;
+  text-align: center;
+  background: var(--bg, #f6f7fc);
+  color: var(--text, #24243c);
+  font:
+    15px/1.6 Inter,
+    system-ui,
+    sans-serif;
+}
+.tracker-startup img {
+  width: 64px;
+  height: 64px;
+}
+.tracker-startup strong {
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+.tracker-startup p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--muted, #66677f);
+}
+.tracker-startup-mark {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #6255df30;
+  border-top-color: #6255df;
+  border-radius: 50%;
+  animation: tracker-load 1s linear infinite;
+}
+.tracker-startup button {
+  min-height: 48px;
+  padding: 12px 28px;
+  font: inherit;
+  font-weight: 600;
+  background: #6255df;
+  color: #fff;
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.tracker-startup button:hover {
+  background: #5145c5;
+}
+.tracker-startup button:focus-visible {
+  outline: 3px solid #998cee;
+  outline-offset: 4px;
+}
+.tracker-startup [hidden] {
+  display: none;
+}
+html[data-theme="dark"] .tracker-startup {
+  background: var(--bg, #141625);
+  color: var(--text, #f1f0ff);
+}
+html[data-theme="dark"] .tracker-startup p {
+  color: var(--muted, #b0aec5);
+}
+@keyframes tracker-load {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tracker-startup-mark {
+    animation: none;
+  }
+}
