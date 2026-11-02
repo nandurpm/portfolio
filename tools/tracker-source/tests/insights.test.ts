@@ -142,7 +142,7 @@ describe('payment checklist', () => {
       dueDate: '2026-12-05',
       paid: 0,
       remaining: 200,
-      status: 'Overdue in plan',
+      status: 'Planned date passed',
     });
     expect(p.entries).toHaveLength(0);
   });
@@ -155,12 +155,12 @@ describe('payment checklist', () => {
     expect(installmentTasks(p, '2026-11')[0]).toMatchObject({
       paid: 50,
       remaining: 150,
-      status: 'Part paid',
+      status: 'Part recorded',
     });
     expect(installmentTasks(p, '2026-11', '2026-11-20')[0]).toMatchObject({
       paid: 200,
       remaining: 0,
-      status: 'Paid',
+      status: 'Payment recorded',
     });
   });
   it('respects due-month mode and closure', () => {
