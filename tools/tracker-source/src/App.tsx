@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
+import { errorMessage } from "./domain/user-errors";
 import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
@@ -76,7 +77,7 @@ class Boundary extends Component<{ children: ReactNode }, { error: string }> {
       return (
         <div className="fatal">
           <h1>We couldn’t open this screen.</h1>
-          <p>Please reload the app to try again.</p>
+          <p>{errorMessage(this.state.error)} Reload the app if the problem continues.</p>
           <button
             onClick={() =>
               void navigator.clipboard
