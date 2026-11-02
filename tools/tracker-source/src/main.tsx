@@ -6,10 +6,13 @@ import '@fontsource/inter/latin-700.css';
 import { installMobile } from './mobile';
 import './styles.css';
 import { WEB_APP } from './web-mode';
+import { Capacitor } from '@capacitor/core';
 void installMobile()
   .then(async () => {
-    const { installGoogleCallbacks } = await import('./cloud/google');
-    await installGoogleCallbacks();
+    if (Capacitor.isNativePlatform()) {
+      const { installGoogleCallbacks } = await import('./cloud/google');
+      await installGoogleCallbacks();
+    }
     const { default: App } = await import('./App');
     ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
   })
