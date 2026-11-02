@@ -6,6 +6,7 @@ import { sync, useCloud } from './sync';
 import { useEnvelope } from '../store';
 import { Modal, useUi } from '../components/UI';
 import { WEB_APP } from '../web-mode';
+import { WebSignIn } from './WebSignIn';
 const summary = (value: unknown) =>
   value === undefined
     ? 'Deleted'
@@ -30,7 +31,10 @@ export function CloudPanel() {
     try {
       const r =
         mode === 'signin'
-          ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
+          ? await supabase.auth.signInWithPassword({
+              email: email.trim(),
+              password,
+            })
           : await supabase.auth.signUp({ email: email.trim(), password });
       if (r.error) throw r.error;
       setPassword('');
@@ -56,12 +60,24 @@ export function CloudPanel() {
     }
   }
   const blocked = busy || c.busy || google.pending;
+  if (WEB_APP && !c.session)
+    return (
+      <WebSignIn
+        email={email}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        busy={blocked}
+        error={error || c.error || google.error}
+        onSignIn={() => void auth('signin')}
+      />
+    );
   return (
     <div className="cloud-panel">
-      <h2>{WEB_APP ? 'Your private tracker' : 'One plan. Phone and Windows.'}</h2>
+      <h2>{WEB_APP ? 'Your synced financial data' : 'One plan. Phone and Windows.'}</h2>
       <p className="muted">
         {WEB_APP
-          ? 'Sign in with the same email and password you use in the Windows or Android app. Then open your existing cloud plan.'
+          ? 'Manage the financial data synced with your Windows or Android app.'
           : 'Sign in with the same app account on both devices. Local entries remain available offline; synchronization resumes when connected.'}
       </p>
       {(error || c.error || google.error) && (
@@ -338,11 +354,20 @@ export function CloudButton() {
     </>
   );
 }
-export function CloudGate() {
+export function CloudGate({ notice }: { notice?: import('react').ReactNode } = {}) {
+  const c = useCloud();
   return (
-    <main className="cloud-gate">
+    <main className={`cloud-gate${WEB_APP && !c.session ? ' cloud-gate--signin' : ''}`}>
       <div className="cloud-gate-card">
-        <img src="./icon.svg" alt="" width="64" height="64" />
+        {WEB_APP ? (
+          <div className="tracker-brand">
+            <img src="./icon.svg" alt="" aria-hidden="true" width="44" height="44" />
+            <span>Savings Tracker</span>
+          </div>
+        ) : (
+          <img src="./icon.svg" alt="" width="64" height="64" />
+        )}
+        {notice}
         <CloudPanel />
       </div>
     </main>

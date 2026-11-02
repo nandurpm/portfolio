@@ -5,6 +5,7 @@ import '@fontsource/inter/latin-600.css';
 import '@fontsource/inter/latin-700.css';
 import { installMobile } from './mobile';
 import './styles.css';
+import { WEB_APP } from './web-mode';
 void installMobile()
   .then(async () => {
     const { installGoogleCallbacks } = await import('./cloud/google');
@@ -13,6 +14,10 @@ void installMobile()
     ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
   })
   .catch(() => {
+    if (WEB_APP) {
+      window.dispatchEvent(new Event('tracker:startup-failed'));
+      return;
+    }
     document.getElementById('root')!.textContent =
       'Could not open secure app storage. Restart the app; your existing files have not been replaced.';
   });

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1.0,viewport-fit=cover"
+      content="width=device-width,initial-scale=1.0,viewport-fit=cover,interactive-widget=resizes-content"
     />
     <meta
       http-equiv="Content-Security-Policy"
@@ -17,11 +17,29 @@
       content="Sign in to your personal savings, expenses and loan planning workspace."
     />
     <title>Savings and Expense Tracker</title>
+    <link rel="stylesheet" href="/startup.css" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
   <body>
-    <div id="root">Loading Savings and Expense Tracker…</div>
+    <div id="root">
+      <main
+        class="tracker-startup"
+        data-tracker-bootstrap
+        aria-label="Savings Tracker startup"
+      >
+        <img src="/icon.svg" alt="" aria-hidden="true" width="64" height="64" />
+        <strong>Savings Tracker</strong>
+        <span
+          class="tracker-startup-mark"
+          data-boot-spinner
+          aria-hidden="true"
+        ></span>
+        <p data-boot-message role="status">Loading your tracker…</p>
+        <button type="button" data-boot-retry hidden>Retry</button>
+      </main>
+    </div>
     <noscript>Enable JavaScript to use Savings and Expense Tracker.</noscript>
+    <script src="/startup.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
