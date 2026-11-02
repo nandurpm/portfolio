@@ -1,13 +1,8 @@
 import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
+import { formatMoney } from './format-money';
 import { today, daysIn, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
 export const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
-export const money = (n: number, decimals = 2) =>
-  new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(n);
+export const money = formatMoney;
 export const key = (month: string, id: string) => `${month}|${id}`;
 export const reportDate = (p: Plan) => (p.settings.liveDate ? today() : p.settings.reportDate);
 export const emptyTotals = (): Totals => ({

@@ -1,4 +1,5 @@
 import { CashAlerts } from '../components/MoneyGuidance';
+import { HelpTerm } from '../components/HelpTerm';
 import { installmentTasks } from '../domain/insights';
 import { useRef } from 'react';
 import { RangeControl } from '../components/RangeControl';
@@ -127,6 +128,8 @@ export default function Forecast() {
             ))}
           </select>
         </label>
+        <p className="scroll-cue" aria-hidden="true">Scroll sideways to view all forecast values →</p>
+        <div className="help-strip"><HelpTerm term="contract balance" /><HelpTerm term="closure headroom" /></div>
         <div
           className="table-scroll long-table-scroll"
           tabIndex={0}

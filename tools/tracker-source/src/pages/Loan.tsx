@@ -1,4 +1,5 @@
 import { ArchivedPayments } from '../components/ArchivedPayments';
+import { HelpTerm } from '../components/HelpTerm';
 import { receiptScope } from '../domain/archive';
 import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { saveOriginalPayment } from '../domain/installments';
@@ -316,6 +317,7 @@ export default function Loan() {
           <SettingNumber name="accruedInterest" label="Accrued interest estimate (₹)" />
           <SettingNumber name="fees" label="Fees & taxes (₹)" />
           <SettingNumber name="cushion" label="Cash cushion after closure (₹)" />
+          <HelpTerm term="cash cushion" />
         </div>
         <div className="closure-summary">
           <div>
@@ -392,6 +394,7 @@ export default function Loan() {
         </div>
       </Section>
       <Section title="Contract balance" caption="Remaining principal after each scheduled EMI">
+        <div className="help-strip"><HelpTerm term="contract balance" /></div>
         <div className="chart-box short">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={rows.map((r) => ({ ...r, name: monthLabel(r.month) }))}>

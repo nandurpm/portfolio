@@ -9,6 +9,8 @@ interface Props {
   setEmail: (value: string) => void;
   setPassword: (value: string) => void;
   onSignIn: () => void;
+  onForgotPassword: () => void;
+  onCopyErrorDetails: () => void;
 }
 
 /** Presentation only: CloudPanel retains the existing account authentication. */
@@ -20,6 +22,8 @@ export function WebSignIn({
   setEmail,
   setPassword,
   onSignIn,
+  onForgotPassword,
+  onCopyErrorDetails,
 }: Props) {
   const [show, setShow] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -134,8 +138,10 @@ export function WebSignIn({
         {authError && (
           <p className="signin-auth-error" id="signin-auth-error" role="alert">
             {authError}
+            <button type="button" className="text-button" onClick={onCopyErrorDetails}>Copy error details</button>
           </p>
         )}
+        <button className="text-button" type="button" disabled={busy} onClick={onForgotPassword}>Forgot password?</button>
         <button
           className="button signin-submit"
           type="submit"

@@ -485,7 +485,7 @@ export default function Budget() {
         caption={
           phone
             ? `${months.length} months · Choose one month to edit. Copy or apply a percentage below.`
-            : `${months.length} months · Click a cell to select it · Drag its square handle to fill a rectangle`
+            : `${months.length} months · Select a cell and use Fill right or Fill down by keyboard, or drag the square handle`
         }
         action={
           cell && (
@@ -641,7 +641,9 @@ export default function Budget() {
             </div>
           </div>
         ) : (
-          <div className="budget-grid-scroll">
+          <>
+          <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more months →</p>
+          <div className="budget-grid-scroll" tabIndex={0} role="region" aria-label="Monthly budget: horizontally scrollable grid">
             <table className="data-table budget-grid">
               <thead>
                 <tr>
@@ -704,6 +706,7 @@ export default function Budget() {
               </tbody>
             </table>
           </div>
+          </>
         )}
         <div className="copy-budget">
           <Field label="Copy from">
