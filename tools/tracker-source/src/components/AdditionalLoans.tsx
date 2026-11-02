@@ -7,6 +7,7 @@ import { money, reportDate, round } from '../domain/calculate';
 import { today, displayDate } from '../domain/dates';
 import { usePhone } from './usePhone';
 import { loanSummary, paymentRows } from '../domain/loan-summary';
+import { paymentDisplayStatus } from '../domain/payment-status';
 import {
   addInstallmentLoan,
   saveInstallmentPayment,
@@ -24,11 +25,13 @@ export default function AdditionalLoans() {
   const [editingDates, setEditingDates] = useState(false);
   const [correctedFirst, setCorrectedFirst] = useState('');
   const [correctedNote, setCorrectedNote] = useState('');
+  const [correctedPlannedDay, setCorrectedPlannedDay] = useState('');
   const [name, setName] = useState(''),
     [principal, setPrincipal] = useState(''),
     [emi, setEmi] = useState(''),
     [tenure, setTenure] = useState('12'),
     [first, setFirst] = useState(today()),
+    [plannedDay, setPlannedDay] = useState(''),
     [note, setNote] = useState('');
   const [selected, setSelected] = useState('');
   const [receiptId, setReceiptId] = useState('');
@@ -51,7 +54,7 @@ export default function AdditionalLoans() {
     setPayment({ loanId: loan.id, rowId });
     setReceiptId('');
     setPaidDate(today());
-    setPaidAmount(String(Math.max(0, round(r.emi - r.paidAmount))));
+    setPaidAmount(String(Math.max(0, round(r.emi - (rows.find((x) => x.id === rowId)?.paidAmount ?? 0)))));
     setMethod('Not specified');
   }
   function saveLoan(e: React.FormEvent) {
@@ -65,6 +68,7 @@ export default function AdditionalLoans() {
           monthlyEmi: Number(emi),
           tenure: Number(tenure),
           firstDueDate: first,
+          plannedPayDay: plannedDay === '' ? undefined : Number(plannedDay),
           note,
         }).id;
       });
@@ -75,6 +79,7 @@ export default function AdditionalLoans() {
       setPrincipal('');
       setEmi('');
       setNote('');
+      setPlannedDay('');
     } catch (e) {
       toast(String(e), true);
     }
@@ -190,6 +195,7 @@ export default function AdditionalLoans() {
               onClick={() => {
                 setCorrectedFirst(loan.firstDueDate);
                 setCorrectedNote(loan.note);
+                setCorrectedPlannedDay(loan.plannedPayDay == null ? '' : String(loan.plannedPayDay));
                 setEditingDates(true);
               }}
             >
@@ -198,8 +204,8 @@ export default function AdditionalLoans() {
             <p className="loan-next-payment">
               {summary?.next ? (
                 <>
-                  Next unpaid installment:{' '}
-                  <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> → Due{' '}
+                  Next installment without full recorded payment:{' '}
+                  <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate, loan.id))}</strong> → Due{' '}
                   <strong>{showDate(summary.next.dueDate)}</strong> ·{' '}
                   <strong>{money(summary.nextAmount)}</strong>
                 </>
@@ -215,12 +221,12 @@ export default function AdditionalLoans() {
                       <strong>
                         Installment {i + 1} of {loan.tenure}
                       </strong>
-                      <span>{r.paid ? 'Paid' : r.paidAmount ? 'Partial' : 'Unpaid'}</span>
+                      <span>{paymentDisplayStatus(r, plannedPaymentDate(p, r.dueDate, loan.id), r.dueDate, reportDate(p))}</span>
                     </div>
                     <dl>
                       <div>
                         <dt>Planned pay date</dt>
-                        <dd>{showDate(plannedPaymentDate(p, r.dueDate))}</dd>
+                        <dd>{showDate(plannedPaymentDate(p, r.dueDate, loan.id))}</dd>
                       </div>
                       <div>
                         <dt>Due date</dt>
@@ -273,7 +279,7 @@ export default function AdditionalLoans() {
                     {rows.map((r, i) => (
                       <tr key={r.id} className={r.paid ? 'paid-row' : ''}>
                         <td>{i + 1}</td>
-                        <td>{showDate(plannedPaymentDate(p, r.dueDate))}</td>
+                        <td>{showDate(plannedPaymentDate(p, r.dueDate, loan.id))}</td>
                         <td>{showDate(r.dueDate)}</td>
                         <td>{money(r.emi)}</td>
                         <td>{r.paidAmount ? money(r.paidAmount) : '—'}</td>
@@ -314,7 +320,7 @@ export default function AdditionalLoans() {
               e.preventDefault();
               try {
                 store.change('Correct loan dates and notes', (d) =>
-                  correctInstallmentDates(d, loan.id, correctedFirst, correctedNote),
+                  correctInstallmentDates(d, loan.id, correctedFirst, correctedNote, correctedPlannedDay === '' ? undefined : Number(correctedPlannedDay)),
                 );
                 setEditingDates(false);
                 toast('Schedule dates corrected. Payment dates and amounts preserved.');
@@ -331,6 +337,9 @@ export default function AdditionalLoans() {
                 value={correctedFirst}
                 onChange={(e) => setCorrectedFirst(e.target.value)}
               />
+            </Field>
+            <Field label="Planned payment day (previous month; optional)" hint="Blank uses the global salary day; due dates and receipts are unchanged.">
+              <input type="number" inputMode="numeric" min="1" max="31" step="1" value={correctedPlannedDay} onChange={(e) => setCorrectedPlannedDay(e.target.value)} />
             </Field>
             <Field label="Correct loan notes">
               <textarea
@@ -410,7 +419,10 @@ export default function AdditionalLoans() {
                   onChange={(e) => setFirst(e.target.value)}
                 />
               </Field>
-              <Field label="Notes">
+              <Field label="Planned advance-payment day (optional)" hint="Blank uses the global salary day.">
+                 <input type="number" inputMode="numeric" min="1" max="31" step="1" value={plannedDay} onChange={(e) => setPlannedDay(e.target.value)} />
+               </Field>
+               <Field label="Notes">
                 <textarea maxLength={4000} value={note} onChange={(e) => setNote(e.target.value)} />
               </Field>
             </div>

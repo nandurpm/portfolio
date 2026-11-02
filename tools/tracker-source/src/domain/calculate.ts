@@ -155,7 +155,7 @@ export function categoryPlan(
         provision
           ? { ...c, timing: 'Fixed day', day: provision.dueDay }
           : c.role === 'emi' && p.settings.emiPreviousMonth
-            ? { ...c, timing: 'Fixed day', day: p.settings.salaryDay }
+            ? { ...c, timing: 'Fixed day', day: (c.loanId ? p.additionalLoans?.find((l) => l.id === c.loanId)?.plannedPayDay : undefined) ?? p.settings.salaryDay }
             : c,
         m,
         date,

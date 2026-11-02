@@ -139,7 +139,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
                   key={i}
                   className={i === 6 ? 'muted' : ''}
                 >
-                  {v == null ? '—' : money(v)}
+                  {v == null ? (r.status === 'Future' ? 'Future' : r.count === 0 ? 'No entries recorded' : '—') : money(v)}
                 </td>
               ))}
               <td>{r.count || '—'}</td>
@@ -170,7 +170,7 @@ export default function Dashboard({
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
     cum = cumulative(p),
     savings = savingsOverview(p, m, date),
-    status = m > today().slice(0, 7) ? 'future' : m < today().slice(0, 7) ? 'past' : 'current';
+    status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
   const metrics = [
     ['Income', 'income', 'income'],
     ['Living expenses', 'living', 'living'],
@@ -273,9 +273,9 @@ export default function Dashboard({
           icon={<TrendingUp />}
         />
         <Stat
-          label="Recorded cash balance"
+          label="Calculated cash balance"
           value={cum.actualCash}
-          caption="Opening savings + all recorded savings"
+          caption="Opening savings + recorded net savings · not bank-verified"
           tone="blue"
           icon={<Wallet />}
         />
@@ -359,7 +359,7 @@ export default function Dashboard({
             ['Income received', cum.plan.income, cum.actual.income, 'income'],
             ['Total expenses', cum.plan.expenses, cum.actual.expenses, 'expenses'],
             ['Savings added', cum.plan.savings, cum.actual.savings, 'savings'],
-            ['Cash balance', cum.expectedCash, cum.actualCash, 'cash'],
+            ['Calculated cash balance', cum.expectedCash, cum.actualCash, 'cash'],
           ].map(([label, plannedValue, actualValue, kind]) => {
             const delta = Number(actualValue) - Number(plannedValue);
             const explanation =

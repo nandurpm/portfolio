@@ -222,7 +222,7 @@ export function MonthlyChecklist({
         <div><span>Income recorded</span><strong>{money(view.totals.income)}</strong></div>
         <div><span>Expenses recorded</span><strong>{money(view.totals.expenses)}</strong></div>
         <div><span>Loan installments listed</span><strong>{view.loans.length}</strong></div>
-        <div><span>Items to review</span><strong>{itemCount}</strong></div>
+        <div><span>Items tracked</span><strong>{itemCount}</strong></div>
       </div>
       <div className="checklist-sections">
         <ChecklistGroup

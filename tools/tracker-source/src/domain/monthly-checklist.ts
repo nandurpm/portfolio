@@ -1,6 +1,7 @@
 import type { Category, Plan } from './types';
 import { actual, actualCategory, categoryPlan, reportDate, round } from './calculate';
 import { installmentTasks } from './insights';
+import { paymentDisplayStatus } from './payment-status';
 import { monthDay, monthEnd } from './dates';
 
 export interface ChecklistCategory {
@@ -66,9 +67,5 @@ export function installmentDisplayStatus(
   task: ReturnType<typeof installmentTasks>[number],
   cutoff: string,
 ) {
-  if (task.remaining <= 0) return 'Payment recorded';
-  if (task.paid > 0) return 'Part recorded';
-  if (task.dueDate < cutoff) return 'Due date passed · verify';
-  if (task.payDate < cutoff) return 'Planned date passed';
-  return 'Scheduled';
+  return paymentDisplayStatus({ emi: task.expected, paidAmount: task.paid, paidBeforeOpening: false }, task.payDate, task.dueDate, cutoff);
 }
