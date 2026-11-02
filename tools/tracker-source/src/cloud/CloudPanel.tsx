@@ -371,7 +371,6 @@ export function CloudPanel() {
               type="button"
               className="button secondary google-signin"
               disabled={blocked}
-              onClick={() => void import('./google').then(({ startGoogleSignIn }) => startGoogleSignIn())}
               onClick={() => void import('./google').then((m) => m.startGoogleSignIn())}
             >
               <span aria-hidden="true" className="google-letter">
@@ -386,7 +385,6 @@ export function CloudPanel() {
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => void import('./google').then(({ cancelGoogleSignIn }) => cancelGoogleSignIn())}
                 onClick={() => void import('./google').then((m) => m.cancelGoogleSignIn())}
               >
                 Cancel Google sign-in
