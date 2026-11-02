@@ -282,7 +282,7 @@ export default function Dashboard({
       </div>
       <CashAlerts />
       <BudgetAlerts />
-      <MonthlyChecklist />
+      <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
       <ComparisonCharts />
       <Section
         title={`${monthLabel(m, true)}, side by side`}
