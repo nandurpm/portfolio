@@ -19,7 +19,7 @@ export const supabase = createClient(config.url, config.publishableKey, {
     storageKey: 'tracker-auth-v1',
     persistSession: true,
     autoRefreshToken: WEB_APP,
-    detectSessionInUrl: false,
+    detectSessionInUrl: WEB_APP,
     flowType: 'pkce',
   },
 });

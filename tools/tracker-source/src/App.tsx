@@ -37,10 +37,12 @@ import {
   ShieldCheck,
   ChevronRight,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
 import { errorMessage } from "./domain/user-errors";
+import { errorDetails } from "./domain/user-error";
 import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
@@ -102,6 +104,7 @@ export function Shell() {
     { toast } = useUi(),
     [page, setPage] = useState("dashboard"),
     [more, setMore] = useState(false),
+    [quickAdd, setQuickAdd] = useState(false),
     [entryKind, setEntryKind] = useState<"Income" | "Expense">("Expense"),
     [collapsed, setCollapsed] = useState(false),
     [loading, setLoading] = useState(true),
@@ -138,7 +141,7 @@ export function Shell() {
     void store
       .load()
       .then(() => sync.start())
-      .catch((e) => toast(String(e), true))
+      .catch((e) => toast(errorDetails(e), true))
       .finally(() => setLoading(false));
     const timer = setInterval(() => setTick((t) => t + 1), 60_000);
     const off = window.desktop?.onBeforeClose(() => store.flush());
@@ -283,6 +286,7 @@ export function Shell() {
   return (
     <MotionConfig reducedMotion={p.settings.animations ? "user" : "always"}>
       <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{current.name} screen</div>
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
@@ -396,7 +400,7 @@ export function Shell() {
                   try {
                     store.undo();
                   } catch (e) {
-                    toast(String(e), true);
+                    toast(errorDetails(e), true);
                   }
                 }}
               >
@@ -411,7 +415,7 @@ export function Shell() {
                   try {
                     store.redo();
                   } catch (e) {
-                    toast(String(e), true);
+                    toast(errorDetails(e), true);
                   }
                 }}
               >
@@ -451,7 +455,7 @@ export function Shell() {
                     onClick={() =>
                       void store
                         .retrySave()
-                        .catch((e) => toast(String(e), true))
+                        .catch((e) => toast(errorDetails(e), true))
                     }
                   >
                     Retry save
@@ -553,7 +557,7 @@ export function Shell() {
             aria-label="More screens"
             aria-expanded={more}
             aria-current={
-              ["loan", "balances", "reports", "settings"].includes(page)
+              ["forecast", "balances", "reports", "settings"].includes(page)
                 ? "page"
                 : undefined
             }
@@ -563,12 +567,21 @@ export function Shell() {
             <span>More</span>
           </button>
         </nav>
+        <button type="button" className="mobile-quick-add" aria-label="Add income or expense" aria-expanded={quickAdd} onClick={() => setQuickAdd(true)}><Plus size={20} aria-hidden="true" /> Add</button>
+        {quickAdd && (
+          <Modal title="Add a transaction" onClose={() => setQuickAdd(false)}>
+            <div className="phone-menu">
+              <button className="button" onClick={() => { setEntryKind("Expense"); navigate("entries"); setQuickAdd(false); }}>Add expense</button>
+              <button className="button secondary" onClick={() => { setEntryKind("Income"); navigate("entries"); setQuickAdd(false); }}>Add income</button>
+            </div>
+          </Modal>
+        )}
         {more && (
           <Modal title="More screens & tools" onClose={() => setMore(false)}>
             <div className="phone-menu">
               {pages
                 .filter((x) =>
-                  ["loan", "balances", "reports", "settings"].includes(x.id),
+                  ["forecast", "balances", "reports", "settings"].includes(x.id),
                 )
                 .map((x) => (
                   <button
@@ -579,8 +592,8 @@ export function Shell() {
                     <x.icon size={22} />
                     {x.id === "balances"
                       ? "Balances & provisions"
-                      : x.id === "loan"
-                        ? "Loan & Closure"
+                      : x.id === "forecast"
+                        ? "Forecast & Month-by-month"
                         : x.id === "reports"
                           ? "Reports & Export/Import"
                           : "Settings"}
@@ -594,7 +607,7 @@ export function Shell() {
                     try {
                       store.undo();
                     } catch (e) {
-                      toast(String(e), true);
+                      toast(errorDetails(e), true);
                     }
                   }}
                 >
@@ -608,7 +621,7 @@ export function Shell() {
                     try {
                       store.redo();
                     } catch (e) {
-                      toast(String(e), true);
+                      toast(errorDetails(e), true);
                     }
                   }}
                 >

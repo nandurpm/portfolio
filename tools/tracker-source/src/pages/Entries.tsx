@@ -599,7 +599,7 @@ export default function Entries({
         </div>
         {selection.size > 0 && (
           <div className="selection-bar">
-            <strong>{selection.size} selected</strong>
+            <strong>{selection.size} selected · Bulk edit copies date, category or payment without dragging</strong>
             <button
               className="button small secondary"
               onClick={() => {
@@ -741,7 +741,9 @@ export default function Entries({
             </div>
           </div>
         ) : (
-          <div className="entry-grid-wrap">
+          <>
+          <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more entry columns →</p>
+          <div className="entry-grid-wrap" tabIndex={0} role="region" aria-label="Transactions: horizontally scrollable grid">
             <div className="entry-grid header">
               <input
                 aria-label="Select all displayed transactions"
@@ -940,6 +942,7 @@ export default function Entries({
               </div>
             </div>
           </div>
+          </>
         )}
       </Section>
       {editEntry && (

@@ -5,6 +5,7 @@ for (const [width, height] of [
   [360, 800],
   [390, 844],
   [768, 1024],
+  [1280, 900],
   [1440, 1000],
   [360, 450],
 ]) {
@@ -86,7 +87,7 @@ test('inline validation, pending request and authentication errors use the real 
   await page.locator('form').evaluate((form: HTMLFormElement) => form.requestSubmit());
   expect(requests).toBe(1);
   release();
-  await expect(page.getByRole('alert')).toContainText('Invalid login credentials');
+  await expect(page.getByRole('alert')).toContainText('Incorrect email or password');
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
 });
@@ -137,9 +138,48 @@ test('dark theme and keyboard focus remain accessible', async ({ page }) => {
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Show password' })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Forgot password?' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeFocused();
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
   expect(accessibility.violations).toEqual([]);
+});
+
+test('all palette combinations keep readable text at 360px and 1280px', async ({ page }) => {
+  await page.route('https://*.supabase.co/**', (route) => route.abort());
+  for (const width of [360, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const theme of ['light', 'dark']) {
+      await page.addInitScript((t: string) => localStorage.setItem('tracker-theme', t), theme);
+      await page.goto('/');
+      for (const palette of ['indigo', 'ocean', 'emerald', 'rose', 'sunset']) {
+        const ratio = await page.evaluate((name) => {
+          document.documentElement.dataset.palette = name;
+          const probe = document.createElement('span');
+          probe.style.color = 'var(--accent-ink)';
+          probe.style.backgroundColor = 'var(--surface)';
+          document.body.appendChild(probe);
+          const style = getComputedStyle(probe);
+          const colors = [style.color, style.backgroundColor];
+          probe.remove();
+          const lum = (rgb: string) => {
+            const channels = rgb.match(/[0-9.]+/g)?.slice(0, 3).map(Number);
+            if (!channels || channels.length !== 3 || channels.some((v) => !Number.isFinite(v)))
+              throw new Error('Unexpected resolved color ' + rgb);
+            const linear = channels.map((v) => {
+              const c = v / 255;
+              return c <= 0.04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4;
+            });
+            return linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722;
+          };
+          const l1 = lum(colors[0]), l2 = lum(colors[1]);
+          return { ratio: (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05), overflow: document.documentElement.scrollWidth > innerWidth };
+        }, palette);
+        expect(ratio.ratio, `${theme} ${palette} @ ${width}`).toBeGreaterThanOrEqual(4.5);
+        expect(ratio.overflow, `${theme} ${palette} @ ${width}`).toBe(false);
+      }
+    }
+  }
 });

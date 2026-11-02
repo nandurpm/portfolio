@@ -12,7 +12,7 @@ async function navigate(page: Page, name: string) {
     Dashboard: 'Home',
     'Daily Entries': 'Entries',
     'Budget & Plan': 'Budget',
-    'Forecast & Month-by-month': 'Forecast',
+    'Loan & Closure': 'Loan',
   };
   if (names[name])
     await page

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { HelpTerm } from '../components/HelpTerm';
 import { store, usePlan } from '../store';
 import { reconciliationResult, provisionResult } from '../domain/balances';
 import { money, reportDate } from '../domain/calculate';
@@ -95,6 +96,7 @@ export default function Balances() {
         title="Balance reconciliation"
         caption="Choose the payment methods represented by your statement and enter their opening balance at the start of the selected interval. Leave methods empty only for a combined cash-and-bank balance. Transfers between accounts are not modeled as income."
       >
+        <div className="help-strip"><HelpTerm term="reconciliation" /></div>
         <form onSubmit={saveReconciliation}>
           <div className="form-grid three">
             <Field label="Account or comparison label">
@@ -191,6 +193,7 @@ export default function Balances() {
         title="Bills and provision balances"
         caption="Opt in per bill category. Cash forecasts use the due-month bill schedule. Earmarked reserves use monthly allocations minus actual bill payments; allocations are not bank transfers or additional expenses. Explicit Budget & Plan monthly overrides still take precedence."
       >
+        <div className="help-strip"><HelpTerm term="provision" /></div>
         <form onSubmit={(e) => void saveProvision(e)}>
           <div className="form-grid three">
             <Field label="Bill category">
