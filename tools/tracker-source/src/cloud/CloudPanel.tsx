@@ -1,6 +1,6 @@
 import { useSyncSummary, SyncStatusDetails } from './SyncStatus';
 import { useEffect, useState } from 'react';
-import { useGoogleAuth, startGoogleSignIn, cancelGoogleSignIn } from './google';
+import { useGoogleAuth } from './google-state';
 import { supabase } from './client';
 import { sync, useCloud } from './sync';
 import { useEnvelope } from '../store';
@@ -334,7 +334,7 @@ export function CloudPanel() {
               type="button"
               className="button secondary google-signin"
               disabled={blocked}
-              onClick={() => void startGoogleSignIn()}
+              onClick={() => void import('./google').then(({ startGoogleSignIn }) => startGoogleSignIn())}
             >
               <span aria-hidden="true" className="google-letter">
                 G
@@ -348,7 +348,7 @@ export function CloudPanel() {
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => void cancelGoogleSignIn()}
+                onClick={() => void import('./google').then(({ cancelGoogleSignIn }) => cancelGoogleSignIn())}
               >
                 Cancel Google sign-in
               </button>
