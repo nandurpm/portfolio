@@ -162,6 +162,30 @@ checks++;
 await denied(save(a, 5, crypto.randomUUID()), 'Older client cannot omit existing provision');
 assert.equal(await as('authenticated', a, 'SELECT revision FROM public.tracker_plans'), '5');
 checks++;
+const modern = structuredClone(newer) as typeof newer & {
+  salaryChanges: unknown[];
+  pfMovements: unknown[];
+};
+modern.categories = modern.categories.map(c => c.role === 'salary' ? { ...c, role: 'salary-history' as const } : c);
+modern.categories.push({
+  id: 'synthetic-pf', name: 'PF account', group: 'Asset' as const,
+  role: 'pf-account' as const, amount: 0, timing: 'Fixed day' as const,
+  day: 1, months: [], active: false, note: '',
+});
+modern.salaryChanges = [];
+modern.pfMovements = [];
+assert.equal((await save(a, 5, crypto.randomUUID(), modern)).revision, 6);
+checks++;
+const oldWithoutSalary = structuredClone(modern);
+delete (oldWithoutSalary as Partial<typeof modern>).salaryChanges;
+await denied(save(a, 6, crypto.randomUUID(), oldWithoutSalary), 'A legacy client may not remove enabled empty salary history');
+const oldWithoutPf = structuredClone(modern);
+delete (oldWithoutPf as Partial<typeof modern>).pfMovements;
+await denied(save(a, 6, crypto.randomUUID(), oldWithoutPf), 'A legacy client may not remove enabled empty PF account records');
+assert.equal(await as('authenticated', a, 'SELECT revision FROM public.tracker_plans'), '6');
+checks++;
+
+checks++;
 assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '1');
 checks++;
 console.log(

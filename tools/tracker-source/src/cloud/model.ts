@@ -67,6 +67,21 @@ export function localPlan(remote: CloudPlan, device: Plan): Plan {
   return validatePlan(p);
 }
 // Arrays of records merge by permanent ID, never by the current array position.
+/** Prevent an older client from silently stripping enabled salary/PF ledgers.
+ * The records may be empty and still be required to preserve their account type.
+ * Only compare synchronized, previously enabled fields; first-time cloud selection
+ * is a separate explicit operation with its own pre-link backup.
+ */
+export function assertModernLedgerPreserved(base: CloudPlan | undefined, local: Plan, remote: CloudPlan) {
+  if (!base) return;
+  for (const field of ['salaryChanges', 'pfMovements'] as const) {
+    if (base[field] !== undefined && local[field] !== undefined && remote[field] === undefined)
+      throw Error(
+        `Another device omitted ${field === 'salaryChanges' ? 'salary history' : 'PF account records'}. ` +
+        'Your existing records are preserved locally. Update that device before syncing again.',
+      );
+  }
+}
 export function mergePlans(base: CloudPlan, local: CloudPlan, remote: CloudPlan) {
   const conflicts: Conflict[] = [];
   function merge(b: any, l: any, r: any, path: (string | number)[]): any {

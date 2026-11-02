@@ -156,6 +156,11 @@ export const store = {
       ...commit(current, 'Synchronize financial plan', (d) => {
         for (const field of ['additionalLoans', 'provisions', 'reconciliations'] as const)
           if (plan[field] === undefined && d[field] !== undefined) d[field] = [];
+        // Explicit cloud replacement must not retain stale optional ledgers when
+        // the selected remote plan does not contain their associated categories.
+        // The pre-link backup is saved by sync.connect before this replacement.
+        if (plan.salaryChanges === undefined) delete d.salaryChanges;
+        if (plan.pfMovements === undefined) delete d.pfMovements;
         Object.assign(d, plan);
       }),
       sync: meta,
