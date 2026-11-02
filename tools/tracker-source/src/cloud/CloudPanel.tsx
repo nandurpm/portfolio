@@ -27,14 +27,26 @@ export function CloudPanel() {
     [errorDetail, setErrorDetail] = useState(''),
     [choices, setChoices] = useState<('local' | 'remote')[]>([]);
   useEffect(() => setChoices([]), [c.review]);
-  const [recovery, setRecovery] = useState(
-    () => WEB_APP && new URLSearchParams(window.location.search).get('recovery') === '1',
-  );
+  const [recovery, setRecovery] = useState(() => {
+    if (!WEB_APP) return false;
+    const query = new URLSearchParams(window.location.search);
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    return query.get('recovery') === '1' ||
+      (fragment.get('error') === 'access_denied' && fragment.has('error_code'));
+  });
   const [recoveryReady, setRecoveryReady] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
     if (!WEB_APP || !recovery) return;
     let active = true;
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const query = new URLSearchParams(window.location.search);
+    if (fragment.has('error_code') || query.has('error_code')) {
+      setRecoveryReady(false);
+      setError('This password-reset link is invalid or expired. Return to sign in to request a new link. Requesting a reset does not change your existing password.');
+      window.history.replaceState(null, '', '/track/?recovery=1');
+      return () => { active = false; };
+    }
     // URL detection/code exchange belongs to the SDK. A second exchange would
     // consume an already-used code and lose a valid recovery session.
     void supabase.auth.getSession().then(({ data, error: sessionError }) => {
@@ -43,7 +55,7 @@ export function CloudPanel() {
         setRecoveryReady(true);
         setError('');
         window.history.replaceState(null, '', '/track/?recovery=1');
-      } else setError('Recovery link is incomplete. Request a new link.');
+      } else setError('This password-reset link is missing or expired. Return to sign in to request a new link.');
     }).catch(() => {
       if (active) setError('Could not verify the recovery session.');
     });
@@ -147,7 +159,7 @@ export function CloudPanel() {
     return (
       <section className="cloud-panel" aria-label="Password recovery">
         <h2>Reset your password</h2>
-        <p className="muted">Use the recovery link on the same browser where you requested it.</p>
+        <p className="muted">Open the newest reset email in the same browser where you requested it. Requesting a reset does not change your existing password.</p>
         {error && <p className="callout error" role="alert">{error}</p>}
         {recoveryReady ? (
           <form onSubmit={(event) => { event.preventDefault(); void finishRecovery(); }}>
@@ -157,7 +169,7 @@ export function CloudPanel() {
             </label>
             <button className="button" disabled={busy || newPassword.length < 8}>Save new password</button>
           </form>
-        ) : <p role="status">Verifying recovery link…</p>}
+        ) : !error ? <p role="status">Verifying recovery link…</p> : null}
         <button type="button" className="button secondary" onClick={() => { sessionStorage.removeItem('tracker-recovery-verified-v1'); setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
       </section>
     );
