@@ -73,7 +73,7 @@ test('invalid recovery URL never permits a password change or exposes financial 
   await page.route('https://*.supabase.co/**', (route) => route.abort());
   await page.goto('/track/?recovery=1');
   await expect(page.getByRole('heading', { name: 'Reset your password' })).toBeVisible();
-  await expect(page.getByRole('alert')).toContainText('Recovery link is incomplete');
+  await expect(page.getByRole('alert')).toContainText('password-reset link is missing or expired');
   await expect(page.getByRole('button', { name: 'Save new password' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
 });
