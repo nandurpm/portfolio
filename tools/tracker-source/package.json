@@ -1,7 +1,7 @@
 {
   "name": "savings-and-expense-tracker",
   "productName": "Savings and Expense Tracker",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "description": "Offline personal savings, expenses and loan planning",
   "author": "Nandakumar",
   "license": "MIT",
@@ -52,7 +52,7 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "Savings-and-Expense-Tracker-Setup.exe"
+      "artifactName": "Savings-and-Expense-Tracker-Setup-2.0.0.exe"
     },
     "nsis": {
       "oneClick": false,
