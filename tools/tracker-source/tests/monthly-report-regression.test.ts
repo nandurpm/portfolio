@@ -47,6 +47,8 @@ describe('monthly budget reporting (no daily allocation)', () => {
     const html = monthlyReport(p);
     expect(html).toContain('Full-month plan');
     expect(html).toContain('Actual recorded');
+    expect(html).toContain('Savings / deficit');
+    expect(html).not.toContain('Saved this month');
     expect(html).toContain('Unspent budgets are not actual savings');
     expect(html).not.toContain('Plan by date');
     expect(html).not.toContain('Daily budgets are spread across the month');
@@ -65,6 +67,15 @@ describe('phone EMI receipt verification', () => {
       firstDueDate: '2026-12-05',
       note: 'Verified Rs 2000 paid 20-Oct-2026',
     });
+    expect(phone).toMatchObject({
+      principal: 30000,
+      monthlyEmi: 2000,
+      tenure: 18,
+      firstDueDate: '2026-12-05',
+    });
+    expect(phone.rows).toHaveLength(18);
+    expect(phone.rows[0]!.dueDate).toBe('2026-12-05');
+    expect(phone.rows.reduce((sum, row) => sum + row.emi, 0)).toBe(36000);
     expect(loanSummary(paymentRows(p, phone.rows)).paid).toBe(0);
     saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-10-20', 2000);
     expect(loanSummary(paymentRows(p, phone.rows)).paid).toBe(2000);
