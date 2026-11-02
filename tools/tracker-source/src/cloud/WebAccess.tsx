@@ -63,6 +63,9 @@ export function WebAccess({ children }: { children: ReactNode }) {
     };
   }, [token, retry, cloud.session?.user.id]);
   if (initializing || startupError) return <TrackerLoading failed={startupError} />;
+  // Password recovery stays isolated from the financial dashboard until completed.
+  if (new URLSearchParams(window.location.search).get('recovery') === '1')
+    return <CloudGate />;
   if (
     !token ||
     verified !== token ||
