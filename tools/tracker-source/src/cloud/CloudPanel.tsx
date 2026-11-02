@@ -1,5 +1,5 @@
 import { useSyncSummary, SyncStatusDetails } from './SyncStatus';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useGoogleAuth } from './google-state';
 import { userError, errorDetails } from '../domain/user-error';
 import { supabase } from './client';
@@ -22,8 +22,6 @@ export function CloudPanel() {
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
     [showPassword, setShowPassword] = useState(false),
-    [recovery, setRecovery] = useState(false),
-    [newPassword, setNewPassword] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [errorDetail, setErrorDetail] = useState(''),
@@ -63,24 +61,14 @@ export function CloudPanel() {
     } catch {
       setError('Could not update your password. Please request a new recovery link.');
     } finally { setBusy(false); }
+  }
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
     });
     return () => subscription.unsubscribe();
   }, []);
-  async function forgotPassword() {
-    if (!email.trim()) { setError('Enter your account email to request a password reset.'); return; }
-    setBusy(true); setError(''); setErrorDetail('');
-    try {
-      const redirectTo = WEB_APP ? `${window.location.origin}/track/` : undefined;
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
-      if (error) throw error;
-      toast('If that email has an account, a password reset email will arrive. Open the link in the same browser.');
-    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
-    finally { setBusy(false); }
-  }
-  async function completePasswordReset(e: React.FormEvent) {
+  async function completePasswordReset(e: FormEvent) {
     e.preventDefault();
     if (newPassword.length < 8) return;
     setBusy(true); setError(''); setErrorDetail('');
@@ -128,7 +116,7 @@ export function CloudPanel() {
     setError('');
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/track/?recovery=1`,
+        redirectTo: WEB_APP ? `${window.location.origin}/track/?recovery=1` : undefined,
       });
       if (resetError) throw resetError;
       toast('If an account exists for that email, a recovery link has been sent.');
@@ -152,7 +140,7 @@ export function CloudPanel() {
     }
   }
   const blocked = busy || c.busy || google.pending;
-  if (recovery)
+  if (WEB_APP && recovery)
     return (
       <section className="cloud-panel" aria-label="Password recovery">
         <h2>Reset your password</h2>
@@ -170,7 +158,6 @@ export function CloudPanel() {
         <button type="button" className="button secondary" onClick={() => { setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
       </section>
     );
-  if (WEB_APP && !c.session)
   if (WEB_APP && !c.session && !recovery)
     return (
       <WebSignIn
