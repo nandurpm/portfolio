@@ -2,9 +2,10 @@ import type { Plan, Entry } from './types';
 import { addMonths, monthDay } from './dates';
 import { actualCategory, categoryPlan, forecast, reportDate, round } from './calculate';
 
-export function plannedPaymentDate(p: Plan, dueDate: string) {
+export function plannedPaymentDate(p: Plan, dueDate: string, loanId?: string) {
+  const day = (loanId ? p.additionalLoans?.find((l) => l.id === loanId)?.plannedPayDay : undefined) ?? p.settings.salaryDay;
   return p.settings.emiPreviousMonth
-    ? monthDay(addMonths(dueDate.slice(0, 7), -1), p.settings.salaryDay)
+    ? monthDay(addMonths(dueDate.slice(0, 7), -1), day)
     : dueDate;
 }
 
@@ -18,7 +19,7 @@ export function installmentTasks(p: Plan, month: string, cutoff = reportDate(p))
       return rows
         .filter(
           (row) =>
-            plannedPaymentDate(p, row.dueDate).startsWith(month) &&
+            plannedPaymentDate(p, row.dueDate, category.loanId).startsWith(month) &&
             !(!category.loanId && row.paidBeforeOpening) &&
             !(
               !category.loanId &&
@@ -38,7 +39,7 @@ export function installmentTasks(p: Plan, month: string, cutoff = reportDate(p))
                 : 0,
           );
           const remaining = round(Math.max(0, row.emi - paid));
-          const payDate = plannedPaymentDate(p, row.dueDate);
+          const payDate = plannedPaymentDate(p, row.dueDate, category.loanId);
           return {
             id: row.id,
             category: category.name,
