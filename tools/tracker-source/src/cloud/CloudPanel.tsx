@@ -33,18 +33,40 @@ export function CloudPanel() {
   const [recoveryReady, setRecoveryReady] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
-    if (!recovery) return;
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (!code) { setError('Recovery link is incomplete. Request a new link.'); return; }
+    if (!WEB_APP || !recovery) return;
     let active = true;
+    const flag = 'tracker-recovery-verified-v1';
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (!code) {
+      // The Auth event can remount this gate after a successful code exchange.
+      // Do not demand the consumed single-use code again; verify the saved session.
+      if (sessionStorage.getItem(flag) === '1') {
+        void supabase.auth.getSession().then(({ data, error: sessionError }) => {
+          if (!active) return;
+          if (!sessionError && data.session) {
+            setRecoveryReady(true);
+            setError('');
+          } else {
+            sessionStorage.removeItem(flag);
+            setError('Recovery link is incomplete. Request a new link.');
+          }
+        }).catch(() => {
+          if (active) setError('Could not verify the recovery session.');
+        });
+      } else setError('Recovery link is incomplete. Request a new link.');
+      return () => { active = false; };
+    }
     void supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-      if (!active) return;
-      if (exchangeError) setError('Recovery link has expired or could not be verified.');
-      else {
-        setRecoveryReady(true);
-        window.history.replaceState(null, '', '/track/?recovery=1');
+      if (exchangeError) {
+        if (active) setError('Recovery link has expired or could not be verified.');
+        return;
       }
-    }).catch(() => { if (active) setError('Could not verify the recovery link.'); });
+      sessionStorage.setItem(flag, '1');
+      window.history.replaceState(null, '', '/track/?recovery=1');
+      if (active) { setRecoveryReady(true); setError(''); }
+    }).catch(() => {
+      if (active) setError('Could not verify the recovery link.');
+    });
     return () => { active = false; };
   }, [recovery]);
   async function finishRecovery() {
@@ -53,6 +75,7 @@ export function CloudPanel() {
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;
+      sessionStorage.removeItem('tracker-recovery-verified-v1');
       setNewPassword('');
       setRecovery(false);
       window.history.replaceState(null, '', '/track/');
@@ -155,7 +178,7 @@ export function CloudPanel() {
             <button className="button" disabled={busy || newPassword.length < 8}>Save new password</button>
           </form>
         ) : <p role="status">Verifying recovery link…</p>}
-        <button type="button" className="button secondary" onClick={() => { setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
+        <button type="button" className="button secondary" onClick={() => { sessionStorage.removeItem('tracker-recovery-verified-v1'); setRecovery(false); window.history.replaceState(null, '', '/track/'); }}>Return to sign in</button>
       </section>
     );
   if (WEB_APP && !c.session && !recovery)
