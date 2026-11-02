@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import AdditionalLoans from '../components/AdditionalLoans';
 import { usePhone } from '../components/usePhone';
 import { loanSummary, paymentRows } from '../domain/loan-summary';
+import { paymentDisplayStatus } from '../domain/payment-status';
 import { RefreshCw, Check, Wallet, ShieldCheck, TrendingDown } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -211,7 +212,7 @@ export default function Loan() {
         <p className="loan-next-payment">
           {summary.next ? (
             <>
-              Next unpaid installment:{' '}
+              Next installment without full recorded payment:{' '}
               <strong>Pay {showDate(plannedPaymentDate(p, summary.next.dueDate))}</strong> → Due{' '}
               <strong>{showDate(summary.next.dueDate)}</strong> ·{' '}
               <strong>{money(summary.nextAmount)}</strong>
@@ -440,7 +441,9 @@ export default function Loan() {
               <article key={r.id} className="installment-card">
                 <div className="installment-card-head">
                   <strong>{monthLabel(r.month)}</strong>
-                  <Badge tone={r.paid ? 'income' : 'debt'}>{r.paid ? 'Paid' : 'Unpaid'}</Badge>
+                  <Badge tone={r.paid ? 'income' : r.paidAmount ? 'living' : 'neutral'}>
+                    {paymentDisplayStatus(r, plannedPaymentDate(p, r.dueDate), r.dueDate, reportDate(p))}
+                  </Badge>
                 </div>
                 <dl>
                   <div>
@@ -461,11 +464,11 @@ export default function Loan() {
                   </div>
                   <div>
                     <dt>Payment date</dt>
-                    <dd>{r.paidDate || (r.paidBeforeOpening ? 'Before opening' : '—')}</dd>
+                    <dd>{r.paidDate ? showDate(r.paidDate) : (r.paidBeforeOpening ? 'Before opening' : '—')}</dd>
                   </div>
                 </dl>
                 <button className="button small secondary" onClick={() => void mark(r)}>
-                  {r.paid ? 'Payment status' : 'Record payment'}
+                  {r.paid ? 'Payment status' : r.paidAmount ? 'Add receipt' : 'Record payment'}
                 </button>
                 {r.paid && !r.paidBeforeOpening && (
                   <button
@@ -581,8 +584,8 @@ export default function Loan() {
                           onChange={(e) => rowEdit(r.id, 'paidBeforeOpening', e.target.checked)}
                         />
                       </td>
-                      <td>{r.paid ? money(r.paidAmount) : '—'}</td>
-                      <td>{r.paidDate || '—'}</td>
+                      <td>{r.paidAmount > 0 ? money(r.paidAmount) : '—'}</td>
+                      <td>{showDate(r.paidDate)}</td>
                       <td>
                         <button
                           className={`button small ${r.paid ? 'paid-button' : 'secondary'}`}
@@ -594,7 +597,7 @@ export default function Loan() {
                               Paid
                             </>
                           ) : (
-                            'Mark paid'
+                            'Record payment'
                           )}
                         </button>
                         {r.paid && !r.paidBeforeOpening && (
