@@ -196,14 +196,13 @@ input[type="checkbox"] {
   cursor: pointer;
   flex-shrink: 0;
 }
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-button:focus-visible,
-summary:focus-visible,
-a:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* Dark sidebars require a light ring against the background. */
+.sidebar :focus-visible, .phone-nav :focus-visible {
+  outline-color: #fff;
 }
 h1,
 h2,
