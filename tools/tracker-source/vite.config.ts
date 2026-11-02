@@ -70,6 +70,11 @@ export default defineConfig(({ command, mode }) => {
           );
           if (mode === "web")
             html = html.replace(
+              "<title>Savings and Expense Tracker</title>",
+              "<title>Sign in · Savings Tracker</title>",
+            );
+          if (mode === "web")
+            html = html.replace(
               "<head>",
               '<head>\n<meta name="robots" content="noindex,nofollow,noarchive" />',
             );

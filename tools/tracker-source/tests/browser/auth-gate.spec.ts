@@ -68,14 +68,14 @@ for (const scenario of [
         page.getByRole('heading', { name: 'Synthetic protected workspace' }),
       ).toBeVisible();
       await page.getByRole('button', { name: 'Synthetic sign out' }).click();
-      await expect(page.getByRole('heading', { name: 'Your private tracker' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Sign in to your Savings Tracker/ })).toBeVisible();
       expect(await page.evaluate(() => localStorage.getItem('savings-expence-v1'))).toBeNull();
     } else if (scenario === 'signed-out') {
       await expect(
         page.getByRole('heading', { name: 'Synthetic protected workspace' }),
       ).toHaveCount(0);
       await page
-        .getByRole('textbox', { name: 'Email', exact: true })
+        .getByRole('textbox', { name: 'Email address', exact: true })
         .fill('synthetic@example.invalid');
       await page.getByLabel('Password', { exact: true }).fill('Synthetic-test-password-only');
       await page.getByRole('button', { name: 'Sign in', exact: true }).click();
@@ -84,7 +84,7 @@ for (const scenario of [
       ).toBeVisible();
       expect(passwordCalls).toBe(1);
     } else {
-      await expect(page.getByRole('heading', { name: 'Your private tracker' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Your synced financial data' })).toBeVisible();
       if (scenario === 'wrong-owner')
         await expect(page.getByText(/linked to another account/)).toBeVisible();
       else await expect(page.getByText(/Please sign in again to open your tracker/)).toBeVisible();

@@ -1,12 +1,12 @@
 import { useSyncSummary, SyncStatusDetails } from './SyncStatus';
 import { useEffect, useState } from 'react';
-import { useGoogleAuth } from './google-state';
+import { useGoogleAuth, startGoogleSignIn, cancelGoogleSignIn } from './google';
 import { supabase } from './client';
 import { sync, useCloud } from './sync';
 import { useEnvelope } from '../store';
 import { Modal, useUi } from '../components/UI';
 import { WEB_APP } from '../web-mode';
-import { userError, errorDetails } from '../domain/user-error';
+import { WebSignIn } from './WebSignIn';
 const summary = (value: unknown) =>
   value === undefined
     ? 'Deleted'
@@ -20,54 +20,21 @@ export function CloudPanel() {
     { toast, confirm } = useUi();
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
-    [showPassword, setShowPassword] = useState(false),
-    [recovery, setRecovery] = useState(false),
-    [newPassword, setNewPassword] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
-    [errorDetail, setErrorDetail] = useState(''),
     [choices, setChoices] = useState<('local' | 'remote')[]>([]);
   useEffect(() => setChoices([]), [c.review]);
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setRecovery(true);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-  async function forgotPassword() {
-    if (!email.trim()) { setError('Enter your account email to request a password reset.'); return; }
-    setBusy(true); setError(''); setErrorDetail('');
-    try {
-      const redirectTo = WEB_APP ? `${window.location.origin}/track/` : undefined;
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
-      if (error) throw error;
-      toast('If that address has an account, a password reset email will arrive. Open the link in this browser.');
-    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
-    finally { setBusy(false); }
-  }
-  async function completePasswordReset(e: React.FormEvent) {
-    e.preventDefault();
-    if (newPassword.length < 8) return;
-    setBusy(true); setError(''); setErrorDetail('');
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      setNewPassword('');
-      setRecovery(false);
-      toast('Password updated. Please sign in with your new password.');
-      await supabase.auth.signOut();
-    } catch (e) { setError(userError(e)); setErrorDetail(errorDetails(e)); }
-    finally { setBusy(false); }
-  }
   async function auth(mode: 'signin' | 'signup') {
     if (busy || c.busy || google.pending) return;
     setBusy(true);
     setError('');
-    setErrorDetail('');
     try {
       const r =
         mode === 'signin'
-          ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
+          ? await supabase.auth.signInWithPassword({
+              email: email.trim(),
+              password,
+            })
           : await supabase.auth.signUp({ email: email.trim(), password });
       if (r.error) throw r.error;
       setPassword('');
@@ -76,8 +43,7 @@ export function CloudPanel() {
           'Check your email to confirm your account, then return here and sign in. If no email arrives, your project may need email-delivery configuration.',
         );
     } catch (e) {
-      setError(userError(e));
-      setErrorDetail(errorDetails(e));
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
@@ -85,41 +51,41 @@ export function CloudPanel() {
   async function action(fn: () => Promise<unknown>) {
     setBusy(true);
     setError('');
-    setErrorDetail('');
     try {
       await fn();
     } catch (e) {
-      setError(userError(e));
-      setErrorDetail(errorDetails(e));
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
   }
   const blocked = busy || c.busy || google.pending;
+  if (WEB_APP && !c.session)
+    return (
+      <WebSignIn
+        email={email}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        busy={blocked}
+        error={error || c.error || google.error}
+        onSignIn={() => void auth('signin')}
+      />
+    );
   return (
     <div className="cloud-panel">
-      <h2>{WEB_APP ? 'Your private tracker' : 'One plan. Phone and Windows.'}</h2>
+      <h2>{WEB_APP ? 'Your synced financial data' : 'One plan. Phone and Windows.'}</h2>
       <p className="muted">
         {WEB_APP
-          ? 'Sign in with the same email and password you use in the Windows or Android app. Then open your existing cloud plan.'
+          ? 'Manage the financial data synced with your Windows or Android app.'
           : 'Sign in with the same app account on both devices. Local entries remain available offline; synchronization resumes when connected.'}
       </p>
       {(error || c.error || google.error) && (
         <div className="callout error" role="alert">
-          {error || (c.error ? userError(c.error) : '') || (google.error ? userError(google.error) : '')}
-          <button type="button" className="text-button" onClick={() => void navigator.clipboard?.writeText(errorDetail || c.error || google.error).catch(() => {})}>Copy error details</button>
+          {error || c.error || google.error}
         </div>
       )}
-      {recovery ? (
-        <form onSubmit={(e) => void completePasswordReset(e)}>
-          <p className="muted">Enter a new password for your account. Your financial records are not changed.</p>
-          <label>New password
-            <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-          </label>
-          <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide password' : 'Show password'}</button>
-          <button className="button" type="submit" disabled={blocked || newPassword.length < 8}>Update password</button>
-        </form>
-      ) : c.session ? (
+      {c.session ? (
         <>
           <p>
             Signed in as <strong>{c.session.user.email}</strong>
@@ -295,7 +261,7 @@ export function CloudPanel() {
               type="button"
               className="button secondary google-signin"
               disabled={blocked}
-              onClick={() => void import('./google').then((m) => m.startGoogleSignIn())}
+              onClick={() => void startGoogleSignIn()}
             >
               <span aria-hidden="true" className="google-letter">
                 G
@@ -309,7 +275,7 @@ export function CloudPanel() {
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => void import('./google').then((m) => m.cancelGoogleSignIn())}
+                onClick={() => void cancelGoogleSignIn()}
               >
                 Cancel Google sign-in
               </button>
@@ -331,7 +297,7 @@ export function CloudPanel() {
           <label>
             Password
             <input
-              type={showPassword ? 'text' : 'password'}
+              type="password"
               autoComplete="current-password"
               minLength={8}
               required
@@ -339,10 +305,6 @@ export function CloudPanel() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </label>
-          <div className="auth-controls">
-            <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide password' : 'Show password'}</button>
-            <button type="button" className="text-button" disabled={blocked || !email.trim()} onClick={() => void forgotPassword()}>Forgot password?</button>
-          </div>
           <div className="entry-kind">
             <button className="button" disabled={blocked}>
               Sign in
@@ -392,11 +354,20 @@ export function CloudButton() {
     </>
   );
 }
-export function CloudGate() {
+export function CloudGate({ notice }: { notice?: import('react').ReactNode } = {}) {
+  const c = useCloud();
   return (
-    <main className="cloud-gate">
+    <main className={`cloud-gate${WEB_APP && !c.session ? ' cloud-gate--signin' : ''}`}>
       <div className="cloud-gate-card">
-        <img src="./icon.svg" alt="" width="64" height="64" />
+        {WEB_APP ? (
+          <div className="tracker-brand">
+            <img src="./icon.svg" alt="" aria-hidden="true" width="44" height="44" />
+            <span>Savings Tracker</span>
+          </div>
+        ) : (
+          <img src="./icon.svg" alt="" width="64" height="64" />
+        )}
+        {notice}
         <CloudPanel />
       </div>
     </main>
