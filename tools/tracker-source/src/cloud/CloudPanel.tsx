@@ -8,6 +8,7 @@ import { useEnvelope } from '../store';
 import { Modal, useUi } from '../components/UI';
 import { WEB_APP } from '../web-mode';
 import { WebSignIn } from './WebSignIn';
+const WEB_RECOVERY_REDIRECT = 'https://nandakumarm.dpdns.org/track/?recovery=1';
 const summary = (value: unknown) =>
   value === undefined
     ? 'Deleted'
@@ -131,7 +132,7 @@ export function CloudPanel() {
     setError('');
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: WEB_APP ? `${window.location.origin}/track/?recovery=1` : undefined,
+        redirectTo: WEB_APP ? WEB_RECOVERY_REDIRECT : undefined,
       });
       if (resetError) throw resetError;
       toast('If an account exists for that email, a recovery link has been sent.');
