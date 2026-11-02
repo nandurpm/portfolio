@@ -529,11 +529,11 @@ export function Shell() {
             </footer>
           </main>
         </div>
-        <div className="phone-quick-actions" aria-label="Add transaction">
-          <button type="button" onClick={() => { setEntryKind("Expense"); navigate("entries"); }} aria-label="Add expense">+ Expense</button>
-          <button type="button" onClick={() => { setEntryKind("Income"); navigate("entries"); }} aria-label="Add income">+ Income</button>
-        </div>
         <nav className="phone-nav" aria-label="Phone navigation">
+          <div className="phone-quick-actions" aria-label="Add transaction">
+            <button type="button" onClick={() => { setEntryKind("Expense"); navigate("entries"); }} aria-label="Add expense">+ Expense</button>
+            <button type="button" onClick={() => { setEntryKind("Income"); navigate("entries"); }} aria-label="Add income">+ Income</button>
+          </div>
           {[
             { id: "dashboard", name: "Home", icon: LayoutDashboard },
             { id: "entries", name: "Entries", icon: ReceiptText },
