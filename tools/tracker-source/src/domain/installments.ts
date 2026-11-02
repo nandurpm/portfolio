@@ -145,9 +145,12 @@ export function correctInstallmentDates(
   loanId: string,
   firstDueDate: string,
   note: string,
+  plannedPayDay?: number,
 ) {
   if (!validDate(firstDueDate)) throw Error('Enter a valid first due date.');
   if (note.length > 4000) throw Error('Notes must be at most 4000 characters.');
+  if (plannedPayDay !== undefined && (!Number.isInteger(plannedPayDay) || plannedPayDay < 1 || plannedPayDay > 31))
+    throw Error('The planned payment day must be between 1 and 31.');
   const loan = p.additionalLoans?.find((l) => l.id === loanId);
   const category = p.categories.find((c) => c.loanId === loanId);
   if (!loan || !category) throw Error('Loan was not found.');
@@ -163,6 +166,8 @@ export function correctInstallmentDates(
     }
   });
   loan.firstDueDate = firstDueDate;
+  if (plannedPayDay === undefined) delete loan.plannedPayDay;
+  else loan.plannedPayDay = plannedPayDay;
   loan.note = note;
   category.note = note;
   category.day = day;
