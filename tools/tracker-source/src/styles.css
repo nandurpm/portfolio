@@ -3595,3 +3595,11 @@ html[data-theme="dark"][data-palette="emerald"] { --accent: #53d8b4; --accent-de
 html[data-theme="dark"][data-palette="rose"] { --accent: #f08aaf; --accent-deep: #f08aaf; }
 html[data-theme="dark"][data-palette="sunset"] { --accent: #f3ad77; --accent-deep: #f3ad77; }
 html[data-theme="dark"][data-palette="indigo"] { --accent: #a99cfb; --accent-deep: #a99cfb; }
+
+@media (max-width: 600px) {
+  html[data-theme="dark"] .phone-quick-actions button:last-child {
+    background: var(--surface);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+}
