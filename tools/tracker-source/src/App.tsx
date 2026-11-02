@@ -518,12 +518,16 @@ export function Shell() {
             </footer>
           </main>
         </div>
+        <div className="phone-quick-actions" aria-label="Add transaction">
+          <button type="button" onClick={() => { setEntryKind("Expense"); navigate("entries"); }} aria-label="Add expense">+ Expense</button>
+          <button type="button" onClick={() => { setEntryKind("Income"); navigate("entries"); }} aria-label="Add income">+ Income</button>
+        </div>
         <nav className="phone-nav" aria-label="Phone navigation">
           {[
             { id: "dashboard", name: "Home", icon: LayoutDashboard },
             { id: "entries", name: "Entries", icon: ReceiptText },
             { id: "budget", name: "Budget", icon: WalletCards },
-            { id: "forecast", name: "Forecast", icon: ChartNoAxesCombined },
+            { id: "loan", name: "Loan", icon: Landmark },
           ].map((x) => (
             <button
               key={x.id}
