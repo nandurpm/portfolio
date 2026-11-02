@@ -6,7 +6,6 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Wallet,
-  PiggyBank,
   CalendarRange,
   TrendingUp,
   CalendarDays,
@@ -174,6 +173,7 @@ export default function Dashboard({
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
     cum = cumulative(p),
     savings = savingsOverview(p, m, date),
+    remainingBudget = full.expenses - act.expenses,
     status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
   const metrics = [
     ['Income', 'income', 'income'],
@@ -188,19 +188,41 @@ export default function Dashboard({
         eyebrow="PRIVATE FINANCE WORKSPACE"
         title="Monthly snapshot"
         description="Know what’s planned, what’s spent, and what’s yours to keep."
-        action={
-          <div className="entry-kind">
-            <button className="button income-action" onClick={() => addEntry('Income')}>
-              <Plus size={18} />
-              Add Income
-            </button>
-            <button className="button expense-action" onClick={() => addEntry('Expense')}>
-              <Plus size={18} />
-              Add Expense
-            </button>
-          </div>
-        }
       />
+      <section className="dashboard-hero" aria-labelledby="dashboard-balance-title">
+        <div className="dashboard-balance">
+          <span className="dashboard-hero-icon" aria-hidden="true"><Wallet /></span>
+          <div>
+            <span className="dashboard-overline">Available cash snapshot</span>
+            <h2 id="dashboard-balance-title">Calculated cash balance</h2>
+            <strong>{money(cum.actualCash)}</strong>
+            <p>Opening savings + actual income − actual expenses + PF cash transfers</p>
+          </div>
+        </div>
+        <div className="dashboard-hero-insights">
+          <div>
+            <span>Saved this month</span>
+            <strong className={savings.month < 0 ? 'unfavourable' : ''}>{money(savings.month)}</strong>
+            <small>Income less expenses</small>
+          </div>
+          <div>
+            <span>{remainingBudget < 0 ? 'Over monthly budget' : 'Expense budget left'}</span>
+            <strong className={remainingBudget < 0 ? 'unfavourable' : ''}>{money(Math.abs(remainingBudget))}</strong>
+            <small>{money(act.expenses)} of {money(full.expenses)} used</small>
+          </div>
+        </div>
+        <div className="dashboard-hero-actions" role="group" aria-label="Quick actions">
+          <button className="button income-action" onClick={() => addEntry('Income')}><Plus size={18} /> Add income</button>
+          <button className="button expense-action" onClick={() => addEntry('Expense')}><Plus size={18} /> Add expense</button>
+          <button className="button secondary" onClick={() => navigate('reports')}>View reports</button>
+        </div>
+      </section>
+      <div className="stats-grid dashboard-kpis">
+        <Stat label="Income received" value={act.income} caption={`${money(full.income, 0)} monthly plan`} tone="green" icon={<ArrowDownLeft />} />
+        <Stat label="Expenses recorded" value={act.expenses} caption={`${money(full.expenses, 0)} monthly budget`} tone="orange" icon={<ArrowUpRight />} />
+        <Stat label="Saved this year" value={savings.year} caption={`${savings.calendarYear} through ${displayDate(date, s.dateFormat)}`} tone={savings.year < 0 ? 'orange' : 'violet'} icon={<CalendarRange />} />
+        <Stat label="Lifetime savings" value={savings.lifetime} caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`} tone={savings.lifetime < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
+      </div>
       <MonthControls />
       <div className="month-banner">
         <span className={`status-dot ${status}`} />
@@ -239,54 +261,7 @@ export default function Dashboard({
           </button>
         </div>
       )}
-      <div className="workspace-cash">        <Stat
-          label="Calculated cash balance"
-          value={cum.actualCash}
-          caption="Opening savings + net savings + PF cash transfers · not bank-verified"
-          tone="blue"
-          icon={<Wallet />}
-        />
-      </div>
       <WorkspaceOverview navigate={navigate} addEntry={addEntry} />
-      <div className="stats-grid savings-overview">
-
-        <Stat
-          label="Income entered"
-          value={act.income}
-          caption={`${money(full.income, 0)} full-month plan`}
-          tone="green"
-          icon={<ArrowDownLeft />}
-        />
-        <Stat
-          label="Expenses entered"
-          value={act.expenses}
-          caption={`${money(full.expenses, 0)} full-month budget`}
-          tone="orange"
-          icon={<ArrowUpRight />}
-        />
-        <Stat
-          label="Saved this month"
-          value={savings.month}
-          caption={`${monthLabel(m, true)} · income less expenses`}
-          tone={savings.month < 0 ? 'orange' : 'violet'}
-          icon={<PiggyBank />}
-        />
-        <Stat
-          label="Saved this year"
-          value={savings.year}
-          caption={`${savings.calendarYear} year-to-date · through ${displayDate(date, s.dateFormat)}`}
-          tone={savings.year < 0 ? 'orange' : 'violet'}
-          icon={<CalendarRange />}
-        />
-        <Stat
-          label="Saved till now"
-          value={savings.lifetime}
-          caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`}
-          tone={savings.lifetime < 0 ? 'orange' : 'violet'}
-          icon={<TrendingUp />}
-        />
-
-      </div>
       <CashAlerts />
       <BudgetAlerts />
       <MonthlyChecklist navigate={navigate} addEntry={addEntry} />

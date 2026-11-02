@@ -11,6 +11,8 @@ Released: 2 November 2026
 - Income categories display **Income received**; expense categories retain **Budget used**, including safe handling for zero budgets.
 - Loan and EMI summaries distinguish planned payment dates, contractual due dates and actual receipt dates. Future receipts remain pending until their actual date, historical schedule-only flags are not treated as receipt proof, and linked receipts are counted once.
 - Mobile and desktop readability, keyboard access and startup theme handling match the verified website implementation.
+- Dashboard now opens with a clearer cash summary, monthly savings, remaining expense budget, four compact KPIs and direct income/expense actions. Phone layouts remove duplicate floating transaction controls and keep the financial summary above the filters.
+- Current salary-history and PF category roles are accepted during synchronization, preventing the legacy `categories[0].role` validation failure shown by older Android builds. Raw schema diagnostics are not shown as user-facing sync messages.
 
 ## Compatibility
 
