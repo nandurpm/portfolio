@@ -88,6 +88,7 @@ export const planSchema = z.object({
         monthlyEmi: nonnegative.positive(),
         tenure: z.number().int().min(1).max(600),
         firstDueDate: date,
+        plannedPayDay: z.number().int().min(1).max(31).optional(),
         note: z.string().max(5000),
         rows: z.array(
           loanRow.omit({
