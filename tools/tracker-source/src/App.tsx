@@ -132,7 +132,7 @@ export function Shell() {
   const recovery = status === "Recovery needed";
   const current = pages.find((x) => x.id === page)!;
   useEffect(() => {
-    document.title = `${current.name} — ${APP_NAME}`;
+    document.title = `${current.name} · Tracker`;
   }, [current.name]);
   useEffect(() => {
     void store
@@ -439,6 +439,9 @@ export function Shell() {
             </div>
           </header>
           <main id="main-content" tabIndex={-1} className="main-scroll">
+            <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {current.name} page opened
+            </div>
             {warning && (
               <div className="callout error" role="alert">
                 {warning}
