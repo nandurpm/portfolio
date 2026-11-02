@@ -599,7 +599,7 @@ export default function Entries({
         </div>
         {selection.size > 0 && (
           <div className="selection-bar">
-            <strong>{selection.size} selected</strong>
+            <strong>{selection.size} selected · Bulk edit copies date, category or payment without dragging</strong>
             <button
               className="button small secondary"
               onClick={() => {

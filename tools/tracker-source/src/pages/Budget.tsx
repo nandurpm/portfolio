@@ -485,7 +485,7 @@ export default function Budget() {
         caption={
           phone
             ? `${months.length} months · Choose one month to edit. Copy or apply a percentage below.`
-            : `${months.length} months · Click a cell to select it · Drag its square handle to fill a rectangle`
+            : `${months.length} months · Select a cell and use Fill right or Fill down by keyboard, or drag the square handle`
         }
         action={
           cell && (
