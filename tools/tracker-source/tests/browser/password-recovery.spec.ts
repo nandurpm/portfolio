@@ -58,6 +58,13 @@ test('signed-out UI requests reset, exchanges PKCE callback, and updates passwor
   expect(requests.recover).toBe(1);
   await page.goto('/track/?recovery=1&code=synthetic-recovery-code');
   await expect(page.getByRole('heading', { name: 'Reset your password' })).toBeVisible();
+  console.info('RECOVERY_TEST_DIAGNOSTIC', JSON.stringify({
+    exchangeCalls: requests.exchange,
+    codeInLocation: await page.evaluate(() => new URLSearchParams(location.search).has('code')),
+    recoveryInLocation: await page.evaluate(() => new URLSearchParams(location.search).get('recovery')),
+    verifiedFlag: await page.evaluate(() => sessionStorage.getItem('tracker-recovery-verified-v1')),
+    verifierPresent: await page.evaluate(() => Object.keys(sessionStorage).some(key => key.includes('code-verifier'))),
+  }));
   await expect(page.getByRole('button', { name: 'Save new password' })).toBeDisabled();
   await page.getByLabel('New password').fill('Synthetic-New-Password-9!');
   await page.getByRole('button', { name: 'Save new password' }).click();
