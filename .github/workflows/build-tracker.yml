@@ -37,12 +37,38 @@ jobs:
           retention-days: 14
       - name: Stage only the public web build
         run: node scripts/stage-tracker.mjs
-      - name: Save generated assets for Cloudflare deployment
+      - name: Save generated assets from the latest source without stale rebase
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add track
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Build sign-in-required tracker assets'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          # Other site workflows can update main after this run has checked out.
+          # Never rebase an old generated bundle onto newer source: rebuild it.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+              echo "Main advanced; regenerating the tracker from its latest committed source."
+              git reset --hard origin/main  # GitHub's disposable checkout only.
+              (
+                cd tools/tracker-source
+                npm ci --ignore-scripts
+                npm run test:planning
+                npm run typecheck:quality
+                npm run build:web
+                npm run check:bundle
+              )
+              node scripts/stage-tracker.mjs
+            fi
+            git add track
+            if git diff --cached --quiet; then
+              echo "Generated assets already match the latest source."
+              exit 0
+            fi
+            git commit -m 'Build sign-in-required tracker assets'
+            if git push origin HEAD:main; then
+              echo "Published tracker assets from a matching source tree."
+              exit 0
+            fi
+            echo "Main changed during publication attempt $attempt; retrying a clean rebuild."
+          done
+          echo "Cannot safely publish after three concurrent updates." >&2
+          exit 1
