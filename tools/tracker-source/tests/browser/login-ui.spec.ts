@@ -5,6 +5,7 @@ for (const [width, height] of [
   [360, 800],
   [390, 844],
   [768, 1024],
+  [1280, 900],
   [1440, 1000],
   [360, 450],
 ]) {
@@ -86,7 +87,7 @@ test('inline validation, pending request and authentication errors use the real 
   await page.locator('form').evaluate((form: HTMLFormElement) => form.requestSubmit());
   expect(requests).toBe(1);
   release();
-  await expect(page.getByRole('alert')).toContainText('Invalid login credentials');
+  await expect(page.getByRole('alert')).toContainText('Incorrect email or password');
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
 });
@@ -137,9 +138,41 @@ test('dark theme and keyboard focus remain accessible', async ({ page }) => {
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Show password' })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Forgot password?' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeFocused();
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
   expect(accessibility.violations).toEqual([]);
+});
+
+test('all palette combinations keep readable text at 360px and 1280px', async ({ page }) => {
+  await page.route('https://*.supabase.co/**', (route) => route.abort());
+  for (const width of [360, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const theme of ['light', 'dark']) {
+      await page.addInitScript((t: string) => localStorage.setItem('tracker-theme', t), theme);
+      await page.goto('/');
+      for (const palette of ['indigo', 'ocean', 'emerald', 'rose', 'sunset']) {
+        const ratio = await page.evaluate((name) => {
+          document.documentElement.dataset.palette = name;
+          const vars = getComputedStyle(document.documentElement);
+          const fromHex = (hex: string) => {
+            const nums = hex.trim().replace('#', '').match(/.{2}/g);
+            if (!nums) throw new Error('Unexpected palette color');
+            const channels = nums.slice(0, 3).map((v) => parseInt(v, 16) / 255).map((v) => v <= 0.04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
+            return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
+          };
+          const fg = vars.getPropertyValue('--accent-ink').trim();
+          const bg = vars.getPropertyValue('--surface').trim();
+          const dark = vars.getPropertyValue('--accent-soft').trim();
+          const l1 = fromHex(fg), l2 = fromHex(bg);
+          return { ratio: (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05), soft: dark, overflow: document.documentElement.scrollWidth > innerWidth };
+        }, palette);
+        expect(ratio.ratio, `${theme} ${palette} @ ${width}`).toBeGreaterThanOrEqual(4.5);
+        expect(ratio.overflow, `${theme} ${palette} @ ${width}`).toBe(false);
+      }
+    }
+  }
 });
