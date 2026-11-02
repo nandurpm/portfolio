@@ -3,6 +3,7 @@ import { supabase } from './client';
 import { sync, useCloud } from './sync';
 import { CloudGate } from './CloudPanel';
 import { store } from '../store';
+import { userError } from '../domain/user-error';
 
 /** No dashboard or financial records mount until Auth verifies this browser's session. */
 export function WebAccess({ children }: { children: ReactNode }) {
@@ -15,7 +16,7 @@ export function WebAccess({ children }: { children: ReactNode }) {
     void store
       .load()
       .then(() => sync.start())
-      .catch((e) => setError(String(e)));
+      .catch((e) => setError(userError(e)));
   }, []);
   useEffect(() => {
     let active = true;

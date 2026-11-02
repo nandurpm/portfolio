@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
+import { userError } from "./domain/user-error";
 import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
@@ -137,7 +138,7 @@ export function Shell() {
     void store
       .load()
       .then(() => sync.start())
-      .catch((e) => toast(String(e), true))
+      .catch((e) => toast(userError(e), true))
       .finally(() => setLoading(false));
     const timer = setInterval(() => setTick((t) => t + 1), 60_000);
     const off = window.desktop?.onBeforeClose(() => store.flush());
@@ -395,7 +396,7 @@ export function Shell() {
                   try {
                     store.undo();
                   } catch (e) {
-                    toast(String(e), true);
+                    toast(userError(e), true);
                   }
                 }}
               >
@@ -410,7 +411,7 @@ export function Shell() {
                   try {
                     store.redo();
                   } catch (e) {
-                    toast(String(e), true);
+                    toast(userError(e), true);
                   }
                 }}
               >
@@ -447,7 +448,7 @@ export function Shell() {
                     onClick={() =>
                       void store
                         .retrySave()
-                        .catch((e) => toast(String(e), true))
+                        .catch((e) => toast(userError(e), true))
                     }
                   >
                     Retry save
@@ -575,7 +576,7 @@ export function Shell() {
                     try {
                       store.undo();
                     } catch (e) {
-                      toast(String(e), true);
+                      toast(userError(e), true);
                     }
                   }}
                 >
@@ -589,7 +590,7 @@ export function Shell() {
                     try {
                       store.redo();
                     } catch (e) {
-                      toast(String(e), true);
+                      toast(userError(e), true);
                     }
                   }}
                 >

@@ -6,6 +6,7 @@ import { sync, useCloud } from './sync';
 import { useEnvelope } from '../store';
 import { Modal, useUi } from '../components/UI';
 import { WEB_APP } from '../web-mode';
+import { userError, errorDetails } from '../domain/user-error';
 const summary = (value: unknown) =>
   value === undefined
     ? 'Deleted'
@@ -21,12 +22,14 @@ export function CloudPanel() {
     [password, setPassword] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
+    [errorDetail, setErrorDetail] = useState(''),
     [choices, setChoices] = useState<('local' | 'remote')[]>([]);
   useEffect(() => setChoices([]), [c.review]);
   async function auth(mode: 'signin' | 'signup') {
     if (busy || c.busy || google.pending) return;
     setBusy(true);
     setError('');
+    setErrorDetail('');
     try {
       const r =
         mode === 'signin'
@@ -39,7 +42,8 @@ export function CloudPanel() {
           'Check your email to confirm your account, then return here and sign in. If no email arrives, your project may need email-delivery configuration.',
         );
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(userError(e));
+      setErrorDetail(errorDetails(e));
     } finally {
       setBusy(false);
     }
@@ -47,10 +51,12 @@ export function CloudPanel() {
   async function action(fn: () => Promise<unknown>) {
     setBusy(true);
     setError('');
+    setErrorDetail('');
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(userError(e));
+      setErrorDetail(errorDetails(e));
     } finally {
       setBusy(false);
     }
@@ -66,7 +72,8 @@ export function CloudPanel() {
       </p>
       {(error || c.error || google.error) && (
         <div className="callout error" role="alert">
-          {error || c.error || google.error}
+          {error || (c.error ? userError(c.error) : '') || (google.error ? userError(google.error) : '')}
+          <button type="button" className="text-button" onClick={() => void navigator.clipboard?.writeText(errorDetail || c.error || google.error).catch(() => {})}>Copy error details</button>
         </div>
       )}
       {c.session ? (
