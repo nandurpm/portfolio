@@ -91,6 +91,9 @@ jobs:
         run: |
           mkdir -p "$TRACKER_LOCAL_SUPABASE_DIR"
           npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" init
+          # Inbucket default 54324 collided with an existing process on the hosted runner.
+          # Only the disposable test stack is affected; production ports are untouched.
+          sed -i 's/^port = 54324$/port = 57324/' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
           npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" start --exclude studio,imgproxy,realtime,storage-api,postgres-meta,edge-runtime,logflare,vector,supavisor
       - run: node --import tsx scripts/prepare-local-supabase.ts
       - run: npm run test:security
