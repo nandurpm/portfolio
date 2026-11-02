@@ -3588,3 +3588,10 @@ html[data-theme="dark"] .badge.past {
 .tracker-glossary dt { color: var(--text); font-weight: 650; }
 .tracker-glossary dd { margin: 0; }
 @media (max-width: 600px) { .tracker-glossary dl { grid-template-columns: 1fr; } }
+
+/* Dark palettes: accessible accent text/controls on #1d2134 surfaces (WCAG AA). */
+html[data-theme="dark"][data-palette="ocean"] { --accent: #6dc2f2; --accent-deep: #6dc2f2; }
+html[data-theme="dark"][data-palette="emerald"] { --accent: #53d8b4; --accent-deep: #53d8b4; }
+html[data-theme="dark"][data-palette="rose"] { --accent: #f08aaf; --accent-deep: #f08aaf; }
+html[data-theme="dark"][data-palette="sunset"] { --accent: #f3ad77; --accent-deep: #f3ad77; }
+html[data-theme="dark"][data-palette="indigo"] { --accent: #a99cfb; --accent-deep: #a99cfb; }
