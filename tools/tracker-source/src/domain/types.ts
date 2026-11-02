@@ -118,6 +118,8 @@ export interface InstallmentLoan {
   tenure: number;
   firstDueDate: string;
   note: string;
+  /** Optional advance payment day; omission uses the global salary day. */
+  plannedPayDay?: number;
   rows: InstallmentRow[];
 }
 export interface InstallmentRow {
