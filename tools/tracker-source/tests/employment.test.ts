@@ -8,6 +8,7 @@ import {
   progress,
 } from "../src/domain/calculate";
 import {
+  monthlyPfSchedule,
   salaryHistory,
   enableSalaryHistory,
   enablePfAccount,
@@ -148,7 +149,12 @@ describe("salary history and separate PF account", () => {
     const formulas: string[] = [];
     wb.getWorksheet("Budget")!.eachRow((row) => {
       const value = row.getCell(4).value;
-      if (value && typeof value === "object" && "formula" in value && typeof value.formula === "string")
+      if (
+        value &&
+        typeof value === "object" &&
+        "formula" in value &&
+        typeof value.formula === "string"
+      )
         formulas.push(value.formula);
     });
     expect(
@@ -170,5 +176,53 @@ describe("salary history and separate PF account", () => {
     );
     const merged = mergePlans(cloudPlan(p), cloudPlan(left), cloudPlan(right));
     expect(() => localPlan(merged.plan, p)).toThrow("exceed");
+  });
+});
+
+describe("monthly PF after salary increments", () => {
+  it("starts at zero, schedules 2000 only from the effective month, and never fabricates credit", () => {
+    const p = financialFixture().data;
+    enableSalaryHistory(p);
+    p.salaryChanges = [
+      {
+        id: "increment",
+        effectiveDate: "2027-01-15",
+        monthlySalary: 1500,
+        monthlyPfContribution: 2000,
+      },
+    ];
+    enablePfAccount(p);
+    const rows = monthlyPfSchedule(p, "2026-12", "2027-02");
+    expect(rows.map((row) => row.amount)).toEqual([0, 2000, 2000]);
+    expect(pfSummary(p, "2027-02-28").balance).toBe(0);
+    expect(cumulative(p).actualCash).toBe(500);
+    expect(p.entries).toHaveLength(0);
+    p.pfMovements!.push(movement("jan", "2027-01-31", 2000));
+    expect(
+      monthlyPfSchedule(p, "2027-01", "2027-02").map((row) => row.remaining),
+    ).toEqual([0, 2000]);
+    expect(pfSummary(p, "2027-02-28").balance).toBe(2000);
+    expect(cumulative(p).actualCash).toBe(500);
+  });
+  it("uses later increments to change monthly PF without rewriting past contributions", () => {
+    const p = financialFixture().data;
+    enableSalaryHistory(p);
+    p.salaryChanges = [
+      {
+        id: "first",
+        effectiveDate: "2026-11-01",
+        monthlySalary: 1500,
+        monthlyPfContribution: 2000,
+      },
+      {
+        id: "second",
+        effectiveDate: "2027-01-01",
+        monthlySalary: 1800,
+        monthlyPfContribution: 2500,
+      },
+    ];
+    expect(
+      monthlyPfSchedule(p, "2026-10", "2027-02").map((row) => row.amount),
+    ).toEqual([0, 2000, 2000, 2500, 2500]);
   });
 });

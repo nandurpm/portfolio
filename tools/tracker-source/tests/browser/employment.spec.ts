@@ -17,6 +17,22 @@ for (const width of [360, 768, 1366])
     await expect(
       page.getByRole("heading", { name: "Salary & PF", exact: true }),
     ).toBeVisible();
+    await page
+      .getByRole("button", {
+        name: "Set ₹2,000 monthly PF after this change",
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Continue", exact: true })
+      .click();
+    await expect(
+      page.getByText("Your recorded PF balance is ₹0.", { exact: false }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Monthly PF schedule", exact: true }),
+    ).toBeVisible();
     for (const [date, salary, pf] of [
       ["2026-11-01", "1500", "100"],
       ["2026-12-01", "1800", "150"],
@@ -32,15 +48,12 @@ for (const width of [360, 768, 1366])
       await form
         .getByLabel("Updated monthly take-home salary (₹)")
         .fill(salary!);
-      await form.getByLabel("Monthly PF contribution reference (₹)").fill(pf!);
+      await form
+        .getByLabel("Monthly PF contribution after this change (₹)")
+        .fill(pf!);
       await form
         .getByRole("button", { name: "Save salary change", exact: true })
         .click();
-      if (date === "2026-11-01")
-        await page
-          .getByRole("dialog")
-          .getByRole("button", { name: "Continue", exact: true })
-          .click();
       await expect(form).toHaveCount(0);
     }
     await expect(
@@ -58,10 +71,7 @@ for (const width of [360, 768, 1366])
     await form
       .getByRole("button", { name: "Save PF transfer", exact: true })
       .click();
-    await page
-      .getByRole("dialog")
-      .getByRole("button", { name: "Continue", exact: true })
-      .click();
+
     await expect(form).toHaveCount(0);
     await page
       .getByRole("button", {
@@ -93,8 +103,12 @@ for (const width of [360, 768, 1366])
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
     expect(axe.violations).toEqual([]);
-    await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
-    const darkAxe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "dark";
+    });
+    const darkAxe = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      .analyze();
     expect(darkAxe.violations).toEqual([]);
     await page.screenshot({
       path: `test-results/employment-${width}.png`,

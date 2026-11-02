@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { store, usePlan } from "../store";
 import { PageHead, Section, useUi } from "../components/UI";
-import { today } from "../domain/dates";
+import { today, monthLabel } from "../domain/dates";
 import { money } from "../domain/calculate";
 import {
   salaryHistory,
@@ -9,6 +9,7 @@ import {
   enableSalaryHistory,
   enablePfAccount,
   pfSummary,
+  monthlyPfSchedule,
 } from "../domain/employment";
 import type { SalaryChange, PfMovement } from "../domain/types";
 import "../workspace.css";
@@ -23,6 +24,29 @@ export default function Employment() {
   const [error, setError] = useState("");
   const history = salaryHistory(p),
     pf = pfSummary(p, today());
+  const schedule = monthlyPfSchedule(
+    p,
+    p.settings.planStart,
+    p.settings.planEnd,
+  ).filter((row) => row.amount > 0);
+  async function setMonthlyPf(id: string) {
+    if (!(await prepare("salary"))) return;
+    try {
+      store.change("Set monthly PF after salary change", (d) => {
+        enableSalaryHistory(d);
+        enablePfAccount(d);
+        const row = d.salaryChanges!.find((row) => row.id === id);
+        if (!row)
+          throw Error(
+            "Salary change was not found. Please reload this screen.",
+          );
+        row.monthlyPfContribution = 2000;
+      });
+      setError("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update monthly PF.");
+    }
+  }
   async function prepare(kind: "salary" | "pf") {
     if (
       (kind === "salary" && p.salaryChanges === undefined) ||
@@ -51,6 +75,7 @@ export default function Employment() {
     try {
       store.change("Save salary change", (d) => {
         enableSalaryHistory(d);
+        if (row.monthlyPfContribution > 0) enablePfAccount(d);
         d.salaryChanges = [
           ...d.salaryChanges!.filter((item) => item.id !== row.id),
           row,
@@ -149,7 +174,7 @@ export default function Employment() {
       </div>
       <Section
         title="Salary changes"
-        caption="Add each change with its own effective date. Salary means take-home pay after deductions. PF below is a planning reference, never automatic income or an expense."
+        caption="Add each change with its own effective date. Salary means take-home pay after deductions. PF starts from the effective salary month, separately from take-home salary."
       >
         <button
           className="button"
@@ -179,12 +204,20 @@ export default function Employment() {
                 → <strong>{money(row.monthlySalary)}</strong> / month
               </p>
               <p>
-                PF contribution reference: {money(row.monthlyPfContribution)} /
+                Monthly PF contribution: {money(row.monthlyPfContribution)} /
                 month
                 {index > 0
                   ? ` (${money(row.monthlyPfContribution - history[index - 1]!.monthlyPfContribution)} change)`
                   : ""}
               </p>
+              {row.monthlyPfContribution === 0 && (
+                <button
+                  className="button secondary"
+                  onClick={() => void setMonthlyPf(row.id)}
+                >
+                  Set ₹2,000 monthly PF after this change
+                </button>
+              )}
               <div className="workspace-actions">
                 <button
                   aria-label={`Edit salary change ${row.effectiveDate}`}
@@ -240,7 +273,7 @@ export default function Employment() {
               />
             </label>
             <label>
-              Monthly PF contribution reference (₹)
+              Monthly PF contribution after this change (₹)
               <input
                 name="pf"
                 type="number"
@@ -248,12 +281,15 @@ export default function Employment() {
                 max="1000000000000"
                 step="0.01"
                 required
-                defaultValue={salaryEdit?.monthlyPfContribution ?? 0}
+                defaultValue={salaryEdit?.monthlyPfContribution ?? 2000}
               />
             </label>
             <p>
-              Record actual PF contributions separately below after checking
-              your payslip. Salary changes do not create transactions.
+              PF is ₹0 before your first PF-enabled salary change. The monthly
+              contribution defaults to ₹2,000 and is scheduled from the
+              effective salary month, without proration. Record it as credited
+              only after it reaches your PF account. This does not create salary
+              income or an expense.
             </p>
             <div className="workspace-actions">
               <button className="button">Save salary change</button>
@@ -284,10 +320,74 @@ export default function Employment() {
         </button>
         {!p.pfMovements?.length && (
           <p className="workspace-empty">
-            No PF records yet. Add the contributions already in your PF account,
-            then record new contributions and claims. A contribution does not
-            submit a claim to your provider.
+            Your recorded PF balance is ₹0. You do not need to add an opening
+            balance. Monthly PF starts only after the salary change you choose;
+            scheduled contributions are not yet credited money.
           </p>
+        )}
+        <h3>Monthly PF schedule</h3>
+        <p className="muted">
+          Separate from salary income, expenses and cash. Your PF stays in this
+          account until claimed. Contributions are planned at month-end; use the
+          actual credit date when recording them.
+        </p>
+        {!schedule.length ? (
+          <p className="workspace-empty">
+            No monthly PF is scheduled. Use “Set ₹2,000 monthly PF after this
+            change” on the salary increment above, or add a salary change with
+            monthly PF of ₹2,000.
+          </p>
+        ) : (
+          <>
+            <p>
+              Scheduled from {monthLabel(schedule[0]!.month, true)} · ₹0 opening
+              PF balance unless you record earlier contributions.
+            </p>
+            <div className="workspace-records">
+              {schedule
+                .filter(
+                  (row) =>
+                    row.month >= today().slice(0, 7) || row.remaining > 0,
+                )
+                .slice(0, 12)
+                .map((row) => (
+                  <article className="workspace-card" key={row.month}>
+                    <h3>{monthLabel(row.month, true)}</h3>
+                    <strong>{money(row.amount)} monthly PF</strong>
+                    <p>
+                      {money(row.credited)} recorded · {money(row.remaining)}{" "}
+                      not recorded yet
+                    </p>
+                    {row.remaining > 0 && row.date <= today() && (
+                      <button
+                        className="button secondary"
+                        onClick={() => {
+                          setMovementEdit({
+                            id: crypto.randomUUID(),
+                            date: row.date,
+                            amount: row.remaining,
+                            kind: "contribution",
+                            source: "payroll",
+                            payment: "Payroll",
+                            note: `PF for ${row.month}`,
+                          });
+                          setPfOpen(true);
+                          setError("");
+                        }}
+                      >
+                        Record credited PF for {monthLabel(row.month, true)}
+                      </button>
+                    )}
+                  </article>
+                ))}
+            </div>
+            {schedule.length > 12 && (
+              <p className="muted">
+                Showing up to 12 outstanding or upcoming months. Later months
+                follow the same dated salary/PF history.
+              </p>
+            )}
+          </>
         )}
         {pfOpen && (
           <form

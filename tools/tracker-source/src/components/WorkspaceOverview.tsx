@@ -1,7 +1,7 @@
 import { usePlan, useSaveStatus } from "../store";
 import { useSyncSummary } from "../cloud/SyncStatus";
 import { installmentTasks } from "../domain/insights";
-import { pfSummary } from "../domain/employment";
+import { pfSummary, salaryAtDate, salaryHistory } from "../domain/employment";
 import {
   actual,
   planned,
@@ -41,6 +41,8 @@ export function WorkspaceOverview({
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 4);
   const pf = pfSummary(p, cutoff);
+  const currentPf = salaryAtDate(p, cutoff).monthlyPfContribution;
+  const upcomingPf = salaryHistory(p).find(row => row.effectiveDate > cutoff && row.monthlyPfContribution > 0);
   return (
     <div className="finance-workspace">
       <div className="workspace-trust" aria-label="Workspace status">
@@ -163,6 +165,7 @@ export function WorkspaceOverview({
         </article>
         <article className="workspace-card">
           <h2>PF balance · pending claim</h2>
+          <p>{currentPf > 0 ? `${money(currentPf)} monthly PF scheduled` : upcomingPf ? `${money(upcomingPf.monthlyPfContribution)} monthly PF starts ${displayDate(upcomingPf.effectiveDate)}` : 'No monthly PF scheduled yet'}</p>
           <strong className="workspace-value">{money(pf.balance)}</strong>
           <p>
             Contributions less claims through the report date. Kept separate

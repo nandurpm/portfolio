@@ -1,5 +1,5 @@
 import type { Category, Plan, SalaryChange, PfMovement } from "./types";
-import { addMonths, monthEnd } from "./dates";
+import { addMonths, monthEnd, monthsBetween } from "./dates";
 const cents = (amount: number) => Math.round((amount + Number.EPSILON) * 100);
 export const isSalaryCategory = (category: Category) =>
   category.role === "salary" || category.role === "salary-history";
@@ -130,4 +130,27 @@ export function validatePfMovements(rows: PfMovement[]) {
         `PF claims exceed the recorded PF balance on ${date}. Check the contribution and claim dates.`,
       );
   }
+}
+
+/** Planned PF only: never invent credited funds or an opening balance. */
+export function monthlyPfSchedule(p: Plan, start: string, end: string) {
+  return monthsBetween(start, end).map((month) => {
+    const amount = salaryAtDate(p, monthEnd(month)).monthlyPfContribution;
+    const credited =
+      (p.pfMovements ?? [])
+        .filter(
+          (row) =>
+            row.kind === "contribution" &&
+            row.source === "payroll" &&
+            row.date.slice(0, 7) === month,
+        )
+        .reduce((sum, row) => sum + cents(row.amount), 0) / 100;
+    return {
+      month,
+      date: monthEnd(month),
+      amount,
+      credited,
+      remaining: Math.max(0, cents(amount) - cents(credited)) / 100,
+    };
+  });
 }
