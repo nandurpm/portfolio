@@ -12,6 +12,14 @@ BEGIN
      RAISE EXCEPTION 'Update tracker clients: existing % must be preserved',field_name USING ERRCODE='22023';
    END IF;
   END LOOP;
+  -- Modern salary history and PF are schema opt-ins. Even an empty ledger
+  -- must not be dropped by a legacy client which does not know the field.
+  FOREACH field_name IN ARRAY ARRAY['salaryChanges','pfMovements'] LOOP
+   IF jsonb_typeof(OLD.data->field_name) = 'array'
+    AND (NOT(NEW.data ? field_name) OR jsonb_typeof(NEW.data->field_name) IS DISTINCT FROM 'array') THEN
+     RAISE EXCEPTION 'Update tracker clients: existing % must be preserved',field_name USING ERRCODE='22023';
+   END IF;
+  END LOOP;
   IF OLD.data->'settings' ? 'emiPreviousMonth' AND NOT(coalesce(NEW.data->'settings','{}'::jsonb) ? 'emiPreviousMonth') THEN
    RAISE EXCEPTION 'Update tracker client before saving EMI timing' USING ERRCODE='22023';
   END IF;
