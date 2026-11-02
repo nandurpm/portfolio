@@ -509,6 +509,17 @@ export function Shell() {
                 </motion.div>
               </AnimatePresence>
             </fieldset>
+            <details className="tracker-glossary">
+              <summary>Financial terms explained</summary>
+              <dl>
+                <dt>Provision</dt><dd>Money reserved for a future recurring bill; not a payment.</dd>
+                <dt>Contract balance</dt><dd>The estimated amount remaining under the loan repayment schedule.</dd>
+                <dt>Cash cushion</dt><dd>The minimum cash buffer you prefer to keep available.</dd>
+                <dt>Report through</dt><dd>The last date included when counting actual transactions.</dd>
+                <dt>Closure headroom</dt><dd>Estimated cash remaining after a proposed loan closure and cash cushion.</dd>
+                <dt>Reconciliation</dt><dd>Comparing recorded transactions against your bank or cash statement.</dd>
+              </dl>
+            </details>
             <footer className="app-footer">
               <span>{APP_NAME}</span>
               <span>
