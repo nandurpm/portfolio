@@ -17,6 +17,15 @@
       content="Sign in to your personal savings, expenses and loan planning workspace."
     />
     <title>Savings and Expense Tracker</title>
+    <style>
+      .preload { min-height: 75vh; display: grid; place-content: center; justify-items: center; gap: 16px; color: #29334a; font: 500 15px/1.5 system-ui, sans-serif; text-align: center; }
+      .preload img { width: 68px; height: 68px; }
+      .preload-bar { height: 6px; width: min(220px, 70vw); border-radius: 99px; background: #d7d9ea; overflow: hidden; }
+      .preload-bar::before { content: ''; display: block; height: 100%; width: 38%; border-radius: inherit; background: #6255df; animation: preload-move 1.3s ease-in-out infinite alternate; }
+      @keyframes preload-move { from { transform: translateX(0); } to { transform: translateX(165%); } }
+      @media (prefers-color-scheme: dark) { .preload { color: #e8e9f3; } .preload-bar { background: #41435b; } }
+      @media (prefers-reduced-motion: reduce) { .preload-bar::before { animation: none; width: 100%; opacity: .65; } }
+    </style>
     <link rel="stylesheet" href="/startup.css" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>

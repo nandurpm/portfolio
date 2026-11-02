@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
+import { errorMessage } from "./domain/user-errors";
 import { errorDetails } from "./domain/user-error";
 import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
@@ -78,7 +79,7 @@ class Boundary extends Component<{ children: ReactNode }, { error: string }> {
       return (
         <div className="fatal">
           <h1>We couldn’t open this screen.</h1>
-          <p>Please reload the app to try again.</p>
+          <p>{errorMessage(this.state.error)} Reload the app if the problem continues.</p>
           <button
             onClick={() =>
               void navigator.clipboard
@@ -442,6 +443,9 @@ export function Shell() {
             </div>
           </header>
           <main id="main-content" tabIndex={-1} className="main-scroll">
+            <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {current.name} page opened
+            </div>
             {warning && (
               <div className="callout error" role="alert">
                 {warning}
@@ -509,6 +513,17 @@ export function Shell() {
                 </motion.div>
               </AnimatePresence>
             </fieldset>
+            <details className="tracker-glossary">
+              <summary>Financial terms explained</summary>
+              <dl>
+                <dt>Provision</dt><dd>Money reserved for a future recurring bill; not a payment.</dd>
+                <dt>Contract balance</dt><dd>The estimated amount remaining under the loan repayment schedule.</dd>
+                <dt>Cash cushion</dt><dd>The minimum cash buffer you prefer to keep available.</dd>
+                <dt>Report through</dt><dd>The last date included when counting actual transactions.</dd>
+                <dt>Closure headroom</dt><dd>Estimated cash remaining after a proposed loan closure and cash cushion.</dd>
+                <dt>Reconciliation</dt><dd>Comparing recorded transactions against your bank or cash statement.</dd>
+              </dl>
+            </details>
             <footer className="app-footer">
               <span>{APP_NAME}</span>
               <span>
@@ -519,6 +534,10 @@ export function Shell() {
           </main>
         </div>
         <nav className="phone-nav" aria-label="Phone navigation">
+          <div className="phone-quick-actions" aria-label="Add transaction">
+            <button type="button" onClick={() => { setEntryKind("Expense"); navigate("entries"); }} aria-label="Add expense">+ Expense</button>
+            <button type="button" onClick={() => { setEntryKind("Income"); navigate("entries"); }} aria-label="Add income">+ Income</button>
+          </div>
           {[
             { id: "dashboard", name: "Home", icon: LayoutDashboard },
             { id: "entries", name: "Entries", icon: ReceiptText },

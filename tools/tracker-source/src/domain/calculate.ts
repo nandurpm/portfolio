@@ -2,6 +2,24 @@ import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from '
 import { formatMoney } from './format-money';
 import { today, daysIn, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
 export const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+/** Compact INR labels for constrained chart axes and small screens; full amounts remain available via money(). */
+export const moneyCompact = (value: number) => {
+  if (!Number.isFinite(value)) return '—';
+  const abs = Math.abs(value);
+  const sign = value < 0 ? '−' : '';
+  const fmt = (x: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 }).format(x);
+  if (abs >= 10000000) return sign + '₹' + fmt(abs / 10000000) + 'Cr';
+  if (abs >= 100000) return sign + '₹' + fmt(abs / 100000) + 'L';
+  if (abs >= 1000) return sign + '₹' + fmt(abs / 1000) + 'K';
+  return sign + money(Math.abs(value));
+};
+export const money = (n: number, decimals = 2) =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(n);
 export const money = formatMoney;
 export const key = (month: string, id: string) => `${month}|${id}`;
 export const reportDate = (p: Plan) => (p.settings.liveDate ? today() : p.settings.reportDate);

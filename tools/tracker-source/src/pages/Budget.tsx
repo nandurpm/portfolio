@@ -641,6 +641,8 @@ export default function Budget() {
             </div>
           </div>
         ) : (
+          <div className="budget-grid-scroll" role="region" aria-label="Monthly budget grid — horizontally scrollable" tabIndex={0}>
+            <p className="scroll-hint" aria-hidden="true">Scroll sideways to view additional months →</p>
           <>
           <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more months →</p>
           <div className="budget-grid-scroll" tabIndex={0} role="region" aria-label="Monthly budget: horizontally scrollable grid">

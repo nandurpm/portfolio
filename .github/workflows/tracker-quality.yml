@@ -39,6 +39,8 @@ jobs:
           retention-days: 7
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      # Keep the independent dependency audit after browser tests: known findings
+      # must remain visible without preventing unrelated accessibility verification.
       # Keep security checks strict, but do not let known advisories prevent UI regression tests.
       - run: npm audit
       - name: Retain synthetic browser results
