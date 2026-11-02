@@ -19,7 +19,9 @@ export const supabase = createClient(config.url, config.publishableKey, {
     storageKey: 'tracker-auth-v1',
     persistSession: true,
     autoRefreshToken: WEB_APP,
-    detectSessionInUrl: WEB_APP,
+    // Recovery screen performs PKCE code exchange explicitly once; automatic
+    // exchange here consumes the one-use code before that screen can verify it.
+    detectSessionInUrl: false,
     flowType: 'pkce',
   },
 });
