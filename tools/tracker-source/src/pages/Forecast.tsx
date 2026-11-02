@@ -127,6 +127,7 @@ export default function Forecast() {
             ))}
           </select>
         </label>
+        <p className="scroll-cue" aria-hidden="true">Scroll sideways to view all forecast values →</p>
         <div
           className="table-scroll long-table-scroll"
           tabIndex={0}

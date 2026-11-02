@@ -741,7 +741,8 @@ export default function Entries({
             </div>
           </div>
         ) : (
-          <div className="entry-grid-wrap">
+          <p className="scroll-cue" aria-hidden="true">Scroll sideways to see more entry columns →</p>
+          <div className="entry-grid-wrap" tabIndex={0} role="region" aria-label="Transactions: horizontally scrollable grid">
             <div className="entry-grid header">
               <input
                 aria-label="Select all displayed transactions"
