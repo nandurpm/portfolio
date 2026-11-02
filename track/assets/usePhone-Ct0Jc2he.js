@@ -1,0 +1,1 @@
+import{r as a}from"./client-CM_Ozchj.js";function c(){const[n,s]=a.useState(()=>matchMedia("(max-width: 760px)").matches);return a.useEffect(()=>{const e=matchMedia("(max-width: 760px)"),t=()=>s(e.matches);return e.addEventListener("change",t),t(),()=>e.removeEventListener("change",t)},[]),n}export{c as u};
