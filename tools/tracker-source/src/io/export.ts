@@ -16,6 +16,9 @@ import {
 } from '../domain/calculate';
 import { monthLabel, monthsBetween, monthEnd, displayDate, clampMonth } from '../domain/dates';
 import { xmlEscape } from './files';
+import { paymentRows } from '../domain/loan-summary';
+import { paymentDisplayStatus } from '../domain/payment-status';
+import { plannedPaymentDate } from '../domain/insights';
 const currency = '"₹" #,##0.00;[Red]("₹" #,##0.00);"–"';
 const fill = (argb: string): ExcelJS.Fill => ({
   type: 'pattern',
@@ -149,7 +152,7 @@ export async function exportWorkbook(
   ].forEach((r, i) => {
     dash.getRow(14 + i).values = [
       ...r,
-      i === 1 ? Number(r[1]) - Number(r[2]) : Number(r[2]) - Number(r[1]),
+      Number(r[2]) - Number(r[1]),
     ];
   });
   bands(dash, 14, 17, 4);
@@ -337,9 +340,9 @@ export async function exportWorkbook(
     'Interest',
     'Balance after EMI',
     'Paid before opening',
-    'Paid',
-    'Actual paid',
-    'Paid date',
+    'Recorded in full (all dates)',
+    'Total paid (all dates)',
+    'Last payment date (all dates)',
     'Edited',
     'ID',
   ]);
@@ -372,13 +375,14 @@ export async function exportWorkbook(
       'Installment',
       'Due date',
       'EMI',
-      'Actual paid',
-      'Payment date',
-      'Status',
+      'Paid through report date',
+      'Payment date through report date',
+      'Status through report date',
     ]);
     let index = 5;
     for (const l of p.additionalLoans)
-      for (const [i, r] of l.rows.entries()) {
+      for (const [i, stored] of l.rows.entries()) {
+        const r = paymentRows(p, [stored], date)[0]!;
         additional.getRow(index).values = [
           l.name,
           l.principal,
@@ -388,7 +392,7 @@ export async function exportWorkbook(
           r.emi,
           r.paidAmount,
           r.paidDate ? d(r.paidDate) : '',
-          r.paid ? 'Paid' : r.paidAmount ? 'Partial' : 'Unpaid',
+          paymentDisplayStatus(r, plannedPaymentDate(p, r.dueDate, l.id), r.dueDate, date),
         ];
         additional.getCell(index, 5).numFmt = additional.getCell(index, 8).numFmt = 'dd-mmm-yyyy';
         index++;
