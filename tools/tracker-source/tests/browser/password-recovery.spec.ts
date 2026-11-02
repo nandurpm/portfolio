@@ -77,3 +77,20 @@ test('invalid recovery URL never permits a password change or exposes financial 
   await expect(page.getByRole('button', { name: 'Save new password' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
 });
+
+test('expired Supabase email link displays recovery guidance without changing credentials', async ({ page }) => {
+  let networkUpdates = 0;
+  await page.route('https://*.supabase.co/**', (route) => {
+    if (route.request().method() === 'PUT') networkUpdates++;
+    return route.abort();
+  });
+  await page.goto('/track/?recovery=1#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');
+  await expect(page.getByRole('heading', { name: 'Reset your password' })).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText(/link is invalid or expired/i);
+  await expect(page.getByRole('button', { name: 'Save new password' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Return to sign in' })).toBeVisible();
+  await page.getByRole('button', { name: 'Return to sign in' }).click();
+  await expect(page.getByRole('heading', { name: /Sign in to your Savings Tracker/ })).toBeVisible();
+  expect(networkUpdates).toBe(0);
+  expect(new URL(page.url()).hash).toBe('');
+});
