@@ -676,6 +676,72 @@ code {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.dashboard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, .85fr);
+  gap: 22px 30px;
+  padding: clamp(22px, 3vw, 34px);
+  margin: 0 0 18px;
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 24px;
+  background: radial-gradient(circle at 88% 12%, rgba(255,255,255,.2), transparent 27%), linear-gradient(135deg, #24386f 0%, #5846a8 52%, #8563c8 100%);
+  box-shadow: 0 18px 46px rgba(41, 37, 97, .22);
+  overflow: hidden;
+}
+.dashboard-balance { display: flex; align-items: flex-start; gap: 16px; min-width: 0; }
+.dashboard-hero-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+}
+.dashboard-hero-icon svg { width: 23px; height: 23px; }
+.dashboard-overline {
+  display: block;
+  margin-bottom: 7px;
+  color: rgba(255,255,255,.72);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.dashboard-balance h2 { margin: 0; color: #fff; font-size: clamp(.95rem, 2vw, 1.15rem); }
+.dashboard-balance strong {
+  display: block;
+  margin: 12px 0 7px;
+  color: #fff;
+  font-size: clamp(2.25rem, 5vw, 3.65rem);
+  line-height: 1;
+  letter-spacing: -.055em;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-balance p { margin: 0; color: rgba(255,255,255,.72); font-size: .78rem; line-height: 1.55; }
+.dashboard-hero-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-self: stretch; }
+.dashboard-hero-insights > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 17px;
+  background: rgba(255,255,255,.11);
+  border: 1px solid rgba(255,255,255,.14);
+}
+.dashboard-hero-insights span { color: rgba(255,255,255,.78); font-size: .72rem; }
+.dashboard-hero-insights strong { margin: 7px 0 5px; color: #fff; font-size: clamp(1.2rem, 2.5vw, 1.65rem); font-variant-numeric: tabular-nums; }
+.dashboard-hero-insights strong.unfavourable { color: #ffd2c7; }
+.dashboard-hero-insights small { color: rgba(255,255,255,.65); line-height: 1.4; }
+.dashboard-hero-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
+.dashboard-hero-actions .button { min-height: 44px; border-color: rgba(255,255,255,.3); }
+.dashboard-hero-actions .secondary { color: #fff; background: rgba(255,255,255,.1); }
+.dashboard-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dashboard-kpis .stat-card { box-shadow: none; border-radius: 18px; }
+
 .stat-card {
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -3601,29 +3667,6 @@ html[data-theme="dark"] .badge.past {
   .checklist-group-chevron { transition: none; }
 }
 
-/* Mobile quick actions sit above the tab bar, never behind device safe areas. */
-.phone-quick-actions { display: none; }
-@media (max-width: 600px) {
-  .phone-quick-actions {
-    position: fixed;
-    z-index: 41;
-    right: calc(14px + env(safe-area-inset-right, 0px));
-    bottom: calc(var(--phone-nav-height) + var(--safe-bottom) + 12px);
-    display: flex;
-    gap: 8px;
-  }
-  .phone-quick-actions button {
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 10px 13px;
-    background: var(--accent-deep);
-    color: #fff;
-    box-shadow: 0 4px 15px #0003;
-    font: 650 12px/1.2 Inter, system-ui, sans-serif;
-  }
-  .phone-quick-actions button:first-child { background: var(--surface); color: var(--text); }
-}
-
 /* Shared screen-reader announcements, keyboard-accessible glossary, and table scroll cues. */
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .scroll-hint { color: var(--muted); font-size: 12px; margin: 7px 0; }
@@ -3641,13 +3684,6 @@ html[data-theme="dark"][data-palette="rose"] { --accent: #f08aaf; --accent-deep:
 html[data-theme="dark"][data-palette="sunset"] { --accent: #f3ad77; --accent-deep: #f3ad77; }
 html[data-theme="dark"][data-palette="indigo"] { --accent: #a99cfb; --accent-deep: #a99cfb; }
 
-@media (max-width: 600px) {
-  html[data-theme="dark"] .phone-quick-actions button:last-child {
-    background: var(--surface);
-    color: var(--accent-ink);
-    border-color: var(--accent-ink);
-  }
-}
 /* Announcement remains available to assistive technology without shifting layout. */
 .sr-only {position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
@@ -3675,3 +3711,25 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .help-term>summary::-webkit-details-marker{display:none}
 .help-term-content{display:block;max-width:min(350px,85vw);margin-top:5px;padding:10px 12px;border:1px solid var(--control-border);border-radius:9px;background:var(--surface);color:var(--text);box-shadow:var(--shadow);line-height:1.55}
 .help-term:focus-within{z-index:4}
+
+@media (max-width: 900px) {
+  .dashboard-hero { grid-template-columns: 1fr; }
+  .dashboard-hero-actions { grid-column: 1; }
+  .dashboard-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .dashboard-hero { padding: 20px; border-radius: 20px; gap: 18px; }
+  .dashboard-balance { gap: 12px; }
+  .dashboard-hero-icon { width: 42px; height: 42px; border-radius: 13px; }
+  .dashboard-balance strong { font-size: clamp(2rem, 12vw, 3rem); }
+  .dashboard-hero-insights { grid-template-columns: 1fr 1fr; }
+  .dashboard-hero-insights > div { padding: 13px; }
+  .dashboard-hero-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .dashboard-hero-actions .button { width: 100%; justify-content: center; }
+  .dashboard-hero-actions .secondary { grid-column: 1 / -1; }
+  .dashboard-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .dashboard-kpis .stat-card { padding: 14px 12px; }
+  .dashboard-kpis .stat-card > strong { font-size: clamp(1.15rem, 6vw, 1.55rem); }
+  .dashboard-kpis .stat-caption { display: block; line-height: 1.35; }
+}
