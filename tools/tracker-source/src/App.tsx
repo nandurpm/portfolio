@@ -37,6 +37,7 @@ import {
   ShieldCheck,
   ChevronRight,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
