@@ -1,7 +1,8 @@
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
-import { ComparisonCharts } from '../components/ComparisonCharts';
+const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
+const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 import { BackupStatus } from '../components/BackupStatus';
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -27,7 +28,7 @@ import {
 } from '../domain/calculate';
 import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
-import { SavingsCharts } from '../components/Charts';
+
 import { RangeControl } from '../components/RangeControl';
 export function MonthControls() {
   const p = usePlan(),
@@ -283,7 +284,7 @@ export default function Dashboard({
       <CashAlerts />
       <BudgetAlerts />
       <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
-      <ComparisonCharts />
+      <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
       <Section
         title={`${monthLabel(m, true)}, side by side`}
         caption={
@@ -393,7 +394,7 @@ export default function Dashboard({
           })}
         </div>
       </Section>
-      <SavingsCharts all />
+      <Suspense fallback={<p className="muted" role="status">Loading savings charts…</p>}><SavingsCharts all /></Suspense>
       <Section
         title="Every category, accounted for"
         caption="Income progress is measured by receipts; expense progress is measured by spending. Remaining budgets are not savings."
