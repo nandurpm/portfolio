@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { ArchivedPayments } from '../components/ArchivedPayments';
 import { HelpTerm } from '../components/HelpTerm';
 import { receiptScope } from '../domain/archive';
@@ -99,7 +100,7 @@ export default function Loan() {
       });
       toast('Schedule regenerated. Paid amounts are preserved.');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   }
   async function mark(r: LoanRow) {
@@ -178,7 +179,7 @@ export default function Loan() {
       setPayment(null);
       toast('Payment saved in the schedule and Daily Entries.');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   }
   return (
@@ -331,7 +332,7 @@ export default function Loan() {
             </strong>
           </div>
           <div>
-            <small>Earliest month meeting your cushion</small>
+            <small>Earliest indicative month meeting your cushion</small>
             <strong>
               {analysis.earliest ? monthLabel(analysis.earliest, true) : 'Not within the plan'}
             </strong>
@@ -341,9 +342,11 @@ export default function Loan() {
           </Badge>
         </div>
         <p className="footnote">
-          The schedule estimates closure principal after that month’s EMI. Enter the lender’s quote
-          for a precise settlement amount. Early closure adds the settlement once and stops later
-          planned EMIs.
+          Future closure dates are indicative, not guaranteed settlement dates.
+          Outside your selected quote month, the planner compares cash with indicative outstanding
+          principal only; future lender interest, settlement charges, and fees may change the date.
+          Confirm an actual payoff amount with the lender before committing to early closure.
+          Early closure adds the selected settlement once and stops later planned EMIs.
         </p>
       </Section>
       <Section
@@ -386,7 +389,7 @@ export default function Loan() {
                   try {
                     detail('firstDueDate', e.target.value);
                   } catch (err) {
-                    toast(String(err), true);
+                    toast(userError(err), true);
                   }
               }}
             />
@@ -415,8 +418,8 @@ export default function Loan() {
               <Area
                 name="Principal remaining"
                 dataKey="balance"
-                stroke="#a16ed5"
-                fill="#a16ed522"
+                stroke="var(--accent)"
+                fill="var(--accent-soft)"
                 strokeWidth={3}
                 isAnimationActive={s.animations}
               />
@@ -500,7 +503,7 @@ export default function Loan() {
                         try {
                           rowEdit(r.id, 'dueDate', e.target.value);
                         } catch (err) {
-                          toast(String(err), true);
+                          toast(userError(err), true);
                         }
                       }}
                     />
@@ -565,7 +568,7 @@ export default function Loan() {
                             try {
                               rowEdit(r.id, 'dueDate', e.target.value);
                             } catch (err) {
-                              toast(String(err), true);
+                              toast(userError(err), true);
                             }
                           }}
                         />

@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
 import type ExcelJS from 'exceljs';
 import { excelCompatible } from './normalize';
@@ -150,7 +151,7 @@ function importRows(
       entries.push(e);
     } catch (error) {
       warnings.push(
-        `Row ${firstRow + i}: ${error instanceof Error ? error.message : String(error)} Skipped.`,
+        `Row ${firstRow + i}: ${userError(error)} Skipped.`,
       );
     }
   }

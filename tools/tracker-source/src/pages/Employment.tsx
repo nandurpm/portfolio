@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { useState, type FormEvent } from "react";
 import { store, usePlan } from "../store";
 import { PageHead, Section, useUi } from "../components/UI";
@@ -44,7 +45,7 @@ export default function Employment() {
       });
       setError("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not update monthly PF.");
+      setError(userError(e));
     }
   }
   async function prepare(kind: "salary" | "pf") {
@@ -85,7 +86,7 @@ export default function Employment() {
       setError("");
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Could not save salary change.",
+        userError(e),
       );
     }
   }
@@ -117,7 +118,7 @@ export default function Employment() {
       setPfOpen(false);
       setError("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save PF transfer.");
+      setError(userError(e));
     }
   }
   async function remove(kind: "salary" | "pf", id: string) {
@@ -140,7 +141,7 @@ export default function Employment() {
       });
       setError("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not delete record.");
+      setError(userError(e));
     }
   }
   return (

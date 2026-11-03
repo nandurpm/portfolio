@@ -16,7 +16,7 @@ export function reconciliationResult(p: Plan, r: Omit<Reconciliation, "id">) {
     )
       continue;
     const category = categories.get(e.categoryId);
-    if (!category) continue;
+    if (!category || category.group === 'Asset') continue;
     if (category.group === "Income") income += e.amount;
     else expenses += e.amount;
     count++;

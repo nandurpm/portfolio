@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { buildInfo } from '../build-info';
 import { WEB_APP } from '../web-mode';
 import { CloudButton } from '../cloud/CloudPanel';
@@ -266,7 +267,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
                       d.settings.backupFolder = folder;
                     });
                 } catch (e) {
-                  toast(String(e), true);
+                  toast(userError(e), true);
                 }
               }}
             >
@@ -397,7 +398,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
                           store.revert(a.id);
                           toast('Change reverted.');
                         } catch (e) {
-                          toast(`Cannot safely revert: ${String(e)}`, true);
+                          toast(`Cannot safely revert: ${userError(e)}`, true);
                         }
                     }}
                   >

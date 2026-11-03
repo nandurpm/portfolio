@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
 import { ArchivedPayments } from '../components/ArchivedPayments';
 import { WEB_APP } from '../web-mode';
@@ -163,7 +164,7 @@ export default function Entries({
     try {
       fn();
     } catch (e) {
-      toast(e instanceof Error ? e.message : String(e), true);
+      toast(userError(e), true);
     }
   }
   async function remove(ids: string[]) {
@@ -234,12 +235,12 @@ export default function Entries({
         );
       } catch (error) {
         toast(
-          `Entry recorded in the app, but saving failed. Use Retry save above. ${String(error)}`,
+          `Entry recorded in the app, but saving failed. Use Retry save above. ${userError(error)}`,
           true,
         );
       }
     } catch (error) {
-      toast(String(error), true);
+      toast(userError(error), true);
     } finally {
       setAdding(false);
     }

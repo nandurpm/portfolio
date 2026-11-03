@@ -1,4 +1,5 @@
 import { WorkspaceOverview } from '../components/WorkspaceOverview';
+import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
 import { lazy, Suspense, useMemo } from 'react';
@@ -89,12 +90,42 @@ export function MonthControls() {
   );
 }
 export function ProgressTable({ whole = false }: { whole?: boolean }) {
+  const phone = usePhone();
   const p = usePlan(),
     date = reportDate(p),
     rows = useMemo(() => progress(p, date), [p, date]);
+  const inProgress = (month: string) => date >= month + '-01' && date < monthEnd(month);
   const visible = whole
     ? rows
     : rows.filter((r) => r.month >= p.settings.viewStart && r.month <= p.settings.viewEnd);
+  if (phone) return (
+    <section className="progress-month-cards" aria-label="Recorded monthly progress">
+      {visible.map((r) => (
+        <article className="progress-month-card" key={r.month}>
+          <header>
+            <strong>{monthLabel(r.month, true)}</strong>
+            <Badge tone={r.status.toLowerCase()}>{r.status}</Badge>
+          </header>
+          <dl>
+            <div><dt>Full-month income plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.income)}</dd></div>
+            <div><dt>Income received</dt><dd>{r.actual ? money(r.actual.income) : '—'}</dd></div>
+            <div><dt>Full-month expense plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.expenses)}</dd></div>
+            <div><dt>Expenses recorded</dt><dd>{r.actual ? money(r.actual.expenses) : '—'}</dd></div>
+            <div><dt>Full-month savings plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.savings)}</dd></div>
+            <div><dt>Actual savings / deficit</dt><dd>{r.actual ? money(r.actual.savings) : '—'}</dd></div>
+            <div><dt>Planned month-end cash</dt><dd>{r.expectedCash === null ? 'Future' : money(r.expectedCash)}</dd></div>
+            <div><dt>Recorded cash</dt><dd>{r.recordedCash === null ? 'Future' : money(r.recordedCash)}</dd></div>
+          </dl>
+          <p className="progress-month-note">
+            {inProgress(r.month) ? 'In progress · full-month target is not yet final' :
+              r.status === 'Future' ? 'Not yet started' :
+              r.actual ? `Savings vs plan: ${money(r.actual.savings - r.plan.savings)}` : 'No entries recorded'}
+            {' · '}{r.count} {r.count === 1 ? 'entry' : 'entries'}
+          </p>
+        </article>
+      ))}
+    </section>
+  );
   return (
     <div
       className="table-scroll long-table-scroll"
@@ -114,7 +145,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
               'Full-month savings plan',
               'Actual savings',
               'Savings vs full-month plan',
-              'Expected cash',
+              'Planned month-end cash',
               'Recorded cash',
               'Entries',
               'Status',
@@ -134,7 +165,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
                 r.actual?.expenses,
                 r.status === 'Future' ? null : r.plan.savings,
                 r.actual?.savings,
-                r.actual ? r.actual.savings - r.plan.savings : null,
+                inProgress(r.month) ? null : r.actual ? r.actual.savings - r.plan.savings : null,
                 r.expectedCash,
                 r.recordedCash,
               ].map((v, i) => (
@@ -142,7 +173,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
                   key={i}
                   className={i === 6 ? 'muted' : ''}
                 >
-                  {v == null ? (r.status === 'Future' ? 'Future' : r.count === 0 ? 'No entries recorded' : '—') : money(v)}
+                  {v == null ? (r.status === 'Future' ? 'Future' : inProgress(r.month) && i === 6 ? 'In progress' : r.count === 0 ? 'No entries recorded' : '—') : money(v)}
                 </td>
               ))}
               <td>{r.count || '—'}</td>
@@ -201,7 +232,7 @@ export default function Dashboard({
         </div>
         <div className="dashboard-hero-insights">
           <div>
-            <span>{savings.month < 0 ? 'Savings shortfall' : 'Saved this month'}</span>
+            <span>{savings.month < 0 ? (m === date.slice(0, 7) && date < monthEnd(m) ? 'Net savings · month in progress' : 'Recorded savings deficit') : 'Saved this month'}</span>
             <strong className={savings.month < 0 ? 'unfavourable' : ''}>{money(savings.month)}</strong>
             <small>Income less expenses</small>
           </div>
@@ -344,8 +375,12 @@ export default function Dashboard({
             ['Calculated cash balance', cum.expectedCash, cum.actualCash, 'cash'],
           ].map(([label, plannedValue, actualValue, kind]) => {
             const delta = Number(actualValue) - Number(plannedValue);
-            const explanation =
-              delta === 0
+            // Never call an incomplete month a savings/cash shortfall.
+            const unfinishedMonth = date < monthEnd(date.slice(0, 7));
+            const pendingCashOrSavings = unfinishedMonth && (kind === 'cash' || kind === 'savings');
+            const explanation = pendingCashOrSavings
+              ? 'Month in progress — salary and bills may not yet be due'
+              : delta === 0
                 ? 'Matches full-month plan'
                 : kind === 'expenses'
                   ? delta > 0
@@ -368,7 +403,7 @@ export default function Dashboard({
                 <strong>{money(Number(actualValue))}</strong>
                 <small>Full-month plan {money(Number(plannedValue))}</small>
                 <span className="muted">
-                  {delta === 0 ? '' : `${money(Math.abs(delta))} · `}{explanation}
+                  {pendingCashOrSavings || delta === 0 ? '' : `${money(Math.abs(delta))} · `}{explanation}
                 </span>
               </div>
             );

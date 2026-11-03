@@ -12,7 +12,7 @@ export function userError(error: unknown): string {
     return 'Please confirm your email address before signing in.';
   if (/network|failed to fetch|timeout|offline/i.test(message))
     return 'Connection unavailable. Check your internet connection and try again.';
-  if (/^([A-Z][a-z]+ )?(Enter|Choose|Select|Please |Cannot |No |Use |Amount |Budget |Loan |Transaction |Payment |Not enough |End month |The planned |Could not |Check your )/i.test(message) &&
+  if (/^(Enter|Choose|Select|Please |Cannot |No |Use |Amount |Budget |Loan |EMI |Transaction |Payment |Not enough |End month |The planned |Could not |Check your |This imported |Combined receipts |Combined payments |PF claims |A provision |An original-loan |Installment date |Each loan )/i.test(message) &&
     !/invariant|zod|schema|stack|async schemas|unexpected|undefined|failed requirement|trace|at [A-Za-z0-9]+\(/i.test(message) &&
     message.length <= 220) return message;
   return FALLBACK_ERROR;

@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { defaultViewRange } from '../domain/view-range';
 import { useState } from 'react';
 import { CalendarRange, ChevronDown, Check } from 'lucide-react';
@@ -85,7 +86,7 @@ export function RangeControl({
       setOpen(false);
       toast('Range updated. All calculations have been refreshed.');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   }
   return (

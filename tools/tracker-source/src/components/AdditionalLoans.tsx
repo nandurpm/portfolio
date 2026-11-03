@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { receiptScope } from '../domain/archive';
 import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
 import { useState } from 'react';
@@ -81,7 +82,7 @@ export default function AdditionalLoans() {
       setNote('');
       setPlannedDay('');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   }
   async function savePayment(e: React.FormEvent) {
@@ -130,7 +131,7 @@ export default function AdditionalLoans() {
       setPayment(null);
       toast('Payment saved and linked to this installment.');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   }
   return (
@@ -325,7 +326,7 @@ export default function AdditionalLoans() {
                 setEditingDates(false);
                 toast('Schedule dates corrected. Payment dates and amounts preserved.');
               } catch (err) {
-                toast(String(err), true);
+                toast(userError(err), true);
               }
             }}
           >

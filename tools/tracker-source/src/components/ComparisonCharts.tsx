@@ -19,16 +19,16 @@ import { Section } from './UI';
 export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'month' | 'range' }) {
   const p = usePlan();
   const [scope, setScope] = useState(initialScope);
-  const basis = 'full' as const;
+  // Always compare against the complete monthly budget.
   const start = scope === 'month' ? p.settings.selectedMonth : p.settings.viewStart;
   const end = scope === 'month' ? p.settings.selectedMonth : p.settings.viewEnd;
   const rows = useMemo(
     () =>
-      monthlyComparison(p, basis, start, end).map((row) => ({
+      monthlyComparison(p, start, end).map((row) => ({
         ...row,
         name: monthLabel(row.month),
       })),
-    [p, basis, start, end],
+    [p, start, end],
   );
   return (
     <Section
@@ -89,7 +89,7 @@ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'm
                   />
                   <Legend />
                   <Bar
-                    name={basis === 'full' ? 'Full-month plan' : 'Plan by date'}
+                    name="Full-month plan"
                     dataKey={plannedKey}
                     fill="var(--muted)"
                     radius={[4, 4, 0, 0]}

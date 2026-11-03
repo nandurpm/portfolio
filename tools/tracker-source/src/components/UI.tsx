@@ -286,12 +286,19 @@ export function NumberField({
   className?: string;
 }) {
   const [v, set] = useState(String(value));
+  const skipBlurSave = useRef(false);
   const { toast } = useUi();
   useEffect(() => set(String(value)), [value]);
   const save = () => {
+    if (skipBlurSave.current) { skipBlurSave.current = false; return; }
     const n = Number(v);
     if (!v.trim() || !Number.isFinite(n) || n < min) {
       toast(`Enter a valid ${label.toLowerCase()}.`, true);
+      set(String(value));
+      return;
+    }
+    if (step === '1' && !Number.isInteger(n)) {
+      toast(`Enter a whole number for ${label.toLowerCase()}.`, true);
       set(String(value));
       return;
     }
@@ -299,7 +306,7 @@ export function NumberField({
       try {
         onCommit(n);
       } catch (e) {
-        toast(e instanceof Error ? e.message : String(e), true);
+        toast(userError(e), true);
         set(String(value));
       }
     }
@@ -315,11 +322,9 @@ export function NumberField({
       onChange={(e) => set(e.target.value)}
       onBlur={save}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          save();
-          e.currentTarget.blur();
-        }
+        if (e.key === 'Enter') e.currentTarget.blur();
         if (e.key === 'Escape') {
+          skipBlurSave.current = true;
           set(String(value));
           e.currentTarget.blur();
         }
@@ -340,14 +345,16 @@ export function TextField({
   className?: string;
 }) {
   const [v, set] = useState(value);
+  const skipBlurSave = useRef(false);
   const { toast } = useUi();
   useEffect(() => set(value), [value]);
   const save = () => {
+    if (skipBlurSave.current) { skipBlurSave.current = false; return; }
     if (v !== value)
       try {
         onCommit(v);
       } catch (e) {
-        toast(String(e), true);
+        toast(userError(e), true);
         set(value);
       }
   };
@@ -361,6 +368,7 @@ export function TextField({
       onKeyDown={(e) => {
         if (e.key === 'Enter') e.currentTarget.blur();
         if (e.key === 'Escape') {
+          skipBlurSave.current = true;
           set(value);
           e.currentTarget.blur();
         }

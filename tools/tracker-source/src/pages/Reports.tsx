@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { WEB_APP } from "../web-mode";
 import { useState } from "react";
 import {
@@ -58,7 +59,7 @@ export default function Reports() {
       const result = await fn();
       if (result !== null) toast(`${label} complete.`);
     } catch (e) {
-      toast(e instanceof Error ? e.message : String(e), true);
+      toast(userError(e), true);
     } finally {
       setBusy("");
     }
@@ -76,7 +77,7 @@ export default function Reports() {
       setRemap({});
     } catch (e) {
       setPreview(null);
-      setError(e instanceof Error ? e.message : String(e));
+      setError(userError(e));
     } finally {
       setBusy("");
     }
@@ -92,7 +93,7 @@ export default function Reports() {
       setMapping(defaultMapping);
       await loadPreview(f, defaultMapping);
     } catch (e) {
-      setError(String(e));
+      setError(userError(e));
     }
   }
   async function applyImport() {
@@ -135,7 +136,7 @@ export default function Reports() {
       setFile(null);
       setPreview(null);
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   }
   async function pdf() {

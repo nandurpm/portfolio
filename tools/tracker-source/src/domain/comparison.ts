@@ -2,11 +2,10 @@ import type { Plan } from './types';
 import { planned, actual, reportDate } from './calculate';
 import { monthEnd, monthsBetween } from './dates';
 
-export type PlanBasis = 'full' | 'by-date';
-export function monthlyComparison(p: Plan, basis: PlanBasis, start: string, end: string) {
+export function monthlyComparison(p: Plan, start: string, end: string) {
   const through = reportDate(p);
   return monthsBetween(start, end).map((month) => {
-    const plan = planned(p, month, basis === 'by-date' ? through : undefined);
+    const plan = planned(p, month);
     const entered =
       month > through.slice(0, 7)
         ? null

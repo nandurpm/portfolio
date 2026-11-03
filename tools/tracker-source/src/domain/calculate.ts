@@ -1,7 +1,7 @@
 import { isSalaryCategory, salaryForReceiptMonth, pfCashEffect } from './employment';
 import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
 import { formatMoney, compactMoney } from './format-money';
-import { today, daysIn, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
+import { today, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
 export const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 export const moneyCompact = compactMoney;
 export const money = formatMoney;
@@ -15,13 +15,22 @@ export const emptyTotals = (): Totals => ({
   savings: 0,
 });
 export function finish(t: Totals): Totals {
-  return {
-    income: round(t.income),
-    living: round(t.living),
-    debt: round(t.debt),
-    expenses: round(t.living + t.debt),
-    savings: round(t.income - t.living - t.debt),
-  };
+  // For legacy fractional-paise records, preserve the rounded aggregate
+  // and assign its paise-rounding residual to one expense group. This keeps
+  // Expenses = Living + Debt without altering the original stored amounts.
+  const income = round(t.income);
+  const expenses = round(t.living + t.debt);
+  let living = round(t.living), debt = round(t.debt);
+  const residualPaise = Math.round((expenses - living - debt) * 100);
+  if (residualPaise !== 0) {
+    const livingRemainder = t.living - living;
+    const debtRemainder = t.debt - debt;
+    if (residualPaise > 0 ? livingRemainder >= debtRemainder : livingRemainder <= debtRemainder)
+      living = round(living + residualPaise / 100);
+    else
+      debt = round(debt + residualPaise / 100);
+  }
+  return { income, living, debt, expenses, savings: round(income - expenses) };
 }
 export function salary(p: Plan, m: string) {
   return salaryForReceiptMonth(p, m);
@@ -33,10 +42,14 @@ export function contractBalance(p: Plan, m: string) {
     .at(-1);
   return row?.balance ?? p.loan.principal;
 }
+/** The lender's quote and fees only apply to their quoted month. Other months
+ * show indicative outstanding principal until a new settlement quote is obtained. */
 export function closureAmount(p: Plan, m = p.settings.closureMonth) {
-  return p.settings.lenderQuote > 0 && m === p.settings.closureMonth
+  const principal = contractBalance(p, m);
+  if (m !== p.settings.closureMonth) return principal;
+  return p.settings.lenderQuote > 0
     ? p.settings.lenderQuote
-    : round(contractBalance(p, m) + p.settings.accruedInterest + p.settings.fees);
+    : round(principal + p.settings.accruedInterest + p.settings.fees);
 }
 export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
   if (!c.active) return 0;
@@ -108,8 +121,8 @@ export function fullAmount(p: Plan, c: Category, m: string, mode = p.settings.mo
 export function timedAmount(full: number, c: Category, m: string, date: string) {
   if (date < `${m}-01`) return 0;
   if (date >= monthEnd(m)) return full;
-  if (c.timing === 'Fixed day') return date >= monthDay(m, c.day) ? full : 0;
-  return round((full * Number(date.slice(8, 10))) / daysIn(m));
+  // Calendar deadlines only. Never prorate monthly budgets by elapsed days.
+  return c.timing === 'Fixed day' && date >= monthDay(m, c.day) ? full : 0;
 }
 export function categoryPlan(
   p: Plan,
@@ -219,7 +232,9 @@ export function forecast(p: Plan, mode = p.settings.mode): ForecastRow[] {
   let cash = p.settings.opening;
   return monthsBetween(p.settings.planStart, p.settings.planEnd).map((m) => {
     const t = planned(p, m, undefined, mode);
-    cash = round(cash + t.savings);
+    // PF claims/cash-funded contributions are cash transfers, not income or expenses.
+    // A recorded dated transfer affects both the forecast and actual cash ledger.
+    cash = round(cash + t.savings + pfCashEffect(p, `${m}-01`, monthEnd(m)));
     const emi = round(
         p.categories
           .filter((c) => c.role === 'emi')
@@ -270,7 +285,7 @@ export function cumulative(p: Plan, date = reportDate(p)) {
   return {
     plan,
     actual: a,
-    expectedCash: round(p.settings.opening + plan.savings),
+    expectedCash: round(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
     actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date)),
   };
 }
@@ -282,7 +297,7 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
   for (const e of p.entries) {
     if (e.date > date || !inRange(e.date, p.settings.planStart, p.settings.planEnd)) continue;
     const c = cats.get(e.categoryId);
-    if (!c) continue;
+    if (!c || c.group === 'Asset') continue;
     const m = e.date.slice(0, 7),
       bucket = buckets.get(m) ?? { t: emptyTotals(), count: 0 };
     bucket.t[c.group === 'Income' ? 'income' : c.group === 'Living' ? 'living' : 'debt'] +=
@@ -296,7 +311,8 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
       t = planned(p, m),
       bucket = buckets.get(m),
       a = bucket ? finish(bucket.t) : null;
-    pc = round(pc + t.savings);
+    // Match the PF cash ledger used by recorded cash, without treating PF as savings.
+    pc = round(pc + t.savings + (future ? 0 : pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m))));
     ac = round(ac + (a?.savings ?? 0) + pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)));
     return {
       month: m,
@@ -354,7 +370,14 @@ export function regenerateLoan(p: Plan): LoanRow[] {
     const month = addMonths(l.firstDueDate.slice(0, 7), i),
       interest = round(i === 0 ? l.firstInterest : balance * rate);
     let emi = i === 0 ? l.firstEmi : l.regularEmi;
-    if (i === l.tenure - 1 || emi > balance + interest) emi = round(balance + interest);
+    const amountDue = round(balance + interest);
+    if (i === l.tenure - 1 && amountDue - emi > 0.5)
+      throw Error(
+        `EMI is too low to repay this loan within ${l.tenure} months. ` +
+        `The final installment would be ${formatMoney(amountDue)} instead of ${formatMoney(emi)}. ` +
+        'Increase the EMI or extend the tenure.',
+      );
+    if (i === l.tenure - 1 || emi > amountDue) emi = amountDue;
     if (emi <= interest)
       throw Error('EMI must exceed interest. Increase the EMI or reduce the rate.');
     const principal = round(emi - interest);

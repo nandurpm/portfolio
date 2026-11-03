@@ -25,3 +25,4 @@ Released: 3 November 2026
 ## Reconciliation note
 
 The audited archives do not independently prove that the reported ₹2,000 phone payment dated 20 October 2026 was made. Version 2.0.0 preserves the stored records and does not infer payment from notes.
+

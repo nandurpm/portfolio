@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
 import { store, usePlan } from '../store';
 import type { Settings } from '../domain/types';
@@ -67,7 +68,7 @@ export function SettingMonth({
                 (d.settings as any)[name] = e.target.value;
               });
             } catch (err) {
-              toast(String(err), true);
+              toast(userError(err), true);
             }
         }}
       />

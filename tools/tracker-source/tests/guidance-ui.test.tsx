@@ -98,3 +98,12 @@ describe('guidance and sync UI', () => {
     expect(html).not.toContain('Payment recorded');
   });
 });
+
+
+it('keeps technical sync diagnostics out of the visible status panel', () => {
+  state.cloud.error = 'TypeError: internalSchema undefined at syncFrame';
+  const html = renderToStaticMarkup(<SyncStatusDetails />);
+  expect(html).toContain('Sync needs attention');
+  expect(html).not.toContain('internalSchema');
+  expect(html).not.toContain('TypeError');
+});

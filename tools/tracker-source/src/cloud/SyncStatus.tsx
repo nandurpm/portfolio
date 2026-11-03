@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { useEffect, useState } from 'react';
 import { useEnvelope } from '../store';
 import { useCloud } from './sync';
@@ -56,7 +57,7 @@ export function SyncStatusDetails() {
               : 'No pending changes'}
         </strong>
       </div>
-      {s.error && <p className="unfavourable">{s.error}</p>}
+      {s.error && <p className="unfavourable">{userError(s.error)}</p>}
     </div>
   );
 }
