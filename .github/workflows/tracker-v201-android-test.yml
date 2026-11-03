@@ -33,6 +33,13 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+      - name: Restore verified complete v2.0.0 native source
+        run: |
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/tracker-native.zip 'https://drive.google.com/uc?export=download&id=15zecTdCYtbeFc5duPMBaGH1JcN3CBxnT'
+          printf '5d3c8df0d240167941435c74a87a81b8a220dcc69257c5e11a19a4798b717ec7  /tmp/tracker-native.zip\n' | sha256sum --check
+          unzip -oq /tmp/tracker-native.zip -d .
+          test -f android/gradlew
+          test -f scripts/build-android.mjs
       - name: Apply verified source patch
         run: |
           python3 - <<'PY'
