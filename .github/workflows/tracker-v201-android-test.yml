@@ -1,0 +1,81 @@
+name: Tracker v2.0.1 Android TEST APK (separate app)
+
+on:
+  push:
+    branches:
+      - tracker-v2.0.1-android-test-build
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK 36
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+      - name: Apply verified source patch
+        run: |
+          patch --dry-run -p1 < patches/v2.0.1-test-source.patch
+          patch -p1 < patches/v2.0.1-test-source.patch
+          test "$(node -p 'require("./package.json").version')" = '2.0.1'
+      - name: Install dependencies and run checks
+        run: |
+          npm ci
+          npm run check
+      - name: Build web code and sync to Capacitor
+        run: |
+          npm run build:release
+          npx cap sync android
+      - name: Isolate TEST app from production
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle=Path("android/app/build.gradle")
+          s=gradle.read_text()
+          old="    buildTypes {\n        release {\n"
+          assert s.count(old)==1, "release block unexpectedly changed"
+          s=s.replace(old, old+'            applicationIdSuffix ".test"\n')
+          gradle.write_text(s)
+          strings=Path("android/app/src/main/res/values/strings.xml")
+          s=strings.read_text()
+          assert "Savings and Expense Tracker" in s
+          strings.write_text(s.replace("Savings and Expense Tracker","Savings Tracker TEST"))
+          PY
+      - name: Sign test APK using a NEW temporary key
+        run: |
+          keytool -genkeypair -keystore "$RUNNER_TEMP/tracker-test.jks" -alias tracker -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Savings Tracker TEST" -storepass "TemporaryTestOnly2026" -keypass "TemporaryTestOnly2026" -noprompt
+          TRACKER_KEYSTORE_PATH="$RUNNER_TEMP/tracker-test.jks" TRACKER_KEYSTORE_PASSWORD="TemporaryTestOnly2026" bash android/gradlew --no-daemon clean assembleRelease
+      - name: Validate package and signature
+        run: |
+          APK="android/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | tee "$RUNNER_TEMP/apk-badging.txt"
+          grep -q "name='com.nandakumar.savingsexpensetracker.test'" "$RUNNER_TEMP/apk-badging.txt"
+          grep -q "versionCode='20001'" "$RUNNER_TEMP/apk-badging.txt"
+          sha256sum "$APK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Savings-and-Expense-Tracker-v2.0.1-TEST-APK
+          path: tools/tracker-source/android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
