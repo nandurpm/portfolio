@@ -47,6 +47,8 @@ jobs:
           patch --dry-run -p1 < patches/v2.0.1-test-source.patch
           patch -p1 < patches/v2.0.1-test-source.patch
           test "$(node -p 'require("./package.json").version')" = '2.0.1'
+          git add -A .
+          git -c user.name='Tracker CI Test' -c user.email='tracker-test@example.invalid' commit -m 'Local-only test build source v2.0.1'
       - name: Install dependencies and run checks
         run: |
           npm ci
