@@ -38,19 +38,19 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          patch=Path("patches/v2.0.1-test-source.patch").read_text()
+          patch=Path("patches/v2.0.1-testfix-source.patch").read_text()
           for filename in re.findall(r"^--- a/(.+)$", patch, re.M):
               f=Path(filename)
               if f.is_file():
                   f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n"))
           PY
-          patch --dry-run -p1 < patches/v2.0.1-test-source.patch
-          patch -p1 < patches/v2.0.1-test-source.patch
+          patch --dry-run -p1 < patches/v2.0.1-testfix-source.patch
+          patch -p1 < patches/v2.0.1-testfix-source.patch
           cat > capacitor.config.ts <<'EOF'
           import type { CapacitorConfig } from '@capacitor/cli';
           const config: CapacitorConfig = {
-            appId: 'com.nandakumar.savingsexpensetracker.test',
-            appName: 'Savings Tracker TEST',
+            appId: 'com.nandakumar.savingsexpensetracker.testfixed',
+            appName: 'Savings Tracker TEST FIXED',
             webDir: 'dist',
             server: { androidScheme: 'https', cleartext: false },
             android: { allowMixedContent: false, webContentsDebuggingEnabled: false },
@@ -69,6 +69,29 @@ jobs:
           npx vite build --mode release --outDir dist
           npx cap add android
           npx cap sync android
+      - name: Install original native storage and session plugin
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          package='com.nandakumar.savingsexpensetracker.testfixed'
+          folder=Path('android/app/src/main/java')/package.replace('.', '/')
+          folder.mkdir(parents=True,exist_ok=True)
+          original='package com.nandakumar.savingsexpensetracker;'
+          for name in ('MainActivity.java','SnapshotBackups.java','TrackerNativePlugin.java'):
+              source=Path('test-native')/name
+              data=source.read_text()
+              assert data.startswith(original), f'Unexpected package in {name}'
+              if name == 'TrackerNativePlugin.java':\n                  data=data.replace('com.nandakumar.savingsexpensetracker://auth/callback','com.nandakumar.savingsexpensetracker.testfixed://auth/callback')\n              (folder/name).write_text(data.replace(original,'package '+package+';',1))
+          manifest=Path('android/app/src/main/AndroidManifest.xml')
+          data=manifest.read_text()
+          assert 'android:name=".MainActivity"' in data
+          assert data.count('android.intent.action.MAIN')==1
+          assert 'com.nandakumar.savingsexpensetracker.testfixed' not in data
+          assert 'com.nandakumar.savingsexpensetracker" android:host="auth"' not in data
+          data=data.replace('            </intent-filter>','            </intent-filter>\n            <intent-filter><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><category android:name="android.intent.category.BROWSABLE"/><data android:scheme="com.nandakumar.savingsexpensetracker.testfixed" android:host="auth" android:path="/callback"/></intent-filter>',1)
+          manifest.write_text(data)
+          print('Custom TrackerNative storage bridge installed; callback isolated')
+          PY
       - name: Configure TEST version and temporary release signing
         run: |
           python3 - <<'PY'
@@ -76,9 +99,9 @@ jobs:
           import re
           gradle=Path("android/app/build.gradle")
           s=gradle.read_text()
-          s,n=re.subn(r'\bversionCode\s+1\b', 'versionCode 20001', s, count=1)
+          s,n=re.subn(r'\bversionCode\s+1\b', 'versionCode 20002', s, count=1)
           assert n==1, "versionCode setting not found"
-          s,n=re.subn(r'\bversionName\s+"1\.0"', 'versionName "2.0.1-test"', s, count=1)
+          s,n=re.subn(r'\bversionName\s+"1\.0"', 'versionName "2.0.1-testfix"', s, count=1)
           assert n==1, "versionName setting not found"
           marker='    buildTypes {'
           assert s.count(marker)==1, "buildTypes block unexpectedly changed"
@@ -99,16 +122,16 @@ jobs:
           PY
       - name: Sign test APK using a NEW temporary key
         run: |
-          keytool -genkeypair -keystore "$RUNNER_TEMP/tracker-test.jks" -alias tracker -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Savings Tracker TEST" -storepass "TemporaryTestOnly2026" -keypass "TemporaryTestOnly2026" -noprompt
+          keytool -genkeypair -keystore "$RUNNER_TEMP/tracker-test.jks" -alias tracker -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Savings Tracker TEST FIXED" -storepass "TemporaryTestOnly2026" -keypass "TemporaryTestOnly2026" -noprompt
           TRACKER_KEYSTORE_PATH="$RUNNER_TEMP/tracker-test.jks" TRACKER_KEYSTORE_PASSWORD="TemporaryTestOnly2026" bash android/gradlew --project-dir android --no-daemon clean assembleRelease
       - name: Validate package and signature
         run: |
           APK="android/app/build/outputs/apk/release/app-release.apk"
-          test -s "$APK"
+          test -s "$APK"\n          unzip -p "$APK" classes.dex | strings | grep -q "TrackerNative"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | tee "$RUNNER_TEMP/apk-badging.txt"
-          grep -q "name='com.nandakumar.savingsexpensetracker.test'" "$RUNNER_TEMP/apk-badging.txt"
-          grep -q "versionCode='20001'" "$RUNNER_TEMP/apk-badging.txt"
+          grep -q "name='com.nandakumar.savingsexpensetracker.testfixed'" "$RUNNER_TEMP/apk-badging.txt"
+          grep -q "versionCode='20002'" "$RUNNER_TEMP/apk-badging.txt"
           sha256sum "$APK"
       - uses: actions/upload-artifact@v4
         with:
