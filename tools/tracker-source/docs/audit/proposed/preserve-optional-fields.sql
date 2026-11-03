@@ -14,7 +14,7 @@ BEGIN
   END LOOP;
   -- Modern salary history and PF are schema opt-ins. Even an empty ledger
   -- must not be dropped by a legacy client which does not know the field.
-  FOREACH field_name IN ARRAY ARRAY['salaryChanges','pfMovements'] LOOP
+  FOREACH field_name IN ARRAY ARRAY['salaryChanges','pfMovements','accounts','ledgerTransactions'] LOOP
    IF jsonb_typeof(OLD.data->field_name) = 'array'
     AND (NOT(NEW.data ? field_name) OR jsonb_typeof(NEW.data->field_name) IS DISTINCT FROM 'array') THEN
      RAISE EXCEPTION 'Update tracker clients: existing % must be preserved',field_name USING ERRCODE='22023';
@@ -27,6 +27,23 @@ BEGIN
  IF jsonb_typeof(NEW.data->'entries') IS DISTINCT FROM 'array' OR jsonb_typeof(NEW.data->'categories') IS DISTINCT FROM 'array' THEN
   RAISE EXCEPTION 'Invalid plan arrays' USING ERRCODE='22023';
  END IF;
+ IF (NEW.data ? 'accounts') IS DISTINCT FROM (NEW.data ? 'ledgerTransactions') THEN
+  RAISE EXCEPTION 'Accounts and ledger transactions must be enabled together' USING ERRCODE='22023';
+ END IF;
+ IF NEW.data ? 'accounts' AND (
+  jsonb_typeof(NEW.data->'accounts') IS DISTINCT FROM 'array'
+  OR jsonb_typeof(NEW.data->'ledgerTransactions') IS DISTINCT FROM 'array'
+  OR EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'accounts') a
+    WHERE jsonb_typeof(a) IS DISTINCT FROM 'object' OR coalesce(a->>'id','')='' OR coalesce(a->>'name','')=''
+      OR jsonb_typeof(a->'openingBalance') IS DISTINCT FROM 'number')
+  OR EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'accounts') a GROUP BY a->>'id' HAVING count(*)>1)
+  OR EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'ledgerTransactions') t
+    WHERE jsonb_typeof(t) IS DISTINCT FROM 'object' OR coalesce(t->>'id','')='' OR coalesce(t->>'date','')=''
+      OR jsonb_typeof(t->'amount') IS DISTINCT FROM 'number' OR (t->>'amount')::numeric<=0
+      OR ((t ? 'sourceAccountId') AND NOT EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'accounts') a WHERE a->>'id'=t->>'sourceAccountId'))
+      OR ((t ? 'destinationAccountId') AND NOT EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'accounts') a WHERE a->>'id'=t->>'destinationAccountId')))
+  OR EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'ledgerTransactions') t GROUP BY t->>'id' HAVING count(*)>1)
+ ) THEN RAISE EXCEPTION 'Invalid account ledger' USING ERRCODE='22023'; END IF;
  IF EXISTS(SELECT 1 FROM jsonb_array_elements(NEW.data->'entries') e
    WHERE jsonb_typeof(e) IS DISTINCT FROM 'object' OR coalesce(e->>'id','')='' OR jsonb_typeof(e->'amount') IS DISTINCT FROM 'number') THEN
   RAISE EXCEPTION 'Invalid transaction fields' USING ERRCODE='22023';

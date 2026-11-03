@@ -31,6 +31,55 @@ export interface Entry {
   edited?: boolean;
   loanRowId?: string;
 }
+export type AccountKind =
+  | 'cash'
+  | 'bank'
+  | 'wallet'
+  | 'credit-card'
+  | 'receivable'
+  | 'liability'
+  | 'fixed-deposit'
+  | 'investment';
+export interface Account {
+  id: string;
+  name: string;
+  kind: AccountKind;
+  openingBalance: number;
+  active: boolean;
+  note: string;
+}
+export type LedgerKind =
+  | 'income'
+  | 'expense'
+  | 'transfer'
+  | 'lend'
+  | 'repayment-received'
+  | 'borrow'
+  | 'principal-repayment'
+  | 'fd-deposit'
+  | 'fd-withdrawal'
+  | 'investment-deposit'
+  | 'investment-withdrawal'
+  | 'shopping'
+  | 'refund'
+  | 'credit-card-purchase'
+  | 'credit-card-payment';
+export interface LedgerTransaction {
+  id: string;
+  date: string;
+  kind: LedgerKind;
+  amount: number;
+  sourceAccountId?: string;
+  destinationAccountId?: string;
+  categoryId?: string;
+  interestAmount?: number;
+  feeAmount?: number;
+  originalTransactionId?: string;
+  merchant?: string;
+  orderId?: string;
+  description: string;
+  note: string;
+}
 export interface LoanRow {
   id: string;
   month: string;
@@ -98,6 +147,9 @@ export interface PfMovement {
   note: string;
 }
 export interface Plan {
+  /** Optional v2.1 account ledger. Omission preserves pre-ledger backups. */
+  accounts?: Account[];
+  ledgerTransactions?: LedgerTransaction[];
   salaryChanges?: SalaryChange[];
   pfMovements?: PfMovement[];
   reconciliations?: Reconciliation[];

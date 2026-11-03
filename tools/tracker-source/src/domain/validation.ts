@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { validatePfMovements } from './employment';
+import { validateLedger } from './ledger';
 import { validDate, validMonth, monthsBetween, inRange } from './dates';
 import { isAppFormat, type Plan, type Entry } from './types';
 const nonnegative = z.number().finite().min(0).max(1e12),
@@ -47,6 +48,33 @@ const loanRow = z.object({
   edited: z.boolean().optional(),
 });
 export const planSchema = z.object({
+  accounts: z.array(z.object({
+    id: z.string().min(1),
+    name: z.string().trim().min(1).max(100),
+    kind: z.enum(['cash', 'bank', 'wallet', 'credit-card', 'receivable', 'liability', 'fixed-deposit', 'investment']),
+    openingBalance: z.number().finite().min(-1e12).max(1e12),
+    active: z.boolean(),
+    note: z.string().max(1000),
+  })).max(1000).optional(),
+  ledgerTransactions: z.array(z.object({
+    id: z.string().min(1),
+    date,
+    kind: z.enum(['income', 'expense', 'transfer', 'lend', 'repayment-received', 'borrow',
+      'principal-repayment', 'fd-deposit', 'fd-withdrawal', 'investment-deposit',
+      'investment-withdrawal', 'shopping', 'refund', 'credit-card-purchase',
+      'credit-card-payment']),
+    amount: z.number().finite().positive().max(1e12),
+    sourceAccountId: z.string().min(1).optional(),
+    destinationAccountId: z.string().min(1).optional(),
+    categoryId: z.string().min(1).optional(),
+    interestAmount: nonnegative.optional(),
+    feeAmount: nonnegative.optional(),
+    originalTransactionId: z.string().min(1).optional(),
+    merchant: z.string().max(200).optional(),
+    orderId: z.string().max(200).optional(),
+    description: z.string().max(1000),
+    note: z.string().max(5000),
+  })).max(100000).optional(),
   salaryChanges: z.array(z.object({ id: z.string().min(1), effectiveDate: date, monthlySalary: nonnegative, monthlyPfContribution: nonnegative })).max(1000).optional(),
   pfMovements: z.array(z.object({ id: z.string().min(1), date, kind: z.enum(['contribution', 'claim']), source: z.enum(['payroll', 'cash']), amount: nonnegative.positive().refine(value => Math.abs(value * 100 - Math.round(value * 100)) < 1e-6, 'Use at most two decimal places'), payment: z.string().trim().min(1).max(100), note: z.string().max(1000) })).max(10000).optional(),
   reconciliations: z
@@ -166,6 +194,9 @@ export const planSchema = z.object({
 });
 export function validatePlan(p: unknown): Plan {
   const v = planSchema.parse(p);
+  if ((v.accounts === undefined) !== (v.ledgerTransactions === undefined))
+    throw Error('Accounts and ledger transactions must be enabled together.');
+  if (v.accounts) validateLedger(v.accounts, v.ledgerTransactions ?? []);
   if (v.settings.planStart > v.settings.planEnd)
     throw Error('Start month must be before the end month.');
   if (monthsBetween(v.settings.planStart, v.settings.planEnd).length > 600)

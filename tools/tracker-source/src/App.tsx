@@ -38,6 +38,7 @@ import {
   ChevronRight,
   MoreHorizontal,
   Plus,
+  CircleDollarSign,
 } from "lucide-react";
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
@@ -48,6 +49,7 @@ import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
 import { UiProvider, useUi, Modal } from "./components/UI";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Accounts = lazy(() => import("./pages/Accounts"));
 const Employment = lazy(() => import("./pages/Employment"));
 const Entries = lazy(() => import("./pages/Entries")),
   Budget = lazy(() => import("./pages/Budget")),
@@ -59,6 +61,7 @@ const Entries = lazy(() => import("./pages/Entries")),
 const pages = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
   { id: "entries", name: "Daily Entries", icon: ReceiptText },
+  { id: "accounts", name: "Accounts & transactions", icon: CircleDollarSign },
   { id: "budget", name: "Budget & Plan", icon: WalletCards },
   { id: "loan", name: "Loan & Closure", icon: Landmark },
   { id: "employment", name: "Salary & PF", icon: Landmark },
@@ -358,6 +361,7 @@ export function Shell() {
                   {
                     dashboard: "Home",
                     entries: "Entries",
+                    accounts: "Accounts",
                     budget: "Budget",
                     loan: "Loan",
                     forecast: "Forecast",
@@ -502,6 +506,8 @@ export function Shell() {
                       />
                     ) : page === "entries" ? (
                       <Entries initialKind={entryKind} />
+                    ) : page === "accounts" ? (
+                      <Accounts />
                     ) : page === "employment" ? (
                       <Employment />
                     ) : page === "budget" ? (
@@ -544,9 +550,9 @@ export function Shell() {
         <nav className="phone-nav" aria-label="Phone navigation">
           {[
             { id: "dashboard", name: "Home", icon: LayoutDashboard },
-            { id: "entries", name: "Entries", icon: ReceiptText },
-            { id: "budget", name: "Budget", icon: WalletCards },
-            { id: "loan", name: "Loan", icon: Landmark },
+            { id: "entries", name: "Transactions", icon: ReceiptText },
+            { id: "accounts", name: "Accounts", icon: CircleDollarSign },
+            { id: "reports", name: "Reports", icon: FileDown },
           ].map((x) => (
             <button
               key={x.id}
@@ -561,7 +567,7 @@ export function Shell() {
             aria-label="More screens"
             aria-expanded={more}
             aria-current={
-              ["forecast", "balances", "reports", "settings"].includes(page)
+              ["budget", "loan", "employment", "forecast", "balances", "settings"].includes(page)
                 ? "page"
                 : undefined
             }
@@ -585,7 +591,7 @@ export function Shell() {
             <div className="phone-menu">
               {pages
                 .filter((x) =>
-                  ["forecast", "balances", "reports", "settings"].includes(x.id),
+                  ["budget", "loan", "employment", "forecast", "balances", "settings"].includes(x.id),
                 )
                 .map((x) => (
                   <button
@@ -594,13 +600,7 @@ export function Shell() {
                     onClick={() => navigate(x.id)}
                   >
                     <x.icon size={22} />
-                    {x.id === "balances"
-                      ? "Balances & provisions"
-                      : x.id === "forecast"
-                        ? "Forecast & Month-by-month"
-                        : x.id === "reports"
-                          ? "Reports & Export/Import"
-                          : "Settings"}
+                    {x.name}
                   </button>
                 ))}
               <div className="phone-menu-actions">

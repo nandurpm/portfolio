@@ -74,10 +74,12 @@ export function localPlan(remote: CloudPlan, device: Plan): Plan {
  */
 export function assertModernLedgerPreserved(base: CloudPlan | undefined, local: Plan, remote: CloudPlan) {
   if (!base) return;
-  for (const field of ['salaryChanges', 'pfMovements'] as const) {
+  for (const field of ['salaryChanges', 'pfMovements', 'accounts', 'ledgerTransactions'] as const) {
     if (base[field] !== undefined && local[field] !== undefined && remote[field] === undefined)
       throw Error(
-        `Another device omitted ${field === 'salaryChanges' ? 'salary history' : 'PF account records'}. ` +
+        `Another device omitted ${field === 'salaryChanges' ? 'salary history' :
+          field === 'pfMovements' ? 'PF account records' :
+          field === 'accounts' ? 'financial accounts' : 'account ledger transactions'}. ` +
         'Your existing records are preserved locally. Update that device before syncing again.',
       );
   }

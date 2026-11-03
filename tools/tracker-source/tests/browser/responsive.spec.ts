@@ -17,9 +17,7 @@ async function navigate(page: Page, name: string) {
   const phoneName = (
     {
       Dashboard: 'Home',
-      'Daily Entries': 'Entries',
-      'Budget & Plan': 'Budget',
-      'Loan & Closure': 'Loan',
+      'Daily Entries': 'Transactions',
     } as Record<string, string>
   )[name];
   if (phoneName) {
