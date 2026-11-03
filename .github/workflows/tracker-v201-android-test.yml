@@ -38,14 +38,14 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          patch=Path("patches/v2.0.1-testfix-source.patch").read_text()
+          patch=Path("patches/v2.0.1-test-source.patch").read_text()
           for filename in re.findall(r"^--- a/(.+)$", patch, re.M):
               f=Path(filename)
               if f.is_file():
                   f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n"))
           PY
-          patch --dry-run -p1 < patches/v2.0.1-testfix-source.patch
-          patch -p1 < patches/v2.0.1-testfix-source.patch
+          patch --dry-run -p1 < patches/v2.0.1-test-source.patch
+          patch -p1 < patches/v2.0.1-test-source.patch
           cat > capacitor.config.ts <<'EOF'
           import type { CapacitorConfig } from '@capacitor/cli';
           const config: CapacitorConfig = {
@@ -81,7 +81,9 @@ jobs:
               source=Path('test-native')/name
               data=source.read_text()
               assert data.startswith(original), f'Unexpected package in {name}'
-              if name == 'TrackerNativePlugin.java':\n                  data=data.replace('com.nandakumar.savingsexpensetracker://auth/callback','com.nandakumar.savingsexpensetracker.testfixed://auth/callback')\n              (folder/name).write_text(data.replace(original,'package '+package+';',1))
+              if name == 'TrackerNativePlugin.java':
+                  data=data.replace('com.nandakumar.savingsexpensetracker://auth/callback','com.nandakumar.savingsexpensetracker.testfixed://auth/callback')
+              (folder/name).write_text(data.replace(original,'package '+package+';',1))
           manifest=Path('android/app/src/main/AndroidManifest.xml')
           data=manifest.read_text()
           assert 'android:name=".MainActivity"' in data
@@ -127,7 +129,8 @@ jobs:
       - name: Validate package and signature
         run: |
           APK="android/app/build/outputs/apk/release/app-release.apk"
-          test -s "$APK"\n          unzip -p "$APK" classes.dex | strings | grep -q "TrackerNative"
+          test -s "$APK"
+          unzip -p "$APK" classes.dex | strings | grep -q "TrackerNative"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | tee "$RUNNER_TEMP/apk-badging.txt"
           grep -q "name='com.nandakumar.savingsexpensetracker.testfixed'" "$RUNNER_TEMP/apk-badging.txt"
@@ -135,7 +138,7 @@ jobs:
           sha256sum "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Savings-and-Expense-Tracker-v2.0.1-TEST-APK
+          name: Savings-and-Expense-Tracker-v2.0.1-TEST-FIXED-APK
           path: tools/tracker-source/android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 30
