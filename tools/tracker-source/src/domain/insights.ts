@@ -35,7 +35,7 @@ export function installmentTasks(p: Plan, month: string, cutoff = reportDate(p))
           const paid = round(
             receipts.length
               ? receipts.filter((e) => e.date <= cutoff).reduce((sum, e) => sum + e.amount, 0)
-              : row.paidDate && row.paidDate <= cutoff
+              : (row.paidBeforeOpening && (!row.paidDate || row.paidDate <= cutoff)) || (row.paidDate && row.paidDate <= cutoff)
                 ? row.paidAmount
                 : 0,
           );

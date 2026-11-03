@@ -37,15 +37,20 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
-          patch=Path("patches/v2.0.1-test-source.patch").read_text()
+          import re, os
+          # Shared web corrections are now in main. Apply only the remaining
+          # isolated native candidate metadata; never apply shared fixes twice.
+          original=Path("patches/v2.0.1-test-source.patch").read_text()
+          chunks=re.split(r"(?=^--- a/)", original, flags=re.M)
+          patch="".join(chunk for chunk in chunks if chunk.startswith("--- a/") and not chunk.startswith(("--- a/src/", "--- a/tests/")))
+          Path(os.environ["RUNNER_TEMP"], "tracker-native-candidate.patch").write_text(patch)
           for filename in re.findall(r"^--- a/(.+)$", patch, re.M):
               f=Path(filename)
               if f.is_file():
                   f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n"))
           PY
-          patch --dry-run -p1 < patches/v2.0.1-test-source.patch
-          patch -p1 < patches/v2.0.1-test-source.patch
+          patch --dry-run -p1 < "$RUNNER_TEMP/tracker-native-candidate.patch"
+          patch -p1 < "$RUNNER_TEMP/tracker-native-candidate.patch"
           cat > capacitor.config.ts <<'EOF'
           import type { CapacitorConfig } from '@capacitor/cli';
           const config: CapacitorConfig = {

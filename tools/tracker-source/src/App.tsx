@@ -1,3 +1,4 @@
+import { userError } from './domain/user-error';
 import {
   listenForAndroidBack,
   exitAndroid,
@@ -42,7 +43,6 @@ import {
 import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
 import { errorMessage } from "./domain/user-errors";
-import { errorDetails } from "./domain/user-error";
 import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
@@ -129,7 +129,7 @@ export function Shell() {
           flush: () => store.flush(),
           exit: exitAndroid,
         }).catch((e) =>
-          toast(`Please save before exiting: ${String(e)}`, true),
+          toast(userError(e), true),
         );
       }),
     [],
@@ -143,7 +143,7 @@ export function Shell() {
     void store
       .load()
       .then(() => sync.start())
-      .catch((e) => toast(errorDetails(e), true))
+      .catch((e) => toast(userError(e), true))
       .finally(() => setLoading(false));
     const timer = setInterval(() => setTick((t) => t + 1), 60_000);
     const off = window.desktop?.onBeforeClose(() => store.flush());
@@ -218,7 +218,7 @@ export function Shell() {
           if (e.shiftKey) store.redo();
           else store.undo();
         } catch (err) {
-          toast(String(err), true);
+          toast(userError(err), true);
         }
       }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
@@ -226,7 +226,7 @@ export function Shell() {
         try {
           store.redo();
         } catch (err) {
-          toast(String(err), true);
+          toast(userError(err), true);
         }
       }
       if (e.ctrlKey && e.key.toLowerCase() === "n") {
@@ -402,7 +402,7 @@ export function Shell() {
                   try {
                     store.undo();
                   } catch (e) {
-                    toast(errorDetails(e), true);
+                    toast(userError(e), true);
                   }
                 }}
               >
@@ -417,7 +417,7 @@ export function Shell() {
                   try {
                     store.redo();
                   } catch (e) {
-                    toast(errorDetails(e), true);
+                    toast(userError(e), true);
                   }
                 }}
               >
@@ -457,7 +457,7 @@ export function Shell() {
                     onClick={() =>
                       void store
                         .retrySave()
-                        .catch((e) => toast(errorDetails(e), true))
+                        .catch((e) => toast(userError(e), true))
                     }
                   >
                     Retry save
@@ -611,7 +611,7 @@ export function Shell() {
                     try {
                       store.undo();
                     } catch (e) {
-                      toast(errorDetails(e), true);
+                      toast(userError(e), true);
                     }
                   }}
                 >
@@ -625,7 +625,7 @@ export function Shell() {
                     try {
                       store.redo();
                     } catch (e) {
-                      toast(errorDetails(e), true);
+                      toast(userError(e), true);
                     }
                   }}
                 >

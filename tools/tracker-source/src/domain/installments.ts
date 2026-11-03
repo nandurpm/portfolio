@@ -1,6 +1,7 @@
 import type { Plan, InstallmentLoan } from './types';
 import { addMonths, monthDay, validDate } from './dates';
 import { round } from './calculate';
+import { isPaise } from './money-precision';
 
 export function addInstallmentLoan(p: Plan, input: Omit<InstallmentLoan, 'id' | 'rows'>) {
   const name = input.name.trim();
@@ -19,6 +20,8 @@ export function addInstallmentLoan(p: Plan, input: Omit<InstallmentLoan, 'id' | 
   if (!validDate(input.firstDueDate)) throw Error('Enter a valid first due date.');
   if (input.plannedPayDay !== undefined && (!Number.isInteger(input.plannedPayDay) || input.plannedPayDay < 1 || input.plannedPayDay > 31))
     throw Error('The planned payment day must be between 1 and 31.');
+  if (!isPaise(input.principal) || !isPaise(input.monthlyEmi))
+    throw Error('Use at most two decimal places for loan amounts.');
   if (round(input.monthlyEmi * input.tenure) < input.principal)
     throw Error('Total repayments cannot be less than the financed amount.');
   const id = crypto.randomUUID(),
@@ -77,6 +80,7 @@ export function saveInstallmentPayment(
     ? p.entries.find((e) => e.id === receiptId && e.loanRowId === rowId)
     : undefined;
   if (receiptId && !existing) throw Error('Receipt was not found.');
+  if (!isPaise(amount) && existing?.amount !== amount) throw Error('Use at most two decimal places for payments.');
   const receipts = p.entries.filter((e) => e.loanRowId === rowId);
   if (row.paidAmount && !receipts.length)
     throw Error(
@@ -116,6 +120,7 @@ export function saveOriginalPayment(
   const receipts = p.entries.filter((e) => e.loanRowId === rowId);
   const existing = receipts.find((e) => e.id === receiptId);
   if (receiptId && !existing) throw Error('Receipt was not found.');
+  if (!isPaise(amount) && existing?.amount !== amount) throw Error('Use at most two decimal places for payments.');
   if (row.paidAmount && !receipts.length)
     throw Error(
       'This imported schedule payment has no receipt. Reconcile it before recording another payment.',

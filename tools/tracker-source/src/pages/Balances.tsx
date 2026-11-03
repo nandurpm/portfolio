@@ -1,3 +1,4 @@
+import { userError } from '../domain/user-error';
 import { useState } from 'react';
 import { HelpTerm } from '../components/HelpTerm';
 import { store, usePlan } from '../store';
@@ -58,7 +59,7 @@ export default function Balances() {
       toast('Comparison saved. No transaction or opening balance was changed.');
       setStatement('');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   };
   const saveProvision = async (e: React.FormEvent) => {
@@ -82,7 +83,7 @@ export default function Balances() {
       setEdit('');
       toast('Provision saved. Actual cash records are unchanged.');
     } catch (e) {
-      toast(String(e), true);
+      toast(userError(e), true);
     }
   };
   return (

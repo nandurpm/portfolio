@@ -31,6 +31,7 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
   const percentage = planned > 0 ? round((recorded / planned) * 100) : null;
   const status = kind === 'income'
     ? recorded === 0 ? 'Not recorded' : recorded < planned ? 'Part received' : 'Income recorded'
+    : recorded > 0 && planned === 0 ? 'Unbudgeted spending'
     : recorded > planned && planned >= 0 ? 'Over budget'
     : recorded === 0 ? 'No entry recorded'
     : kind === 'bill'
@@ -38,6 +39,7 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
       : 'Spending recorded';
   const note = kind === 'income'
     ? remaining > 0 ? 'Expected income not yet recorded' : 'Income recorded'
+    : recorded > 0 && planned === 0 ? 'No budget was allocated to this category'
     : remaining < 0 ? 'Above the monthly budget' : 'Unspent budget is not savings';
   return { id: c.id, name: c.name, kind, planned, recorded, remaining, percentage, plannedDate, status, note };
 }

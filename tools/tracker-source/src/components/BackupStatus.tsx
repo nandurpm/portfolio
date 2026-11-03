@@ -1,4 +1,5 @@
 import { WEB_APP } from '../web-mode';
+import { userError } from '../domain/user-error';
 import { SyncStatusDetails } from '../cloud/SyncStatus';
 import { useState } from 'react';
 import { store, useSaveStatus } from '../store';
@@ -41,7 +42,7 @@ export function BackupStatus({ compact = false }: { compact?: boolean }) {
                 : 'Backup created. The latest 10 copies are retained.',
             );
           } catch (error) {
-            toast(`Backup failed: ${String(error)}`, true);
+            toast(`Backup failed. ${userError(error)}`, true);
           } finally {
             setBusy(false);
           }

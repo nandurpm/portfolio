@@ -1,3 +1,4 @@
+import { isPaise } from './money-precision';
 import { z } from 'zod';
 import { validatePfMovements } from './employment';
 import { validDate, validMonth, monthsBetween, inRange } from './dates';
@@ -48,7 +49,7 @@ const loanRow = z.object({
 });
 export const planSchema = z.object({
   salaryChanges: z.array(z.object({ id: z.string().min(1), effectiveDate: date, monthlySalary: nonnegative, monthlyPfContribution: nonnegative })).max(1000).optional(),
-  pfMovements: z.array(z.object({ id: z.string().min(1), date, kind: z.enum(['contribution', 'claim']), source: z.enum(['payroll', 'cash']), amount: nonnegative.positive().refine(value => Math.abs(value * 100 - Math.round(value * 100)) < 1e-6, 'Use at most two decimal places'), payment: z.string().trim().min(1).max(100), note: z.string().max(1000) })).max(10000).optional(),
+  pfMovements: z.array(z.object({ id: z.string().min(1), date, kind: z.enum(['contribution', 'claim']), source: z.enum(['payroll', 'cash']), amount: nonnegative.positive().refine(isPaise, 'Use at most two decimal places'), payment: z.string().trim().min(1).max(100), note: z.string().max(1000) })).max(10000).optional(),
   reconciliations: z
     .array(
       z.object({
@@ -289,6 +290,10 @@ export function validatePlan(p: unknown): Plan {
 }
 export function validateEntry(e: Entry, p: Plan, allowArchive = false) {
   entry.parse(e);
+  // New/edited entries must be whole paise; legacy backups are still readable
+  // until the user can review and migrate their original amounts safely.
+  if (!isPaise(e.amount) && p.entries.find(row => row.id === e.id)?.amount !== e.amount)
+    throw Error('Use at most two decimal places for transactions.');
   if (p.categories.find(c => c.id === e.categoryId)?.group === 'Asset') throw Error('Use the PF ledger for this account.');
   if (!p.categories.some((c) => c.id === e.categoryId)) throw Error('Select a valid category.');
   if (!allowArchive && !inRange(e.date, p.settings.planStart, p.settings.planEnd))

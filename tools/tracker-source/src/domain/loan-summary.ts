@@ -12,9 +12,9 @@ export function paymentRows<T extends InstallmentRow | LoanRow>(
     const effective = receipts.filter((e) => e.date <= cutoff);
     const paidAmount = receipts.length
       ? round(effective.reduce((sum, e) => sum + e.amount, 0))
-      : row.paidDate && row.paidDate > cutoff
-        ? 0
-        : row.paidAmount;
+      : (row.paidBeforeOpening && (!row.paidDate || row.paidDate <= cutoff)) || (row.paidDate && row.paidDate <= cutoff)
+        ? row.paidAmount
+        : 0;
     const paidDate = receipts.length
       ? (effective
           .map((e) => e.date)

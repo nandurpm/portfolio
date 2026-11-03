@@ -1,3 +1,5 @@
+import { isPaise } from '../domain/money-precision';
+import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
 import { usePhone } from '../components/usePhone';
 import { useRef, useState, useEffect } from 'react';
@@ -143,6 +145,10 @@ export default function Budget() {
   }
   function saveCategory() {
     if (!edit) return;
+    if (!isPaise(edit.amount) && p.categories.find(row => row.id === edit.id)?.amount !== edit.amount) {
+      toast('Use at most two decimal places for category amounts.', true);
+      return;
+    }
     try {
       store.change(`Save category: ${edit.name}`, (d) => {
         const i = d.categories.findIndex((c) => c.id === edit.id);
@@ -153,7 +159,7 @@ export default function Budget() {
       setEdit(null);
       toast('Category saved. Existing entries keep their mapping.');
     } catch (e) {
-      toast(e instanceof Error ? e.message : String(e), true);
+      toast(userError(e), true);
     }
   }
   function move(id: string, by: number) {
@@ -198,7 +204,7 @@ export default function Budget() {
       });
       setDeleteCat(null);
     } catch (e) {
-      toast(e instanceof Error ? e.message : String(e), true);
+      toast(userError(e), true);
     }
   }
   return (

@@ -130,6 +130,7 @@ export default function Forecast() {
         </label>
         <p className="scroll-cue" aria-hidden="true">Scroll sideways to view all forecast values →</p>
         <div className="help-strip"><HelpTerm term="contract balance" /><HelpTerm term="closure headroom" /></div>
+        <p className="muted">Future closure dates and headroom are indicative. Outside the quote month, the comparison uses outstanding principal only; confirm settlement charges with your lender.</p>
         <div
           className="table-scroll long-table-scroll"
           tabIndex={0}

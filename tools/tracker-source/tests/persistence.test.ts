@@ -83,3 +83,20 @@ describe('local persistence protection', () => {
     await store.retrySave();
   });
 });
+
+describe('legacy-safe website monetary edits', () => {
+  it('keeps legacy amounts intact and leaves state/audit unchanged when a new sub-paise edit is refused', async () => {
+    const original = financialFixture();
+    original.data.entries.push({id:'legacy-paise', date:'2026-11-03', categoryId:'bill', amount:0.004, payment:'Bank', description:'Old entry', notes:''});
+    storage(JSON.stringify(original));
+    const {store}=await import('../src/store'); await store.load();
+    store.change('Edit legacy note', d=>{d.entries[0]!.notes='Reviewed';});
+    const before = store.get();
+    expect(()=>store.change('Invalid monetary edit',d=>{d.entries[0]!.amount=0.008;})).toThrow('two decimal places');
+    expect(store.get()).toBe(before);
+    expect(store.get().data.entries[0]!.amount).toBe(0.004);
+    store.undo(); expect(store.get().data.entries[0]!.notes).toBe('');
+    store.restore(original); expect(store.get().data.entries[0]!.amount).toBe(0.004);
+    await store.retrySave();
+  });
+});

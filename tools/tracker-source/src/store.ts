@@ -1,4 +1,6 @@
 import { initializeDisplayRange } from './domain/view-range';
+import { assertEditedMoneyPrecision } from './domain/money-precision';
+import { userError } from './domain/user-error';
 import { useSyncExternalStore } from 'react';
 import { localPlan, type CloudPlan, type SyncMeta } from './cloud/model';
 import type { Draft } from 'immer';
@@ -47,7 +49,7 @@ function persist() {
         warning = '';
       } catch (error) {
         status = 'Save failed';
-        warning = error instanceof Error ? error.message : String(error);
+        warning = userError(error);
         throw error;
       } finally {
         emit();
@@ -97,7 +99,7 @@ export const store = {
       status = 'Saved locally';
     } catch (e) {
       locked = true;
-      warning = `Could not load saved data: ${e instanceof Error ? e.message : String(e)}. Changes are paused so your stored data is not overwritten. Restore a JSON backup in Reports to continue.`;
+      warning = `Could not load saved data safely. ${userError(e)} Changes are paused so your stored data is not overwritten. Restore a JSON backup in Reports to continue.`;
       status = 'Recovery needed';
     }
     emit();
@@ -105,6 +107,7 @@ export const store = {
   change(label: string, fn: (draft: Draft<Plan>) => void) {
     requireEditable();
     const next = commit(current, label, fn);
+    if (next !== current) assertEditedMoneyPrecision(current.data, next.data);
     if (next !== current) {
       current = next;
       persist();

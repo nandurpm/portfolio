@@ -15,7 +15,7 @@ import {
   Cell,
 } from 'recharts';
 import { usePlan } from '../store';
-import { progress, actualCategory, reportDate, money } from '../domain/calculate';
+import { progress, actualCategory, reportDate, money, round } from '../domain/calculate';
 import { monthLabel } from '../domain/dates';
 import { Section, Empty } from './UI';
 const colors = [
@@ -42,22 +42,30 @@ const tip = {
 export function SavingsCharts({ all = false }: { all?: boolean }) {
   const p = usePlan(),
     date = reportDate(p);
+  // A PF claim changes cash but is not income or savings. Keep the savings chart
+  // on cumulative income minus expenses, independently of the cash chart.
+  let plannedSavings = 0;
+  let recordedSavings = 0;
   const data = progress(p, date)
-    .filter(
-      (r) =>
-        r.month >= p.settings.viewStart &&
-        r.month <= p.settings.viewEnd &&
-        r.month <= date.slice(0, 7),
-    )
-    .map((r) => ({
-      name: monthLabel(r.month),
-      plan: r.expectedCash === null ? null : r.expectedCash - p.settings.opening,
-      actual: r.recordedCash === null ? null : r.recordedCash - p.settings.opening,
-      income: r.actual?.income ?? null,
-      expenses: r.actual?.expenses ?? null,
-      expected: r.expectedCash,
-      cash: r.recordedCash,
-    }));
+    .map((r) => {
+      plannedSavings = round(plannedSavings + r.plan.savings);
+      recordedSavings = round(recordedSavings + (r.actual?.savings ?? 0));
+      return {
+        month: r.month,
+        name: monthLabel(r.month),
+        plan: r.expectedCash === null ? null : plannedSavings,
+        actual: r.recordedCash === null ? null : recordedSavings,
+        income: r.actual?.income ?? null,
+        expenses: r.actual?.expenses ?? null,
+        expected: r.expectedCash,
+        cash: r.recordedCash,
+      };
+    })
+    .filter((r) =>
+      r.month >= p.settings.viewStart &&
+      r.month <= p.settings.viewEnd &&
+      r.month <= date.slice(0, 7),
+    );
   const expense = p.categories
     .filter((c) => c.group !== 'Income')
     .map((c) => ({ name: c.name, value: actualCategory(p, c, p.settings.selectedMonth, date) }))
@@ -129,7 +137,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 <Area
                   name="Planned month-end cash"
                   dataKey="expected"
-                  stroke="#aaa2cf"
+                  stroke="var(--muted)"
                   fill="none"
                   strokeDasharray="5 4"
                   isAnimationActive={p.settings.animations}
