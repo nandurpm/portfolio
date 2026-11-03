@@ -10,16 +10,15 @@ async function navigate(page: Page, name: string) {
   }
   const names: Record<string, string> = {
     Dashboard: 'Home',
-    'Daily Entries': 'Entries',
-    'Budget & Plan': 'Budget',
-    'Loan & Closure': 'Loan',
+    'Daily Entries': 'Transactions',
+    'Reports & Export/Import': 'Reports',
   };
-  if (names[name])
+  if (names[name]) {
     await page
       .getByRole('navigation', { name: 'Phone navigation' })
       .getByRole('button', { name: names[name], exact: true })
       .click();
-  else {
+  } else {
     await page.getByRole('button', { name: 'More screens', exact: true }).click();
     await page.getByRole('dialog').getByRole('button', { name, exact: true }).click();
   }

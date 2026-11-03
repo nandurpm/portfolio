@@ -9,6 +9,7 @@ Release candidate prepared 3 November 2026. Production deployment and production
 - Transfers and principal movements no longer inflate income or expenses; card payments do not duplicate card purchases.
 - Simplified Android navigation: Home, Transactions, Accounts, Reports and More.
 - Account balances, assets, liabilities, net worth, receivables and investments use integer-cent validation.
+- Merged the latest website precision, dashboard guidance, mobile progress-card and financial audit corrections into the Windows and Android source.
 
 ## Reliability and compatibility
 
@@ -21,8 +22,7 @@ Release candidate prepared 3 November 2026. Production deployment and production
 ## Verification
 
 - ESLint and TypeScript quality checks passed.
-- 30 unit/regression files and 154 tests passed using synthetic data.
+- 31 unit/regression files and 172 tests passed using synthetic data.
 - Dependency compatibility: 5 groups passed; npm audit: 0 vulnerabilities.
 - Web, Electron x64, Android release, dashboard visual, desktop responsive and phone responsive builds/tests passed.
 - Live two-account Supabase mutation test was not run because disposable credentials and explicit synthetic-write permission were not supplied.
-
