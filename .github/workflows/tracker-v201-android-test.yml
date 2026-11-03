@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - tracker-v2.0.1-android-test-build
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -34,6 +37,15 @@ jobs:
           sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
       - name: Apply verified source patch
         run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          patch=Path("patches/v2.0.1-test-source.patch").read_text()
+          for filename in re.findall(r"^--- a/(.+)$", patch, re.M):
+              f=Path(filename)
+              if f.is_file():
+                  f.write_bytes(f.read_bytes().replace(b"\r\n", b"\n"))
+          PY
           patch --dry-run -p1 < patches/v2.0.1-test-source.patch
           patch -p1 < patches/v2.0.1-test-source.patch
           test "$(node -p 'require("./package.json").version')" = '2.0.1'
