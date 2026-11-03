@@ -32,8 +32,8 @@ jobs:
           java-version: '21'
       - name: Install SDK 36
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          yes | /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager --licenses >/dev/null || true
+          /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk "platforms;android-36" "build-tools;36.0.0" "platform-tools"
       - name: Apply verified source patch
         run: |
           python3 - <<'PY'
