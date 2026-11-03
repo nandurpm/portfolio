@@ -100,7 +100,7 @@ jobs:
       - name: Sign test APK using a NEW temporary key
         run: |
           keytool -genkeypair -keystore "$RUNNER_TEMP/tracker-test.jks" -alias tracker -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Savings Tracker TEST" -storepass "TemporaryTestOnly2026" -keypass "TemporaryTestOnly2026" -noprompt
-          TRACKER_KEYSTORE_PATH="$RUNNER_TEMP/tracker-test.jks" TRACKER_KEYSTORE_PASSWORD="TemporaryTestOnly2026" bash android/gradlew --no-daemon clean assembleRelease
+          TRACKER_KEYSTORE_PATH="$RUNNER_TEMP/tracker-test.jks" TRACKER_KEYSTORE_PASSWORD="TemporaryTestOnly2026" bash android/gradlew --project-dir android --no-daemon clean assembleRelease
       - name: Validate package and signature
         run: |
           APK="android/app/build/outputs/apk/release/app-release.apk"
