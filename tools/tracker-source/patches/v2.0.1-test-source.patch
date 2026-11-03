@@ -1,0 +1,1485 @@
+--- a/AUDIT_FIXES_2026-11-03.md
++++ b/AUDIT_FIXES_2026-11-03.md
+@@ -0,0 +1,46 @@
++# Savings and Expense Tracker — 2.0.1 source candidate
++
++**Status:** Source-level corrective candidate. **Not a built, signed, installed, published or deployed release.**
++Original source: Google Drive `Savings-and-Expense-Tracker-2.0.0-Final/Source/Savings-and-Expense-Tracker-v2.0.0-source.zip`.
++No production database, existing application, Google Drive file or GitHub branch was modified by this source patch.
++
++## Implemented corrective changes
++
++1. PF cash transfers enter `forecast`, `cumulative` and `progress` planned cash consistently with recorded cash. They still do **not** become income, expenses or savings. The Savings chart now accumulates income minus expenses, not cash movements.
++2. The dashboard labels unfinished-month savings/cash comparisons as **in progress** and suppresses misleading numeric variance claims. The full-month plan is retained; no daily budget allocations are introduced.
++3. `closureAmount(month)` applies fees, accrued interest and lender quote only to the quote month. Other months use an **indicative outstanding principal**, not an invented lender quote; estimates for future closure months remain uncertain.
++4. `regenerateLoan` rejects unpayable EMI/tenure schedules instead of inventing a very large final EMI. Normal paise-rounding adjustments (up to ₹0.50) remain permitted.
++5. Legacy payment rows with `paidAmount` and no `paidDate` count as pending unless explicitly `paidBeforeOpening`. Receipt-linked entries remain the source of truth.
++6. Zero-budget spending is labeled **Unbudgeted spending** in both checklist and budget alerts.
++7. Newly added or edited entries and category amounts validate two decimal places; legacy records remain readable. Full schema-wide legacy sub-cent migration is **not yet implemented** (see limitations).
++8. Reconciliation and recorded progress do not classify Asset-group entries as expenses.
++9. Monthly comparison has no `by-date` basis. `timedAmount` no longer prorates Daily budgets; it respects only fixed-day deadlines and full-month completion.
++10. Major user-visible error paths now use the existing `userError` sanitizer; the runtime exception's stack should remain diagnostic only.
++11. Planned cash chart stroke uses theme-responsive muted colour; loan chart uses accent variables.
++12. Virtual entry list height is responsive with `clamp(240px, 55dvh, 480px)`; wide financial tables still require labeled horizontal scroll on small screens.
++13. Cloud sublabel and selected checklist labels are enlarged to 12px.
++14. `compactMoney` promotes values that round to ₹1L / ₹1Cr and suppresses negative zero.
++
++## Remaining work before a production release
++
++- **Precision:** Audit existing entries, overrides and numeric settings for fractional paise and decide a deliberate backup-preserving migration before adding strict schema-wide validation. New transaction/category forms have validation; import paths and other monetary settings need the same contract.
++- **Mobile tables:** Consider responsive card layout for very wide entry/progress/forecast tables. Current horizontal scroll is retained rather than risking an untested redesign.
++- **CSS:** The large stylesheet is not split into token/component layers; that is maintenance-only work and needs screenshot regression testing.
++- **Closure:** A lender settlement quote is only legally/financially meaningful for its quoted period. Other months' provisional principal-only estimates must be clearly disclosed. Do not present the earliest close month as a guaranteed lender amount.
++- **Tests:** Added `tests/audit-repair-2026-11-03.test.ts`. Full Vitest, TypeScript type checking, Playwright, Electron build, Android build and real-device installation **have not been run** in this environment. 106 TypeScript/TSX files were syntax-parsed with 0 errors. Selected calculation examples were exercised with a temporary TypeScript loader.
++- **Signing:** Android must be built with the original private keystore, not a replacement. The project sources are intentionally key-free; the Windows installer remains unsigned absent an Authenticode certificate.
++- **Distribution:** No EXE or APK exists for this source candidate. Do not distribute the existing v2.0.0 binaries as if they contained these fixes. Version was staged to `2.0.1` (Android `versionCode` derives to **20001**), pending a verified new build.
++
++## Recommended release gate
++
++From a clean Node 24 environment with dependencies installed:
++
++```bash
++npm ci
++npm run check
++npm run test:browser
++npm run dist:win       # Windows x64 release requires suitable Windows build environment
++npm run android:release  # Requires original keystore and secure signing variables
++```
++
++Before installing, export a full JSON backup of financial data, verify cloud synchronization, keep the existing original packages for recovery, and verify the APK's package ID **and signing certificate** match the installed app. Do not uninstall the old Android application to force an update.
+--- a/CHANGELOG-2.0.1.md
++++ b/CHANGELOG-2.0.1.md
+@@ -0,0 +1,37 @@
++# Savings and Expense Tracker — v2.0.1 source candidate
++
++**Prepared:** 3 November 2026. **Status: NOT RELEASED; no APK/EXE built or deployed.**
++
++## Financial correctness
++
++- Align planned/actual/forecast cash with dated PF cash transfers without booking them as income or expenses.
++- Keep complete monthly plans; show the current month's comparison as **In progress** rather than a misleading early shortfall.
++- Limit lender settlement quotes/fees/accrued interest to the specified closure month. Other months display indicative principal only.
++- Refuse unaffordable EMI schedules instead of silently inflating the final payment.
++- Keep payment views consistent for legacy undated and before-opening installments.
++- Use one **Unbudgeted spending** label for zero-budget recorded spending.
++- Keep total expenses equal to Living + Debt and savings equal to income − expenses even with legacy sub-paise records, allocating the aggregate rounding residual to one displayed expense group without changing stored entries.
++- Reject fractional-paise new/modified values centrally across categories, overrides, entries, loan balances, payments, PF, provisions, salary history and reconciliation, while preserving unchanged legacy backups.
++- Exclude Asset group from bank reconciliation and recorded totals.
++- Retire inactive daily prorating paths: monthly comparisons use the full-month basis.
++
++## Interface, accessibility and resilience
++
++- Sanitize raw validation/runtime errors in additional UI paths and storage/recovery status.
++- Make chart series follow the selected theme/accent tokens.
++- Render recorded monthly progress as mobile cards at narrow widths; retain accessible desktop tables.
++- Make transaction-grid height adaptive with vh/dvh fallback.
++- Increase tiny supporting text, remove negative-zero money display, and adjust ₹K/₹L/₹Cr rounding thresholds.
++- Avoid duplicate form commits on Enter and ensure Escape cancels an in-progress numeric/text edit.
++- Disclose that future lender-closure dates are indicative, not guaranteed settlement quotes.
++
++## Compatibility and release boundary
++
++- Version staged in package.json/package-lock.json: 2.0.1. Android versionCode derives as 20001.
++- Android application ID remains `com.nandakumar.savingsexpensetracker`.
++- No database or backup format migration was performed.
++- **Original Android keystore was not provided: an in-place signed APK update cannot be built in this environment.**
++- **Windows NSIS installer and full JS/Vitest/Playwright builds were not performed here; npm dependencies were inaccessible (registry DNS failure).**
++- v2.0.0 Drive folder, production website, installed Windows app and Android device are **unchanged**.
++
++See `RELEASE_STATUS_2.0.1.md` for the complete verification record.
+--- a/RELEASE_STATUS_2.0.1.md
++++ b/RELEASE_STATUS_2.0.1.md
+@@ -0,0 +1,34 @@
++# Release verification record — v2.0.1
++
++Prepared on: 2026-11-03
++Status: **SOURCE CANDIDATE, NOT A PUBLISHED/INSTALLABLE RELEASE**
++
++## Verification completed in this environment
++
++- TypeScript/TSX parser and JS syntax audit: **140 files checked, zero syntax diagnostics**.
++- Relative source/test import resolution: **442 imports checked, zero missing local modules** (before additional unit tests were appended; repeat in CI).
++- Dependency-free execution of 12 direct calculation regressions: **12 passed**, including correct one-paise aggregate presentation for two legacy 0.004 entries.
++- Source matches the existing v2.0.0 package structure, with native package ID unchanged and Android Gradle versionCode derived from `package.json`.
++- The archived source contains no private signing keystore or .env file.
++
++## Verification not completed
++
++- npm clean install: **failed** (`ENOTCACHED`; npm registry host could not resolve in this environment). Do not treat this as a successful dependency audit.
++- Complete Vitest suites: **not executed**.
++- TypeScript semantic typecheck, ESLint and Vite build: **not executed** (dependencies unavailable).
++- Playwright screenshot/responsive/axe tests for modified pages: **not executed**.
++- Windows installer (EXE), version upgrade test and Authenticode signing: **not built/tested**. Windows signing was already absent in v2.0.0.
++- Android release APK, apk signer identity comparison, Gradle clean build and Android 14/16 in-place install: **not built/tested**, because the original signing keystore and dependency toolchain were unavailable.
++- Production Supabase security/database/real-data mutation: **not run** to avoid risking financial records.
++- Website `/track/`, desktop and Android binaries: **not deployed or updated**.
++
++## Required release gates
++
++1. Run on Node 24 with network access: `npm ci` and `npm run check`.
++2. Run `npm run test:browser` using a disposable test fixture, including small viewport and focus/keyboard checks.
++3. Build with `npm run dist:win` on a verified Windows x64 builder; test upgrading an existing profile, backups and persistence.
++4. Retrieve the **existing original private Android signing key** via the user's private backup (not a new key); set TRACKER_KEYSTORE_PATH and TRACKER_KEYSTORE_PASSWORD securely, run `npm run android:release` on a configured Android SDK 36 environment and verify the APK signature fingerprint against the installed v2.0.0 certificate.
++5. Test updating the existing Android 14/16 app **without uninstalling** or losing local financial data, while signed into Supabase.
++6. Publish only validated `.exe`/`.apk`, with checksums and reproducible release notes, then upload them to Google Drive and deploy the matching web release only when ready.
++
++**Never label or distribute the existing v2.0.0 APK as v2.0.1, and never replace the Android key to bypass signature mismatch.**
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,12 +1,12 @@
+ {
+   "name": "savings-and-expense-tracker",
+-  "version": "2.0.0",
++  "version": "2.0.1",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+       "name": "savings-and-expense-tracker",
+-      "version": "2.0.0",
++      "version": "2.0.1",
+       "license": "MIT",
+       "workspaces": [
+         "compat/glob-callback"
+--- a/package.json
++++ b/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "savings-and-expense-tracker",
+   "productName": "Savings and Expense Tracker",
+-  "version": "2.0.0",
++  "version": "2.0.1",
+   "description": "Offline personal savings, expenses and loan planning",
+   "author": "Nandakumar",
+   "license": "MIT",
+@@ -55,7 +55,7 @@
+         }
+       ],
+       "icon": "build/icon.ico",
+-      "artifactName": "Savings-and-Expense-Tracker-Setup-2.0.0.exe"
++      "artifactName": "Savings-and-Expense-Tracker-Setup-2.0.1.exe"
+     },
+     "nsis": {
+       "oneClick": false,
+--- a/scripts/manual-release-audit.cjs
++++ b/scripts/manual-release-audit.cjs
+@@ -0,0 +1,41 @@
++/** Dependency-free financial smoke tests; NOT a replacement for Vitest/Playwright. */
++const fs = require('node:fs');
++const ts = require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript');
++const assert = require('node:assert/strict');
++require.extensions['.ts'] = function(module, filename) {
++  const source = fs.readFileSync(filename, 'utf8');
++  const r = ts.transpileModule(source, { fileName: filename,
++    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
++      esModuleInterop: true, resolveJsonModule: true } });
++  module._compile(r.outputText, filename);
++};
++const root = require('node:path').resolve(__dirname, '..');
++const { financialFixture } = require(root + '/tests/fixtures/financial.ts');
++const c = require(root + '/src/domain/calculate.ts');
++const e = require(root + '/src/domain/employment.ts');
++const b = require(root + '/src/domain/balances.ts');
++const u = require(root + '/src/domain/user-error.ts');
++const m = require(root + '/src/domain/money-precision.ts');
++const f = require(root + '/src/domain/format-money.ts');
++const l = require(root + '/src/domain/loan-summary.ts');
++const i = require(root + '/src/domain/insights.ts');
++const cmp = require(root + '/src/domain/comparison.ts');
++const tests=[];
++function t(name, fn) { tests.push([name,fn]); }
++t('PF claims enter both planned and actual cash without changing savings',()=>{
++ const p=financialFixture().data;p.settings.reportDate='2026-11-03'; const before=c.cumulative(p), fore=c.forecast(p)[0].cash;
++ e.enablePfAccount(p);p.pfMovements=[{id:'fund',date:'2026-10-15',kind:'contribution',source:'payroll',amount:1000,payment:'Bank',note:''},{id:'claim',date:'2026-11-03',kind:'claim',source:'cash',amount:1000,payment:'Bank',note:''}];
++ const after=c.cumulative(p);assert.equal(after.expectedCash-before.expectedCash,1000);assert.equal(after.actualCash-before.actualCash,1000);assert.equal(c.forecast(p)[0].cash-fore,1000);assert.equal(after.plan.savings,before.plan.savings);
++});
++t('settlement quote applies only to quote month',()=>{const p=financialFixture().data;p.settings.closureMonth='2026-11';p.settings.accruedInterest=500;p.settings.fees=200;p.settings.lenderQuote=0;assert.equal(c.closureAmount(p,'2026-11'),900);assert.equal(c.closureAmount(p,'2026-12'),100);});
++t('a balloon EMI fails before changing old schedule',()=>{const p=financialFixture().data;Object.assign(p.loan,{principal:100000,annualRate:12,tenure:12,firstEmi:5000,regularEmi:5000,firstInterest:1000});assert.throws(()=>c.regenerateLoan(p),/EMI is too low/);assert.equal(p.loan.rows.length,3);});
++t('legacy undated payments stay pending in both views',()=>{const p=financialFixture().data;const r=p.loan.rows[1];r.paidAmount=100;r.paid=true;r.paidDate='';assert.equal(l.paymentRows(p,[r],'2026-11-03')[0].paidAmount,0);assert.equal(i.installmentTasks(p,'2026-11','2026-11-03').find(x=>x.id===r.id).paid,0);});
++t('cash reconciliation excludes Asset entries',()=>{const p=financialFixture().data;e.enablePfAccount(p);p.entries.push({id:'asset',date:'2026-11-03',categoryId:p.categories.find(x=>x.group==='Asset').id,amount:250,payment:'Bank',description:'',notes:''});const r=b.reconciliationResult(p,{label:'x',fromDate:'2026-11-01',throughDate:'2026-11-30',openingBalance:500,statementBalance:500,methods:['Bank'],note:''});assert.deepEqual([r.income,r.expenses,r.count,r.calculated],[0,0,0,500]);});
++t('legacy fractional paise yield internally consistent displayed totals',()=>{const p=financialFixture().data;p.entries.push({id:'one',date:'2026-11-03',categoryId:'bill',amount:0.004,payment:'Bank',description:'',notes:''});p.categories.push({id:'misc',name:'Misc',group:'Debt',role:'regular',active:true,amount:0,timing:'Daily',day:1,months:[],note:''});p.entries.push({id:'two',date:'2026-11-03',categoryId:'misc',amount:0.004,payment:'Bank',description:'',notes:''});const z=c.actual(p,'2026-11-01','2026-11-30');assert.equal(z.expenses,0.01);assert.equal(z.expenses,c.round(z.living+z.debt));assert.equal(z.savings,c.round(z.income-z.expenses));});
++t('new fractional paise blocked; historic unchanged allowed',()=>{const a=financialFixture().data;const p=structuredClone(a);p.categories[0].amount=0.004;assert.throws(()=>m.assertEditedMoneyPrecision(a,p),/two decimal/);a.entries.push({id:'historic',date:'2026-11-03',categoryId:'bill',amount:0.004,payment:'Bank',description:'',notes:''});const copy=structuredClone(a);copy.settings.reportDate='2026-11-03';assert.doesNotThrow(()=>m.assertEditedMoneyPrecision(a,copy));copy.entries[0].amount=0.008;assert.throws(()=>m.assertEditedMoneyPrecision(a,copy),/two decimal/);});
++t('new fractional provision, override and payment amounts blocked',()=>{const a=financialFixture().data;let p=structuredClone(a);p.overrides['2026-11|bill']=1.001;assert.throws(()=>m.assertEditedMoneyPrecision(a,p),/decimal/);p=structuredClone(a);p.provisions=[{id:'pr',categoryId:'bill',startMonth:'2026-11',firstDueMonth:'2026-11',everyMonths:2,monthlyAmount:0.004,billAmount:300,openingReserve:0,allocationDay:10,dueDay:25,enabled:true}];assert.throws(()=>m.assertEditedMoneyPrecision(a,p),/two decimal/);});
++t('zero money formats without negative sign',()=>{assert.equal(f.formatMoney(-0.004),'₹0.00');assert.equal(f.compactMoney(99950),'₹1L');assert.equal(f.compactMoney(-0.004),'₹0');});
++t('monthly comparisons use full-month planning',()=>{const p=financialFixture().data;assert.equal(cmp.monthlyComparison(p,'2026-11','2026-11')[0].planExpenses,200);});
++t('known loan validation remains friendly, unexpected errors sanitized',()=>{assert.match(u.userError(new Error('EMI is too low to repay.')),/EMI is too low/);assert.doesNotMatch(u.userError(new TypeError('Cannot read property x of undefined')),/TypeError|undefined/);});
++t('positive bank-funded PF movement decreases cash only',()=>{const p=financialFixture().data;e.enablePfAccount(p);p.pfMovements=[{id:'contrib',date:'2026-11-03',kind:'contribution',source:'cash',amount:100,payment:'Bank',note:''}];assert.equal(e.pfCashEffect(p,'2026-11-01','2026-11-30'),-100);});
++let passed=0;for(const [name,fn] of tests){try{fn();passed++;console.log('PASS',name);}catch(err){console.error('FAIL',name,err.stack);process.exitCode=1;}}console.log(`Results: ${passed}/${tests.length} passed`);
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,3 +1,4 @@
++import { userError } from './domain/user-error';
+ import {
+   listenForAndroidBack,
+   exitAndroid,
+@@ -42,7 +43,6 @@
+ import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
+ import { APP_NAME } from "./domain/types";
+ import { errorMessage } from "./domain/user-errors";
+-import { errorDetails } from "./domain/user-error";
+ import { cumulative, progress } from "./domain/calculate";
+ import { today, monthsBetween } from "./domain/dates";
+ import { RangeControl } from "./components/RangeControl";
+@@ -129,7 +129,7 @@
+           flush: () => store.flush(),
+           exit: exitAndroid,
+         }).catch((e) =>
+-          toast(`Please save before exiting: ${String(e)}`, true),
++          toast(userError(e), true),
+         );
+       }),
+     [],
+@@ -143,7 +143,7 @@
+     void store
+       .load()
+       .then(() => sync.start())
+-      .catch((e) => toast(errorDetails(e), true))
++      .catch((e) => toast(userError(e), true))
+       .finally(() => setLoading(false));
+     const timer = setInterval(() => setTick((t) => t + 1), 60_000);
+     const off = window.desktop?.onBeforeClose(() => store.flush());
+@@ -218,7 +218,7 @@
+           if (e.shiftKey) store.redo();
+           else store.undo();
+         } catch (err) {
+-          toast(String(err), true);
++          toast(userError(err), true);
+         }
+       }
+       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+@@ -226,7 +226,7 @@
+         try {
+           store.redo();
+         } catch (err) {
+-          toast(String(err), true);
++          toast(userError(err), true);
+         }
+       }
+       if (e.ctrlKey && e.key.toLowerCase() === "n") {
+@@ -402,7 +402,7 @@
+                   try {
+                     store.undo();
+                   } catch (e) {
+-                    toast(errorDetails(e), true);
++                    toast(userError(e), true);
+                   }
+                 }}
+               >
+@@ -417,7 +417,7 @@
+                   try {
+                     store.redo();
+                   } catch (e) {
+-                    toast(errorDetails(e), true);
++                    toast(userError(e), true);
+                   }
+                 }}
+               >
+@@ -457,7 +457,7 @@
+                     onClick={() =>
+                       void store
+                         .retrySave()
+-                        .catch((e) => toast(errorDetails(e), true))
++                        .catch((e) => toast(userError(e), true))
+                     }
+                   >
+                     Retry save
+@@ -611,7 +611,7 @@
+                     try {
+                       store.undo();
+                     } catch (e) {
+-                      toast(errorDetails(e), true);
++                      toast(userError(e), true);
+                     }
+                   }}
+                 >
+@@ -625,7 +625,7 @@
+                     try {
+                       store.redo();
+                     } catch (e) {
+-                      toast(errorDetails(e), true);
++                      toast(userError(e), true);
+                     }
+                   }}
+                 >
+--- a/src/components/AdditionalLoans.tsx
++++ b/src/components/AdditionalLoans.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { receiptScope } from '../domain/archive';
+ import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
+ import { useState } from 'react';
+@@ -81,7 +82,7 @@
+       setNote('');
+       setPlannedDay('');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   async function savePayment(e: React.FormEvent) {
+@@ -130,7 +131,7 @@
+       setPayment(null);
+       toast('Payment saved and linked to this installment.');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   return (
+@@ -325,7 +326,7 @@
+                 setEditingDates(false);
+                 toast('Schedule dates corrected. Payment dates and amounts preserved.');
+               } catch (err) {
+-                toast(String(err), true);
++                toast(userError(err), true);
+               }
+             }}
+           >
+--- a/src/components/BackupStatus.tsx
++++ b/src/components/BackupStatus.tsx
+@@ -1,4 +1,5 @@
+ import { WEB_APP } from '../web-mode';
++import { userError } from '../domain/user-error';
+ import { SyncStatusDetails } from '../cloud/SyncStatus';
+ import { useState } from 'react';
+ import { store, useSaveStatus } from '../store';
+@@ -41,7 +42,7 @@
+                 : 'Backup created. The latest 10 copies are retained.',
+             );
+           } catch (error) {
+-            toast(`Backup failed: ${String(error)}`, true);
++            toast(`Backup failed. ${userError(error)}`, true);
+           } finally {
+             setBusy(false);
+           }
+--- a/src/components/Charts.tsx
++++ b/src/components/Charts.tsx
+@@ -15,7 +15,7 @@
+   Cell,
+ } from 'recharts';
+ import { usePlan } from '../store';
+-import { progress, actualCategory, reportDate, money } from '../domain/calculate';
++import { progress, actualCategory, reportDate, money, round } from '../domain/calculate';
+ import { monthLabel } from '../domain/dates';
+ import { Section, Empty } from './UI';
+ const colors = [
+@@ -42,22 +42,30 @@
+ export function SavingsCharts({ all = false }: { all?: boolean }) {
+   const p = usePlan(),
+     date = reportDate(p);
++  // A PF claim changes cash but is not income or savings. Keep the savings chart
++  // on cumulative income minus expenses, independently of the cash chart.
++  let plannedSavings = 0;
++  let recordedSavings = 0;
+   const data = progress(p, date)
+-    .filter(
+-      (r) =>
+-        r.month >= p.settings.viewStart &&
+-        r.month <= p.settings.viewEnd &&
+-        r.month <= date.slice(0, 7),
+-    )
+-    .map((r) => ({
+-      name: monthLabel(r.month),
+-      plan: r.expectedCash === null ? null : r.expectedCash - p.settings.opening,
+-      actual: r.recordedCash === null ? null : r.recordedCash - p.settings.opening,
+-      income: r.actual?.income ?? null,
+-      expenses: r.actual?.expenses ?? null,
+-      expected: r.expectedCash,
+-      cash: r.recordedCash,
+-    }));
++    .map((r) => {
++      plannedSavings = round(plannedSavings + r.plan.savings);
++      recordedSavings = round(recordedSavings + (r.actual?.savings ?? 0));
++      return {
++        month: r.month,
++        name: monthLabel(r.month),
++        plan: r.expectedCash === null ? null : plannedSavings,
++        actual: r.recordedCash === null ? null : recordedSavings,
++        income: r.actual?.income ?? null,
++        expenses: r.actual?.expenses ?? null,
++        expected: r.expectedCash,
++        cash: r.recordedCash,
++      };
++    })
++    .filter((r) =>
++      r.month >= p.settings.viewStart &&
++      r.month <= p.settings.viewEnd &&
++      r.month <= date.slice(0, 7),
++    );
+   const expense = p.categories
+     .filter((c) => c.group !== 'Income')
+     .map((c) => ({ name: c.name, value: actualCategory(p, c, p.settings.selectedMonth, date) }))
+@@ -129,7 +137,7 @@
+                 <Area
+                   name="Planned month-end cash"
+                   dataKey="expected"
+-                  stroke="#aaa2cf"
++                  stroke="var(--muted)"
+                   fill="none"
+                   strokeDasharray="5 4"
+                   isAnimationActive={p.settings.animations}
+--- a/src/components/ComparisonCharts.tsx
++++ b/src/components/ComparisonCharts.tsx
+@@ -19,16 +19,16 @@
+ export function ComparisonCharts({ initialScope = 'month' }: { initialScope?: 'month' | 'range' }) {
+   const p = usePlan();
+   const [scope, setScope] = useState(initialScope);
+-  const basis = 'full' as const;
++  // Always compare against the complete monthly budget.
+   const start = scope === 'month' ? p.settings.selectedMonth : p.settings.viewStart;
+   const end = scope === 'month' ? p.settings.selectedMonth : p.settings.viewEnd;
+   const rows = useMemo(
+     () =>
+-      monthlyComparison(p, basis, start, end).map((row) => ({
++      monthlyComparison(p, start, end).map((row) => ({
+         ...row,
+         name: monthLabel(row.month),
+       })),
+-    [p, basis, start, end],
++    [p, start, end],
+   );
+   return (
+     <Section
+@@ -89,7 +89,7 @@
+                   />
+                   <Legend />
+                   <Bar
+-                    name={basis === 'full' ? 'Full-month plan' : 'Plan by date'}
++                    name="Full-month plan"
+                     dataKey={plannedKey}
+                     fill="var(--muted)"
+                     radius={[4, 4, 0, 0]}
+--- a/src/components/RangeControl.tsx
++++ b/src/components/RangeControl.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { defaultViewRange } from '../domain/view-range';
+ import { useState } from 'react';
+ import { CalendarRange, ChevronDown, Check } from 'lucide-react';
+@@ -85,7 +86,7 @@
+       setOpen(false);
+       toast('Range updated. All calculations have been refreshed.');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   return (
+--- a/src/components/SettingsFields.tsx
++++ b/src/components/SettingsFields.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { isSalaryCategory } from '../domain/employment';
+ import { store, usePlan } from '../store';
+ import type { Settings } from '../domain/types';
+@@ -67,7 +68,7 @@
+                 (d.settings as any)[name] = e.target.value;
+               });
+             } catch (err) {
+-              toast(String(err), true);
++              toast(userError(err), true);
+             }
+         }}
+       />
+--- a/src/components/UI.tsx
++++ b/src/components/UI.tsx
+@@ -286,12 +286,19 @@
+   className?: string;
+ }) {
+   const [v, set] = useState(String(value));
++  const skipBlurSave = useRef(false);
+   const { toast } = useUi();
+   useEffect(() => set(String(value)), [value]);
+   const save = () => {
++    if (skipBlurSave.current) { skipBlurSave.current = false; return; }
+     const n = Number(v);
+     if (!v.trim() || !Number.isFinite(n) || n < min) {
+       toast(`Enter a valid ${label.toLowerCase()}.`, true);
++      set(String(value));
++      return;
++    }
++    if (step === '1' && !Number.isInteger(n)) {
++      toast(`Enter a whole number for ${label.toLowerCase()}.`, true);
+       set(String(value));
+       return;
+     }
+@@ -299,7 +306,7 @@
+       try {
+         onCommit(n);
+       } catch (e) {
+-        toast(e instanceof Error ? e.message : String(e), true);
++        toast(userError(e), true);
+         set(String(value));
+       }
+     }
+@@ -315,11 +322,9 @@
+       onChange={(e) => set(e.target.value)}
+       onBlur={save}
+       onKeyDown={(e) => {
+-        if (e.key === 'Enter') {
+-          save();
+-          e.currentTarget.blur();
+-        }
++        if (e.key === 'Enter') e.currentTarget.blur();
+         if (e.key === 'Escape') {
++          skipBlurSave.current = true;
+           set(String(value));
+           e.currentTarget.blur();
+         }
+@@ -340,14 +345,16 @@
+   className?: string;
+ }) {
+   const [v, set] = useState(value);
++  const skipBlurSave = useRef(false);
+   const { toast } = useUi();
+   useEffect(() => set(value), [value]);
+   const save = () => {
++    if (skipBlurSave.current) { skipBlurSave.current = false; return; }
+     if (v !== value)
+       try {
+         onCommit(v);
+       } catch (e) {
+-        toast(String(e), true);
++        toast(userError(e), true);
+         set(value);
+       }
+   };
+@@ -361,6 +368,7 @@
+       onKeyDown={(e) => {
+         if (e.key === 'Enter') e.currentTarget.blur();
+         if (e.key === 'Escape') {
++          skipBlurSave.current = true;
+           set(value);
+           e.currentTarget.blur();
+         }
+--- a/src/domain/balances.ts
++++ b/src/domain/balances.ts
+@@ -16,7 +16,7 @@
+     )
+       continue;
+     const category = categories.get(e.categoryId);
+-    if (!category) continue;
++    if (!category || category.group === 'Asset') continue;
+     if (category.group === "Income") income += e.amount;
+     else expenses += e.amount;
+     count++;
+--- a/src/domain/calculate.ts
++++ b/src/domain/calculate.ts
+@@ -1,7 +1,7 @@
+ import { isSalaryCategory, salaryForReceiptMonth, pfCashEffect } from './employment';
+ import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
+ import { formatMoney, compactMoney } from './format-money';
+-import { today, daysIn, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
++import { today, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
+ export const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+ export const moneyCompact = compactMoney;
+ export const money = formatMoney;
+@@ -15,13 +15,22 @@
+   savings: 0,
+ });
+ export function finish(t: Totals): Totals {
+-  return {
+-    income: round(t.income),
+-    living: round(t.living),
+-    debt: round(t.debt),
+-    expenses: round(t.living + t.debt),
+-    savings: round(t.income - t.living - t.debt),
+-  };
++  // For legacy fractional-paise records, preserve the rounded aggregate
++  // and assign its paise-rounding residual to one expense group. This keeps
++  // Expenses = Living + Debt without altering the original stored amounts.
++  const income = round(t.income);
++  const expenses = round(t.living + t.debt);
++  let living = round(t.living), debt = round(t.debt);
++  const residualPaise = Math.round((expenses - living - debt) * 100);
++  if (residualPaise !== 0) {
++    const livingRemainder = t.living - living;
++    const debtRemainder = t.debt - debt;
++    if (residualPaise > 0 ? livingRemainder >= debtRemainder : livingRemainder <= debtRemainder)
++      living = round(living + residualPaise / 100);
++    else
++      debt = round(debt + residualPaise / 100);
++  }
++  return { income, living, debt, expenses, savings: round(income - expenses) };
+ }
+ export function salary(p: Plan, m: string) {
+   return salaryForReceiptMonth(p, m);
+@@ -33,10 +42,14 @@
+     .at(-1);
+   return row?.balance ?? p.loan.principal;
+ }
++/** The lender's quote and fees only apply to their quoted month. Other months
++ * show indicative outstanding principal until a new settlement quote is obtained. */
+ export function closureAmount(p: Plan, m = p.settings.closureMonth) {
+-  return p.settings.lenderQuote > 0 && m === p.settings.closureMonth
++  const principal = contractBalance(p, m);
++  if (m !== p.settings.closureMonth) return principal;
++  return p.settings.lenderQuote > 0
+     ? p.settings.lenderQuote
+-    : round(contractBalance(p, m) + p.settings.accruedInterest + p.settings.fees);
++    : round(principal + p.settings.accruedInterest + p.settings.fees);
+ }
+ export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
+   if (!c.active) return 0;
+@@ -108,8 +121,8 @@
+ export function timedAmount(full: number, c: Category, m: string, date: string) {
+   if (date < `${m}-01`) return 0;
+   if (date >= monthEnd(m)) return full;
+-  if (c.timing === 'Fixed day') return date >= monthDay(m, c.day) ? full : 0;
+-  return round((full * Number(date.slice(8, 10))) / daysIn(m));
++  // Calendar deadlines only. Never prorate monthly budgets by elapsed days.
++  return c.timing === 'Fixed day' && date >= monthDay(m, c.day) ? full : 0;
+ }
+ export function categoryPlan(
+   p: Plan,
+@@ -219,7 +232,9 @@
+   let cash = p.settings.opening;
+   return monthsBetween(p.settings.planStart, p.settings.planEnd).map((m) => {
+     const t = planned(p, m, undefined, mode);
+-    cash = round(cash + t.savings);
++    // PF claims/cash-funded contributions are cash transfers, not income or expenses.
++    // A recorded dated transfer affects both the forecast and actual cash ledger.
++    cash = round(cash + t.savings + pfCashEffect(p, `${m}-01`, monthEnd(m)));
+     const emi = round(
+         p.categories
+           .filter((c) => c.role === 'emi')
+@@ -270,7 +285,7 @@
+   return {
+     plan,
+     actual: a,
+-    expectedCash: round(p.settings.opening + plan.savings),
++    expectedCash: round(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
+     actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date)),
+   };
+ }
+@@ -282,7 +297,7 @@
+   for (const e of p.entries) {
+     if (e.date > date || !inRange(e.date, p.settings.planStart, p.settings.planEnd)) continue;
+     const c = cats.get(e.categoryId);
+-    if (!c) continue;
++    if (!c || c.group === 'Asset') continue;
+     const m = e.date.slice(0, 7),
+       bucket = buckets.get(m) ?? { t: emptyTotals(), count: 0 };
+     bucket.t[c.group === 'Income' ? 'income' : c.group === 'Living' ? 'living' : 'debt'] +=
+@@ -296,7 +311,8 @@
+       t = planned(p, m),
+       bucket = buckets.get(m),
+       a = bucket ? finish(bucket.t) : null;
+-    pc = round(pc + t.savings);
++    // Match the PF cash ledger used by recorded cash, without treating PF as savings.
++    pc = round(pc + t.savings + (future ? 0 : pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m))));
+     ac = round(ac + (a?.savings ?? 0) + pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)));
+     return {
+       month: m,
+@@ -354,7 +370,14 @@
+     const month = addMonths(l.firstDueDate.slice(0, 7), i),
+       interest = round(i === 0 ? l.firstInterest : balance * rate);
+     let emi = i === 0 ? l.firstEmi : l.regularEmi;
+-    if (i === l.tenure - 1 || emi > balance + interest) emi = round(balance + interest);
++    const amountDue = round(balance + interest);
++    if (i === l.tenure - 1 && amountDue - emi > 0.5)
++      throw Error(
++        `EMI is too low to repay this loan within ${l.tenure} months. ` +
++        `The final installment would be ${formatMoney(amountDue)} instead of ${formatMoney(emi)}. ` +
++        'Increase the EMI or extend the tenure.',
++      );
++    if (i === l.tenure - 1 || emi > amountDue) emi = amountDue;
+     if (emi <= interest)
+       throw Error('EMI must exceed interest. Increase the EMI or reduce the rate.');
+     const principal = round(emi - interest);
+--- a/src/domain/comparison.ts
++++ b/src/domain/comparison.ts
+@@ -2,11 +2,10 @@
+ import { planned, actual, reportDate } from './calculate';
+ import { monthEnd, monthsBetween } from './dates';
+ 
+-export type PlanBasis = 'full' | 'by-date';
+-export function monthlyComparison(p: Plan, basis: PlanBasis, start: string, end: string) {
++export function monthlyComparison(p: Plan, start: string, end: string) {
+   const through = reportDate(p);
+   return monthsBetween(start, end).map((month) => {
+-    const plan = planned(p, month, basis === 'by-date' ? through : undefined);
++    const plan = planned(p, month);
+     const entered =
+       month > through.slice(0, 7)
+         ? null
+--- a/src/domain/format-money.ts
++++ b/src/domain/format-money.ts
+@@ -10,14 +10,18 @@
+     });
+     fullFormatters.set(decimals, formatter);
+   }
+-  return formatter.format(Object.is(amount, -0) ? 0 : amount).replace(/^-/, '−');
++  const smallestShownUnit = 0.5 * 10 ** -decimals;
++  const visible = Math.abs(amount) < smallestShownUnit ? 0 : amount;
++  return formatter.format(visible).replace(/^-/, '−');
+ }
+ const compactNumber = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 0 });
+ export function compactMoney(amount: number): string {
+   if (!Number.isFinite(amount)) return '—';
+-  const a = Math.abs(amount);
+-  if (a < 1000) return formatMoney(amount, a % 1 === 0 ? 0 : 2);
+-  const unit = a >= 1e7 ? 1e7 : a >= 1e5 ? 1e5 : 1e3;
++  const roundedToPaise = Math.round((amount + Number.EPSILON) * 100) / 100;
++  if (roundedToPaise === 0) return '₹0';
++  const a = Math.abs(roundedToPaise);
++  if (a < 999.95) return formatMoney(roundedToPaise, a % 1 === 0 ? 0 : 2);
++  const unit = a >= 9950000 ? 1e7 : a >= 99950 ? 1e5 : 1e3;
+   const suffix = unit === 1e7 ? 'Cr' : unit === 1e5 ? 'L' : 'K';
+   return `${amount < 0 ? '−' : ''}₹${compactNumber.format(a / unit)}${suffix}`;
+ }
+--- a/src/domain/insights.ts
++++ b/src/domain/insights.ts
+@@ -35,7 +35,7 @@
+           const paid = round(
+             receipts.length
+               ? receipts.filter((e) => e.date <= cutoff).reduce((sum, e) => sum + e.amount, 0)
+-              : row.paidDate && row.paidDate <= cutoff
++              : (row.paidBeforeOpening && (!row.paidDate || row.paidDate <= cutoff)) || (row.paidDate && row.paidDate <= cutoff)
+                 ? row.paidAmount
+                 : 0,
+           );
+--- a/src/domain/installments.ts
++++ b/src/domain/installments.ts
+@@ -1,6 +1,7 @@
+ import type { Plan, InstallmentLoan } from './types';
+ import { addMonths, monthDay, validDate } from './dates';
+ import { round } from './calculate';
++import { isPaise } from './money-precision';
+ 
+ export function addInstallmentLoan(p: Plan, input: Omit<InstallmentLoan, 'id' | 'rows'>) {
+   const name = input.name.trim();
+@@ -19,6 +20,8 @@
+   if (!validDate(input.firstDueDate)) throw Error('Enter a valid first due date.');
+   if (input.plannedPayDay !== undefined && (!Number.isInteger(input.plannedPayDay) || input.plannedPayDay < 1 || input.plannedPayDay > 31))
+     throw Error('The planned payment day must be between 1 and 31.');
++  if (!isPaise(input.principal) || !isPaise(input.monthlyEmi))
++    throw Error('Use at most two decimal places for loan amounts.');
+   if (round(input.monthlyEmi * input.tenure) < input.principal)
+     throw Error('Total repayments cannot be less than the financed amount.');
+   const id = crypto.randomUUID(),
+@@ -73,6 +76,7 @@
+   if (!loan || !row || !category) throw Error('Loan installment was not found.');
+   if (!validDate(date) || !Number.isFinite(amount) || amount <= 0)
+     throw Error('Enter a valid payment date and amount.');
++  if (!isPaise(amount)) throw Error('Use at most two decimal places for payments.');
+   const existing = receiptId
+     ? p.entries.find((e) => e.id === receiptId && e.loanRowId === rowId)
+     : undefined;
+@@ -113,6 +117,7 @@
+   if (!row || !category || row.paidBeforeOpening) throw Error('Choose an editable installment.');
+   if (!validDate(date) || !Number.isFinite(amount) || amount <= 0)
+     throw Error('Enter a valid payment date and positive amount.');
++  if (!isPaise(amount)) throw Error('Use at most two decimal places for payments.');
+   const receipts = p.entries.filter((e) => e.loanRowId === rowId);
+   const existing = receipts.find((e) => e.id === receiptId);
+   if (receiptId && !existing) throw Error('Receipt was not found.');
+--- a/src/domain/loan-summary.ts
++++ b/src/domain/loan-summary.ts
+@@ -12,9 +12,9 @@
+     const effective = receipts.filter((e) => e.date <= cutoff);
+     const paidAmount = receipts.length
+       ? round(effective.reduce((sum, e) => sum + e.amount, 0))
+-      : row.paidDate && row.paidDate > cutoff
+-        ? 0
+-        : row.paidAmount;
++      : (row.paidBeforeOpening && (!row.paidDate || row.paidDate <= cutoff)) || (row.paidDate && row.paidDate <= cutoff)
++        ? row.paidAmount
++        : 0;
+     const paidDate = receipts.length
+       ? (effective
+           .map((e) => e.date)
+--- a/src/domain/money-precision.ts
++++ b/src/domain/money-precision.ts
+@@ -0,0 +1,47 @@
++import type { Plan } from './types';
++
++/** Amounts are INR, stored to paise precision. Leave unchanged legacy imports
++ * readable: reject only values introduced or edited in a user transaction. */
++export function isPaise(value: number): boolean {
++  return Number.isFinite(value) && Math.abs(value * 100 - Math.round(value * 100)) < 1e-6;
++}
++
++function changedAmount(before: unknown, after: unknown, field: string) {
++  if (typeof after === 'number' && after !== before && !isPaise(after))
++    throw Error(`Use at most two decimal places for ${field}.`);
++}
++
++function checkFields<T extends object>(a: T | undefined, b: T | undefined, keys: readonly (keyof T)[], context: string) {
++  if (!b) return;
++  for (const key of keys) changedAmount(a?.[key], b[key], `${context} ${String(key)}`);
++}
++
++function checkRows<T extends { id: string }>(a: T[] | undefined, b: T[] | undefined, keys: readonly (keyof T)[], context: string) {
++  const old = new Map((a ?? []).map(row => [row.id, row]));
++  for (const row of b ?? []) checkFields(old.get(row.id), row, keys, context);
++}
++
++/** Apply to user-originating store changes, not backup restore/cloud migration,
++ * undo or redo. Older backups remain readable without silently altering data. */
++export function assertEditedMoneyPrecision(before: Plan, after: Plan) {
++  checkFields(before.settings, after.settings, [
++    'opening', 'salary31', 'salaryShort', 'raisedSalary', 'lenderQuote',
++    'accruedInterest', 'fees', 'cushion',
++  ], 'settings');
++  checkFields(before.loan, after.loan, ['principal', 'regularEmi', 'firstEmi', 'firstInterest'], 'original loan');
++  checkRows(before.loan.rows, after.loan.rows, ['emi', 'principal', 'interest', 'balance', 'paidAmount'], 'loan schedule');
++  checkRows(before.entries, after.entries, ['amount'], 'transaction');
++  checkRows(before.categories, after.categories, ['amount'], 'category');
++  checkRows(before.salaryChanges, after.salaryChanges, ['monthlySalary', 'monthlyPfContribution'], 'salary history');
++  checkRows(before.pfMovements, after.pfMovements, ['amount'], 'PF movement');
++  checkRows(before.reconciliations, after.reconciliations, ['openingBalance', 'statementBalance'], 'reconciliation');
++  checkRows(before.provisions, after.provisions, ['monthlyAmount', 'billAmount', 'openingReserve'], 'provision');
++  const loanBefore = new Map((before.additionalLoans ?? []).map(row => [row.id, row]));
++  for (const loan of after.additionalLoans ?? []) {
++    const old = loanBefore.get(loan.id);
++    checkFields(old, loan, ['principal', 'monthlyEmi'], 'additional loan');
++    checkRows(old?.rows, loan.rows, ['emi', 'paidAmount'], 'additional loan payment');
++  }
++  for (const [key, value] of Object.entries(after.overrides))
++    changedAmount(before.overrides[key], value, 'monthly budget override');
++}
+--- a/src/domain/monthly-checklist.ts
++++ b/src/domain/monthly-checklist.ts
+@@ -31,6 +31,7 @@
+   const percentage = planned > 0 ? round((recorded / planned) * 100) : null;
+   const status = kind === 'income'
+     ? recorded === 0 ? 'Not recorded' : recorded < planned ? 'Part received' : 'Income recorded'
++    : recorded > 0 && planned === 0 ? 'Unbudgeted spending'
+     : recorded > planned && planned >= 0 ? 'Over budget'
+     : recorded === 0 ? 'No entry recorded'
+     : kind === 'bill'
+@@ -38,6 +39,7 @@
+       : 'Spending recorded';
+   const note = kind === 'income'
+     ? remaining > 0 ? 'Expected income not yet recorded' : 'Income recorded'
++    : recorded > 0 && planned === 0 ? 'No budget was allocated to this category'
+     : remaining < 0 ? 'Above the monthly budget' : 'Unspent budget is not savings';
+   return { id: c.id, name: c.name, kind, planned, recorded, remaining, percentage, plannedDate, status, note };
+ }
+--- a/src/domain/user-error.ts
++++ b/src/domain/user-error.ts
+@@ -12,7 +12,7 @@
+     return 'Please confirm your email address before signing in.';
+   if (/network|failed to fetch|timeout|offline/i.test(message))
+     return 'Connection unavailable. Check your internet connection and try again.';
+-  if (/^([A-Z][a-z]+ )?(Enter|Choose|Select|Please |Cannot |No |Use |Amount |Budget |Loan |Transaction |Payment |Not enough |End month |The planned |Could not |Check your )/i.test(message) &&
++  if (/^(Enter|Choose|Select|Please |Cannot |No |Use |Amount |Budget |Loan |EMI |Transaction |Payment |Not enough |End month |The planned |Could not |Check your |This imported |Combined receipts |Combined payments |PF claims |A provision |An original-loan |Installment date |Each loan )/i.test(message) &&
+     !/invariant|zod|schema|stack|async schemas|unexpected|undefined|failed requirement|trace|at [A-Za-z0-9]+\(/i.test(message) &&
+     message.length <= 220) return message;
+   return FALLBACK_ERROR;
+--- a/src/domain/validation.ts
++++ b/src/domain/validation.ts
+@@ -289,6 +289,10 @@
+ }
+ export function validateEntry(e: Entry, p: Plan, allowArchive = false) {
+   entry.parse(e);
++  // New/edited entries must be whole paise; legacy backups are still readable
++  // until the user can review and migrate their original amounts safely.
++  if (Math.abs(e.amount * 100 - Math.round(e.amount * 100)) > 1e-6)
++    throw Error('Use at most two decimal places for transactions.');
+   if (p.categories.find(c => c.id === e.categoryId)?.group === 'Asset') throw Error('Use the PF ledger for this account.');
+   if (!p.categories.some((c) => c.id === e.categoryId)) throw Error('Select a valid category.');
+   if (!allowArchive && !inRange(e.date, p.settings.planStart, p.settings.planEnd))
+--- a/src/pages/Balances.tsx
++++ b/src/pages/Balances.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { useState } from 'react';
+ import { HelpTerm } from '../components/HelpTerm';
+ import { store, usePlan } from '../store';
+@@ -58,7 +59,7 @@
+       toast('Comparison saved. No transaction or opening balance was changed.');
+       setStatement('');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   };
+   const saveProvision = async (e: React.FormEvent) => {
+@@ -82,7 +83,7 @@
+       setEdit('');
+       toast('Provision saved. Actual cash records are unchanged.');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   };
+   return (
+--- a/src/pages/Budget.tsx
++++ b/src/pages/Budget.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { isSalaryCategory } from '../domain/employment';
+ import { usePhone } from '../components/usePhone';
+ import { useRef, useState, useEffect } from 'react';
+@@ -143,6 +144,10 @@
+   }
+   function saveCategory() {
+     if (!edit) return;
++    if (Math.abs(edit.amount * 100 - Math.round(edit.amount * 100)) > 1e-6) {
++      toast('Use at most two decimal places for category amounts.', true);
++      return;
++    }
+     try {
+       store.change(`Save category: ${edit.name}`, (d) => {
+         const i = d.categories.findIndex((c) => c.id === edit.id);
+@@ -153,7 +158,7 @@
+       setEdit(null);
+       toast('Category saved. Existing entries keep their mapping.');
+     } catch (e) {
+-      toast(e instanceof Error ? e.message : String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   function move(id: string, by: number) {
+@@ -198,7 +203,7 @@
+       });
+       setDeleteCat(null);
+     } catch (e) {
+-      toast(e instanceof Error ? e.message : String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   return (
+--- a/src/pages/Dashboard.tsx
++++ b/src/pages/Dashboard.tsx
+@@ -1,4 +1,5 @@
+ import { WorkspaceOverview } from '../components/WorkspaceOverview';
++import { usePhone } from '../components/usePhone';
+ import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
+ import { HelpTerm } from '../components/HelpTerm';
+ import { lazy, Suspense, useMemo } from 'react';
+@@ -89,12 +90,41 @@
+   );
+ }
+ export function ProgressTable({ whole = false }: { whole?: boolean }) {
++  const phone = usePhone();
+   const p = usePlan(),
+     date = reportDate(p),
+     rows = useMemo(() => progress(p, date), [p, date]);
+   const visible = whole
+     ? rows
+     : rows.filter((r) => r.month >= p.settings.viewStart && r.month <= p.settings.viewEnd);
++  if (phone) return (
++    <section className="progress-month-cards" aria-label="Recorded monthly progress">
++      {visible.map((r) => (
++        <article className="progress-month-card" key={r.month}>
++          <header>
++            <strong>{monthLabel(r.month, true)}</strong>
++            <Badge tone={r.status.toLowerCase()}>{r.status}</Badge>
++          </header>
++          <dl>
++            <div><dt>Full-month income plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.income)}</dd></div>
++            <div><dt>Income received</dt><dd>{r.actual ? money(r.actual.income) : '—'}</dd></div>
++            <div><dt>Full-month expense plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.expenses)}</dd></div>
++            <div><dt>Expenses recorded</dt><dd>{r.actual ? money(r.actual.expenses) : '—'}</dd></div>
++            <div><dt>Full-month savings plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.savings)}</dd></div>
++            <div><dt>Actual savings / deficit</dt><dd>{r.actual ? money(r.actual.savings) : '—'}</dd></div>
++            <div><dt>Planned month-end cash</dt><dd>{r.expectedCash === null ? 'Future' : money(r.expectedCash)}</dd></div>
++            <div><dt>Recorded cash</dt><dd>{r.recordedCash === null ? 'Future' : money(r.recordedCash)}</dd></div>
++          </dl>
++          <p className="progress-month-note">
++            {r.status === 'Current' ? 'In progress · full-month target is not yet final' :
++              r.status === 'Future' ? 'Not yet started' :
++              r.actual ? `Savings vs plan: ${money(r.actual.savings - r.plan.savings)}` : 'No entries recorded'}
++            {' · '}{r.count} {r.count === 1 ? 'entry' : 'entries'}
++          </p>
++        </article>
++      ))}
++    </section>
++  );
+   return (
+     <div
+       className="table-scroll long-table-scroll"
+@@ -114,7 +144,7 @@
+               'Full-month savings plan',
+               'Actual savings',
+               'Savings vs full-month plan',
+-              'Expected cash',
++              'Planned month-end cash',
+               'Recorded cash',
+               'Entries',
+               'Status',
+@@ -134,7 +164,7 @@
+                 r.actual?.expenses,
+                 r.status === 'Future' ? null : r.plan.savings,
+                 r.actual?.savings,
+-                r.actual ? r.actual.savings - r.plan.savings : null,
++                r.status === 'Current' ? null : r.actual ? r.actual.savings - r.plan.savings : null,
+                 r.expectedCash,
+                 r.recordedCash,
+               ].map((v, i) => (
+@@ -142,7 +172,7 @@
+                   key={i}
+                   className={i === 6 ? 'muted' : ''}
+                 >
+-                  {v == null ? (r.status === 'Future' ? 'Future' : r.count === 0 ? 'No entries recorded' : '—') : money(v)}
++                  {v == null ? (r.status === 'Future' ? 'Future' : r.status === 'Current' && i === 6 ? 'In progress' : r.count === 0 ? 'No entries recorded' : '—') : money(v)}
+                 </td>
+               ))}
+               <td>{r.count || '—'}</td>
+@@ -344,8 +374,12 @@
+             ['Calculated cash balance', cum.expectedCash, cum.actualCash, 'cash'],
+           ].map(([label, plannedValue, actualValue, kind]) => {
+             const delta = Number(actualValue) - Number(plannedValue);
+-            const explanation =
+-              delta === 0
++            // Never call an incomplete month a savings/cash shortfall.
++            const unfinishedMonth = date < monthEnd(date.slice(0, 7));
++            const pendingCashOrSavings = unfinishedMonth && (kind === 'cash' || kind === 'savings');
++            const explanation = pendingCashOrSavings
++              ? 'Month in progress — salary and bills may not yet be due'
++              : delta === 0
+                 ? 'Matches full-month plan'
+                 : kind === 'expenses'
+                   ? delta > 0
+@@ -368,7 +402,7 @@
+                 <strong>{money(Number(actualValue))}</strong>
+                 <small>Full-month plan {money(Number(plannedValue))}</small>
+                 <span className="muted">
+-                  {delta === 0 ? '' : `${money(Math.abs(delta))} · `}{explanation}
++                  {pendingCashOrSavings || delta === 0 ? '' : `${money(Math.abs(delta))} · `}{explanation}
+                 </span>
+               </div>
+             );
+--- a/src/pages/Entries.tsx
++++ b/src/pages/Entries.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { isSalaryCategory } from '../domain/employment';
+ import { ArchivedPayments } from '../components/ArchivedPayments';
+ import { WEB_APP } from '../web-mode';
+@@ -163,7 +164,7 @@
+     try {
+       fn();
+     } catch (e) {
+-      toast(e instanceof Error ? e.message : String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   async function remove(ids: string[]) {
+@@ -234,12 +235,12 @@
+         );
+       } catch (error) {
+         toast(
+-          `Entry recorded in the app, but saving failed. Use Retry save above. ${String(error)}`,
++          `Entry recorded in the app, but saving failed. Use Retry save above. ${userError(error)}`,
+           true,
+         );
+       }
+     } catch (error) {
+-      toast(String(error), true);
++      toast(userError(error), true);
+     } finally {
+       setAdding(false);
+     }
+--- a/src/pages/Loan.tsx
++++ b/src/pages/Loan.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { ArchivedPayments } from '../components/ArchivedPayments';
+ import { HelpTerm } from '../components/HelpTerm';
+ import { receiptScope } from '../domain/archive';
+@@ -99,7 +100,7 @@
+       });
+       toast('Schedule regenerated. Paid amounts are preserved.');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   async function mark(r: LoanRow) {
+@@ -178,7 +179,7 @@
+       setPayment(null);
+       toast('Payment saved in the schedule and Daily Entries.');
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   return (
+@@ -331,7 +332,7 @@
+             </strong>
+           </div>
+           <div>
+-            <small>Earliest month meeting your cushion</small>
++            <small>Earliest indicative month meeting your cushion</small>
+             <strong>
+               {analysis.earliest ? monthLabel(analysis.earliest, true) : 'Not within the plan'}
+             </strong>
+@@ -341,9 +342,10 @@
+           </Badge>
+         </div>
+         <p className="footnote">
+-          The schedule estimates closure principal after that month’s EMI. Enter the lender’s quote
+-          for a precise settlement amount. Early closure adds the settlement once and stops later
+-          planned EMIs.
++          Outside your selected quote month, the planner compares cash with indicative outstanding
++          principal only; future lender interest, settlement charges, and fees may change the date.
++          Confirm an actual payoff amount with the lender before committing to early closure.
++          Early closure adds the selected settlement once and stops later planned EMIs.
+         </p>
+       </Section>
+       <Section
+@@ -386,7 +388,7 @@
+                   try {
+                     detail('firstDueDate', e.target.value);
+                   } catch (err) {
+-                    toast(String(err), true);
++                    toast(userError(err), true);
+                   }
+               }}
+             />
+@@ -415,8 +417,8 @@
+               <Area
+                 name="Principal remaining"
+                 dataKey="balance"
+-                stroke="#a16ed5"
+-                fill="#a16ed522"
++                stroke="var(--accent)"
++                fill="var(--accent-soft)"
+                 strokeWidth={3}
+                 isAnimationActive={s.animations}
+               />
+@@ -500,7 +502,7 @@
+                         try {
+                           rowEdit(r.id, 'dueDate', e.target.value);
+                         } catch (err) {
+-                          toast(String(err), true);
++                          toast(userError(err), true);
+                         }
+                       }}
+                     />
+@@ -565,7 +567,7 @@
+                             try {
+                               rowEdit(r.id, 'dueDate', e.target.value);
+                             } catch (err) {
+-                              toast(String(err), true);
++                              toast(userError(err), true);
+                             }
+                           }}
+                         />
+--- a/src/pages/Reports.tsx
++++ b/src/pages/Reports.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { WEB_APP } from "../web-mode";
+ import { useState } from "react";
+ import {
+@@ -58,7 +59,7 @@
+       const result = await fn();
+       if (result !== null) toast(`${label} complete.`);
+     } catch (e) {
+-      toast(e instanceof Error ? e.message : String(e), true);
++      toast(userError(e), true);
+     } finally {
+       setBusy("");
+     }
+@@ -76,7 +77,7 @@
+       setRemap({});
+     } catch (e) {
+       setPreview(null);
+-      setError(e instanceof Error ? e.message : String(e));
++      setError(userError(e));
+     } finally {
+       setBusy("");
+     }
+@@ -92,7 +93,7 @@
+       setMapping(defaultMapping);
+       await loadPreview(f, defaultMapping);
+     } catch (e) {
+-      setError(String(e));
++      setError(userError(e));
+     }
+   }
+   async function applyImport() {
+@@ -135,7 +136,7 @@
+       setFile(null);
+       setPreview(null);
+     } catch (e) {
+-      toast(String(e), true);
++      toast(userError(e), true);
+     }
+   }
+   async function pdf() {
+--- a/src/pages/Settings.tsx
++++ b/src/pages/Settings.tsx
+@@ -1,3 +1,4 @@
++import { userError } from '../domain/user-error';
+ import { buildInfo } from '../build-info';
+ import { WEB_APP } from '../web-mode';
+ import { CloudButton } from '../cloud/CloudPanel';
+@@ -266,7 +267,7 @@
+                       d.settings.backupFolder = folder;
+                     });
+                 } catch (e) {
+-                  toast(String(e), true);
++                  toast(userError(e), true);
+                 }
+               }}
+             >
+@@ -397,7 +398,7 @@
+                           store.revert(a.id);
+                           toast('Change reverted.');
+                         } catch (e) {
+-                          toast(`Cannot safely revert: ${String(e)}`, true);
++                          toast(`Cannot safely revert: ${userError(e)}`, true);
+                         }
+                     }}
+                   >
+--- a/src/store.ts
++++ b/src/store.ts
+@@ -1,4 +1,6 @@
+ import { initializeDisplayRange } from './domain/view-range';
++import { assertEditedMoneyPrecision } from './domain/money-precision';
++import { userError } from './domain/user-error';
+ import { useSyncExternalStore } from 'react';
+ import { localPlan, type CloudPlan, type SyncMeta } from './cloud/model';
+ import type { Draft } from 'immer';
+@@ -47,7 +49,7 @@
+         warning = '';
+       } catch (error) {
+         status = 'Save failed';
+-        warning = error instanceof Error ? error.message : String(error);
++        warning = userError(error);
+         throw error;
+       } finally {
+         emit();
+@@ -97,7 +99,7 @@
+       status = 'Saved locally';
+     } catch (e) {
+       locked = true;
+-      warning = `Could not load saved data: ${e instanceof Error ? e.message : String(e)}. Changes are paused so your stored data is not overwritten. Restore a JSON backup in Reports to continue.`;
++      warning = `Could not load saved data safely. ${userError(e)} Changes are paused so your stored data is not overwritten. Restore a JSON backup in Reports to continue.`;
+       status = 'Recovery needed';
+     }
+     emit();
+@@ -105,6 +107,7 @@
+   change(label: string, fn: (draft: Draft<Plan>) => void) {
+     requireEditable();
+     const next = commit(current, label, fn);
++    if (next !== current) assertEditedMoneyPrecision(current.data, next.data);
+     if (next !== current) {
+       current = next;
+       persist();
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1348,7 +1348,8 @@
+   color: var(--muted);
+ }
+ .virtual-entries {
+-  height: 480px;
++  height: clamp(240px, 55vh, 480px);
++  height: clamp(240px, 55dvh, 480px);
+   overflow: auto;
+   min-width: 1100px;
+ }
+@@ -3314,7 +3315,7 @@
+   line-height: 1.3;
+ }
+ .cloud-button small {
+-  font-size: 10px;
++  font-size: 12px;
+   font-weight: 400;
+ }
+ .cash-alert p {
+@@ -3583,7 +3584,7 @@
+   font-weight: 650;
+   margin: 0;
+ }
+-.checklist-card-head .badge { font-size: 11px; white-space: normal; text-align: center; }
++.checklist-card-head .badge { font-size: 12px; white-space: normal; text-align: center; }
+ .checklist-card-amount { display: flex; flex-direction: column; gap: 2px; }
+ .checklist-card-amount > strong {
+   font-size: 23px;
+@@ -3661,7 +3662,7 @@
+   .checklist-card { padding: 14px; }
+   .checklist-group-icon { width: 32px; height: 32px; flex-basis: 32px; }
+   .checklist-group-title strong { font-size: 13px; }
+-  .checklist-group-title small { font-size: 11px; }
++  .checklist-group-title small { font-size: 12px; }
+ }
+ @media (prefers-reduced-motion: reduce) {
+   .checklist-group-chevron { transition: none; }
+@@ -3733,3 +3734,13 @@
+   .dashboard-kpis .stat-card > strong { font-size: clamp(1.15rem, 6vw, 1.55rem); }
+   .dashboard-kpis .stat-caption { display: block; line-height: 1.35; }
+ }
++
++/* Accessible, column-free progress overview on small screens. */
++.progress-month-cards { display: grid; gap: 12px; min-width: 0; }
++.progress-month-card { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
++.progress-month-card header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
++.progress-month-card dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; margin: 16px 0 12px; }
++.progress-month-card dt { color: var(--muted); font-size: 12px; line-height: 1.45; }
++.progress-month-card dd { margin: 5px 0 0; font-weight: 650; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
++.progress-month-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.5; }
++@media (max-width: 380px) { .progress-month-card dl { grid-template-columns: 1fr; } }
+--- a/tests/audit-repair-2026-11-03.test.ts
++++ b/tests/audit-repair-2026-11-03.test.ts
+@@ -0,0 +1,164 @@
++import { describe, expect, it } from 'vitest';
++import { financialFixture } from './fixtures/financial';
++import { enablePfAccount } from '../src/domain/employment';
++import {
++  closureAmount, cumulative, forecast, progress, regenerateLoan, timedAmount,
++} from '../src/domain/calculate';
++import { paymentRows } from '../src/domain/loan-summary';
++import { installmentTasks, budgetAlerts } from '../src/domain/insights';
++import { monthlyChecklistView } from '../src/domain/monthly-checklist';
++import { reconciliationResult } from '../src/domain/balances';
++import { compactMoney } from '../src/domain/format-money';
++import { monthlyComparison } from '../src/domain/comparison';
++import { userError } from '../src/domain/user-error';
++import { assertEditedMoneyPrecision } from '../src/domain/money-precision';
++import { formatMoney } from '../src/domain/format-money';
++import { actual } from '../src/domain/calculate';
++import { validateEntry, validatePlan } from '../src/domain/validation';
++
++describe('Audit repairs — financial integrity', () => {
++  it('books PF cash movements equally into expected, recorded and forecast cash, not savings', () => {
++    const p = financialFixture().data;
++    p.settings.reportDate = '2026-11-03';
++    const original = cumulative(p);
++    const originalForecast = forecast(p)[0]!.cash;
++    enablePfAccount(p);
++    p.pfMovements = [
++      { id: 'fund', date: '2026-10-15', kind: 'contribution', source: 'payroll', amount: 1000, payment: 'Bank', note: '' },
++      { id: 'claim', date: '2026-11-03', kind: 'claim', source: 'cash', amount: 1000, payment: 'Bank', note: '' },
++    ];
++    const current = cumulative(p);
++    expect(current.expectedCash - original.expectedCash).toBe(1000);
++    expect(current.actualCash - original.actualCash).toBe(1000);
++    expect(current.plan).toEqual(original.plan);
++    expect(current.actual).toEqual(original.actual);
++    expect(forecast(p)[0]!.cash - originalForecast).toBe(1000);
++    expect(progress(p, '2026-11-03')[0]).toMatchObject({ expectedCash: current.expectedCash, recordedCash: current.actualCash });
++  });
++
++  it('applies quoted fees/interest only to the selected closure month', () => {
++    const p = financialFixture().data;
++    p.settings.closureMonth = '2026-11';
++    p.settings.accruedInterest = 500;
++    p.settings.fees = 200;
++    p.settings.lenderQuote = 0;
++    expect(closureAmount(p, '2026-11')).toBe(900);
++    expect(closureAmount(p, '2026-12')).toBe(100);
++    p.settings.lenderQuote = 825;
++    expect(closureAmount(p, '2026-11')).toBe(825);
++    expect(closureAmount(p, '2026-12')).toBe(100);
++  });
++
++  it('rejects an unaffordable final EMI instead of silently creating a balloon', () => {
++    const p = financialFixture().data;
++    Object.assign(p.loan, {
++      principal: 100000, annualRate: 12, tenure: 12,
++      firstEmi: 5000, regularEmi: 5000, firstInterest: 1000,
++    });
++    expect(() => regenerateLoan(p)).toThrow(/EMI is too low to repay/);
++    expect(p.loan.rows).toHaveLength(3); // failed regeneration must be atomic
++  });
++
++  it('does not count a legacy undated payment as received; before-opening remains exempt', () => {
++    const p = financialFixture().data;
++    const row = p.loan.rows[1]!; // due December, planned November
++    row.paidAmount = 100;
++    row.paid = true;
++    row.paidDate = '';
++    expect(paymentRows(p, [row], '2026-11-03')[0]!.paidAmount).toBe(0);
++    expect(installmentTasks(p, '2026-11', '2026-11-03').find(x => x.id === row.id)?.paid).toBe(0);
++    row.paidBeforeOpening = true;
++    expect(paymentRows(p, [row], '2026-11-03')[0]!.paidAmount).toBe(100);
++  });
++
++  it('ignores legacy Asset entries in reconciliation and progress totals', () => {
++    const p = financialFixture().data;
++    enablePfAccount(p);
++    p.entries.push({
++      id: 'legacy-asset', date: '2026-11-03', amount: 250,
++      categoryId: p.categories.find(c => c.group === 'Asset')!.id,
++      payment: 'Bank', description: '', notes: '',
++    });
++    const r = reconciliationResult(p, {
++      label: 'Account', fromDate: '2026-11-01', throughDate: '2026-11-30',
++      openingBalance: 500, statementBalance: 500, methods: ['Bank'], note: '',
++    });
++    expect(r).toMatchObject({ expenses: 0, income: 0, calculated: 500, count: 0 });
++    expect(progress(p, '2026-11-03')[0]?.actual).toBeNull();
++  });
++
++  it('uses full-month comparison and never prorates daily categories', () => {
++    const p = financialFixture().data;
++    p.settings.reportDate = '2026-11-03';
++    const c = p.categories.find(c => c.id === 'bill')!;
++    expect(timedAmount(100, c, '2026-11', '2026-11-03')).toBe(0);
++    expect(timedAmount(100, c, '2026-11', '2026-11-30')).toBe(100);
++    expect(monthlyComparison(p, '2026-11', '2026-11')[0]?.planExpenses).toBe(200);
++  });
++
++  it('formats 99,950 as ₹1L and avoids negative-zero money', () => {
++    expect(compactMoney(99950)).toBe('₹1L');
++    expect(compactMoney(99999)).toBe('₹1L');
++    expect(compactMoney(-0.004)).toBe('₹0');
++    expect(compactMoney(9950000)).toBe('₹1Cr');
++  });
++
++  it('sanitizes runtime errors while preserving actionable business validation', () => {
++    expect(userError(new Error('EMI is too low to repay this loan within 12 months.')))
++      .toContain('EMI is too low');
++    expect(userError(new Error('TypeError: cannot read properties of undefined')))
++      .not.toContain('TypeError');
++  });
++
++  it('rejects new sub-cent entries but leaves legacy backup migration separate', () => {
++    const p = financialFixture().data;
++    const tiny = { id:'tiny', date:'2026-11-03', categoryId:'bill', amount:0.004, payment:'Bank', description:'', notes:'' };
++    expect(() => validateEntry(tiny, p)).toThrow('two decimal places');
++    // An older backup with this historical amount remains readable, rather
++    // than preventing login or deleting user data during an automatic upgrade.
++    p.entries.push(tiny);
++    expect(() => validatePlan(p)).not.toThrow();
++  });
++
++  it('uses one Unbudgeted spending label for spending with no allocation', () => {
++    const p = financialFixture().data;
++    const c = p.categories.find(x => x.id === 'bill')!;
++    c.amount = 0;
++    p.entries.push({ id:'spend', date:'2026-11-03', categoryId:c.id, amount:10, payment:'Bank', description:'', notes:'' });
++    const a = budgetAlerts(p,'2026-11','2026-11-03').find(x=>x.id===c.id);
++    expect(a?.level).toBe('Unbudgeted spending');
++    expect(monthlyChecklistView(p, '2026-11', '2026-11-03').spending.find(x=>x.id===c.id)?.status).toBe('Unbudgeted spending');
++  });
++});
++
++
++describe('Follow-up audit: legacy-safe monetary edits', () => {
++  it('never creates a displayed total that differs from living + debt', () => {
++    const p = financialFixture().data;
++    p.entries.push({ id:'small-living', date:'2026-11-03', categoryId:'bill', amount:0.004, payment:'Bank', description:'', notes:'' });
++    p.categories.push({ id:'new-debt', name:'New debt', group:'Debt', role:'regular', active:true, amount:0, timing:'Daily', day:1, months:[], note:'' });
++    p.entries.push({ id:'small-debt', date:'2026-11-03', categoryId:'new-debt', amount:0.004, payment:'Bank', description:'', notes:'' });
++    const result = actual(p,'2026-11-01','2026-11-30');
++    expect(result.expenses).toBe(0.01);
++    expect(result.expenses).toBe(result.living + result.debt);
++    expect(result.savings).toBe(result.income - result.expenses);
++  });
++
++  it('rejects new fractional budget overrides and provisions while keeping old values untouched', () => {
++    const original = financialFixture().data;
++    const changed = structuredClone(original);
++    changed.overrides['2026-11|bill'] = 0.004;
++    expect(() => assertEditedMoneyPrecision(original, changed)).toThrow('two decimal places');
++    const unchanged = structuredClone(original);
++    original.entries.push({ id:'old', date:'2026-11-03', categoryId:'bill', amount:0.004, payment:'Bank', description:'', notes:'' });
++    unchanged.entries = structuredClone(original.entries);
++    unchanged.settings.reportDate = '2026-11-03';
++    expect(() => assertEditedMoneyPrecision(original, unchanged)).not.toThrow();
++    unchanged.entries[0]!.amount = 0.008;
++    expect(() => assertEditedMoneyPrecision(original, unchanged)).toThrow('two decimal places');
++  });
++
++  it('does not show negative zero as a full INR amount', () => {
++    expect(formatMoney(-0.004)).toBe('₹0.00');
++  });
++});
