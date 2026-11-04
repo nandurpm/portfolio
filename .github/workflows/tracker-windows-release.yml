@@ -1,0 +1,44 @@
+name: Build and publish tracker Windows installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing GitHub release tag
+        required: true
+        default: tracker-v2.2.0
+
+permissions:
+  contents: write
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci
+        working-directory: tools/tracker-source
+      - name: Run financial and quality checks
+        run: npm run lint && npm test && npm run typecheck:quality
+        working-directory: tools/tracker-source
+      - name: Build Windows installer
+        run: npm run dist:win
+        working-directory: tools/tracker-source
+      - name: Verify installer metadata and publish
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $installer = 'tools/tracker-source/release/installers/Savings-and-Expense-Tracker-Setup-2.2.0.exe'
+          if (-not (Test-Path -LiteralPath $installer)) { throw "Installer was not generated: $installer" }
+          $version = (Get-Item -LiteralPath $installer).VersionInfo.ProductVersion
+          if ($version -notlike '2.2.0*') { throw "Unexpected installer version: $version" }
+          Get-FileHash -Algorithm SHA256 -LiteralPath $installer | Format-List
+          gh release upload $env:RELEASE_TAG $installer --repo $env:GITHUB_REPOSITORY --clobber
