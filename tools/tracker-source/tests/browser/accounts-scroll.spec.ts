@@ -47,7 +47,7 @@ for (const width of [1366, 1702, 2560]) {
     expect(metrics.mainCanScroll).toBe(true);
     expect(metrics.mainScrolled).toBe(true);
     expect(metrics.mainHasHorizontalOverflow).toBe(false);
-    expect(metrics.bodyOverflow).toBe('hidden');
+    expect(metrics.bodyOverflow).toBe('clip');
 
     await page.getByRole('navigation', { name: 'Main navigation' })
       .getByRole('button', { name: 'Dashboard' }).click();
