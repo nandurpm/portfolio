@@ -87,6 +87,13 @@ sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
  assert.equal(sum.net,67,'Savings equals income less expenses');
  assert.equal(finance.financialCash(sandbox.ledgerFixture,'2026-11-30'),1027,'Principal transfers affect liquid cash without changing savings');
  assert.equal(sandbox.ledgerFixture.ledgerTransactions.length,13,'All account postings preserved');
+ const positions=finance.financialAccounts(sandbox.ledgerFixture,'2026-11-30');
+ assert.equal(positions.receivables,100,'Lending minus repayments');
+ assert.equal(positions.liabilities,60,'Borrowed principal outstanding');
+ assert.equal(positions.netWorth,1067,'Account net worth reconciles income minus expenses');
+ assert.match(evaluate('accountsText(ledgerFixture,"2026-11-04")'),/Money receivable/);
+ assert.equal(evaluate('homeKeyboard().inline_keyboard.flat().some(b=>b.callback_data==="accounts")'),true);
+
  assert.match(evaluate('entriesText(ledgerFixture,"2026-11-04")'),/Accounts/);
  assert.match(evaluate('reportText(ledgerFixture,"month","2026-11-30","2026-11-04")'),/220\.00/);
  assert.match(evaluate('pdfLines(ledgerFixture,"month","2026-11-30","2026-11-04").join(" ")'),/ACCOUNT MOVEMENTS/);
