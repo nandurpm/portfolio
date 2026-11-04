@@ -304,6 +304,18 @@ export default function Dashboard({
           </article>
         </div>
       </section>
+      <section className="dashboard-analytics" aria-labelledby="dashboard-analytics-title">
+        <div className="dashboard-analytics-head">
+          <div>
+            <span className="dashboard-section-kicker">VISUAL OVERVIEW</span>
+            <h2 id="dashboard-analytics-title">See the trend, not just the total</h2>
+          </div>
+          <span className="dashboard-pulse-caption">Hover the graphs for month-by-month detail</span>
+        </div>
+        <Suspense fallback={<p className="muted" role="status">Loading dashboard charts…</p>}>
+          <SavingsCharts />
+        </Suspense>
+      </section>
       <FinancialPosition onManage={()=>navigate('accounts')}/>
       {date > today() && (
         <div className="callout preview-banner" role="status">
@@ -335,6 +347,15 @@ export default function Dashboard({
       <CashAlerts />
       <BudgetAlerts />
       <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
+      <details className="dashboard-deep-dive">
+        <summary>
+          <span>
+            <strong>Open full dashboard analysis</strong>
+            <small>Comparison tables, category detail, forecasts and extended charts</small>
+          </span>
+          <span className="dashboard-deep-dive-toggle">View details</span>
+        </summary>
+        <div className="dashboard-deep-dive-body">
       <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
       <Section
         title={`${monthLabel(m, true)}, side by side`}
@@ -515,6 +536,8 @@ export default function Dashboard({
       >
         <ProgressTable whole />
       </Section>
+        </div>
+      </details>
     </div>
   );
 }
