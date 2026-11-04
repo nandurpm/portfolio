@@ -1,3 +1,4 @@
+import { ledgerCashEffect, ledgerPeriod } from './ledger';
 import { pfCashEffect } from './employment';
 import type { Plan, Reconciliation, Provision } from "./types";
 import { monthsBetween, monthDay } from "./dates";
@@ -21,9 +22,14 @@ export function reconciliationResult(p: Plan, r: Omit<Reconciliation, "id">) {
     else expenses += e.amount;
     count++;
   }
+  const ledger = r.methods.length ? { income: 0, expenses: 0, count: 0 } : ledgerPeriod(p,r.fromDate,r.throughDate);
+  const ledgerCash = r.methods.length ? 0 : ledgerCashEffect(p,r.fromDate,r.throughDate);
+  count += ledger.count;
+  // Ledger principal movements change combined cash without becoming income/expenses.
+  const cashAdjustment = ledgerCash;
   income = round(income);
   expenses = round(expenses);
-  const calculated = round(r.openingBalance + income - expenses + pfCashEffect(p, r.fromDate, r.throughDate, r.methods));
+  const calculated = round(r.openingBalance + income - expenses + pfCashEffect(p, r.fromDate, r.throughDate, r.methods) + cashAdjustment);
   return {
     income,
     expenses,

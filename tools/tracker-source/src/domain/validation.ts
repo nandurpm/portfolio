@@ -22,6 +22,7 @@ const category = z.object({
   edited: z.boolean().optional(),
 });
 const entry = z.object({
+  accountId: z.string().optional(),
   provisionId: z.string().min(1).optional(),
   billDueMonth: month.optional(),
   id: z.string().min(1),
@@ -50,6 +51,8 @@ const loanRow = z.object({
 });
 export const planSchema = z.object({
   accounts: z.array(z.object({
+    planLoanId: z.string().optional(),
+    creditLimit: nonnegative.optional(),
     id: z.string().min(1),
     name: z.string().trim().min(1).max(100),
     kind: z.enum(['cash', 'bank', 'wallet', 'credit-card', 'receivable', 'liability', 'fixed-deposit', 'investment']),
@@ -201,7 +204,16 @@ export function validatePlan(p: unknown): Plan {
   const v = planSchema.parse(p);
   if ((v.accounts === undefined) !== (v.ledgerTransactions === undefined))
     throw Error('Accounts and ledger transactions must be enabled together.');
-  if (v.accounts) validateLedger(v.accounts, v.ledgerTransactions ?? []);
+  if (v.accounts) {
+    validateLedger(v.accounts, v.ledgerTransactions ?? []);
+    for (const e of v.entries) if (e.accountId && !v.accounts.some(a => a.id === e.accountId && ['bank','cash','wallet'].includes(a.kind))) throw Error('An entry refers to a missing cash, bank or wallet account.');
+    const links = v.accounts.filter(a => a.planLoanId).map(a => a.planLoanId);
+    if (new Set(links).size !== links.length) throw Error('Each plan loan can be linked to only one account.');
+    for (const a of v.accounts.filter(a => a.planLoanId)) {
+      if (a.kind !== 'liability' || (a.planLoanId !== 'original' && !v.additionalLoans?.some(l => l.id === a.planLoanId))) throw Error('Choose an existing plan loan for a loan account.');
+      if (v.ledgerTransactions?.some(r => r.sourceAccountId === a.id || r.destinationAccountId === a.id)) throw Error('Linked plan loans use Loan & Closure receipts. Remove their duplicate ledger movements first.');
+    }
+  }
   if (v.settings.planStart > v.settings.planEnd)
     throw Error('Start month must be before the end month.');
   if (monthsBetween(v.settings.planStart, v.settings.planEnd).length > 600)
@@ -325,6 +337,7 @@ export function validatePlan(p: unknown): Plan {
 }
 export function validateEntry(e: Entry, p: Plan, allowArchive = false) {
   entry.parse(e);
+  if (e.accountId && !p.accounts?.some(a => a.id === e.accountId && ['bank','cash','wallet'].includes(a.kind))) throw Error('Choose a cash, bank or wallet account.');
   // New/edited entries must be whole paise; legacy backups are still readable
   // until the user can review and migrate their original amounts safely.
   if (!isPaise(e.amount) && p.entries.find(row => row.id === e.id)?.amount !== e.amount)

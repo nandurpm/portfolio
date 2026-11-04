@@ -1,3 +1,4 @@
+import { netWorthSnapshot } from '../domain/net-worth';
 import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
@@ -204,6 +205,7 @@ export default function Dashboard({
     act = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m)),
     cum = cumulative(p),
     savings = savingsOverview(p, m, date),
+    worth = (() => { try { return netWorthSnapshot(p, date); } catch { return null; } })(),
     remainingBudget = full.expenses - act.expenses,
     status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
   const metrics = [
@@ -227,7 +229,7 @@ export default function Dashboard({
             <span className="dashboard-overline">Available cash snapshot</span>
             <h2 id="dashboard-balance-title">Calculated cash balance</h2>
             <strong>{money(cum.actualCash)}</strong>
-            <p>Opening savings + actual income − actual expenses + PF cash transfers</p>
+            <p>Opening savings + recorded cash movements, including Accounts and PF transfers</p>
           </div>
         </div>
         <div className="dashboard-hero-insights">
@@ -252,8 +254,12 @@ export default function Dashboard({
         <Stat label="Income received" value={act.income} caption={`${money(full.income, 0)} monthly plan`} tone="green" icon={<ArrowDownLeft />} />
         <Stat label="Expenses recorded" value={act.expenses} caption={`${money(full.expenses, 0)} monthly budget`} tone="orange" icon={<ArrowUpRight />} />
         <Stat label="Saved this year" value={savings.year} caption={`${savings.calendarYear} through ${displayDate(date, s.dateFormat)}`} tone={savings.year < 0 ? 'orange' : 'violet'} icon={<CalendarRange />} />
-        <Stat label="Lifetime savings" value={savings.lifetime} caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`} tone={savings.lifetime < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
+        <Stat label="Net savings since tracking began" value={savings.lifetime} caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`} tone={savings.lifetime < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
       </div>
+      {worth && <Section title="Net worth" caption={`Through ${displayDate(date, s.dateFormat)}. Opening bank, cash and wallet balances are allocations of opening savings, not additional income. Loan principal is estimated where the payment allocation is unavailable.`}>
+        <div className="stats-grid"><Stat icon={<Wallet/>} label={worth.estimated ? "Estimated net worth" : "Net worth"} value={worth.netWorth} caption="Assets less liabilities"/><Stat icon={<TrendingUp/>} label="Assets" value={worth.assets} caption="Cash, PF and other assets"/><Stat icon={<Wallet/>} label="Liabilities" value={worth.liabilities} caption="Plan loans and ledger debt; do not enter the same loan twice"/></div>
+        <button className="button secondary" onClick={() => navigate('accounts')}>Manage accounts</button>
+      </Section>}
       <MonthControls />
       <div className="month-banner">
         <span className={`status-dot ${status}`} />

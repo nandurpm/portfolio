@@ -20,6 +20,8 @@ export default function Balances() {
     methods: [],
     note: '',
   });
+  const [editComparison, setEditComparison] = useState('');
+  const [billManual, setBillManual] = useState(false);
   const [statement, setStatement] = useState('');
   const [methods, setMethods] = useState('');
   const comparison = {
@@ -50,14 +52,13 @@ export default function Balances() {
     e.preventDefault();
     try {
       store.change('Save balance reconciliation', (d) => {
-        (d.reconciliations ??= []).push({
-          ...comparison,
-          id: crypto.randomUUID(),
-          statementBalance: Number(statement),
-        });
+        const item = { ...comparison, id: editComparison || crypto.randomUUID(), statementBalance: Number(statement) };
+        const index = (d.reconciliations ??= []).findIndex(x => x.id === editComparison);
+        if (index >= 0) d.reconciliations[index] = item;
+        else d.reconciliations.push(item);
       });
       toast('Comparison saved. No transaction or opening balance was changed.');
-      setStatement('');
+      setEditComparison(''); setStatement('');
     } catch (e) {
       toast(userError(e), true);
     }
@@ -95,7 +96,7 @@ export default function Balances() {
       />
       <Section
         title="Balance reconciliation"
-        caption="Choose the payment methods represented by your statement and enter their opening balance at the start of the selected interval. Leave methods empty only for a combined cash-and-bank balance. Transfers between accounts are not modeled as income."
+        caption="Choose the payment methods represented by your statement and enter their opening balance at the start of the selected interval. Leave methods empty only for a combined cash-and-bank balance. Combined comparisons include Accounts cash movements. Payment-method comparisons use Entries and PF only because account movements have no payment-method tag. Transfers are not income."
       >
         <div className="help-strip"><HelpTerm term="reconciliation" /></div>
         <form onSubmit={saveReconciliation}>
@@ -168,8 +169,9 @@ export default function Balances() {
             )}
           </p>
           <button className="button" type="submit">
-            Save comparison
+            {editComparison ? 'Update comparison' : 'Save comparison'}
           </button>
+          {editComparison && <button type="button" className="button secondary" onClick={()=>{setEditComparison('');setStatement('');}}>Cancel comparison edit</button>}
         </form>
         {(p.reconciliations ?? []).map((x) => {
           const v = reconciliationResult(p, x);
@@ -186,6 +188,8 @@ export default function Balances() {
               <small>
                 Recalculated from current entries; this is a comparison, not an adjustment.
               </small>
+              <button className="button small secondary" onClick={()=>{setR({...x}); setStatement(String(x.statementBalance));setMethods(x.methods.join(', '));setEditComparison(x.id);}}>Edit comparison</button>
+              <button className="button small secondary" onClick={()=>{store.change('Remove balance comparison',d=>{d.reconciliations=d.reconciliations?.filter(r=>r.id!==x.id);});toast('Comparison removed. Undo is available.');}}>Remove comparison</button>
             </article>
           );
         })}
@@ -204,6 +208,7 @@ export default function Balances() {
                 value={q.categoryId}
                 onChange={(e) => {
                   const c = p.categories.find((c) => c.id === e.target.value);
+                  setBillManual(false);
                   setQ({
                     ...q,
                     categoryId: e.target.value,
@@ -259,11 +264,16 @@ export default function Balances() {
                   max={max}
                   step={['everyMonths', 'allocationDay', 'dueDay'].includes(key) ? '1' : '.01'}
                   value={q[key]}
-                  onChange={(e) => setQ({ ...q, [key]: Number(e.target.value) })}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (key === 'billAmount') setBillManual(true);
+                    setQ({ ...q, [key]: value, ...(!billManual && ['monthlyAmount','everyMonths'].includes(key) ? { billAmount: Math.round((key === 'monthlyAmount' ? value : q.monthlyAmount) * (key === 'everyMonths' ? value : q.everyMonths) * 100) / 100 } : {}) });
+                  }}
                 />
               </Field>
             ))}
           </div>
+          <label><input type="checkbox" checked={q.enabled} onChange={e=>setQ({...q,enabled:e.target.checked})}/> Enable provision</label>
           <button type="submit" className="button">
             {edit ? 'Update provision' : 'Add provision'}
           </button>
@@ -292,12 +302,13 @@ export default function Balances() {
               <button
                 className="button small secondary"
                 onClick={() => {
-                  setQ({ ...x });
+                  setBillManual(true); setQ({ ...x });
                   setEdit(x.id);
                 }}
               >
                 Edit provision
               </button>
+              <button className="button small secondary" onClick={()=>{store.change('Remove bill provision',d=>{d.provisions=d.provisions?.filter(r=>r.id!==x.id);});toast('Provision removed. Entries preserved; Undo is available.');}}>Remove provision</button>
             </article>
           );
         })}

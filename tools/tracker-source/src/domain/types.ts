@@ -19,6 +19,7 @@ export interface Category {
   edited?: boolean;
 }
 export interface Entry {
+  accountId?: string;
   provisionId?: string;
   billDueMonth?: string;
   id: string;
@@ -41,6 +42,8 @@ export type AccountKind =
   | 'fixed-deposit'
   | 'investment';
 export interface Account {
+  planLoanId?: string;
+  creditLimit?: number;
   id: string;
   name: string;
   kind: AccountKind;

@@ -78,6 +78,22 @@ export function localPlan(remote: CloudPlan, device: Plan): Plan {
  */
 export function assertModernLedgerPreserved(base: CloudPlan | undefined, local: Plan, remote: CloudPlan) {
   if (!base) return;
+  // Older clients must not silently strip account assignments, loan links or card limits.
+  for (const field of ['entries', 'accounts'] as const) {
+    for (const old of base[field] ?? []) {
+      const here = local[field]?.find(row => row.id === old.id);
+      const there = remote[field]?.find(row => row.id === old.id);
+      if (!here || !there) continue; // Intentional record removal uses normal merge conflicts.
+      for (const key of field === 'entries' ? ['accountId'] as const : ['planLoanId', 'creditLimit'] as const) {
+        const b = old as unknown as Record<string, unknown>;
+        const l = here as unknown as Record<string, unknown>;
+        const r = there as unknown as Record<string, unknown>;
+        if (b[key] !== undefined && l[key] !== undefined && r[key] === undefined &&
+            (field === 'entries' || b.kind === r.kind))
+          throw Error('Another device omitted account allocation details. Update that device before syncing again. Your local records are preserved.');
+      }
+    }
+  }
   for (const field of ['salaryChanges', 'pfMovements', 'accounts', 'ledgerTransactions'] as const) {
     if (base[field] !== undefined && local[field] !== undefined && remote[field] === undefined)
       throw Error(

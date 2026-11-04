@@ -75,6 +75,7 @@ export default function Entries({
     });
   const defaultDate = inRange(today(), s.planStart, s.planEnd) ? today() : `${s.selectedMonth}-01`;
   const [draft, setDraft] = useState({
+    accountId: '',
     date: defaultDate,
     categoryId:
       p.categories.find((c) => c.id === 'food' && c.active)?.id ??
@@ -496,6 +497,7 @@ export default function Entries({
             <Plus size={19} />
             Add
           </button>
+          <Field label="Account"><select aria-label="New transaction account" value={draft.accountId} onChange={e=>setDraft({...draft,accountId:e.target.value})}><option value="">Unallocated cash</option>{p.accounts?.filter(a=>['bank','cash','wallet'].includes(a.kind)).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></Field>
           <Field label="Notes (optional)">
             <input
               aria-label="New transaction notes"
@@ -891,7 +893,7 @@ export default function Entries({
                           {[...new Set([...payments, row.payment])].map((x) => (
                             <option key={x}>{x}</option>
                           ))}
-                        </select>
+                        </select><select aria-label="Entry account" value={row.accountId ?? ''} onChange={e=>safe(()=>update(row.id,{accountId:e.target.value}))}><option value="">Unallocated cash</option>{p.accounts?.filter(a=>['bank','cash','wallet'].includes(a.kind)).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select>
                         <button
                           draggable
                           onDragStart={() => {
@@ -1028,6 +1030,7 @@ export default function Entries({
                 ))}
               </select>
             </Field>
+            <Field label="Account"><select aria-label="Edit transaction account" value={editEntry.accountId ?? ''} onChange={e=>setEditEntry({...editEntry,accountId:e.target.value})}><option value="">Unallocated cash</option>{p.accounts?.filter(a=>['bank','cash','wallet'].includes(a.kind)).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></Field>
             <Field label="Notes">
               <input
                 aria-label="Edit transaction notes"
