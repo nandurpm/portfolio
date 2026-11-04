@@ -27,7 +27,16 @@ for (const executablePath of [previous, current]) {
   try {
     const page = await app.firstWindow();
     await page.locator('.splash').waitFor({ state: 'detached' });
-    await page.getByRole('button', { name: 'Add Expense', exact: true }).waitFor();
+    try {
+      await page.locator('.cloud-gate, .fatal, h1').waitFor();
+    } catch (error) {
+      const state = { title: await page.title(), url: page.url(), text: (await page.locator('body').innerText()).slice(0, 500) };
+      throw Error(`Release did not reach a ready screen: ${JSON.stringify(state)}`, { cause: error });
+    }
+    if (await page.locator('.fatal').count())
+      throw Error(`Release startup failed: ${await page.locator('.fatal').innerText()}`);
+    if (await page.getByRole('heading', { name: 'Monthly snapshot', exact: true }).count())
+      await page.getByRole('button', { name: 'Add expense', exact: true }).waitFor();
     const version = await app.evaluate(({app}) => ({ version: app.getVersion(),
       electron: process.versions.electron, node: process.versions.node }));
     await page.screenshot({ path: output.replace(/\.json$/, `-${version.version}.png`) });

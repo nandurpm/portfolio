@@ -18,6 +18,16 @@ for (const viewport of [
     const reportsButton = quickActions.getByRole('button', { name: 'View reports' });
     await expect(reportsButton).toBeVisible();
 
+    if (viewport.name === 'phone') {
+      const phoneNav = page.getByRole('navigation', { name: 'Phone navigation' });
+      for (const label of ['Home', 'Transactions', 'Accounts', 'Budget'])
+        await expect(phoneNav.getByRole('button', { name: label, exact: true })).toBeVisible();
+      await expect(phoneNav.getByRole('button', { name: 'Reports', exact: true })).toHaveCount(0);
+      await expect(page.getByRole('heading', { name: 'Latest money movements' })).toBeVisible();
+    } else {
+      await expect(page.getByRole('heading', { name: 'Latest money movements' })).toHaveCount(0);
+    }
+
     // Guard against the shared secondary-button style producing white-on-white text.
     const reportsStyle = await reportsButton.evaluate((element) => {
       const computed = getComputedStyle(element);

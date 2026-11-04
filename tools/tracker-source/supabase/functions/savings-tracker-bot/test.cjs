@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const {stripTypeScriptTypes}=require('node:module');
-let code=fs.readFileSync(require('node:path').join(__dirname,'index.ts'),'utf8').replace(/^import .*;\n/gm,'');
+let code=fs.readFileSync(require('node:path').join(__dirname,'index.ts'),'utf8').replace(/^import .*;\r?\n/gm,'');
 code=stripTypeScriptTypes(code);
 const sandbox={console,Intl,Date,TextEncoder,Uint8Array,Map,structuredClone,crypto:require('node:crypto').webcrypto,Response,Request,Blob,FormData,atob,AbortSignal,Deno:{env:{get:()=>undefined},serve:()=>{}}};
 vm.createContext(sandbox);vm.runInContext(code,sandbox);

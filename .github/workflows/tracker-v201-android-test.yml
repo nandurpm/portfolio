@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - tracker-v2.0.1-android-test-build
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:

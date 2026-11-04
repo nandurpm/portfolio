@@ -15,6 +15,7 @@ try {
   });
   const page = await app.firstWindow();
   await page.locator('.splash').waitFor({ state: 'detached' });
+  await page.locator('.cloud-gate, .dashboard-page').waitFor();
   const minimum = await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].getMinimumSize(),
   );
@@ -24,7 +25,8 @@ try {
       ({ BrowserWindow }, width) => BrowserWindow.getAllWindows()[0].setSize(width, 768),
       width,
     );
-    await page.getByRole('button', { name: 'Add Expense', exact: true }).waitFor();
+    if (await page.locator('.dashboard-page').count())
+      await page.getByRole('button', { name: 'Add expense', exact: true }).waitFor();
     widths.push({
       width,
       overflow: await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
@@ -34,6 +36,7 @@ try {
   const result = {
     minimum,
     widths,
+    authenticationBoundary: await page.locator('.cloud-gate').count() ? 'sign-in-required' : 'authorized-dashboard',
     freshEntries: saved.data.entries.length,
     freshSalary: saved.data.settings.salary31,
     freshOpening: saved.data.settings.opening,

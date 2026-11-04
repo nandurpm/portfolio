@@ -11,7 +11,7 @@ async function navigate(page: Page, name: string) {
   const names: Record<string, string> = {
     Dashboard: 'Home',
     'Daily Entries': 'Transactions',
-    'Reports & Export/Import': 'Reports',
+    'Budget & Plan': 'Budget',
   };
   if (names[name]) {
     await page
