@@ -542,11 +542,21 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  const today=keyDate(),month=today.slice(0,7);
  let report:string|undefined;let kb:AnyRow=back();
  if(action==="menu"||action==="start") {
-  report="⚡ <b>SAVINGS &amp; EXPENSE TRACKER</b>\n━━━━━━━━━━━━━━━━━━\n🔐 Your private money dashboard\n\n📊 Reports · Budgets · Savings · EMI\n📄 Private PDF reports\n✏️ Add and edit with your separate PIN\n\n👇 <b>Choose an option:</b>"+syncInfo(updated);kb=homeKeyboard();
- } else if(action==="plan")report=planText(plan,updated);
+  report="💰 <b>PERSONAL FINANCE DASHBOARD</b>\n━━━━━━━━━━━━━━━━━━\n🔐 Private Savings &amp; Expense Tracker\n\nQuick Add · Dashboard · Accounts · This Month\nEMI &amp; Dues · Alerts · Reports · More\n\nChoose an option below. Complex financial editing stays in the authenticated tracker."+syncInfo(updated);kb=homeKeyboard();
+ } else if(action==="quick"){
+  report="➕ <b>QUICK ACTIONS</b>\n━━━━━━━━━━━━━━━━━━\nAdd or edit Daily Entries with your separate PIN. Account transfers, FD setup and lending changes open the full authenticated tracker.";
+  kb=quickKeyboard();
+ }
+ else if(action==="more"){
+  report="⚙️ <b>MORE TOOLS</b>\n━━━━━━━━━━━━━━━━━━\nBudgets, forecasts, reconciliation, account history, sync, backups and advanced tools.";
+  kb=moreKeyboard();
+ }
+ else if(action==="plan")report=planText(plan,updated);
  else if(action==="dashboard")report=dashboardText(plan,updated);
  else if(action==="entries")report=entriesText(plan,updated);
- else if(action==="accounts")report=accountsText(plan,updated);
+ else if(action==="accounts"){report=accountsText(plan,updated);kb=accountKeyboard();}
+ else if(action==="lending"){report=lendingText(plan,updated);kb=accountKeyboard();}
+ else if(action==="investments"){report=investmentsText(plan,updated);kb=accountKeyboard();}
  else if(action==="reconcile"){report=reconciliationText(plan,updated);
    kb={inline_keyboard:[[button("📝 Record Reconciliation","e:reconcile")],
      [{text:"🔐 Open Full Tracker",url:APP_URL},button("🏠 Main Menu","menu")]]};}
@@ -586,12 +596,58 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  else if(action==="budgetbase")report=budgetsText(plan,month,updated);
  else if(action==="compareprev")report=budgetCompareText(plan,previousMonth(month),updated);
  else if(action==="balance")report=balanceText(plan,updated);
- else if(action==="emi")report=emiText(plan,updated);
+ else if(action==="emi"){report=emiText(plan,updated);kb={inline_keyboard:[[button("🏦 Accounts","accounts"),button("🔔 Alerts","alerts")],[{text:"🌐 Manage EMI in Tracker",url:APP_URL},button("🏠 Main Menu","menu")]]};}
  else if(action==="savings")report=savingsText(plan,updated);
  else if(action==="day")report=reportText(plan,"day",today,updated);
  else if(action==="month")report=reportText(plan,"month",today,updated);
  else if(action==="prev")report=reportText(plan,"month",previousMonth(month)+"-01",updated);
- else if(action==="reports"){report="📄 <b>PRIVATE PDF REPORTS</b>\n━━━━━━━━━━━━━━━━━━\nYour reports are generated from your synced tracker records and delivered only to this chat.\n\nSelect a report:";kb=pdfMenu();}
+ else if(action==="reports"){
+  report="📄 <b>REPORTS</b>\n━━━━━━━━━━━━━━━━━━\nDaily, monthly, custom date ranges and private PDF reports use your latest cloud-synced data.";
+  kb=reportsKeyboard();
+ }
+ else if(action==="pdfmenu"){
+  report="📄 <b>PRIVATE PDF REPORTS</b>\n━━━━━━━━━━━━━━━━━━\nChoose today's, monthly or previous month's PDF. For a custom period, use /rangepdf YYYY-MM-DD YYYY-MM-DD.";
+  kb=pdfMenu();
+ }
+ else if(action==="ranges"||action==="range:custom"){
+  report="🗓️ <b>CUSTOM DATE RANGE</b>\n━━━━━━━━━━━━━━━━━━\nChoose a preset or send:\n<code>/range 2026-11-01 2026-11-30</code>\n\nFor a custom PDF:\n<code>/rangepdf 2026-11-01 2026-11-30</code>\n\nMaximum span: 367 calendar days.";
+  kb=rangeKeyboard();
+ }
+ else if(action.startsWith("range:")){
+  const dates=rangePreset(action.slice(6));
+  report=dates?customRangeText(plan,dates.from,dates.through,updated):"Invalid date-range preset.";
+  kb=rangeKeyboard();
+ }
+ else if(action.startsWith("rangepdf:")){
+  const dates=rangePreset(action.slice(9));
+  if(!dates)report="Invalid PDF date-range preset.";
+  else{await sendPdf(token,owner,plan,"range",dates.through,updated,dates.from,dates.through);
+   report="✅ Private custom PDF sent: "+escape(dates.from)+" to "+escape(dates.through);}
+  kb=rangeKeyboard();
+ }
+ else if(action==="/range"||action==="/rangepdf"){
+  report="Usage: <code>/range YYYY-MM-DD YYYY-MM-DD</code>\nFor a PDF, use <code>/rangepdf YYYY-MM-DD YYYY-MM-DD</code>.";
+  kb=rangeKeyboard();
+ }
+ else if(action.startsWith("/range ")||action.startsWith("/rangepdf ")){
+  const forPdf=action.startsWith("/rangepdf ");
+  const match=action.match(/^\/(?:range|rangepdf)\s+(\d{4}-\d{2}-\d{2})\s+(\d{4}-\d{2}-\d{2})$/);
+  if(!match||!rangeValid(match[1],match[2]))
+   report="⚠️ Invalid range. Use <code>/range 2026-11-01 2026-11-30</code> (maximum span: 367 calendar days).";
+  else if(forPdf){
+   await sendPdf(token,owner,plan,"range",match[2],updated,match[1],match[2]);
+   report="✅ Private custom PDF delivered for "+escape(match[1])+" to "+escape(match[2])+".";
+  }else report=customRangeText(plan,match[1],match[2],updated);
+  kb=rangeKeyboard();
+ }
+ else if(action==="search"){
+  report="🔎 <b>TRANSACTION SEARCH</b>\n━━━━━━━━━━━━━━━━━━\nSend <code>/search Amazon</code>, <code>/search 500</code> or <code>/search person</code>.\nSearch only uses synced data.";
+  kb={inline_keyboard:[[button("🧾 Recent Transactions","entries")],[button("🏠 Main Menu","menu")]]};
+ }
+ else if(action.startsWith("/search ")){
+  report=searchTransactions(plan,action.slice(8),updated);
+  kb={inline_keyboard:[[button("🧾 Recent Transactions","entries")],[button("🏠 Main Menu","menu")]]};
+ }
  else if(action==="add") {
   report="➕ <b>ADD / EDIT ENTRY</b>\n━━━━━━━━━━━━━━━━━━\nFor financial-data safety, changes must still be entered in your authenticated tracker. Telegram can immediately display them after cloud sync.\n\n<a href=\""+APP_URL+"\">Open tracker to add an entry</a>";
   kb={inline_keyboard:[[{text:"🔐 Open Tracker",url:APP_URL}],[button("🏠 Main Menu","menu")]]};
@@ -609,11 +665,12 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
   kb={inline_keyboard:[[button("🔐 Edit Mode","e:open"),button("🔒 Lock Now","e:lock")],[button("🏠 Main Menu","menu")]]};
  }
  else if(action==="help"){
-  report="🧭 <b>COMMANDS</b>\n/start · /today · /month · /plan · /entries · /accounts · /budget · /compare · /reconcile · /balance · /emi · /savings · /forecast · /sync · /alerts · /settings · /backups · /history · /pdf · /edit · /lock\n\nOnly the owner can access this bot. Editing requires a separate PIN.\n\n/lock locks editing immediately; /cancel abandons a pending edit. /status shows sync and edit-session state. Reports remain available while editing is locked. Every change requires Confirm & Save.";
+  report="🧭 <b>COMMANDS</b>\n/start · /quick · /dashboard · /accounts · /lending · /investments · /emi · /month · /reports · /range · /rangepdf · /search · /alerts · /more · /edit · /lock · /sync · /status\n\nExamples:\n<code>/search Amazon</code>\n<code>/range 2026-11-01 2026-11-30</code>\n\nOnly the owner can use this bot. Edit Mode is PIN protected. Use /refreshmenu to restore the slash-command list.";
+  kb=moreKeyboard();
   kb=homeKeyboard();
  }
  else {report="Unknown option. Select one below.";kb=homeKeyboard();}
- if(["day","month","prev","balance","savings","entries","accounts","plan"].includes(action)) {
+ if(["day","month","prev","balance","savings","entries","plan"].includes(action)) {
   kb={inline_keyboard:[[button("📊 Today","day"),button("📅 Month","month")],[button("📄 PDF Reports","reports"),button("➕ New Entry","e:add")],[button("🏠 Main Menu","menu")]]};
  }
  await message(token,owner,report||"Please choose an option.",kb,messageId);
@@ -1097,12 +1154,13 @@ function dashboardText(plan:AnyRow,updated:string) {
 }
 function syncStatusText(plan:AnyRow,updated:string){
  const age=daysSince(updated);
- return "🔄 <b>CLOUD SYNCHRONIZATION</b>\n━━━━━━━━━━━━━━━━━━\n"+
- "Last sync: <b>"+escape(updated)+"</b>\n"+
- "Data age: "+age+" day(s)\n"+
+ return "🔄 <b>CLOUD SYNC STATUS</b>\n━━━━━━━━━━━━━━━━━━\n"+
+ "Latest cloud plan update: <b>"+escape(updated)+"</b>\n"+
+ "Cloud data age: "+age+" day(s)\n"+
  "Synced transactions: "+(plan.entries.length+(plan.ledgerTransactions?.length??0))+"\n"+
  "Plan period: "+escape(plan.settings.planStart)+" to "+escape(plan.settings.planEnd)+"\n\n"+
- (age>=2?"⚠️ <b>Warning: Data has not been updated recently.</b>\nOpen the tracker on your phone or computer and sync before trusting reports.":"✅ Cloud data was recently updated.")+
+ (age>=2?"⚠️ <b>Cloud snapshot may be stale.</b> Open the tracker and verify sync.":"✅ A recent cloud snapshot is available.")+
+ "\n⚠️ The bot cannot detect unsynced offline edits on your phone or computer. Verify the app reports Sync complete before relying on Telegram totals."+
  "\n\n<a href=\""+APP_URL+"\">Open authenticated tracker</a>";
 }
 async function botPreferences(owner:string) {
