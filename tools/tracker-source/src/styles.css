@@ -4649,7 +4649,9 @@ body:has(.app-shell),
 #root:has(.app-shell) {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /* Hidden still permits window.scrollTo and creates a second scroll position.
+     Clip disallows document scrolling while the internal workspace still scrolls. */
+  overflow: clip;
 }
 .app-shell {
   width: 100%;
