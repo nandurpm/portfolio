@@ -45,7 +45,8 @@ export default function Loan() {
     [payment, setPayment] = useState<LoanRow | null>(null),
     [paidDate, setPaidDate] = useState(''),
     [paidAmount, setPaidAmount] = useState(0),
-    [outside, setOutside] = useState(false);
+    [outside, setOutside] = useState(false),
+    [firstDue, setFirstDue] = useState(p.loan.firstDueDate);
   const effectiveRows = paymentRows(p, p.loan.rows);
   const analysis = useMemo(() => closureAnalysis(p), [p]),
     rows = effectiveRows.filter((r) => outside || (r.month >= s.planStart && r.month <= s.planEnd)),
@@ -94,8 +95,9 @@ export default function Loan() {
     )
       return;
     try {
-      const next = regenerateLoan(p);
+      const next = regenerateLoan({...p, loan: {...p.loan, firstDueDate: firstDue}});
       store.change('Regenerate loan schedule', (d) => {
+        d.loan.firstDueDate = firstDue;
         d.loan.rows = next;
       });
       toast('Schedule regenerated. Paid amounts are preserved.');
@@ -380,14 +382,14 @@ export default function Loan() {
               />
             </Field>
           ))}
-          <Field label="First due date">
+          <Field label="First due date" hint="Changes apply only when you choose Regenerate schedule. Existing dates stay unchanged until then.">
             <input
               type="date"
-              value={p.loan.firstDueDate}
+              value={firstDue}
               onChange={(e) => {
                 if (e.target.value)
                   try {
-                    detail('firstDueDate', e.target.value);
+                    setFirstDue(e.target.value);
                   } catch (err) {
                     toast(userError(err), true);
                   }

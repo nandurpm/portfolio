@@ -1,4 +1,4 @@
-import { reportCategories } from './ledger';
+import { ledgerPostingFlow, reportCategories } from './ledger';
 import type { Plan, Entry } from './types';
 import { paymentDisplayStatus } from './payment-status';
 import { addMonths, monthDay } from './dates';
@@ -114,4 +114,15 @@ export function duplicateGroups(entries: Entry[]) {
     else groups.set(key, [e]);
   }
   return [...groups.values()].filter((g) => g.length > 1);
+}
+
+/** Advisory review across the two supported recording surfaces; never silently drops repeats. */
+export function possiblePlanDuplicates(p: Plan, candidate: Pick<Entry, 'date' | 'categoryId' | 'amount'> & {id?: string}) {
+  const ids = possibleDuplicates(p.entries, candidate).map(e => e.id);
+  for (const row of p.ledgerTransactions ?? []) {
+    if (row.id === candidate.id || row.kind === 'reversal' || row.date !== candidate.date) continue;
+    const flow = ledgerPostingFlow(p, row);
+    if ((flow.incomeCategoryId === candidate.categoryId && Math.round(flow.income * 100) === Math.round(candidate.amount * 100)) || (flow.expenseCategoryId === candidate.categoryId && Math.round(flow.expenses * 100) === Math.round(candidate.amount * 100))) ids.push(row.id);
+  }
+  return ids;
 }

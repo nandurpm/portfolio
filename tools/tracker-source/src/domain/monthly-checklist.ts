@@ -25,7 +25,7 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
   const recorded = actualCategory(p, c, month, cutoff);
   const kind: ChecklistCategory['kind'] =
     c.group === 'Income' ? 'income' : c.timing === 'Fixed day' || provision ? 'bill' : 'spending';
-  const plannedDate = kind === 'spending'
+  const plannedDate = kind === 'spending' || (kind === 'income' && c.timing === 'Daily')
     ? null
     : monthDay(month, provision?.dueDay ?? c.day);
   const remaining = round(planned - recorded);

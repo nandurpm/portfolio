@@ -2,7 +2,7 @@ import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
 import { ArchivedPayments } from '../components/ArchivedPayments';
 import { WEB_APP } from '../web-mode';
-import { possibleDuplicates, duplicateGroups } from '../domain/insights';
+import { possiblePlanDuplicates, duplicateGroups } from '../domain/insights';
 import { usePhone } from '../components/usePhone';
 import { money, categoryPlan, actualCategory, round } from '../domain/calculate';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -210,7 +210,7 @@ export default function Entries({
         edited: true,
       };
       validateEntry(n, p);
-      const matches = possibleDuplicates(store.get().data.entries, n);
+      const matches = possiblePlanDuplicates(store.get().data, n);
       if (
         matches.length &&
         !(await confirm(

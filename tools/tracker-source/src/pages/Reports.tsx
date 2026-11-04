@@ -86,6 +86,7 @@ export default function Reports() {
   async function openImport() {
     const f = await chooseFile(["xlsx", "csv"]);
     if (!f) return;
+    if (f.bytes.byteLength > 10 * 1024 * 1024) { setError('Import is too large. Maximum size is 10 MB.'); return; }
     setFile(f);
     setMode(f.name.toLowerCase().endsWith(".csv") ? "append" : "replace");
     try {
@@ -110,6 +111,7 @@ export default function Reports() {
       ))
     )
       return;
+    if (mode === "append" && preview.plan.entries.some(e => p.entries.some(existing => existing.date === e.date && existing.categoryId === e.categoryId && Math.round(existing.amount * 100) === Math.round(e.amount * 100))) && !(await confirm("Possible duplicate imports", "Matching dates, categories and amounts already exist. Re-importing may count them twice. Review the preview before continuing.", false, "Append anyway"))) return;
     try {
       const imported = structuredClone(preview.plan);
       for (const e of imported.entries) {

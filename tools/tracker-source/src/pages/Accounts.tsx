@@ -293,7 +293,7 @@ export default function Accounts() {
     ["expense", "shopping", "credit-card-purchase"].includes(kind) ||
     Number(fee) > 0 ||
     (kind === "principal-repayment" && Number(interest) > 0);
-  const addTransaction = () => {
+  const addTransaction = async () => {
     const value = Number(amount);
     if (
       !date ||
@@ -327,6 +327,9 @@ export default function Accounts() {
         "Choose the required source and destination accounts.",
         true,
       );
+    const category = kind === "income" ? incomeCategory : expenseCategory;
+    const duplicate = (plan.ledgerTransactions ?? []).some(t => t.id !== editTransaction && t.date === date && t.kind === kind && Math.round(t.amount * 100) === Math.round(value * 100) && t.sourceAccountId === (source || undefined) && t.destinationAccountId === (destination || undefined)) || plan.entries.some(e => e.date === date && e.categoryId === category && Math.round(e.amount * 100) === Math.round(value * 100));
+    if (duplicate && !(await confirm("Possible duplicate transaction", "A matching amount and date already exists in Daily Entries or Accounts. Review it before saving another record.", false, "Save anyway"))) return;
     try {
       store.change("Add account transaction", (d) => {
         d.accounts ??= [];
@@ -892,9 +895,6 @@ export default function Accounts() {
         ) : (
           <div className="account-card-grid">
             {accounts
-              .filter(
-                (a) => a.active || a.id === source || a.id === destination,
-              )
               .map((a) => (
                 <article className="account-card" key={a.id}>
                   <span>
