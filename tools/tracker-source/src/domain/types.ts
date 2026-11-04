@@ -120,6 +120,10 @@ export interface Settings {
   theme: 'light' | 'dark' | 'system';
   palette: string;
   animations: boolean;
+  celebrationSound?: boolean;
+  haptics?: boolean;
+  animationIntensity?: 'subtle' | 'balanced' | 'expressive';
+  celebrationStyle?: 'burst' | 'cascade' | 'ring';
   dateFormat: 'dd-MMM-yyyy' | 'dd/MM/yyyy' | 'yyyy-MM-dd';
   autoStart: boolean;
   tray: boolean;

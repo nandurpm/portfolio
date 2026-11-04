@@ -48,6 +48,7 @@ import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
 import { UiProvider, useUi, Modal } from "./components/UI";
+import { playMilestoneSound, triggerMilestoneHaptic } from "./celebrations";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Accounts = lazy(() => import("./pages/Accounts"));
 const Employment = lazy(() => import("./pages/Employment"));
@@ -181,6 +182,7 @@ export function Shell() {
     }).catch((e) => console.warn("System bar style:", e));
     document.documentElement.dataset.palette = p.settings.palette;
     document.documentElement.dataset.animations = String(p.settings.animations);
+    document.documentElement.dataset.animationIntensity = p.settings.animationIntensity ?? "balanced";
     const media = matchMedia("(prefers-color-scheme: dark)");
     const listener = () => {
       if (p.settings.theme === "system") {
@@ -202,7 +204,7 @@ export function Shell() {
     };
     media.addEventListener("change", listener);
     return () => media.removeEventListener("change", listener);
-  }, [p.settings.theme, p.settings.palette, p.settings.animations]);
+  }, [p.settings.theme, p.settings.palette, p.settings.animations, p.settings.animationIntensity]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (cloud.locked || cloud.review || cloud.initial !== undefined) return;
@@ -269,12 +271,25 @@ export function Shell() {
       d.celebrated.push(...all);
     });
     void confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.35 },
+      particleCount:
+        p.settings.animationIntensity === "subtle"
+          ? 55
+          : p.settings.animationIntensity === "expressive"
+            ? 160
+            : 100,
+      spread:
+        p.settings.celebrationStyle === "ring"
+          ? 360
+          : p.settings.celebrationStyle === "cascade"
+            ? 48
+            : 70,
+      startVelocity: p.settings.celebrationStyle === "cascade" ? 24 : 32,
+      origin: { y: p.settings.celebrationStyle === "cascade" ? 0.1 : 0.35 },
       colors: ["#6255df", "#20b69c", "#ffbd59"],
       disableForReducedMotion: true,
     });
+    playMilestoneSound(p.settings.celebrationSound === true);
+    triggerMilestoneHaptic(p.settings.haptics === true);
     toast("A savings milestone reached. Keep the progress going!");
   }, [
     p,
@@ -285,6 +300,10 @@ export function Shell() {
     cloud.locked,
     cloud.review,
     cloud.initial,
+    p.settings.animationIntensity,
+    p.settings.celebrationSound,
+    p.settings.celebrationStyle,
+    p.settings.haptics,
   ]);
   if (!loading && (cloud.locked || cloud.review || cloud.initial !== undefined))
     return <CloudGate />;

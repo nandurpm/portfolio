@@ -144,6 +144,62 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
             Preview animations
           </button>
         </div>
+        <div className="settings-option-grid">
+          <div>
+            <h3>Celebration feedback</h3>
+            <Toggle
+              label="Milestone sound"
+              hint="Play a soft three-note chime when a savings milestone is reached"
+              checked={s.celebrationSound === true}
+              onChange={(v) =>
+                store.change('Change milestone sound', (d) => {
+                  d.settings.celebrationSound = v;
+                })
+              }
+            />
+            <Toggle
+              label="Haptic feedback"
+              hint="Use a short vibration pattern on supported phones and browsers"
+              checked={s.haptics === true}
+              onChange={(v) =>
+                store.change('Change milestone haptics', (d) => {
+                  d.settings.haptics = v;
+                })
+              }
+            />
+          </div>
+          <div>
+            <h3>Motion style</h3>
+            <Field label="Animation intensity">
+              <select
+                value={s.animationIntensity ?? 'balanced'}
+                onChange={(e) =>
+                  store.change('Change animation intensity', (d) => {
+                    d.settings.animationIntensity = e.target.value as NonNullable<typeof s.animationIntensity>;
+                  })
+                }
+              >
+                <option value="subtle">Subtle · calm and light</option>
+                <option value="balanced">Balanced · the default rhythm</option>
+                <option value="expressive">Expressive · more energy</option>
+              </select>
+            </Field>
+            <Field label="Milestone celebration style">
+              <select
+                value={s.celebrationStyle ?? 'burst'}
+                onChange={(e) =>
+                  store.change('Change celebration style', (d) => {
+                    d.settings.celebrationStyle = e.target.value as NonNullable<typeof s.celebrationStyle>;
+                  })
+                }
+              >
+                <option value="burst">Burst · classic spread</option>
+                <option value="cascade">Cascade · falling from above</option>
+                <option value="ring">Ring · all-around celebration</option>
+              </select>
+            </Field>
+          </div>
+        </div>
         <Field label="Display date format">
           <select
             value={s.dateFormat}
