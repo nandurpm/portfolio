@@ -4654,6 +4654,10 @@ body:has(.app-shell),
   overflow: clip;
 }
 .app-shell {
+  /* Establish the containing block for absolute sr-only status elements.
+     Otherwise they escape overflow clipping and enlarge the document's
+     scrollable area below the app even with a fixed-height shell. */
+  position: relative;
   width: 100%;
   max-width: 100%;
   min-width: 0;
