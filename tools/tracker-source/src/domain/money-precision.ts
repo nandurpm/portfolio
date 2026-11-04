@@ -30,6 +30,8 @@ export function assertEditedMoneyPrecision(before: Plan, after: Plan) {
   ], 'settings');
   checkFields(before.loan, after.loan, ['principal', 'regularEmi', 'firstEmi', 'firstInterest'], 'original loan');
   checkRows(before.loan.rows, after.loan.rows, ['emi', 'principal', 'interest', 'balance', 'paidAmount'], 'loan schedule');
+  checkRows(before.accounts, after.accounts, ['openingBalance', 'creditLimit'], 'account');
+  checkRows(before.ledgerTransactions, after.ledgerTransactions, ['amount', 'interestAmount', 'feeAmount'], 'ledger transaction');
   checkRows(before.entries, after.entries, ['amount'], 'transaction');
   checkRows(before.categories, after.categories, ['amount'], 'category');
   checkRows(before.salaryChanges, after.salaryChanges, ['monthlySalary', 'monthlyPfContribution'], 'salary history');

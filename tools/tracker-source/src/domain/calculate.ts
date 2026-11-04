@@ -1,3 +1,4 @@
+import { ledgerCashEffect, ledgerPeriod } from './ledger';
 import { isSalaryCategory, salaryForReceiptMonth, pfCashEffect } from './employment';
 import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
 import { formatMoney, compactMoney } from './format-money';
@@ -195,6 +196,12 @@ export function actual(p: Plan, start: string, end: string, catId?: string): Tot
     if (c && c.group !== 'Asset')
       t[c.group === 'Income' ? 'income' : c.group === 'Living' ? 'living' : 'debt'] += e.amount;
   }
+  const ledger = ledgerPeriod(p, start > p.settings.planStart + '-01' ? start : p.settings.planStart + '-01', end < monthEnd(p.settings.planEnd) ? end : monthEnd(p.settings.planEnd), catId);
+  t.income += ledger.income;
+  const debtCategoryIds = p.categories.filter(c=>c.group === 'Debt' && (!catId || c.id === catId)).map(c=>c.id);
+  const ledgerDebt = debtCategoryIds.reduce((sum,id)=>sum+ledgerPeriod(p, start > p.settings.planStart + '-01' ? start : p.settings.planStart + '-01', end < monthEnd(p.settings.planEnd) ? end : monthEnd(p.settings.planEnd), id).expenses,0);
+  t.debt += ledgerDebt;
+  t.living += ledger.expenses - ledgerDebt;
   return finish(t);
 }
 /**
@@ -286,7 +293,7 @@ export function cumulative(p: Plan, date = reportDate(p)) {
     plan,
     actual: a,
     expectedCash: round(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
-    actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date)),
+    actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date) + ledgerCashEffect(p, p.settings.planStart + '-01', date) - ledgerPeriod(p, p.settings.planStart + '-01', date).income + ledgerPeriod(p, p.settings.planStart + '-01', date).expenses),
   };
 }
 export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
@@ -310,10 +317,11 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
       // Keep the current month comparable with its full-month budget.
       t = planned(p, m),
       bucket = buckets.get(m),
-      a = bucket ? finish(bucket.t) : null;
+      ledger = ledgerPeriod(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)),
+      a = bucket || ledger.count ? actual(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)) : null;
     // Match the PF cash ledger used by recorded cash, without treating PF as savings.
     pc = round(pc + t.savings + (future ? 0 : pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m))));
-    ac = round(ac + (a?.savings ?? 0) + pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)));
+    ac = cumulative(p, date < monthEnd(m) ? date : monthEnd(m)).actualCash;
     return {
       month: m,
       plan: t,
@@ -321,7 +329,7 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
       expectedCash: future ? null : pc,
       // The opening balance is real even before the first transaction.
       recordedCash: future ? null : ac,
-      count: bucket?.count ?? 0,
+      count: (bucket?.count ?? 0) + ledger.count,
       status: future ? 'Future' : m === date.slice(0, 7) ? 'Current' : 'Past',
     };
   });
