@@ -24,8 +24,8 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
   const w = result.position;
   return (
     <Section
-      title="Financial position"
-      caption={`Recorded through ${displayDate(date, p.settings.dateFormat)}. Includes Entries, Accounts, recorded PF and plan loan principal. Future budgets are excluded.`}
+      title="Your money at a glance"
+      caption={`As of ${displayDate(date, p.settings.dateFormat)} · Based on recorded balances and payments.`}
     >
       {!w ? (
         <p role="alert">
@@ -37,29 +37,41 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
           <div className="stats-grid">
             <Stat
               icon={<Wallet />}
-              label={w.estimated ? "Estimated net worth" : "Net worth"}
-              value={w.netWorth}
-              caption="All recorded assets less recorded and estimated liabilities"
-            />
-            <Stat
-              icon={<Landmark />}
-              label="Assets"
-              value={w.assets}
-              caption="Liquid cash, PF and recorded noncash assets"
+              label="Money available"
+              value={w.spendable}
+              tone="income"
+              caption={`${money(w.cash)} in bank, cash and wallets, less ${money(w.reserved)} set aside for bills`}
             />
             <Stat
               icon={<ReceiptText />}
-              label="Liabilities"
+              label={w.estimated ? "Money owed (estimated)" : "Money owed"}
               value={w.liabilities}
-              caption="Ledger debt plus plan loan principal, counted once"
+              tone="expense"
+              caption="Outstanding loan principal and other recorded debts; future interest excluded"
+            />
+            <Stat
+              icon={<Landmark />}
+              label={w.estimated ? "Net worth (estimated)" : "Net worth"}
+              value={w.netWorth}
+              caption={`${money(w.assets)} owned − ${money(w.liabilities)} owed`}
             />
             <Stat
               icon={<Wallet />}
-              label="Net savings since tracking began"
+              label="Income minus spending"
               value={result.savings}
-              caption="Recorded income less expenses; transfers and PF claims are excluded"
+              caption="Since tracking began; your opening balance is excluded"
             />
           </div>
+          <p>
+            {w.netWorth < 0
+              ? `Your recorded debts exceed your assets by ${money(-w.netWorth)}. Repayments follow your installment schedules.`
+              : `Your recorded assets exceed your debts by ${money(w.netWorth)}.`}
+            {result.savings < 0
+              ? ` You have spent ${money(-result.savings)} more than you have received since tracking began.`
+              : ` You have received ${money(result.savings)} more than you have spent since tracking began.`}
+          </p>
+          <details className="position-breakdown">
+            <summary>Balance breakdown</summary>
           <div className="table-scroll" tabIndex={0} role="region" aria-label="Financial position details">
             <table
               className="data-table"
@@ -136,14 +148,6 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
               </tbody>
             </table>
           </div>
-          {(Math.abs(w.unallocatedCash) >= 0.01 || w.unlinkedCount > 0) && (
-            <p role="status" className="callout">
-              Account allocation needs review: {money(w.unallocatedCash)}{" "}
-              remains unallocated and {w.unlinkedCount} Entries have no account.
-              Assign their actual account in Daily Entries; do not add duplicate
-              transactions or income to close this difference.
-            </p>
-          )}
           {w.estimated && (
             <p>
               Loan principal includes a proportional estimate where the lender’s
@@ -159,6 +163,15 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
               : "total opening savings in Budget & Plan; named openings allocate that total"}
             .
           </p>
+          </details>
+          {(Math.abs(w.unallocatedCash) >= 0.01 || w.unlinkedCount > 0) && (
+            <p role="status" className="callout">
+              Account allocation needs review: {money(w.unallocatedCash)}{" "}
+              remains unallocated and {w.unlinkedCount} Entries have no account.
+              Assign their actual account in Daily Entries; do not add duplicate
+              transactions or income to close this difference.
+            </p>
+          )}
           {onManage && (
             <button className="button secondary" onClick={onManage}>
               Manage accounts

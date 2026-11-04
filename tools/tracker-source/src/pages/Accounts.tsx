@@ -408,7 +408,7 @@ export default function Accounts() {
       <PageHead
         eyebrow="SHARED MONEY LEDGER"
         title="Accounts & transactions"
-        description="Track where money lives and move it without counting transfers, loan principal or card payments twice."
+        description="See your account balances and record income, spending or transfers."
         action={
           <div className="page-actions">
             <button className="button secondary" onClick={() => startAccount()}>
@@ -425,9 +425,8 @@ export default function Accounts() {
         }
       />
       <p>
-        As of {dateThrough} · Uses the Dashboard report date. Cash, bank and
-        wallet opening balances allocate the total opening savings in Budget &
-        Plan. Record a transaction once, in Entries or Accounts.
+        Uses the same report date and balances as your Dashboard. Record each
+        transaction once, in Daily Entries or here.
       </p>
       {result.error && (
         <div role="alert">
