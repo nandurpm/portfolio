@@ -218,6 +218,8 @@ export function validatePlan(p: unknown): Plan {
   }
   if (v.settings.planStart > v.settings.planEnd)
     throw Error('Start month must be before the end month.');
+  if (v.ledgerTransactions?.some((row) => !inRange(row.date, v.settings.planStart, v.settings.planEnd)))
+    throw Error('Account transaction date must be inside the plan range. Extend the range first if needed.');
   if (monthsBetween(v.settings.planStart, v.settings.planEnd).length > 600)
     throw Error('Use a plan of up to 600 months (50 years).');
   if (
