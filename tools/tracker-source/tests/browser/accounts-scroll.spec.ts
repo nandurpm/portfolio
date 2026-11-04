@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-// Inspect synthetic page overflow during layout tests.
 
 for (const width of [1366, 1702, 2560]) {
   test(`Accounts scroll stays inside viewport on desktop ${width}px`, async ({ page }) => {
@@ -17,7 +16,6 @@ for (const width of [1366, 1702, 2560]) {
     // Move to the bottom of the long ledger, then try scrolling the outer page.
     await main.evaluate((element) => { element.scrollTop = element.scrollHeight; });
     await expect(page.locator('.app-footer')).toBeInViewport();
-    console.log('RIGHTMOST', await page.evaluate(() => [...document.querySelectorAll('*')].map(e => [e.tagName, String(e.className).slice(0,40), Math.round(e.getBoundingClientRect().right)]).filter(x => Number(x[2]) > innerWidth + 2).sort((a,b) => Number(b[2]) - Number(a[2])).slice(0,15)));
     await page.evaluate(() => window.scrollTo({ top: 5000, left: 5000 }));
 
     const metrics = await page.evaluate(() => {
