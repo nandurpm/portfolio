@@ -165,9 +165,11 @@ test('all six palettes update accent, sidebar, hero and active controls', async 
       const root = getComputedStyle(document.documentElement);
       const sidebar = document.createElement('aside');
       sidebar.className = 'sidebar';
+      const nav = document.createElement('nav');
       const active = document.createElement('button');
       active.className = 'active';
-      sidebar.appendChild(active);
+      nav.appendChild(active);
+      sidebar.appendChild(nav);
       const hero = document.createElement('div');
       hero.className = 'dashboard-hero';
       const label = document.createElement('label');
@@ -221,7 +223,8 @@ test('all palette combinations keep readable text at 360px and 1280px', async ({
       await page.addInitScript((t: string) => localStorage.setItem('tracker-theme', t), theme);
       await page.goto('/');
       for (const palette of ['indigo', 'ocean', 'emerald', 'rose', 'sunset']) {
-        const ratio = await page.evaluate((name) => {
+        const ratio = await page.evaluate(({ name, mode }) => {
+          document.documentElement.dataset.theme = mode;
           document.documentElement.dataset.palette = name;
           const probe = document.createElement('span');
           probe.style.color = 'var(--accent-ink)';
@@ -242,7 +245,7 @@ test('all palette combinations keep readable text at 360px and 1280px', async ({
           };
           const l1 = lum(colors[0]), l2 = lum(colors[1]);
           return { ratio: (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05), overflow: document.documentElement.scrollWidth > innerWidth };
-        }, palette);
+        }, { name: palette, mode: theme });
         expect(ratio.ratio, `${theme} ${palette} @ ${width}`).toBeGreaterThanOrEqual(4.5);
         expect(ratio.overflow, `${theme} ${palette} @ ${width}`).toBe(false);
       }
