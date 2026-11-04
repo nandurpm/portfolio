@@ -1,7 +1,7 @@
 import {reconciliationResult} from './balances';
 import type {Plan} from './types';
 import {actual,cumulative,forecast,categoryPlan} from './calculate';
-import {ledgerPostingFlow, reportCategories} from './ledger';
+import {ledgerPostingFlow, reportCategories, ledgerSummary} from './ledger';
 import {monthEnd} from './dates';
 /** The bot ships a generated bundle of this adapter; no second money formula. */
 export function financialRange(p:Plan,start:string,end:string) {
@@ -23,3 +23,6 @@ function botReportPlan(p:Plan):Plan {
 export const financialForecast=(p:Plan)=>forecast(botReportPlan(p));
 export const financialBudget=(p:Plan,c:Parameters<typeof categoryPlan>[1],month:string)=>categoryPlan(botReportPlan(p),c,month);
 export const financialReconciliation=reconciliationResult;
+
+/** Account positions are computed by the same ledger engine as the website. */
+export const financialAccounts=(p:Plan,through:string)=>ledgerSummary(p,through);
