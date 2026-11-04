@@ -3939,3 +3939,52 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .position-breakdown { margin-top: 16px; }
 .position-breakdown > summary { cursor: pointer; font-weight: 600; padding: 12px 0; }
 .position-breakdown > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+/* Dashboard detail surfaces adapt to every palette and light/dark theme. */
+.dashboard-page .panel, .dashboard-page .workspace-card {
+  --section-tone: var(--accent);
+  border-color: color-mix(in srgb, var(--section-tone) 19%, var(--border));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--section-tone) 8%, var(--surface)), var(--surface) 75%);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--section-tone) 7%, transparent);
+  border-radius: 20px;
+}
+.dashboard-page .panel-head { padding-bottom: 16px; border-bottom: 1px solid color-mix(in srgb, var(--section-tone) 17%, var(--border)); }
+.dashboard-page .panel-head > div:first-child { padding-left: 13px; border-left: 4px solid var(--section-tone); }
+.dashboard-page .panel-head h2 { font-size: .96rem; letter-spacing: -.02em; }
+.dashboard-page .panel-head p { max-width: 82ch; line-height: 1.65; }
+.dashboard-page > .panel:nth-of-type(3n + 1), .dashboard-page .chart-grid > .panel:first-child { --section-tone: var(--green); }
+.dashboard-page > .panel:nth-of-type(3n), .dashboard-page .chart-grid > .panel:nth-child(3) { --section-tone: var(--orange); }
+.dashboard-page .workspace-trust { border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border)); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-radius: 14px; }
+.dashboard-page .workspace-card { border-top: 3px solid var(--section-tone); padding: 22px; }
+.dashboard-page .workspace-card:nth-child(2) { --section-tone: var(--green); }
+.dashboard-page .workspace-card:nth-child(3) { --section-tone: var(--orange); }
+.dashboard-page .workspace-card:nth-child(4) { --section-tone: var(--chart-4); }
+.dashboard-page .workspace-card h2 { font-size: .94rem; letter-spacing: -.02em; }
+.dashboard-page .workspace-card .text-button { background: color-mix(in srgb, var(--section-tone) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--section-tone) 20%, var(--border)); border-radius: 10px; padding: 9px 12px; margin-top: 12px; }
+.dashboard-page .stats-grid:not(.dashboard-kpis) .stat-card { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-top: 3px solid var(--accent); }
+.dashboard-page .stats-grid:not(.dashboard-kpis) .stat-card:first-child { background: color-mix(in srgb, var(--green) 8%, var(--surface)); border-top-color: var(--green); }
+.dashboard-page .stats-grid:not(.dashboard-kpis) .stat-card:nth-child(2) { background: color-mix(in srgb, var(--orange) 8%, var(--surface)); border-top-color: var(--orange); }
+.dashboard-page .checklist-group { border-color: color-mix(in srgb, var(--accent) 20%, var(--border)); background: color-mix(in srgb, var(--accent) 4%, var(--surface)); }
+.dashboard-page .checklist-group > summary { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.dashboard-page .checklist-group:nth-child(2n) > summary { background: color-mix(in srgb, var(--green) 9%, var(--surface)); }
+.dashboard-page .checklist-card { background: var(--surface); box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 5%, transparent); border-color: color-mix(in srgb, var(--accent) 15%, var(--border)); }
+.dashboard-page .comparison-chart { --chart-tone: var(--green); padding: 16px; border: 1px solid color-mix(in srgb, var(--chart-tone) 20%, var(--border)); border-radius: 16px; background: color-mix(in srgb, var(--chart-tone) 6%, var(--surface)); }
+.dashboard-page .comparison-chart:nth-child(2) { --chart-tone: var(--orange); }
+.dashboard-page .comparison-chart:nth-child(3) { --chart-tone: var(--accent); }
+.dashboard-page .comparison-chart h3 { border-left: 3px solid var(--chart-tone); padding-left: 9px; }
+.dashboard-page .cumulative-item { min-width: 0; padding: 16px; margin: 4px; border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.dashboard-page .cumulative-item:first-child { background: color-mix(in srgb, var(--green) 9%, var(--surface)); }
+.dashboard-page .cumulative-item:nth-child(2) { background: color-mix(in srgb, var(--orange) 9%, var(--surface)); }
+.dashboard-page .data-table thead th { background: color-mix(in srgb, var(--section-tone, var(--accent)) 12%, var(--surface)); }
+.dashboard-page .data-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--section-tone, var(--accent)) 4%, var(--surface)); }
+.dashboard-page .data-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.dashboard-page .position-breakdown > summary { padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+@media (max-width: 600px) {
+  .dashboard-page .panel, .dashboard-page .workspace-card { border-radius: 16px; }
+  .dashboard-page .workspace-card { padding: 17px; }
+  .dashboard-page .comparison-chart { padding: 12px 6px; }
+  .dashboard-page .panel-head h2 { font-size: .9rem; }
+}
+@media print {
+  .dashboard-page .panel, .dashboard-page .workspace-card, .dashboard-page .comparison-chart { background: white; box-shadow: none; }
+}

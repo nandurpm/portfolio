@@ -222,7 +222,7 @@ export default function Dashboard({
     ['Savings / deficit', 'savings', 'income'],
   ] as const;
   return (
-    <>
+    <div className="dashboard-page">
       <PageHead
         eyebrow="PRIVATE FINANCE WORKSPACE"
         title="Monthly snapshot"
@@ -515,6 +515,6 @@ export default function Dashboard({
       >
         <ProgressTable whole />
       </Section>
-    </>
+    </div>
   );
 }
