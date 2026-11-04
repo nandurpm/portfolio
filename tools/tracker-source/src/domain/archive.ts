@@ -8,6 +8,10 @@ export function receiptScope(p: Plan, date: string) {
       ? "after plan end"
       : "inside plan";
 }
+/** Entries from imported history remain in backups but are excluded from plan totals. */
+export function archivedEntryCount(p: Plan) {
+  return p.entries.filter((e) => receiptScope(p, e.date) !== 'inside plan').length;
+}
 export function archivedReceiptSummary(p: Plan) {
   const receipts = p.entries.filter((e) => e.loanRowId);
   const sum = (scope: string) =>
