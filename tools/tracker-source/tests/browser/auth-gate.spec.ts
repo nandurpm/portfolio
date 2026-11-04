@@ -1,3 +1,5 @@
+import {financialFixture} from '../fixtures/financial';
+import {cloudPlan} from '../../src/cloud/model';
 import { test, expect } from '@playwright/test';
 const a = '11111111-1111-4111-8111-111111111111',
   b = '22222222-2222-4222-8222-222222222222';
@@ -57,7 +59,7 @@ for (const scenario of [
         return;
       }
       if (url.pathname === '/rest/v1/tracker_plans') {
-        await route.fulfill({ json: [{ revision: 1 }] });
+        await route.fulfill({ json: [{ revision: 1, data: cloudPlan(financialFixture().data) }] });
         return;
       }
       await route.abort();
@@ -71,6 +73,8 @@ for (const scenario of [
       await expect(page.getByRole('heading', { name: /Sign in to your Savings Tracker/ })).toBeVisible();
       expect(await page.evaluate(() => localStorage.getItem('savings-expence-v1'))).toBeNull();
     } else if (scenario === 'signed-out') {
+      await expect(page.getByRole('heading',{name:/Sign in to your Savings Tracker/})).toBeVisible();
+      expect(await page.evaluate(()=>localStorage.getItem('savings-expence-v1'))).toBeNull();
       await expect(
         page.getByRole('heading', { name: 'Synthetic protected workspace' }),
       ).toHaveCount(0);
@@ -79,6 +83,7 @@ for (const scenario of [
         .fill('synthetic@example.invalid');
       await page.getByLabel('Password', { exact: true }).fill('Synthetic-test-password-only');
       await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+      await page.getByRole('button',{name:'Use cloud plan on this device',exact:true}).click();
       await expect(
         page.getByRole('heading', { name: 'Synthetic protected workspace' }),
       ).toBeVisible();
