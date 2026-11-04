@@ -4163,10 +4163,17 @@ html[data-theme="dark"] {
   --muted: #b3bdd2;
   --border: #30364c;
   --control-border: #8996b2;
-  --accent-ink: color-mix(in srgb, var(--accent) 52%, white);
+  --accent-ink: #d5ceff;
   --accent-soft: color-mix(in srgb, var(--accent) 20%, transparent);
   --shadow: 0 12px 32px rgba(0, 0, 0, .22);
 }
+/* Explicit accessible dark-mode text colors for all palette selections. */
+html[data-theme="dark"][data-palette="violet"] { --accent-ink: #d5ceff; }
+html[data-theme="dark"][data-palette="ocean"] { --accent-ink: #c1e8ff; }
+html[data-theme="dark"][data-palette="emerald"] { --accent-ink: #b2f8df; }
+html[data-theme="dark"][data-palette="rose"] { --accent-ink: #ffd4e4; }
+html[data-theme="dark"][data-palette="sunset"] { --accent-ink: #ffe0c1; }
+html[data-theme="dark"][data-palette="indigo"] { --accent-ink: #d7daff; }
 
 body {
   background:
