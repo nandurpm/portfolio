@@ -7,9 +7,11 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 export function NearViewport({
   children,
   minHeight = 260,
+  label,
 }: {
   children: ReactNode;
   minHeight?: number;
+  label: string;
 }) {
   const target = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(() => typeof IntersectionObserver === 'undefined');
@@ -32,7 +34,7 @@ export function NearViewport({
   }, [ready]);
 
   return (
-    <div ref={target} className="near-viewport" data-ready={ready ? 'true' : 'false'}>
+    <div ref={target} className="near-viewport" data-ready={ready ? 'true' : 'false'} data-chart-label={label}>
       {ready ? (
         children
       ) : (
