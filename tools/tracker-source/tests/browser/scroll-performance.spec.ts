@@ -51,3 +51,20 @@ for (const width of [390, 1366]) {
     expect(metrics.hasOverflow).toBe(false);
   });
 }
+
+test('page changes retain a viewport-constrained scroll surface', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 800 });
+  await page.route('https://*.supabase.co/**', (route) => route.abort());
+  await page.goto('/tests/browser/harness.html');
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  for (const name of ['Accounts & transactions', 'Settings', 'Dashboard']) {
+    await nav.getByRole('button', { name, exact: true }).click();
+    await expect.poll(() =>
+      page.evaluate(() => ({
+        pageWidth: document.documentElement.scrollWidth,
+        viewportWidth: innerWidth,
+        windowX: window.scrollX,
+      })),
+    ).toEqual({ pageWidth: 1366, viewportWidth: 1366, windowX: 0 });
+  }
+});
