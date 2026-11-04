@@ -3972,7 +3972,7 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .dashboard-page .comparison-chart:nth-child(2) { --chart-tone: var(--orange); }
 .dashboard-page .comparison-chart:nth-child(3) { --chart-tone: var(--accent); }
 .dashboard-page .comparison-chart h3 { border-left: 3px solid var(--chart-tone); padding-left: 9px; }
-.dashboard-page .cumulative-item { margin: 4px; border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.dashboard-page .cumulative-item { min-width: 0; padding: 16px; margin: 4px; border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
 .dashboard-page .cumulative-item:first-child { background: color-mix(in srgb, var(--green) 9%, var(--surface)); }
 .dashboard-page .cumulative-item:nth-child(2) { background: color-mix(in srgb, var(--orange) 9%, var(--surface)); }
 .dashboard-page .data-table thead th { background: color-mix(in srgb, var(--section-tone, var(--accent)) 12%, var(--surface)); }
