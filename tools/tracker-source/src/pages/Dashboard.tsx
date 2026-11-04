@@ -350,7 +350,7 @@ export default function Dashboard({
       <section className="dashboard-deep-dive" aria-labelledby="dashboard-deep-dive-title">
         <div className="dashboard-deep-dive-heading">
           <span>
-            <strong id="dashboard-deep-dive-title">Full dashboard analysis</strong>
+            <h2 id="dashboard-deep-dive-title">Full dashboard analysis</h2>
             <small>Comparison tables, category detail, forecasts and extended charts</small>
           </span>
         </div>

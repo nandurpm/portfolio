@@ -4436,7 +4436,7 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   padding: 17px 20px;
 }
 .dashboard-deep-dive-heading > span { display: grid; gap: 3px; }
-.dashboard-deep-dive-heading strong { font-size: .9rem; }
+.dashboard-deep-dive-heading h2 { margin: 0; font-size: .95rem; line-height: 1.35; }
 .dashboard-deep-dive-heading small { color: var(--muted); font-size: .75rem; }
 .dashboard-deep-dive-body {
   padding: 0 20px 20px;
