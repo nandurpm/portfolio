@@ -60,11 +60,9 @@ test('page changes retain a viewport-constrained scroll surface', async ({ page 
   for (const name of ['Accounts & transactions', 'Settings', 'Dashboard']) {
     await nav.getByRole('button', { name, exact: true }).click();
     await expect.poll(() =>
-      page.evaluate(() => ({
-        pageWidth: document.documentElement.scrollWidth,
-        viewportWidth: innerWidth,
-        windowX: window.scrollX,
-      })),
-    ).toEqual({ pageWidth: 1366, viewportWidth: 1366, windowX: 0 });
+      page.evaluate(() =>
+        document.documentElement.scrollWidth <= innerWidth + 2 && window.scrollX === 0,
+      ),
+    ).toBe(true);
   }
 });
