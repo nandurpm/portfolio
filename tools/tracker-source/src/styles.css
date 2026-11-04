@@ -4619,3 +4619,56 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   outline: 3px solid #fff;
   outline-offset: 3px;
 }
+
+/* Desktop tracker must have one vertical scrolling surface. Without a document
+   scroll boundary, the page itself can scroll past the app-shell and expose
+   a large blank area below the footer (especially after long Accounts views).
+   Scope this to the mounted shell so the sign-in/recovery pages remain scrollable. */
+html:has(.app-shell),
+body:has(.app-shell),
+#root:has(.app-shell) {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.app-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.workspace {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.main-scroll {
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+.main-scroll > .edit-controls,
+.main-scroll .page,
+.main-scroll .accounts-page,
+.main-scroll .panel {
+  min-width: 0;
+  max-width: 100%;
+}
+.main-scroll .table-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+@media (max-width: 600px) {
+  /* Phones scroll within .workspace; they do not create a second page scrollbar. */
+  .workspace {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .main-scroll {
+    overflow: visible;
+    overscroll-behavior-y: auto;
+  }
+}
