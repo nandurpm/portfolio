@@ -78,18 +78,20 @@ export function localPlan(remote: CloudPlan, device: Plan): Plan {
  */
 export function assertModernLedgerPreserved(base: CloudPlan | undefined, local: Plan, remote: CloudPlan) {
   if (!base) return;
+  if(base.settings.openingFromAccounts !== undefined && local.settings.openingFromAccounts !== undefined && remote.settings.openingFromAccounts === undefined)
+    throw Error('Another device omitted the account opening balance source. Update that device before syncing. Your local records are preserved.');
   // Older clients must not silently strip account assignments, loan links or card limits.
-  for (const field of ['entries', 'accounts'] as const) {
+  for (const field of ['entries', 'accounts', 'ledgerTransactions'] as const) {
     for (const old of base[field] ?? []) {
       const here = local[field]?.find(row => row.id === old.id);
       const there = remote[field]?.find(row => row.id === old.id);
       if (!here || !there) continue; // Intentional record removal uses normal merge conflicts.
-      for (const key of field === 'entries' ? ['accountId'] as const : ['planLoanId', 'creditLimit'] as const) {
+      for (const key of field === 'entries' ? ['accountId'] as const : field === 'accounts' ? ['planLoanId', 'creditLimit'] as const : ['incomeCategoryId','expenseCategoryId','provisionId','billDueMonth','reversalOfId'] as const) {
         const b = old as unknown as Record<string, unknown>;
         const l = here as unknown as Record<string, unknown>;
         const r = there as unknown as Record<string, unknown>;
         if (b[key] !== undefined && l[key] !== undefined && r[key] === undefined &&
-            (field === 'entries' || b.kind === r.kind))
+            (field !== 'accounts' || b.kind === r.kind))
           throw Error('Another device omitted account allocation details. Update that device before syncing again. Your local records are preserved.');
       }
     }

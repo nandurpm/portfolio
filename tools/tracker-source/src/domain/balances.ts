@@ -1,4 +1,4 @@
-import { ledgerCashEffect, ledgerPeriod } from './ledger';
+import { billReceipts, ledgerCashEffect, ledgerPeriod } from './ledger';
 import { pfCashEffect } from './employment';
 import type { Plan, Reconciliation, Provision } from "./types";
 import { monthsBetween, monthDay } from "./dates";
@@ -49,7 +49,7 @@ export function provisionResult(p: Plan, r: Provision, throughDate: string) {
       r.monthlyAmount,
   );
   const payments = round(
-    p.entries
+    billReceipts(p)
       .filter(
         (e) =>
           e.categoryId === r.categoryId &&

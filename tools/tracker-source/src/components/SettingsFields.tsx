@@ -19,6 +19,7 @@ export function SettingNumber({
 }) {
   const p = usePlan(),
     edited = useEdited(`settings.${name}`);
+  if (name === 'opening' && p.settings.openingFromAccounts) return <Field label={label} hint="Calculated from cash, bank and wallet opening balances. Edit them in Accounts & transactions."><input aria-label={label} type="number" value={p.settings.opening} readOnly/><button className="button small secondary" onClick={()=>store.change('Use manual total opening savings',d=>{d.settings.openingFromAccounts=false;})}>Use manual opening total</button></Field>;
   return (
     <Field label={label} hint={hint} edited={edited}>
       <NumberField

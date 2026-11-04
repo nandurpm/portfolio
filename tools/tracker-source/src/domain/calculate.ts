@@ -1,4 +1,4 @@
-import { ledgerCashEffect, ledgerPeriod } from './ledger';
+import { billReceipts, ledgerCashEffect, ledgerPeriod, reportCategories } from './ledger';
 import { isSalaryCategory, salaryForReceiptMonth, pfCashEffect } from './employment';
 import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
 import { formatMoney, compactMoney } from './format-money';
@@ -88,7 +88,7 @@ export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings
     );
     return round(
       dueMonths.reduce((sum, due) => {
-        const early = p.entries.filter(
+        const early = billReceipts(p).filter(
           (e) =>
             e.provisionId === provision.id && e.billDueMonth === due && e.date.slice(0, 7) < due,
         );
@@ -141,7 +141,7 @@ export function categoryPlan(
     m >= provision.startMonth &&
     !(key(m, c.id) in p.overrides)
   ) {
-    const earlyHere = p.entries.filter(
+    const earlyHere = billReceipts(p).filter(
       (e) =>
         e.categoryId === c.id &&
         e.provisionId === provision.id &&
@@ -198,7 +198,7 @@ export function actual(p: Plan, start: string, end: string, catId?: string): Tot
   }
   const ledger = ledgerPeriod(p, start > p.settings.planStart + '-01' ? start : p.settings.planStart + '-01', end < monthEnd(p.settings.planEnd) ? end : monthEnd(p.settings.planEnd), catId);
   t.income += ledger.income;
-  const debtCategoryIds = p.categories.filter(c=>c.group === 'Debt' && (!catId || c.id === catId)).map(c=>c.id);
+  const debtCategoryIds = reportCategories(p).filter(c=>c.group === 'Debt' && (!catId || c.id === catId)).map(c=>c.id);
   const ledgerDebt = debtCategoryIds.reduce((sum,id)=>sum+ledgerPeriod(p, start > p.settings.planStart + '-01' ? start : p.settings.planStart + '-01', end < monthEnd(p.settings.planEnd) ? end : monthEnd(p.settings.planEnd), id).expenses,0);
   t.debt += ledgerDebt;
   t.living += ledger.expenses - ledgerDebt;

@@ -25,6 +25,7 @@ import {
   defaultMapping,
   inspectColumns,
   csvExport,
+  ledgerCsvExport,
   type ColumnMapping,
 } from "../io/import";
 import { RangeControl } from "../components/RangeControl";
@@ -223,10 +224,9 @@ export default function Reports() {
           <span className="export-icon orange">
             <Database />
           </span>
-          <h2>Transactions CSV</h2>
+          <h2>Transaction audit CSVs</h2>
           <p>
-            Plain, portable transaction records for the chosen range, with safe
-            spreadsheet text cells.
+            Download Daily Entries and Accounts activity separately. Accounts CSV preserves movement types, interest, fees, categories and reversal links; transfers remain transfers.
           </p>
           <button
             disabled={!!busy}
@@ -242,8 +242,9 @@ export default function Reports() {
             }
           >
             <Download size={17} />
-            Export .csv
+            Export Daily Entries CSV
           </button>
+          <button disabled={!!busy} className="button secondary" onClick={()=>void run('Accounts CSV export',()=>saveText(`${APP_NAME} - Accounts activity.csv`,ledgerCsvExport(p,start,end),'csv'))}>Export Accounts activity CSV</button>
         </div>
       </div>
       <Section

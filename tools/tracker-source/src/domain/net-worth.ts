@@ -2,12 +2,18 @@ import type { Plan } from "./types";
 import { cumulative, reportDate, round } from "./calculate";
 import { ledgerSummary, liquidKinds } from "./ledger";
 import { pfSummary } from "./employment";
+import { inRange } from "./dates";
+import { provisionResult } from "./balances";
 import { paymentRows } from "./loan-summary";
 
 export function namedAccountBalances(p: Plan, date = reportDate(p)) {
   const balances = { ...ledgerSummary(p, date).balances };
   for (const e of p.entries) {
-    if (!e.accountId || e.date < p.settings.planStart + "-01" || e.date > date)
+    if (
+      !e.accountId ||
+      !inRange(e.date, p.settings.planStart, p.settings.planEnd) ||
+      e.date > date
+    )
       continue;
     const category = p.categories.find((c) => c.id === e.categoryId);
     if (category && category.group !== "Asset")
@@ -30,7 +36,8 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
     0,
     p.loan.principal -
       paymentRows(p, p.loan.rows, date).reduce(
-        (sum, r) => sum + r.principal * Math.min(1, (r.emi > 0 ? r.paidAmount / r.emi : 0)),
+        (sum, r) =>
+          sum + r.principal * Math.min(1, r.emi > 0 ? r.paidAmount / r.emi : 0),
         0,
       ),
   );
@@ -52,7 +59,25 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
     .filter((a) => a.planLoanId)
     .reduce((sum, a) => sum - (ledger.balances[a.id] ?? 0), 0);
   const liabilities = round(ledger.liabilities - linkedDebt + planLoans);
+  const unlinked = p.entries.filter(
+    (e) =>
+      !e.accountId &&
+      inRange(e.date, p.settings.planStart, p.settings.planEnd) &&
+      e.date <= date &&
+      p.categories.some((c) => c.id === e.categoryId && c.group !== "Asset"),
+  );
+  const reserved = round(
+    (p.provisions ?? [])
+      .filter((r) => r.enabled)
+      .reduce(
+        (sum, r) => sum + Math.max(0, provisionResult(p, r, date).reserve),
+        0,
+      ),
+  );
   return {
+    unlinkedCount: unlinked.length,
+    reserved,
+    spendable: round(cash - reserved),
     cash,
     pf,
     namedCash,

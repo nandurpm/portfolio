@@ -1,3 +1,4 @@
+import { reportCategories } from './ledger';
 import type { Plan, Entry } from './types';
 import { paymentDisplayStatus } from './payment-status';
 import { addMonths, monthDay } from './dates';
@@ -57,7 +58,7 @@ export function installmentTasks(p: Plan, month: string, cutoff = reportDate(p))
 }
 
 export function budgetAlerts(p: Plan, month: string, cutoff = reportDate(p)) {
-  return p.categories
+  return reportCategories(p)
     .filter((c) => c.group !== 'Income')
     .flatMap((c) => {
       const spent = actualCategory(p, c, month, cutoff),

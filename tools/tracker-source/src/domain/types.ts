@@ -66,8 +66,14 @@ export type LedgerKind =
   | 'shopping'
   | 'refund'
   | 'credit-card-purchase'
-  | 'credit-card-payment';
+  | 'credit-card-payment'
+  | 'reversal';
 export interface LedgerTransaction {
+  incomeCategoryId?: string;
+  expenseCategoryId?: string;
+  provisionId?: string;
+  billDueMonth?: string;
+  reversalOfId?: string;
   id: string;
   date: string;
   kind: LedgerKind;
@@ -98,6 +104,7 @@ export interface LoanRow {
   edited?: boolean;
 }
 export interface Settings {
+  openingFromAccounts?: boolean;
   emiPreviousMonth?: boolean;
   planStart: string;
   planEnd: string;

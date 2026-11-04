@@ -1,3 +1,4 @@
+import { assertLedgerCorrections, openingAccountTotal } from './ledger';
 import { cloudPlan, localPlan } from '../cloud/model';
 import { enablePatches, produceWithPatches, applyPatches, type Draft, type Patch } from 'immer';
 import { APP_NAME, isAppFormat, type Envelope, type Plan, type Delta } from './types';
@@ -39,6 +40,8 @@ export function commit(
 ): Envelope {
   const [next, forward, inverse] = produceWithPatches(envelope.data, (draft) => {
     recipe(draft);
+    if (draft.settings.openingFromAccounts) draft.settings.opening = openingAccountTotal(draft);
+    assertLedgerCorrections(envelope.data, draft);
     synchronizePayments(draft, envelope.data);
   });
   if (!forward.length) return envelope;
