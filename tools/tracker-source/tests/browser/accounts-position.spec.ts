@@ -15,7 +15,8 @@ test('account openings, shared position and reconciled reversal preserve origina
   }
   await page.getByRole('button',{name:'Use account openings as total savings',exact:true}).click();
   await page.getByRole('dialog').getByRole('button',{name:'Use account openings',exact:true}).click();
-  await page.getByText('Balance breakdown',{exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Balance breakdown',exact:true})).toBeVisible();
+  await expect(page.locator('details.position-breakdown')).toHaveCount(0);
   const position=page.getByRole('table',{name:'Cross-module balance reconciliation',exact:true});
   await expect(position.getByRole('row').filter({hasText:'Dashboard recorded liquid cash'})).toContainText('₹2,700.00');
   await page.getByRole('button',{name:'Transaction',exact:true}).click();
@@ -39,7 +40,8 @@ test('account openings, shared position and reconciled reversal preserve origina
   await page.getByLabel('Reversal date',{exact:true}).fill('2026-11-04');
   await page.getByLabel('Correction reason',{exact:true}).fill('Synthetic correction');
   await page.getByRole('button',{name:'Save reversal',exact:true}).click();
-  await page.getByText('Balance breakdown',{exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Balance breakdown',exact:true})).toBeVisible();
+  await expect(page.locator('details.position-breakdown')).toHaveCount(0);
   await expect(position.getByRole('row').filter({hasText:'Dashboard recorded liquid cash'})).toContainText('₹2,700.00');
   await expect(page.getByText('Reversal: Synthetic expense',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'View account change history',exact:true}).click();
