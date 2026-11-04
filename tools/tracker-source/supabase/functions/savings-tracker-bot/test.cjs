@@ -25,6 +25,7 @@ evaluate('telegram=async(method,token,body)=>{globalThis.calls.push({method,body
 sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
 (async()=>{
  Object.assign(sandbox,await import(require('node:url').pathToFileURL(require('node:path').join(__dirname,'finance.js')).href));
+ Object.assign(sandbox,await import(require('node:url').pathToFileURL(require('node:path').join(__dirname,'wishes.js')).href));
  sandbox.fixture={settings:{opening:100,planStart:'2020-01',planEnd:'2030-12',mode:'Scheduled',emiPreviousMonth:false},categories:[{id:'food',name:'Food',group:'Living',active:true,role:'regular',amount:0,timing:'Daily',day:1,months:[]}],entries:[{id:'old',date:'2026-11-05',categoryId:'food',amount:150}],provisions:[],overrides:{},loan:{rows:[],principal:0}};
  assert.equal(evaluate('possibleDuplicate(fixture,{id:"new",date:"2026-11-05",categoryId:"food",amount:150})'),true);
  assert.equal(evaluate('possibleDuplicate(fixture,{id:"new",date:"2026-11-05",categoryId:"food",amount:151})'),false);
@@ -132,5 +133,29 @@ sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
  assert.equal(evaluate('alertItems(emiFixture,"2026-11-09",quiet,"2026-11-09").filter(x=>x.key.startsWith("emi:")).length'),0,'Fully-paid EMI cannot remind again');
 
 
- console.log('Savings bot: privacy/edit, compact menu, reports, search, account ledger and advance EMI checks passed.');
+
+ assert.equal(evaluate('WISHES.length'),67,'All 67 annual greetings present');
+ assert.equal(evaluate('new Set(WISHES.map(x=>x[0])).size'),67,'Greeting dates unique');
+ assert.equal(evaluate('WISHES.filter(x=>x[0].startsWith("11-")).length'),6);
+ assert.equal(evaluate('WISHES.filter(x=>x[0].startsWith("12-")).length'),9);
+ assert.equal(evaluate('wishForDate("2026-11-04")'),null,'No greeting on unlisted date');
+ assert.equal(evaluate('wishForDate("2027-11-01").title'),"കേരളപ്പിറവി ദിനം");
+ assert.equal(evaluate('wishForDate("2026-11-10").title'),"സമാധാനത്തിനും വികസനത്തിനുമായുള്ള ലോക ശാസ്ത്ര ദിനം");
+ assert.equal(evaluate('wishForDate("2027-01-01").message.includes("പുതിയ പ്രതീക്ഷകളും")'),true);
+ assert.equal(evaluate('wishForDate("2026-12-25").message.includes("ക്രിസ്മസ് ആശംസകൾ")'),true);
+ assert.match(evaluate('wishesPreviewText("2026-11-04")'),/2026-11-10/);
+ assert.equal(evaluate('wishesPreviewText("2026-12-31").includes("2027-01-01")'),true);
+ evaluate('globalThis.wishKeys=new Set();globalThis.wishMessages=[];adminClient=()=>({from:()=>({insert:async(row)=>{let key=row.owner_chat_id+":"+row.alert_key;if(wishKeys.has(key))return {error:{code:"23505"}};wishKeys.add(key);return {error:null}}})});message=async(token,owner,html)=>{wishMessages.push(html)};');
+ const firstWish=await evaluate('sendTodayWish("mock-token","123","2026-11-10")');
+ assert.equal(firstWish.delivered,1);
+ assert.equal(sandbox.wishMessages.length,1);
+ assert.match(sandbox.wishMessages[0],/സമാധാനത്തിനും വികസനത്തിനുമായുള്ള ലോക ശാസ്ത്ര ദിനം/);
+ const duplicateWish=await evaluate('sendTodayWish("mock-token","123","2026-11-10")');
+ assert.equal(duplicateWish.delivered,0,'Same owner/date must not send again');
+ assert.equal(sandbox.wishMessages.length,1,'Duplicate cron request cannot duplicate greeting');
+ const emptyWish=await evaluate('sendTodayWish("mock-token","123","2026-11-04")');
+ assert.equal(emptyWish.skipped,true);
+ assert.equal(sandbox.wishMessages.length,1,'Unlisted dates cannot send messages');
+
+ console.log('Savings bot: privacy/edit, compact menu, reports, search, account ledger and advance EMI checks and annual Malayalam greeting tests passed.');
 })().catch(e=>{console.error(e);process.exitCode=1});
