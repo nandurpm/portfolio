@@ -482,7 +482,7 @@ export function Shell() {
               </button>
             </div>
           </header>
-          <main id="main-content" tabIndex={-1} className="main-scroll">
+          <main id="main-content" tabIndex={-1} className="main-scroll" data-page={page}>
             <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
               {current.name} page opened
             </div>

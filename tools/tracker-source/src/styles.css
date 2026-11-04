@@ -3988,3 +3988,65 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 @media print {
   .dashboard-page .panel, .dashboard-page .workspace-card, .dashboard-page .comparison-chart { background: white; box-shadow: none; }
 }
+
+/* Each workspace page gets its own accent without changing saved palette preferences. */
+.main-scroll[data-page] { --page-tone: var(--accent); }
+.main-scroll[data-page="accounts"], .main-scroll[data-page="employment"] { --page-tone: var(--green); }
+.main-scroll[data-page="entries"], .main-scroll[data-page="forecast"] { --page-tone: var(--chart-4); }
+.main-scroll[data-page="loan"], .main-scroll[data-page="balances"] { --page-tone: var(--orange); }
+.main-scroll[data-page]:not([data-page="dashboard"]) .page-head {
+  padding: 22px 24px;
+  border: 1px solid color-mix(in srgb, var(--page-tone) 23%, var(--border));
+  border-radius: 20px;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--page-tone) 12%, var(--surface)), var(--surface));
+}
+.main-scroll[data-page]:not([data-page="dashboard"]) .panel {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--page-tone) 6%, var(--surface)), var(--surface) 65%);
+  border-color: color-mix(in srgb, var(--page-tone) 19%, var(--border));
+  border-radius: 20px;
+  box-shadow: 0 8px 26px color-mix(in srgb, var(--page-tone) 6%, transparent);
+}
+.main-scroll[data-page]:not([data-page="dashboard"]) .panel-head {
+  padding-bottom: 15px;
+  border-bottom: 1px solid color-mix(in srgb, var(--page-tone) 16%, var(--border));
+}
+.main-scroll[data-page]:not([data-page="dashboard"]) .panel-head > div:first-child { padding-left: 12px; border-left: 4px solid var(--page-tone); }
+.main-scroll[data-page]:not([data-page="dashboard"]) .panel-head h2 { font-size: .95rem; letter-spacing: -.02em; }
+.main-scroll[data-page]:not([data-page="dashboard"]) .panel-head p { line-height: 1.65; max-width: 85ch; }
+.main-scroll[data-page]:not([data-page="dashboard"]) :is(.account-card, .installment-card, .transaction-card, .phone-category-card, .checklist-item, .workspace-card):not(.selected) {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--page-tone) 7%, var(--surface)), var(--surface));
+  border-color: color-mix(in srgb, var(--page-tone) 20%, var(--border));
+  border-radius: 16px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--page-tone) 5%, transparent);
+}
+.main-scroll[data-page="accounts"] .account-card { border-top: 3px solid var(--page-tone); }
+.main-scroll[data-page="accounts"] .account-card:nth-child(3n + 2) { border-top-color: var(--accent); }
+.main-scroll[data-page="accounts"] .account-card:nth-child(3n) { border-top-color: var(--chart-4); }
+.main-scroll[data-page]:not([data-page="dashboard"]) :is(.loan-money-grid > div, .closure-summary > div) {
+  background: color-mix(in srgb, var(--page-tone) 9%, var(--surface));
+  border-color: color-mix(in srgb, var(--page-tone) 20%, var(--border));
+}
+.main-scroll[data-page]:not([data-page="dashboard"]) .stat-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--page-tone) 9%, var(--surface)), var(--surface));
+  border-top: 3px solid var(--page-tone);
+}
+.main-scroll[data-page]:not([data-page="dashboard"]) .stat-card:nth-child(even) {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, var(--surface)), var(--surface));
+  border-top-color: var(--accent);
+}
+.main-scroll[data-page]:not([data-page="dashboard"]) .data-table thead th { background: color-mix(in srgb, var(--page-tone) 12%, var(--surface)); }
+.main-scroll[data-page]:not([data-page="dashboard"]) .data-table tbody tr:nth-child(even):not(.paid-row):not(.total-row):not(.selected) { background: color-mix(in srgb, var(--page-tone) 4%, var(--surface)); }
+.main-scroll[data-page]:not([data-page="dashboard"]) .data-table tbody tr:hover { background: color-mix(in srgb, var(--page-tone) 9%, var(--surface)); }
+.main-scroll[data-page]:not([data-page="dashboard"]) :is(.help-strip, .position-breakdown > summary) {
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--page-tone) 8%, var(--surface));
+}
+@media (max-width: 600px) {
+  .main-scroll[data-page]:not([data-page="dashboard"]) .page-head { padding: 17px; border-radius: 16px; }
+  .main-scroll[data-page]:not([data-page="dashboard"]) .panel { border-radius: 16px; }
+  .main-scroll[data-page]:not([data-page="dashboard"]) .panel-head h2 { font-size: .9rem; }
+}
+@media print {
+  .main-scroll[data-page]:not([data-page="dashboard"]) :is(.page-head, .panel, .stat-card, .account-card, .installment-card) { background: white; box-shadow: none; }
+}
