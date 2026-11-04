@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+// Inspect synthetic page overflow during layout tests.
 
 for (const width of [1366, 1702, 2560]) {
   test(`Accounts scroll stays inside viewport on desktop ${width}px`, async ({ page }) => {
