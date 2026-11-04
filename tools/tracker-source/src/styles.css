@@ -4267,7 +4267,14 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
   padding: 24px clamp(16px, 2.1vw, 36px) 24px;
 }
 /* Use the available desktop workspace width rather than centring every screen in a 1480px column. */
-.main-scroll > * { width: 100%; max-width: none; margin-inline: 0; }
+/* Limit width expansion to ordinary flow content. The sr-only status element is
+   absolutely positioned; giving it width:100% extends the document past the
+   sidebar and creates a second horizontal/vertical browser scrollbar. */
+.main-scroll > :is(.edit-controls, .callout, .tracker-glossary, .app-footer) {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
 .page-head {
   margin-bottom: 24px;
   align-items: flex-end;
