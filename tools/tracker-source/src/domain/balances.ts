@@ -53,6 +53,8 @@ export function provisionResult(p: Plan, r: Provision, throughDate: string) {
       .filter(
         (e) =>
           e.categoryId === r.categoryId &&
+          e.provisionId === r.id &&
+          !!e.billDueMonth &&
           e.date >= `${r.startMonth}-01` &&
           e.date <= throughDate,
       )
