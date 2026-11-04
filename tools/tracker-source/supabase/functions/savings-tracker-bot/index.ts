@@ -319,8 +319,8 @@ function possibleDuplicate(plan:AnyRow,p:AnyRow) {
  return (plan.entries||[]).some((e:AnyRow)=>e.id!==p.id&&e.date===p.date&&e.categoryId===p.categoryId&&Math.round(num(e.amount)*100)===Math.round(num(p.amount)*100));
 }
 function loanInstallments(plan:AnyRow) {
- const primary=(plan.loan?.rows||[]).map((r:AnyRow)=>({...r,label:"Main loan",advanceDay:plan.settings.salaryDay}));
- const extra=(plan.additionalLoans||[]).flatMap((l:AnyRow)=>(l.rows||[]).map((r:AnyRow)=>({...r,label:l.name||"Additional EMI",advanceDay:l.plannedPayDay??plan.settings.salaryDay})));
+ const primary=(plan.loan?.rows||[]).map((r:AnyRow)=>({...r,label:"Main loan",advanceDay:plan.settings.salaryDay,customAdvanceDay:false}));
+ const extra=(plan.additionalLoans||[]).flatMap((l:AnyRow)=>(l.rows||[]).map((r:AnyRow)=>({...r,label:l.name||"Additional EMI",advanceDay:l.plannedPayDay??plan.settings.salaryDay,customAdvanceDay:l.plannedPayDay!==undefined})));
  return [...primary,...extra];
 }
 /** Match the web loan-summary rule: receipt-linked allocations override legacy paid flags. */
@@ -330,13 +330,21 @@ function emiPaidAt(plan:AnyRow,row:AnyRow,cutoff:string) {
   : (row.paidBeforeOpening&&(!row.paidDate||row.paidDate<=cutoff))||(row.paidDate&&row.paidDate<=cutoff)?num(row.paidAmount):0;
  return Math.max(0,Math.round(amount*100)/100);
 }
+function emiActualDateAt(plan:AnyRow,row:AnyRow,cutoff:string) {
+ const receipts=(plan.entries||[]).filter((e:AnyRow)=>e.loanRowId===row.id);
+ if(receipts.length)return receipts.filter((e:AnyRow)=>e.date<=cutoff).map((e:AnyRow)=>e.date).sort().at(-1)||"";
+ return row.paidDate&&row.paidDate<=cutoff?String(row.paidDate):"";
+}
 function plannedEmiDate(plan:AnyRow,row:AnyRow) {
  const due=String(row.dueDate||"");
  if(!validDate(due))return "";
- const month=plan.settings?.emiPreviousMonth?previousMonth(due.slice(0,7)):due.slice(0,7);
+ const previous=Boolean(plan.settings?.emiPreviousMonth);
+ if(!previous&&!row.customAdvanceDay)return due;
+ const month=previous?previousMonth(due.slice(0,7)):due.slice(0,7);
  const maxDay=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate();
  const day=Math.max(1,Math.min(31,Math.trunc(num(row.advanceDay)||num(plan.settings?.salaryDay)||10)));
- return month+"-"+String(Math.min(day,maxDay)).padStart(2,"0");
+ const proposed=month+"-"+String(Math.min(day,maxDay)).padStart(2,"0");
+ return !previous&&proposed>due?due:proposed;
 }
 function emiText(plan:AnyRow,updated:string) {
  const now=keyDate();
@@ -348,7 +356,7 @@ function emiText(plan:AnyRow,updated:string) {
   const planned=plannedEmiDate(plan,row),paid=emiPaidAt(plan,row,now);
   return "• "+escape(row.label)+": "+amt(row.remaining)+" remaining\n"+
    "   Due: "+escape(row.dueDate)+(planned&&planned!==row.dueDate?" · Planned: "+escape(planned):"")+
-   (paid>0?"\n   Already recorded: "+amt(paid):"")+
+   (paid>0?"\n   Already recorded: "+amt(paid)+(emiActualDateAt(plan,row,now)?" on "+escape(emiActualDateAt(plan,row,now)):""):"")+
    (row.dueDate<now?"\n   ⚠️ Past contractual due date":"");
  });
  return "💳 <b>EMI &amp; UPCOMING DUES</b>\n━━━━━━━━━━━━━━━━━━\n"+
