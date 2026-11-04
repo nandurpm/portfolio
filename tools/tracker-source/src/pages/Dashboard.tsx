@@ -347,14 +347,13 @@ export default function Dashboard({
       <CashAlerts />
       <BudgetAlerts />
       <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
-      <details className="dashboard-deep-dive">
-        <summary>
+      <section className="dashboard-deep-dive" aria-labelledby="dashboard-deep-dive-title">
+        <div className="dashboard-deep-dive-heading">
           <span>
-            <strong>Open full dashboard analysis</strong>
+            <strong id="dashboard-deep-dive-title">Full dashboard analysis</strong>
             <small>Comparison tables, category detail, forecasts and extended charts</small>
           </span>
-          <span className="dashboard-deep-dive-toggle">View details</span>
-        </summary>
+        </div>
         <div className="dashboard-deep-dive-body">
       <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
       <Section
@@ -537,7 +536,7 @@ export default function Dashboard({
         <ProgressTable whole />
       </Section>
         </div>
-      </details>
+      </section>
     </div>
   );
 }
