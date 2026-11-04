@@ -1,4 +1,4 @@
-import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation } from "./finance.js";
+import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation, financialAccounts } from "./finance.js";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 
@@ -22,7 +22,8 @@ function escape(t:unknown):string {return String(t??"").replaceAll("&","&amp;").
 function button(label:string,code:string){return {text:label,callback_data:code};}
 const homeKeyboard = () => ({inline_keyboard:[
  [button("➕ New Entry","e:add"),button("📊 Dashboard","dashboard")],
- [button("🏦 Balance Explained","balance"),button("📅 Month","month")],
+ [button("🏦 Balance Explained","balance"),button("🏦 Accounts","accounts")],
+ [button("📅 Month","month"),button("🧾 Entries","entries")],
  [button("🧾 Entries","entries"),button("🗂️ Plan","plan")],
  [button("💸 Budgets","budgets"),button("🏦 Reconcile","reconcile")],
  [button("💳 EMI & Loans","emi"),button("📈 Forecast","forecast")],
@@ -204,6 +205,21 @@ function reportText(plan:AnyRow,mode:"day"|"month",date:string,updated:string) {
  lines.push("<i>Calculated from synced records; not a bank-verified balance.</i>");
  return lines.join("\n")+syncInfo(updated);
 }
+function accountsText(plan:AnyRow,updated:string) {
+ if(!(plan.accounts||[]).length)return "🏦 <b>ACCOUNTS &amp; ASSETS</b>\n\nNo Accounts ledger is configured yet. Use the authenticated website to add bank, FD, receivable and credit-card accounts."+syncInfo(updated);
+ const date=keyDate(),p=financialAccounts(plan,date);
+ const liquid=(plan.accounts||[]).filter((a:AnyRow)=>["cash","bank","wallet"].includes(a.kind))
+  .reduce((n:number,a:AnyRow)=>n+num(p.balances[a.id]),0);
+ const lines=["🏦 <b>ACCOUNTS &amp; ASSETS</b>","━━━━━━━━━━━━━━━━━━",
+  "💵 Liquid accounts: <b>"+amt(liquid)+"</b>","🤝 Money receivable: "+amt(p.receivables),
+  "🏦 FD &amp; investments: "+amt(p.investments),"💳 Account liabilities: "+amt(p.liabilities),
+  "📊 Account-ledger net worth: <b>"+amt(p.netWorth)+"</b>","\n<b>Account balances</b>"];
+ for(const a of (plan.accounts||[]).slice(0,20))
+  lines.push("• "+escape(a.name)+" ("+escape(a.kind)+"): "+amt(Math.abs(num(p.balances[a.id])))+
+   (["credit-card","liability"].includes(a.kind)?" owed":""));
+ lines.push("\n<i>Account-ledger position only. Unassigned Daily Entries and PF may be separate; this is not a verified bank statement.</i>");
+ return lines.join("\n")+syncInfo(updated);
+}
 function balanceText(plan:AnyRow,updated:string) {
  const today=keyDate(),start=planPeriod(plan),end=String(plan.settings.planEnd)+"-31";
  const actual=today<start?{income:0,living:0,debt:0,unknown:0}:dateRange(plan,start,today>end?end:today);
@@ -324,6 +340,13 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
    " | "+rs(num(entry.amount))+" | "+String(entry.payment||"Other"));
  }
  if(range.entries.length>entries.length)lines.push("Additional transactions omitted; see authenticated tracker for the full ledger.");
+ if((plan.accounts||[]).length){
+  const positions=financialAccounts(plan,byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate());
+  lines.push("","ACCOUNT LEDGER POSITION (AS OF PERIOD END)",
+   "Account assets: "+rs(positions.assets),"Account liabilities: "+rs(positions.liabilities),
+   "Money lent outstanding: "+rs(positions.receivables),"FD and investments: "+rs(positions.investments),
+   "Net worth of account ledger: "+rs(positions.netWorth));
+ }
  lines.push("","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)");
  const movements=(plan.ledgerTransactions||[]).filter((e:AnyRow)=>e.date>=(byDay?date:month+"-01")&&e.date<=(byDay?date:month+"-31"))
   .sort((a:AnyRow,b:AnyRow)=>String(b.date).localeCompare(String(a.date))).slice(0,70);
@@ -365,7 +388,7 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
   "Includes Daily Entries and Accounts activity. Transfers are not income or expenses.","RECORDED TRANSACTIONS (ACTUAL)",
   "REGULAR CATEGORY BUDGET VS ACTUAL","BUDGET COMPARISON CHART",
   "CATEGORY DETAILS: RECORDED / PLANNED / GAP","CATEGORY-WISE RECORDED TOTALS",
-  "EXPENSES BY PAYMENT METHOD","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
+  "EXPENSES BY PAYMENT METHOD","ACCOUNT LEDGER POSITION (AS OF PERIOD END)","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
   "BANK / CASH RECONCILIATION","TRANSACTION LEDGER (ACTUAL)","DISCLAIMER"]);
  const lines=pdfLines(plan,mode,date,updated);
  for(let i=0;i<lines.length;i++){
@@ -411,6 +434,7 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  } else if(action==="plan")report=planText(plan,updated);
  else if(action==="dashboard")report=dashboardText(plan,updated);
  else if(action==="entries")report=entriesText(plan,updated);
+ else if(action==="accounts")report=accountsText(plan,updated);
  else if(action==="reconcile"){report=reconciliationText(plan,updated);
    kb={inline_keyboard:[[button("📝 Record Reconciliation","e:reconcile")],
      [{text:"🔐 Open Full Tracker",url:APP_URL},button("🏠 Main Menu","menu")]]};}
@@ -473,11 +497,11 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
   kb={inline_keyboard:[[button("🔐 Edit Mode","e:open"),button("🔒 Lock Now","e:lock")],[button("🏠 Main Menu","menu")]]};
  }
  else if(action==="help"){
-  report="🧭 <b>COMMANDS</b>\n/start · /today · /month · /plan · /entries · /budget · /compare · /reconcile · /balance · /emi · /savings · /forecast · /sync · /alerts · /settings · /backups · /history · /pdf · /edit · /lock\n\nOnly the owner can access this bot. Editing requires a separate PIN.\n\n/lock locks editing immediately; /cancel abandons a pending edit. /status shows sync and edit-session state. Reports remain available while editing is locked. Every change requires Confirm & Save.";
+  report="🧭 <b>COMMANDS</b>\n/start · /today · /month · /plan · /entries · /accounts · /budget · /compare · /reconcile · /balance · /emi · /savings · /forecast · /sync · /alerts · /settings · /backups · /history · /pdf · /edit · /lock\n\nOnly the owner can access this bot. Editing requires a separate PIN.\n\n/lock locks editing immediately; /cancel abandons a pending edit. /status shows sync and edit-session state. Reports remain available while editing is locked. Every change requires Confirm & Save.";
   kb=homeKeyboard();
  }
  else {report="Unknown option. Select one below.";kb=homeKeyboard();}
- if(["day","month","prev","balance","savings","entries","plan"].includes(action)) {
+ if(["day","month","prev","balance","savings","entries","accounts","plan"].includes(action)) {
   kb={inline_keyboard:[[button("📊 Today","day"),button("📅 Month","month")],[button("📄 PDF Reports","reports"),button("➕ New Entry","e:add")],[button("🏠 Main Menu","menu")]]};
  }
  await message(token,owner,report||"Please choose an option.",kb,messageId);
