@@ -1,4 +1,4 @@
-import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation } from "./finance.js";
+import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation, financialAccounts } from "./finance.js";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 
@@ -22,7 +22,8 @@ function escape(t:unknown):string {return String(t??"").replaceAll("&","&amp;").
 function button(label:string,code:string){return {text:label,callback_data:code};}
 const homeKeyboard = () => ({inline_keyboard:[
  [button("➕ New Entry","e:add"),button("📊 Dashboard","dashboard")],
- [button("🏦 Balance Explained","balance"),button("📅 Month","month")],
+ [button("🏦 Balance Explained","balance"),button("🏦 Accounts","accounts")],
+ [button("📅 Month","month"),button("🧾 Entries","entries")],
  [button("🧾 Entries","entries"),button("🗂️ Plan","plan")],
  [button("💸 Budgets","budgets"),button("🏦 Reconcile","reconcile")],
  [button("💳 EMI & Loans","emi"),button("📈 Forecast","forecast")],
@@ -133,12 +134,25 @@ function syncInfo(updated:string) {
 function categoriesByType(plan:AnyRow,group:string) {
  return (plan.categories as AnyRow[]).filter(c=>c.group===group&&c.active);
 }
-function entriesText(plan:AnyRow,updated:string) {
- const entries=(plan.entries as AnyRow[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,12);
- const map=new Map<string,string>(plan.categories.map((c:AnyRow)=>[String(c.id),String(c.name)]));
- const lines=entries.map(e=>"• "+escape(e.date)+" · "+escape(map.get(e.categoryId)||e.categoryId)+" · "+amt(num(e.amount))+" · "+escape(e.payment||"Other"));
- return "🧾 <b>RECENT SYNCED ENTRIES</b>\n━━━━━━━━━━━━━━━━━━\n"+(lines.join("\n")||"No transactions recorded.")+"\n\n<i>Showing the most recent 12 entries. Add or edit entries in the authenticated tracker.</i>"+syncInfo(updated);
+function transactionCount(plan:AnyRow,from:string,through:string) {
+ return (plan.entries||[]).filter((r:AnyRow)=>r.date>=from&&r.date<=through).length+
+  (plan.ledgerTransactions||[]).filter((r:AnyRow)=>r.date>=from&&r.date<=through).length;
 }
+function entriesText(plan:AnyRow,updated:string) {
+ const cats=new Map<string,string>((plan.categories||[]).map((c:AnyRow)=>[String(c.id),String(c.name)]));
+ const accounts=new Map<string,string>((plan.accounts||[]).map((a:AnyRow)=>[String(a.id),String(a.name)]));
+ const entries=[
+  ...(plan.entries||[]).map((e:AnyRow)=>({date:e.date,label:cats.get(String(e.categoryId))||String(e.categoryId),amount:num(e.amount),method:e.payment||"Other"})),
+  ...(plan.ledgerTransactions||[]).map((r:AnyRow)=>({date:r.date,label:"Accounts · "+String(r.kind).replaceAll("-"," ")+
+    (r.description?" · "+String(r.description):""),amount:num(r.amount),
+    method:(accounts.get(r.sourceAccountId)||"")+" → "+(accounts.get(r.destinationAccountId)||"")}))
+ ].sort((a:AnyRow,b:AnyRow)=>String(b.date).localeCompare(String(a.date))).slice(0,12);
+ const lines=entries.map((e:AnyRow)=>"• "+escape(e.date)+" · "+escape(e.label)+" · "+amt(e.amount)+" · "+escape(e.method));
+ return "🧾 <b>RECENT SYNCED TRANSACTIONS</b>\n━━━━━━━━━━━━━━━━━━\n"+
+  (lines.join("\n")||"No transactions recorded.")+
+  "\n\n<i>Latest 12 Daily Entries and Accounts transactions. Synced records only.</i>"+syncInfo(updated);
+}
+
 function planText(plan:AnyRow,updated:string) {
  const s=plan.settings;
  return "🗂️ <b>FINANCIAL PLAN</b>\n━━━━━━━━━━━━━━━━━━\n"+
@@ -148,7 +162,7 @@ function planText(plan:AnyRow,updated:string) {
  "💼 Base salary: <b>"+amt(num(s.salary31))+"</b>\n"+
  "📈 Salary after raise: <b>"+amt(num(s.raisedSalary))+"</b>\n"+
  "🔢 Categories: <b>"+plan.categories.length+"</b>\n"+
- "🧾 Cloud transactions: <b>"+plan.entries.length+"</b>\n\n"+
+ "🧾 Cloud transactions: <b>"+(plan.entries.length+(plan.ledgerTransactions?.length??0))+"</b>\n\n"+
  "<i>Detailed forecasts and plan editing remain in the tracker app.</i>"+syncInfo(updated);
 }
 function budgetsText(plan:AnyRow,month:string,updated:string) {
@@ -180,7 +194,7 @@ function reportText(plan:AnyRow,mode:"day"|"month",date:string,updated:string) {
  "💳 Debt/EMI: "+amt(out.debt),
  "📉 Total expenses: <b>"+amt(out.expense)+"</b>",
  "📈 Net savings: <b>"+amt(out.net)+"</b>",
- "🧾 Transactions: "+out.entries.length,
+ "🧾 Transactions: "+transactionCount(plan,mode==="day"?date:period+"-01",mode==="day"?date:period+"-31"),
  ];
  if(mode==="day"||mode==="month") {
   const map=Array.from(out.byCat.entries()).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,7);
@@ -189,6 +203,21 @@ function reportText(plan:AnyRow,mode:"day"|"month",date:string,updated:string) {
  if(!within)lines.push("\n⚠️ <i>Period is outside your active financial plan. Entries are shown, but balances may not apply.</i>");
  else lines.push("\n🏦 <b>Estimated tracker cash:</b> "+amt(cashEstimate(plan,mode==="day"?date:date.slice(0,7)+"-"+new Date(Date.UTC(+date.slice(0,4),+date.slice(5,7),0)).getUTCDate())));
  lines.push("<i>Calculated from synced records; not a bank-verified balance.</i>");
+ return lines.join("\n")+syncInfo(updated);
+}
+function accountsText(plan:AnyRow,updated:string) {
+ if(!(plan.accounts||[]).length)return "🏦 <b>ACCOUNTS &amp; ASSETS</b>\n\nNo Accounts ledger is configured yet. Use the authenticated website to add bank, FD, receivable and credit-card accounts."+syncInfo(updated);
+ const date=keyDate(),p=financialAccounts(plan,date);
+ const liquid=(plan.accounts||[]).filter((a:AnyRow)=>["cash","bank","wallet"].includes(a.kind))
+  .reduce((n:number,a:AnyRow)=>n+num(p.balances[a.id]),0);
+ const lines=["🏦 <b>ACCOUNTS &amp; ASSETS</b>","━━━━━━━━━━━━━━━━━━",
+  "💵 Liquid accounts: <b>"+amt(liquid)+"</b>","🤝 Money receivable: "+amt(p.receivables),
+  "🏦 FD &amp; investments: "+amt(p.investments),"💳 Account liabilities: "+amt(p.liabilities),
+  "📊 Account-ledger net worth: <b>"+amt(p.netWorth)+"</b>","\n<b>Account balances</b>"];
+ for(const a of (plan.accounts||[]).slice(0,20))
+  lines.push("• "+escape(a.name)+" ("+escape(a.kind)+"): "+amt(Math.abs(num(p.balances[a.id])))+
+   (["credit-card","liability"].includes(a.kind)?" owed":""));
+ lines.push("\n<i>Account-ledger position only. Unassigned Daily Entries and PF may be separate; this is not a verified bank statement.</i>");
  return lines.join("\n")+syncInfo(updated);
 }
 function balanceText(plan:AnyRow,updated:string) {
@@ -223,7 +252,7 @@ function savingsText(plan:AnyRow,updated:string) {
  "📉 Recorded expenses: "+amt(d.expense)+"\n"+
  "💰 Net change: <b>"+amt(d.net)+"</b>\n"+
  "🏦 Estimated cash: <b>"+amt(cashEstimate(plan,now))+"</b>\n\n"+
- "<i>Actual entries only. Budget forecasts, EMI reserves and reconciliation are separate.</i>"+syncInfo(updated);
+ "<i>Recorded Daily Entries and Accounts movements. Budget forecasts, EMI reserves and reconciliation are separate.</i>"+syncInfo(updated);
 }
 function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):string[] {
  const month=date.slice(0,7),byDay=mode==="day";
@@ -241,13 +270,13 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
   "Debt / EMI payments recorded: "+rs(range.debt),
   "Total recorded expenses: "+rs(range.expense),
   "Recorded net change: "+rs(range.net),
-  "Transaction count: "+range.entries.length,
+  "Transaction count: "+transactionCount(plan,byDay?date:month+"-01",byDay?date:month+"-31"),
   "Recorded cash estimate: "+rs(cashEstimate(plan,byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate())),
  ];
  if(daysSince(updated)>2) lines.push("WARNING: Cloud data is "+daysSince(updated)+" days old and may be incomplete.");
  if(!isInPlan(plan,month))lines.push("WARNING: This period is outside the plan; budget comparison is unavailable.");
  const prev=monthData(plan,previousMonth(month));
- if(!byDay&&prev.entries.length>0){
+ if(!byDay&&transactionCount(plan,previousMonth(month)+"-01",previousMonth(month)+"-31")>0){
   lines.push("Previous month recorded net: "+rs(prev.net));
   lines.push("Month-on-month recorded net change: "+rs(range.net-prev.net));
  }
@@ -311,6 +340,18 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
    " | "+rs(num(entry.amount))+" | "+String(entry.payment||"Other"));
  }
  if(range.entries.length>entries.length)lines.push("Additional transactions omitted; see authenticated tracker for the full ledger.");
+ if((plan.accounts||[]).length){
+  const positions=financialAccounts(plan,byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate());
+  lines.push("","ACCOUNT LEDGER POSITION (AS OF PERIOD END)",
+   "Account assets: "+rs(positions.assets),"Account liabilities: "+rs(positions.liabilities),
+   "Money lent outstanding: "+rs(positions.receivables),"FD and investments: "+rs(positions.investments),
+   "Net worth of account ledger: "+rs(positions.netWorth));
+ }
+ lines.push("","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)");
+ const movements=(plan.ledgerTransactions||[]).filter((e:AnyRow)=>e.date>=(byDay?date:month+"-01")&&e.date<=(byDay?date:month+"-31"))
+  .sort((a:AnyRow,b:AnyRow)=>String(b.date).localeCompare(String(a.date))).slice(0,70);
+ for(const row of movements)lines.push(String(row.date)+" | "+String(row.kind)+" | "+rs(num(row.amount)));
+ if(!movements.length)lines.push("No account movements in period.");
  lines.push("","DISCLAIMER");
  lines.push("This is a personal tracking summary, not an official bank statement.");
  lines.push("Recorded cash estimate is not a bank-verified or reconciled balance.");
@@ -347,7 +388,7 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
   "Includes Daily Entries and Accounts activity. Transfers are not income or expenses.","RECORDED TRANSACTIONS (ACTUAL)",
   "REGULAR CATEGORY BUDGET VS ACTUAL","BUDGET COMPARISON CHART",
   "CATEGORY DETAILS: RECORDED / PLANNED / GAP","CATEGORY-WISE RECORDED TOTALS",
-  "EXPENSES BY PAYMENT METHOD","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
+  "EXPENSES BY PAYMENT METHOD","ACCOUNT LEDGER POSITION (AS OF PERIOD END)","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
   "BANK / CASH RECONCILIATION","TRANSACTION LEDGER (ACTUAL)","DISCLAIMER"]);
  const lines=pdfLines(plan,mode,date,updated);
  for(let i=0;i<lines.length;i++){
@@ -393,6 +434,7 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  } else if(action==="plan")report=planText(plan,updated);
  else if(action==="dashboard")report=dashboardText(plan,updated);
  else if(action==="entries")report=entriesText(plan,updated);
+ else if(action==="accounts")report=accountsText(plan,updated);
  else if(action==="reconcile"){report=reconciliationText(plan,updated);
    kb={inline_keyboard:[[button("📝 Record Reconciliation","e:reconcile")],
      [{text:"🔐 Open Full Tracker",url:APP_URL},button("🏠 Main Menu","menu")]]};}
@@ -451,15 +493,15 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  }
  else if(action==="status"){
   const state=await editState(owner);
-  report="🟢 <b>BOT STATUS</b>\n\n🔐 Access: owner-only private chat\n✏️ Edit Mode: <b>"+(isUnlocked(state)?"Unlocked":"Locked")+"</b>\n🧾 Synced entries: "+plan.entries.length+"\n\n<i>Reports use cloud-synced records. Unsynced app changes will not appear yet.</i>"+syncInfo(updated);
+  report="🟢 <b>BOT STATUS</b>\n\n🔐 Access: owner-only private chat\n✏️ Edit Mode: <b>"+(isUnlocked(state)?"Unlocked":"Locked")+"</b>\n🧾 Synced entries: "+(plan.entries.length+(plan.ledgerTransactions?.length??0))+"\n\n<i>Reports use cloud-synced records. Unsynced app changes will not appear yet.</i>"+syncInfo(updated);
   kb={inline_keyboard:[[button("🔐 Edit Mode","e:open"),button("🔒 Lock Now","e:lock")],[button("🏠 Main Menu","menu")]]};
  }
  else if(action==="help"){
-  report="🧭 <b>COMMANDS</b>\n/start · /today · /month · /plan · /entries · /budget · /compare · /reconcile · /balance · /emi · /savings · /forecast · /sync · /alerts · /settings · /backups · /history · /pdf · /edit · /lock\n\nOnly the owner can access this bot. Editing requires a separate PIN.\n\n/lock locks editing immediately; /cancel abandons a pending edit. /status shows sync and edit-session state. Reports remain available while editing is locked. Every change requires Confirm & Save.";
+  report="🧭 <b>COMMANDS</b>\n/start · /today · /month · /plan · /entries · /accounts · /budget · /compare · /reconcile · /balance · /emi · /savings · /forecast · /sync · /alerts · /settings · /backups · /history · /pdf · /edit · /lock\n\nOnly the owner can access this bot. Editing requires a separate PIN.\n\n/lock locks editing immediately; /cancel abandons a pending edit. /status shows sync and edit-session state. Reports remain available while editing is locked. Every change requires Confirm & Save.";
   kb=homeKeyboard();
  }
  else {report="Unknown option. Select one below.";kb=homeKeyboard();}
- if(["day","month","prev","balance","savings","entries","plan"].includes(action)) {
+ if(["day","month","prev","balance","savings","entries","accounts","plan"].includes(action)) {
   kb={inline_keyboard:[[button("📊 Today","day"),button("📅 Month","month")],[button("📄 PDF Reports","reports"),button("➕ New Entry","e:add")],[button("🏠 Main Menu","menu")]]};
  }
  await message(token,owner,report||"Please choose an option.",kb,messageId);
@@ -935,7 +977,7 @@ function dashboardText(plan:AnyRow,updated:string) {
  "💵 Recorded monthly income: "+amt(d.income)+"\n"+
  "💸 Recorded monthly expenses: "+amt(d.expense)+"\n"+
  "💰 Recorded monthly net: <b>"+amt(d.net)+"</b>\n"+
- "🧾 Synced transactions: "+plan.entries.length+"\n"+
+ "🧾 Synced transactions: "+(plan.entries.length+(plan.ledgerTransactions?.length??0))+"\n"+
  "🏦 Estimated recorded cash: "+amt(cashEstimate(plan,date))+"\n\n"+
  (isInPlan(plan,month)?"":"⚠️ Plan does not begin until "+escape(plan.settings.planStart)+".\n")+
  (daysSince(updated)>2?"⚠️ <b>Cloud data is stale; reports may be incomplete.</b>\n":"")+
@@ -946,7 +988,7 @@ function syncStatusText(plan:AnyRow,updated:string){
  return "🔄 <b>CLOUD SYNCHRONIZATION</b>\n━━━━━━━━━━━━━━━━━━\n"+
  "Last sync: <b>"+escape(updated)+"</b>\n"+
  "Data age: "+age+" day(s)\n"+
- "Synced transactions: "+plan.entries.length+"\n"+
+ "Synced transactions: "+(plan.entries.length+(plan.ledgerTransactions?.length??0))+"\n"+
  "Plan period: "+escape(plan.settings.planStart)+" to "+escape(plan.settings.planEnd)+"\n\n"+
  (age>=2?"⚠️ <b>Warning: Data has not been updated recently.</b>\nOpen the tracker on your phone or computer and sync before trusting reports.":"✅ Cloud data was recently updated.")+
  "\n\n<a href=\""+APP_URL+"\">Open authenticated tracker</a>";
@@ -1122,6 +1164,8 @@ function alertPreview(plan:AnyRow,updated:string,prefs:AnyRow){
 }
 
 Deno.serve(async (request:Request) => {
+ if(request.method==="GET" && new URL(request.url).pathname.endsWith("/health"))
+  return respond({ok:true,service:"savings-tracker-bot",finance:"website-shared-v2.1",status:"ready"});
  if(request.method!=="POST")return respond({error:"method_not_allowed"},405);
  try {
   const {token,owner}=secrets();

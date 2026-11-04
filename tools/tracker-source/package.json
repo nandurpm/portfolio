@@ -17,7 +17,7 @@
     "build": "npm run build:web",
     "lint": "eslint src tests --ignore-pattern tests/browser",
     "audit": "npm audit",
-    "check": "npm run lint && npm test && npm run test:dependencies && npm run typecheck:quality && npm run build && npm run check:bundle && node scripts/build-bot-finance.mjs --check",
+    "check": "npm run lint && npm test && npm run test:dependencies && npm run check:bot-finance && npm run test:bot && npm run typecheck:quality && npm run build && npm run check:bundle && node scripts/build-bot-finance.mjs --check",
     "test:browser": "playwright test",
     "test:security": "node --import tsx scripts/test-security.ts",
     "verify:deployment": "node scripts/verify-deployment.mjs",
@@ -25,7 +25,9 @@
     "test:dependencies": "node scripts/test-dependency-compat.mjs",
     "build:release": "tsc --noEmit && vite build --mode release && node scripts/build-electron.mjs --release",
     "android:release": "npm run build:release && cap sync android && node scripts/build-android.mjs --release",
-    "dist:win": "npm run build:release && node scripts/build-windows-installer.mjs"
+    "dist:win": "npm run build:release && node scripts/build-windows-installer.mjs",
+    "test:bot": "node supabase/functions/savings-tracker-bot/test.cjs",
+    "check:bot-finance": "node scripts/build-bot-finance.mjs --check"
   },
   "build": {
     "appId": "com.nandakumar.savingsandexpencetracker",

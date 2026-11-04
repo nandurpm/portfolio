@@ -677,7 +677,9 @@ function botReportPlan(p) {
 var financialForecast = (p) => forecast(botReportPlan(p));
 var financialBudget = (p, c, month) => categoryPlan(botReportPlan(p), c, month);
 var financialReconciliation = reconciliationResult;
+var financialAccounts = (p, through) => ledgerSummary(p, through);
 export {
+  financialAccounts,
   financialBudget,
   financialCash,
   financialForecast,
