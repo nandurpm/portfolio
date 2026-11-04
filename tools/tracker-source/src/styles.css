@@ -4659,7 +4659,20 @@ body:has(.app-shell),
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  /* Reserve scrollbar space so navigating between short and long tabs does
+     not shift the entire page and trigger unnecessary layout work. */
+  scrollbar-gutter: stable;
   overscroll-behavior-y: contain;
+}
+@media (hover: hover) and (pointer: fine) {
+  /* Cheaper, subtler shadows on large vertically moving card surfaces.
+     Preserve the full shadow treatment on static headers and modal dialogs. */
+  .main-scroll :is(.panel, .workspace-card, .stat-card, .account-card, .installment-card, .progress-month-card) {
+    box-shadow: 0 2px 9px rgba(23, 49, 58, .065);
+  }
+  .main-scroll[data-page]:not([data-page="dashboard"]) .page-head {
+    box-shadow: 0 2px 9px rgba(23, 49, 58, .065);
+  }
 }
 .main-scroll > .edit-controls,
 .main-scroll .page,
