@@ -1,4 +1,5 @@
 import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation, financialAccounts } from "./finance.js";
+import { WISHES, wishForDate } from "./wishes.js";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 
@@ -39,7 +40,8 @@ const moreKeyboard=()=>({inline_keyboard:[
  [button("📈 Forecast","forecast"),button("💰 Savings","savings")],
  [button("🔄 Sync Check","sync"),button("⚙️ Settings","settings")],
  [button("🗄️ Backups","backups"),button("🛡️ Edit History","history")],
- [button("🔐 Edit Mode","e:open"),button("🟢 Status","status")],
+ [button("🎉 Malayalam Greetings","wishes"),button("🔐 Edit Mode","e:open")],
+ [button("🟢 Status","status")],
  [button("ℹ️ Help & Privacy","help"),button("🏠 Main Menu","menu")]
 ]});
 const accountKeyboard=()=>({inline_keyboard:[
@@ -574,6 +576,7 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  else if(action==="history")report=await auditText(updated);
  else if(action==="backups")report=await backupText();
  else if(action==="alerts")report=alertPreview(plan,updated,await botPreferences(owner));
+ else if(action==="wishes")report=wishesPreviewText();
  else if(action==="settings"){const prefs=await botPreferences(owner);report=settingsText(prefs);kb=settingsKeyboard(prefs);}
  else if(action==="pref:threshold") {
   report="💰 <b>CHANGE LOW-CASH THRESHOLD</b>\n━━━━━━━━━━━━━━━━━━\nSend a command such as:\n\n<code>/threshold 1500</code>\n\nThe threshold is based on estimated recorded cash, not your actual bank balance.";
@@ -673,7 +676,7 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
   kb={inline_keyboard:[[button("🔐 Edit Mode","e:open"),button("🔒 Lock Now","e:lock")],[button("🏠 Main Menu","menu")]]};
  }
  else if(action==="help"){
-  report="🧭 <b>COMMANDS</b>\n/start · /quick · /dashboard · /accounts · /lending · /investments · /emi · /month · /reports · /range · /rangepdf · /search · /alerts · /more · /edit · /lock · /sync · /status\n\nExamples:\n<code>/search Amazon</code>\n<code>/range 2026-11-01 2026-11-30</code>\n\nOnly the owner can use this bot. Edit Mode is PIN protected. Use /refreshmenu to restore the slash-command list.";
+  report="🧭 <b>COMMANDS</b>\n/start · /quick · /dashboard · /accounts · /lending · /investments · /emi · /month · /reports · /range · /rangepdf · /search · /alerts · /wishes · /more · /edit · /lock · /sync · /status\n\nExamples:\n<code>/search Amazon</code>\n<code>/range 2026-11-01 2026-11-30</code>\n\nOnly the owner can use this bot. Edit Mode is PIN protected. Use /refreshmenu to restore the slash-command list.";
   kb=moreKeyboard();
   kb=homeKeyboard();
  }
@@ -684,6 +687,7 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  await message(token,owner,report||"Please choose an option.",kb,messageId);
 }
 async function scheduled(kind:string,token:string,owner:string) {
+ if(kind==="wishes")return await sendTodayWish(token,owner);
  const {plan,updated}=await syncedPlan();const today=keyDate();
  if(kind==="alerts"){return await sendAlerts(token,owner,plan,updated);}
  if(kind==="daily"){
@@ -1067,6 +1071,7 @@ async function configureOwnerCommands(token:string,owner:string) {
   ["month","This month's report"],["emi","Upcoming EMI and advance plans"],
   ["reports","Reports and private PDFs"],["range","Custom reporting dates"],
   ["search","Find synced transactions"],["alerts","Payment reminders"],
+  ["wishes","Annual Malayalam special days"],
   ["edit","PIN-protected entry editing"],["lock","Lock Edit Mode now"],
   ["sync","Check cloud snapshot"],["more","All other tools"],
   ["refreshmenu","Refresh the private menu"],["help","Help and privacy"]
@@ -1347,6 +1352,42 @@ async function sendAlerts(token:string,owner:string,plan:AnyRow,updated:string) 
  }
  return {delivered};
 }
+function wishesPreviewText(date=keyDate()) {
+ const day=date.slice(5);
+ const today=wishForDate(date);
+ const next=[
+  ...WISHES.filter(([monthDay]:[string,string,string])=>monthDay>day).map(([md,title]:[string,string,string])=>[date.slice(0,4)+"-"+md,title]),
+  ...WISHES.filter(([monthDay]:[string,string,string])=>monthDay<=day).map(([md,title]:[string,string,string])=>[String(Number(date.slice(0,4))+1)+"-"+md,title])
+ ].slice(0,3);
+ const lines=["🎉 <b>വാർഷിക ദിനാശംസകൾ</b>","━━━━━━━━━━━━━━━━━━"];
+ if(today)lines.push("📅 "+escape(date),"<b>"+escape(today.title)+"</b>",escape(today.message));
+ else lines.push("ഇന്ന് പട്ടികയിൽ പ്രത്യേക ദിനമില്ല.");
+ lines.push("","<b>അടുത്ത ദിനങ്ങൾ</b>",...next.map(([when,title]:string[])=>"• "+escape(when)+" · "+escape(title)));
+ lines.push("","<i>നിങ്ങൾ നൽകിയ 67 ദിനങ്ങളിൽ രാവിലെ 8:00-ന് (IST) ഓരോ വർഷവും സ്വമേധയാ അയയ്ക്കുന്നതാണ്. ഇവിടെ കാണുന്നത് പ്രിവ്യൂ മാത്രം.</i>");
+ return lines.join("\n");
+}
+async function sendTodayWish(token:string,owner:string,date=keyDate()) {
+ const wish=wishForDate(date);
+ if(!wish)return {skipped:true,reason:"not_a_listed_day",delivered:0};
+ const key="malayalam-wish:"+date,client=adminClient();
+ // Unique (owner_chat_id, alert_key) reserves the date atomically across retries.
+ const {error:reserveError}=await client.from("tracker_bot_sent_alerts")
+  .insert({owner_chat_id:owner,alert_key:key,delivered_at:new Date().toISOString()});
+ if(reserveError) {
+  if(reserveError.code==="23505")return {skipped:true,reason:"already_sent_or_reserved",delivered:0};
+  throw Error("Unable to reserve Malayalam greeting delivery");
+ }
+ try {
+  await message(token,owner,"🎉 <b>"+escape(wish.title)+"</b>\n📅 "+escape(date)+"\n\n"+escape(wish.message));
+ }catch(e){
+  // A definite Telegram failure can be retried; log cleanup problems without revealing secrets.
+  const {error:cleanupError}=await client.from("tracker_bot_sent_alerts")
+   .delete().eq("owner_chat_id",owner).eq("alert_key",key);
+  if(cleanupError)console.error("Malayalam greeting reservation cleanup failed");
+  throw e;
+ }
+ return {skipped:false,delivered:1};
+}
 function alertPreview(plan:AnyRow,updated:string,prefs:AnyRow){
  const items=alertItems(plan,updated,prefs);
  return "🔔 <b>CURRENT ALERT PREVIEW</b>\n━━━━━━━━━━━━━━━━━━\n"+
@@ -1365,11 +1406,11 @@ Deno.serve(async (request:Request) => {
   if(cron && (await sha(cron))===CRON_HASH) {
    const payload=await request.json();
    if(payload?.kind==="branding")return respond(await configureBranding(token,owner));
-   if(!["daily","monthly","alerts"].includes(payload?.kind))return respond({error:"invalid_period"},400);
+   if(!["daily","monthly","alerts","wishes"].includes(payload?.kind))return respond({error:"invalid_period"},400);
    const outcome=await scheduled(payload.kind,token,owner);
    return respond({ok:true,kind:payload.kind,skipped:outcome?.skipped===true,
      delivered:typeof outcome?.delivered==="number"?outcome.delivered:null,
-     sent:outcome?.skipped===true?false:(payload.kind==="alerts"?((outcome?.delivered??0)>0):true)});
+     sent:outcome?.skipped===true?false:((payload.kind==="alerts"||payload.kind==="wishes")?((outcome?.delivered??0)>0):true)});
   }
   if(!hook||(await sha(hook))!==HOOK_HASH)return respond({error:"forbidden"},403);
   const update=await request.json();
@@ -1397,7 +1438,7 @@ Deno.serve(async (request:Request) => {
    "/pdf":"pdfmenu","/reports":"reports","/range":"ranges","/search":"search",
    "/status":"status","/pdfdaily":"pdfday","/pdfmonth":"pdfmonth","/add":"/edit",
    "/dashboard":"dashboard","/reconcile":"reconcile","/compare":"compare","/forecast":"forecast",
-   "/sync":"sync","/alerts":"alerts","/settings":"settings","/reminders":"alerts",
+   "/sync":"sync","/alerts":"alerts","/wishes":"wishes","/settings":"settings","/reminders":"alerts",
    "/history":"history","/backups":"backups","/edit":"/edit","/lock":"/lock","/cancel":"/cancel"
   };
   if(raw==="/start"||raw==="/refreshmenu"){
