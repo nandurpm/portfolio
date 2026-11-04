@@ -78,9 +78,6 @@ test('inline validation, pending request and authentication errors use the real 
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByText('Enter a valid email address.', { exact: true })).toBeVisible();
   await page.getByLabel('Email address').fill('synthetic@example.invalid');
-  await page.getByLabel('Password', { exact: true }).fill('short');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.getByText('Use your app password (at least 8 characters).')).toBeVisible();
   await page.getByLabel('Password', { exact: true }).fill('Synthetic-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Signing in…', exact: true })).toBeDisabled();
@@ -90,6 +87,27 @@ test('inline validation, pending request and authentication errors use the real 
   await expect(page.getByRole('alert')).toContainText('Incorrect email or password');
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
+});
+
+test('legacy short passwords reach the auth server rather than being blocked by the UI', async ({ page }) => {
+  let submittedPassword = '';
+  await page.route('https://*.supabase.co/**', async (route) => {
+    if (!route.request().url().includes('/token')) {
+      await route.abort();
+      return;
+    }
+    submittedPassword = (route.request().postDataJSON() as { password: string }).password;
+    await route.fulfill({
+      status: 400,
+      json: { error: 'invalid_grant', error_description: 'Invalid login credentials' },
+    });
+  });
+  await page.goto('/');
+  await page.getByLabel('Email address').fill('synthetic@example.invalid');
+  await page.getByLabel('Password', { exact: true }).fill('short');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Incorrect email or password');
+  expect(submittedPassword).toBe('short');
 });
 
 test('bundle startup failure offers retry without a blank page', async ({ page }) => {

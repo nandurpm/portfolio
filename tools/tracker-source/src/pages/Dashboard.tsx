@@ -1,4 +1,5 @@
-import { reportCategories } from '../domain/ledger';
+import { ledgerPeriod, reportCategories } from '../domain/ledger';
+import { archivedEntryCount } from '../domain/archive';
 import { FinancialPosition } from '../components/FinancialPosition';
 import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
@@ -210,7 +211,8 @@ export default function Dashboard({
     status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
   const monthStart = `${m}-01`,
     monthEndDate = date < monthEnd(m) ? date : monthEnd(m),
-    entryCount = p.entries.filter((entry) => entry.date >= monthStart && entry.date <= monthEndDate).length,
+    entryCount = p.entries.filter((entry) => entry.date >= monthStart && entry.date <= monthEndDate).length + ledgerPeriod(p, monthStart, monthEndDate).count,
+    archivedCount = archivedEntryCount(p),
     budgetUsed = full.expenses > 0 ? Math.round((act.expenses / full.expenses) * 100) : 0,
     budgetBar = Math.min(100, Math.max(0, budgetUsed)),
     incomeGap = Math.max(0, full.income - act.income);
@@ -298,9 +300,9 @@ export default function Dashboard({
             <small>{incomeGap > 0 ? 'planned income not yet recorded' : 'planned income fully recorded'}</small>
           </article>
           <article className="dashboard-pulse-item">
-            <span className="dashboard-pulse-label">Entries this month</span>
+            <span className="dashboard-pulse-label">Recorded activity this month</span>
             <strong>{entryCount}</strong>
-            <small>{entryCount === 1 ? 'entry' : 'entries'} recorded in the selected month</small>
+            <small>{entryCount === 1 ? 'record' : 'records'} from Daily Entries and Accounts</small>
           </article>
         </div>
       </section>
@@ -317,6 +319,11 @@ export default function Dashboard({
         </Suspense>
       </section>
       <FinancialPosition onManage={()=>navigate('accounts')}/>
+      {archivedCount > 0 && (
+        <div className="callout" role="status">
+          <strong>{archivedCount} archived {archivedCount === 1 ? 'entry is' : 'entries are'} excluded from plan totals.</strong> They remain available in your full backup and archived history.
+        </div>
+      )}
       {date > today() && (
         <div className="callout preview-banner" role="status">
           <strong>Future report preview</strong> · Reporting through {displayDate(date)}. Actuals

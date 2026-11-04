@@ -291,7 +291,11 @@ describe('reconciliation and separate bill reserves', () => {
     expect(forecast(e.data).map((r) => r.living)).toEqual([0, 100, 0, 100]);
     expect(provisionResult(e.data, e.data.provisions![0]!, '2026-11-09').reserve).toBe(0);
     expect(provisionResult(e.data, e.data.provisions![0]!, '2026-11-10').reserve).toBe(50);
-    e = commit(e, 'Actual bill', (d) => d.entries.push(record('bill', '2026-12-05', 100, 'bill')));
+    e = commit(e, 'Actual bill', (d) => d.entries.push({
+      ...record('bill', '2026-12-05', 100, 'bill'),
+      provisionId: 'provision',
+      billDueMonth: '2026-12',
+    }));
     expect(provisionResult(e.data, e.data.provisions![0]!, '2026-12-10')).toEqual({
       allocations: 100,
       payments: 100,

@@ -8,7 +8,9 @@ import { useEnvelope } from '../store';
 import { Modal, useUi } from '../components/UI';
 import { WEB_APP } from '../web-mode';
 import { WebSignIn } from './WebSignIn';
-const WEB_RECOVERY_REDIRECT = 'https://nandakumarm.dpdns.org/track/?recovery=1';
+const WEB_RECOVERY_REDIRECT = typeof window === 'undefined'
+  ? undefined
+  : new URL('/track/?recovery=1', window.location.origin).toString();
 const summary = (value: unknown) =>
   value === undefined
     ? 'Deleted'
