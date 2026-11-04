@@ -1,4 +1,5 @@
 import { userError } from '../domain/user-error';
+import { archivedEntryCount } from '../domain/archive';
 import { WEB_APP } from "../web-mode";
 import { useState } from "react";
 import {
@@ -54,6 +55,7 @@ export default function Reports() {
     [remap, setRemap] = useState<Record<string, string>>({}),
     [pdfPreview, setPdfPreview] = useState(false);
   const [start, end] = exportRange(p);
+  const archivedCount = archivedEntryCount(p);
   const reportEntries = p.entries.filter((e) => e.date >= start && e.date <= end);
   const reportPreview = {
     entries: reportEntries.length,
@@ -167,6 +169,11 @@ export default function Reports() {
         description="Move between Excel and the app, share a report, or keep a complete backup."
         action={<RangeControl kind="view" />}
       />
+      {archivedCount > 0 && (
+        <div className="callout" role="status">
+          <strong>{archivedCount} archived {archivedCount === 1 ? 'entry is' : 'entries are'} excluded from plan totals.</strong> Full backups still include these records; export range filters can exclude them from selected reports.
+        </div>
+      )}
       <div className="export-range">
         <span>
           Export range{" "}
