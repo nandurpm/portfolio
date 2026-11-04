@@ -39,12 +39,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $installer = 'tools/tracker-source/release/installers/Savings-and-Expense-Tracker-Setup-2.2.0.exe'
+          $version = (Get-Content 'tools/tracker-source/package.json' -Raw | ConvertFrom-Json).version
+          $installer = "tools/tracker-source/release/installers/Savings-and-Expense-Tracker-Setup-$version.exe"
           if (-not (Test-Path -LiteralPath $installer)) { throw "Installer was not generated: $installer" }
-          $version = (Get-Item -LiteralPath $installer).VersionInfo.ProductVersion
-          if ($version -notlike '2.2.0*') { throw "Unexpected installer version: $version" }
+          $productVersion = (Get-Item -LiteralPath $installer).VersionInfo.ProductVersion
+          if ($productVersion -notlike "$version*") { throw "Unexpected installer version: $productVersion" }
           Get-FileHash -Algorithm SHA256 -LiteralPath $installer | Format-List
-          gh release upload tracker-v2.2.0 $installer --repo $env:GITHUB_REPOSITORY --clobber
+          gh release upload "tracker-v$version" $installer --repo $env:GITHUB_REPOSITORY --clobber
   build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
