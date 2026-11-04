@@ -451,7 +451,7 @@ export default function Accounts() {
             if (
               await confirm(
                 "Use named account opening balances?",
-                `Opening savings will become ${money(total)}. For example, SBI ₹2,000 plus a separate Railway Wallet ₹700 totals ₹2,700. Account opening edits will update the Dashboard automatically. No income or expenses will be created.`,
+                `Opening savings will become ${money(total)}. For example, a bank opening of ₹1,000 plus a separate wallet opening of ₹250 totals ₹1,250. Account opening edits will update the Dashboard automatically. No income or expenses will be created.`,
                 false,
                 "Use account openings",
               )

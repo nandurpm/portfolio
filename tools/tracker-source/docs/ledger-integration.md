@@ -40,7 +40,7 @@ Account forms expose notes, active/archive status and resulting-balance previews
 - F4: reporting-only Uncategorized income/expense rows reconcile breakdowns with aggregate totals in Dashboard, monthly activity, charts and printed/XLSX reports. Negative refund/correction categories have an accessible net-category table beside the positive-spending pie.
 - F5: category existence, stream compatibility and installment restrictions are checked centrally. Mixed withdrawal interest and fees have independent income and expense categories. Refunds inherit the original purchase category.
 
-The live linked-account gate was not bypassed or cleared. Once the user signed in, the authorized SBI/wallet clarification was saved: SBI opening ₹2,000 plus separate Railway Wallet ₹700; eight recorded UPI expenses totaling ₹594 assigned to SBI. The observed Dashboard cash became ₹2,106, named account cash matched, unallocated cash became zero, and net savings remained −₹594. Future entries were not rewritten.
+The live linked-account gate was not bypassed or cleared. After the user signed in, the authorized opening balance and account attribution corrections were saved. Dashboard cash and named account totals matched, the allocation difference was zero, and net savings was unchanged by account assignment. Future entries were preserved. Live financial values are omitted from these public notes.
 
 ### Backend verification scope
 
