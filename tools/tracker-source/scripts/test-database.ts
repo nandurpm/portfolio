@@ -123,8 +123,31 @@ assert.equal(
 checks++;
 assert.equal((await save(a, 3, crypto.randomUUID())).revision, 4);
 checks++;
-await sql(await fs.readFile('docs/audit/proposed/preserve-optional-fields.sql', 'utf8'));
+// Reproduce S2 against the copied production RPC in a disposable database only.
+const accountsModern = {...structuredClone(data),accounts:[],ledgerTransactions:[]};
+assert.equal((await save(b,1,crypto.randomUUID(),accountsModern)).revision,2);checks++;
+assert.equal((await save(b,2,crypto.randomUUID(),data)).revision,3,'Baseline RPC accepts a legacy payload omitting enabled ledgers');checks++;
+await sql(await fs.readFile('database/guards/preserve-modern-ledgers.sql', 'utf8'));
+assert.equal((await save(b,3,crypto.randomUUID(),accountsModern)).revision,4);checks++;
+await denied(save(b,4,crypto.randomUUID(),data),'Guard rejects a legacy payload omitting enabled account ledgers');
+const omittedTransactions=structuredClone(accountsModern) as Partial<typeof accountsModern>;
+delete omittedTransactions.ledgerTransactions;
+await denied(save(b,4,crypto.randomUUID(),omittedTransactions),'Paired ledger must remain enabled');
+
 await denied(save(a, 4, crypto.randomUUID(), orphan), 'Proposed guard rejects orphan receipt');
+const allocated = {...structuredClone(data),accounts:[{id:'synthetic-bank',name:'Synthetic bank',kind:'bank',openingBalance:500,active:true,note:''}],ledgerTransactions:[],settings:{...data.settings,openingFromAccounts:true},entries:[{id:'allocated-entry',date:'2026-11-01',categoryId:'bill',amount:1,payment:'Bank',description:'Synthetic',notes:'',accountId:'synthetic-bank'}]};
+assert.equal((await save(b,4,crypto.randomUUID(),allocated)).revision,5);checks++;
+const missingAssignment=structuredClone(allocated);
+delete (missingAssignment.entries[0] as Record<string,unknown>).accountId;
+await denied(save(b,5,crypto.randomUUID(),missingAssignment),'Legacy client cannot strip account assignment');
+const missingOpeningSource=structuredClone(allocated);
+delete (missingOpeningSource.settings as Record<string,unknown>).openingFromAccounts;
+await denied(save(b,5,crypto.randomUUID(),missingOpeningSource),'Legacy client cannot strip account opening source');
+const categorized={...structuredClone(allocated),ledgerTransactions:[{id:'categorized-ledger',date:'2026-11-01',kind:'expense',sourceAccountId:'synthetic-bank',amount:1,expenseCategoryId:'bill',description:'Synthetic',note:''}]};
+assert.equal((await save(b,5,crypto.randomUUID(),categorized)).revision,6);checks++;
+const missingCategory=structuredClone(categorized);
+delete (missingCategory.ledgerTransactions[0] as Record<string,unknown>).expenseCategoryId;
+await denied(save(b,6,crypto.randomUUID(),missingCategory),'Legacy client cannot strip expense stream category');
 const cross = structuredClone(data);
 cross.entries.push({ ...orphan.entries[0]!, id: 'cross', loanRowId: 'row-1', categoryId: 'bill' });
 cross.loan.rows[1]!.paidAmount = 1;
@@ -186,7 +209,7 @@ assert.equal(await as('authenticated', a, 'SELECT revision FROM public.tracker_p
 checks++;
 
 checks++;
-assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '1');
+assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '6');
 checks++;
 console.log(
   JSON.stringify({

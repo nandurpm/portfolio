@@ -1,3 +1,4 @@
+import { reportCategories } from './ledger';
 import type { Category, Plan } from './types';
 import { actual, actualCategory, categoryPlan, reportDate, round } from './calculate';
 import { installmentTasks } from './insights';
@@ -46,7 +47,7 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
 
 /** All totals are from recorded transactions, never a daily budget allocation. */
 export function monthlyChecklistView(p: Plan, month: string, cutoff = reportDate(p)) {
-  const items = p.categories
+  const items = reportCategories(p)
     .filter((c) =>
       c.active &&
       c.role !== 'emi' &&

@@ -1,3 +1,4 @@
+import { ledgerPostingFlow } from '../domain/ledger';
 import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
 import type ExcelJS from 'exceljs';
@@ -447,6 +448,7 @@ export function readCSV(
   const p = structuredClone(base),
     rows = parseCSV(text),
     head = rows.shift() ?? [];
+  if(head.includes('Record type') && head.includes('Movement type')) throw Error('Accounts activity CSV is an audit export, not a Daily Entries import. Restore the JSON or Excel backup to preserve account movements.');
   const parsed = importRows(rows, head, p, map, 2, true);
   p.entries = parsed.entries;
   return {
@@ -498,4 +500,19 @@ export function compareImported(p: Plan) {
     ),
     closing: forecast(p).at(-1)?.cash,
   };
+}
+
+/** Companion audit export. Deliberately not a Daily Entries import format. */
+export function ledgerCsvExport(p: Plan, start=p.settings.planStart,end=p.settings.planEnd) {
+ const quote=(v:unknown)=>'"'+String(v ?? '').replace(/"/g,'""')+'"';
+ const safe=(v:unknown)=>typeof v === 'string' && /^['=+@\-\t\r]/.test(v) ? "'"+v : v;
+ const name=(id?:string)=>p.accounts?.find(a=>a.id === id)?.name ?? '';
+ const category=(id?:string)=>p.categories.find(c=>c.id === id)?.name ?? 'Uncategorized';
+ const rows:unknown[][]=[['Record type','ID','Date','Movement type','Description','Principal / amount','Interest','Fees','Source account','Destination account','Income effect','Expense effect','Income category','Expense category','Provision ID','Bill due month','Reversal of ID','Note']];
+ for(const row of p.ledgerTransactions ?? []) {
+  if(row.date < start+'-01' || row.date > monthEnd(end))continue;
+  const flow=ledgerPostingFlow(p,row);
+  rows.push(['Account ledger',row.id,row.date,row.kind,row.description,row.amount,row.interestAmount ?? 0,row.feeAmount ?? 0,name(row.sourceAccountId),name(row.destinationAccountId),flow.income,flow.expenses,category(flow.incomeCategoryId),category(flow.expenseCategoryId),row.provisionId,row.billDueMonth,row.reversalOfId,row.note]);
+ }
+ return '\uFEFF'+rows.map(r=>r.map(v=>quote(safe(v))).join(',')).join('\r\n');
 }

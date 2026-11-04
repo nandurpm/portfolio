@@ -1,3 +1,4 @@
+import { reportCategories } from '../domain/ledger';
 import { currencyAxis } from '../domain/display';
 import {
   ResponsiveContainer,
@@ -66,10 +67,12 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
       r.month <= p.settings.viewEnd &&
       r.month <= date.slice(0, 7),
     );
-  const expense = p.categories
+  const expenseRows = reportCategories(p)
     .filter((c) => c.group !== 'Income')
     .map((c) => ({ name: c.name, value: actualCategory(p, c, p.settings.selectedMonth, date) }))
-    .filter((c) => c.value > 0);
+    .filter((c) => c.value !== 0);
+  const expense = expenseRows.filter(c=>c.value>0);
+  const negativeAdjustments = round(expenseRows.filter(c=>c.value<0).reduce((sum,c)=>sum+c.value,0));
   const empty = (
     <Empty
       title="Your story starts here"
@@ -161,13 +164,13 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
         <>
           <Section
             title="Where your money goes"
-            caption={`Actual expenses · ${monthLabel(p.settings.selectedMonth)}`}
+            caption={`Positive spending by category · ${monthLabel(p.settings.selectedMonth)}. Net refunds/corrections in negative categories: ${money(negativeAdjustments)}.`}
           >
             <div className="chart-box">
               {!expense.length ? (
                 <Empty
-                  title="No expenses yet"
-                  detail="Choose a category when you add a transaction."
+                  title="No positive spending in this period"
+                  detail="Refunds and corrections are included in the net category table below."
                 />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
@@ -196,6 +199,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 </ResponsiveContainer>
               )}
             </div>
+            <div className="table-scroll" tabIndex={0} role="region" aria-label="Expense category detail"><table className="data-table" aria-label="Net expense category totals"><thead><tr><th>Category</th><th>Net expenses</th></tr></thead><tbody>{expenseRows.map(c=><tr key={c.name}><td>{c.name}</td><td>{money(c.value)}</td></tr>)}</tbody></table></div>
           </Section>
         </>
       )}

@@ -55,7 +55,7 @@ await run('psql', [
   '--set',
   'ON_ERROR_STOP=1',
   '--command',
-  await fs.readFile('docs/audit/proposed/preserve-optional-fields.sql', 'utf8'),
+  await fs.readFile('database/guards/preserve-modern-ledgers.sql', 'utf8'),
 ]);
 const key = status.ANON_KEY ?? status.PUBLISHABLE_KEY,
   secret = status.SERVICE_ROLE_KEY ?? status.SECRET_KEY;

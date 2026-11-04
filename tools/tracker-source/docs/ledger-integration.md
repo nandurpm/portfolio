@@ -23,3 +23,27 @@ FDs/investments remain at recorded cost; the account form explicitly labels this
 ## Verification
 
 Synthetic integration tests cover shared dashboard totals, assigned Entries, opening balance allocation, future cutoffs, liquid transfers, liability sign, card purchase/payment, borrowing/FD fees and interest, cross-month refunds, type/date rejection, PF/loan inclusion, linked-loan deduplication and reversible edits/removal. No live financial records are created or changed by these tests.
+
+## Financial-position completion
+
+Both pages now use the same Financial position component, including named liquid cash, unallocated difference, Entries without an account, PF, loan principal, noncash assets, earmarked cash and spendable cash. Allocation differences show a warning rather than suggesting a fictitious income adjustment.
+
+An explicit opt-in makes named cash/bank/wallet openings the authoritative opening total. Subsequent account opening corrections update the total in the same audited operation. Archived accounts retain their balances. The manual opening field becomes read-only until manual mode is deliberately restored.
+
+Account forms expose notes, active/archive status and resulting-balance previews. An edit confirmation shows the opening correction. Account history is accessible from the Accounts page. Postings covered by a saved reconciliation, and originals referenced by a reversal, cannot be silently edited or removed. A dated inverse transaction preserves the original posting and adjusts all balance, income, expense and cash calculations using the original amounts. Corrections require a reason, cannot precede the original and cannot be applied twice.
+
+## Independent audit regressions F1–F5
+
+- F1: Accounts rejects EMI/closure categories centrally and directs users to Loan & Closure. It does not fabricate an installment receipt or bypass cumulative overpayment checks.
+- F2: provision receipts combine Entries and eligible account bill purchases/refunds/reversals once. Ledger bill payments can identify their provision and due month, including advance payments. Fees on unrelated movements are not treated as utility bills.
+- F3: visible XLSX Accounts activity and a companion Accounts activity CSV preserve movement types, principal, interest, fees, flow effects, categories and correction references. The Entries CSV remains compatible with its importer. The activity CSV explicitly refuses Daily Entries import so transfers cannot be flattened into expenses.
+- F4: reporting-only Uncategorized income/expense rows reconcile breakdowns with aggregate totals in Dashboard, monthly activity, charts and printed/XLSX reports. Negative refund/correction categories have an accessible net-category table beside the positive-spending pie.
+- F5: category existence, stream compatibility and installment restrictions are checked centrally. Mixed withdrawal interest and fees have independent income and expense categories. Refunds inherit the original purchase category.
+
+The live linked-account gate was not bypassed or cleared. After the user signed in, the authorized opening balance and account attribution corrections were saved. Dashboard cash and named account totals matched, the allocation difference was zero, and net savings was unchanged by account assignment. Future entries were preserved. Live financial values are omitted from these public notes.
+
+### Backend verification scope
+
+Read-only production metadata showed the existing restricted-owner RPC, but no preservation trigger on tracker_plans. The copied production RPC is exercised by the disposable PostgreSQL harness: a modern payload followed by a legacy payload reproduces enabled-ledger omission, then the new guard rejects the same omission while preserving revision/data. Additional cases protect Entry account attribution, category-stream fields and account-derived opening source. No defect reproduction is run against a real customer's plan.
+
+Leaked-password protection is unavailable on the connected Free plan (official Supabase documentation limits it to Pro and above). No paid upgrade, password change, broader policy or account-clearing action is performed. Native signed releases, external Lighthouse measurements and production cross-user impersonation remain outside the web fix verification.

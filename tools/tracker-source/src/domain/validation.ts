@@ -1,7 +1,7 @@
 import { isPaise } from './money-precision';
 import { z } from 'zod';
 import { validatePfMovements } from './employment';
-import { validateLedger } from './ledger';
+import { validateLedger, validateLedgerCategories } from './ledger';
 import { validDate, validMonth, monthsBetween, inRange } from './dates';
 import { isAppFormat, type Plan, type Entry } from './types';
 const nonnegative = z.number().finite().min(0).max(1e12),
@@ -61,12 +61,17 @@ export const planSchema = z.object({
     note: z.string().max(1000),
   })).max(1000).optional(),
   ledgerTransactions: z.array(z.object({
+    incomeCategoryId: z.string().optional(),
+    expenseCategoryId: z.string().optional(),
+    provisionId: z.string().optional(),
+    billDueMonth: z.union([z.literal(''),month]).optional(),
+    reversalOfId: z.string().min(1).optional(),
     id: z.string().min(1),
     date,
     kind: z.enum(['income', 'expense', 'transfer', 'lend', 'repayment-received', 'borrow',
       'principal-repayment', 'fd-deposit', 'fd-withdrawal', 'investment-deposit',
       'investment-withdrawal', 'shopping', 'refund', 'credit-card-purchase',
-      'credit-card-payment']),
+      'credit-card-payment', 'reversal']),
     amount: z.number().finite().positive().max(1e12),
     sourceAccountId: z.string().min(1).optional(),
     destinationAccountId: z.string().min(1).optional(),
@@ -138,6 +143,7 @@ export const planSchema = z.object({
     .optional(),
   schemaVersion: z.literal(1),
   settings: z.object({
+    openingFromAccounts: z.boolean().optional(),
     emiPreviousMonth: z.boolean().optional(),
     planStart: month,
     planEnd: month,
@@ -206,6 +212,7 @@ export function validatePlan(p: unknown): Plan {
     throw Error('Accounts and ledger transactions must be enabled together.');
   if (v.accounts) {
     validateLedger(v.accounts, v.ledgerTransactions ?? []);
+    validateLedgerCategories(v as Plan);
     for (const e of v.entries) if (e.accountId && !v.accounts.some(a => a.id === e.accountId && ['bank','cash','wallet'].includes(a.kind))) throw Error('An entry refers to a missing cash, bank or wallet account.');
     const links = v.accounts.filter(a => a.planLoanId).map(a => a.planLoanId);
     if (new Set(links).size !== links.length) throw Error('Each plan loan can be linked to only one account.');
