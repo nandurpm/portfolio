@@ -34,11 +34,8 @@ export function WebSignIn({
     : emailInput.current?.validity.typeMismatch
       ? 'Enter a valid email address.'
       : '';
-  const passwordError = !password
-    ? 'Enter your password.'
-    : password.length < 8
-      ? 'Use your app password (at least 8 characters).'
-      : '';
+  // Existing accounts may have legacy shorter passwords. The auth server decides.
+  const passwordError = !password ? 'Enter your password.' : '';
   const authError = /fetch|network|load failed/i.test(error)
     ? 'We couldn’t sign you in. Check your connection and try again.'
     : error;
@@ -109,7 +106,6 @@ export function WebSignIn({
               type={show ? 'text' : 'password'}
               autoComplete="current-password"
               required
-              minLength={8}
               readOnly={busy}
               value={password}
               aria-invalid={touched.password && !!passwordError}
