@@ -30,6 +30,8 @@ jobs:
         run: npm run lint && npm test && npm run typecheck:quality
         working-directory: tools/tracker-source
       - name: Build Windows installer
+        env:
+          INNO_COMPILER: C:\Program Files (x86)\Inno Setup 6\ISCC.exe
         run: npm run dist:win
         working-directory: tools/tracker-source
       - name: Verify installer metadata and publish

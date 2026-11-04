@@ -47,6 +47,7 @@ import { errorMessage } from "./domain/user-errors";
 import { cumulative, progress } from "./domain/calculate";
 import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
+import { ReleaseUpdate } from "./components/ReleaseUpdate";
 import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic } from "./celebrations";
 import { themePresets } from "./theme-presets";
@@ -325,6 +326,7 @@ export function Shell() {
   return (
     <MotionConfig reducedMotion={p.settings.animations ? "user" : "always"}>
       <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <ReleaseUpdate />
         <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{current.name} screen</div>
         <a className="skip-link" href="#main-content">
           Skip to content

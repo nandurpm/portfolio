@@ -4714,3 +4714,5 @@ body:has(.app-shell),
     overscroll-behavior-y: auto;
   }
 }
+.progress-range-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}.progress-range-control>span{font-weight:700}.progress-range-control label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px}.progress-range-control select{min-width:150px}.update-release-copy{max-width:560px}
+@media(max-width:700px){.progress-range-control{align-items:stretch}.progress-range-control>span{width:100%}.progress-range-control label{justify-content:space-between}.progress-range-control select{min-width:0;flex:1}.progress-range-control .button{width:100%;justify-content:center}}

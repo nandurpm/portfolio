@@ -689,7 +689,11 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
 async function scheduled(kind:string,token:string,owner:string) {
  if(kind==="wishes")return await sendTodayWish(token,owner);
  const {plan,updated}=await syncedPlan();const today=keyDate();
- if(kind==="alerts"){return await sendAlerts(token,owner,plan,updated);}
+ if(kind==="alerts"){
+  const alerts=await sendAlerts(token,owner,plan,updated);
+  const release=await sendReleaseUpdate(token,owner);
+  return {delivered:alerts.delivered+release.delivered};
+ }
  if(kind==="daily"){
   if(!isInPlan(plan,today.slice(0,7)))return {skipped:true,reason:"plan_not_started_or_ended"};
   await message(token,owner,"⏰ <b>Scheduled 9 PM report</b>\n\n"+reportText(plan,"day",today,updated),homeKeyboard());
@@ -701,6 +705,33 @@ async function scheduled(kind:string,token:string,owner:string) {
   if((await botPreferences(owner)).monthly_pdf_enabled)await sendPdf(token,owner,plan,"month",prev+"-01",updated);
  }
  else throw Error("Invalid schedule type");
+}
+
+async function sendReleaseUpdate(token:string,owner:string) {
+ const response=await fetch("https://api.github.com/repos/nandurpm/portfolio/releases/latest",{
+  headers:{accept:"application/vnd.github+json","user-agent":"savings-expense-tracker-bot"},
+  signal:AbortSignal.timeout(15000)
+ });
+ if(!response.ok)return {delivered:0};
+ const release=await response.json();
+ const tag=String(release?.tag_name||"");
+ if(!/^tracker-v\d+\.\d+\.\d+$/.test(tag))return {delivered:0};
+ const key="software-release:"+tag;
+ const client=adminClient();
+ const {error}=await client.from("tracker_bot_sent_alerts").insert({owner_chat_id:owner,alert_key:key,delivered_at:new Date().toISOString()});
+ if(error){if(error.code==="23505")return {delivered:0};throw Error("Unable to reserve release notification");}
+ try {
+  const assets=Array.isArray(release.assets)?release.assets:[];
+  const apk=assets.find((asset:AnyRow)=>String(asset.name||"").endsWith(".apk"));
+  const exe=assets.find((asset:AnyRow)=>String(asset.name||"").endsWith(".exe"));
+  const links=[["ðŸ¤– Android APK",apk?.browser_download_url],["ðŸªŸ Windows installer",exe?.browser_download_url],["ðŸ“‹ Release notes",release.html_url]]
+   .filter((item)=>item[1]).map((item)=>'<a href="'+escape(String(item[1]))+'">'+item[0]+'</a>').join("\n");
+  await message(token,owner,"ðŸ†• <b>TRACKER UPDATE AVAILABLE</b>\n━━━━━━━━━━━━━━━━━━\n<b>"+escape(String(release.name||tag))+"</b> has been released.\n\n"+links+"\n\n<i>Back up the tracker before updating. Install only packages published in the official repository.</i>");
+ } catch(e) {
+  await client.from("tracker_bot_sent_alerts").delete().eq("owner_chat_id",owner).eq("alert_key",key);
+  throw e;
+ }
+ return {delivered:1};
 }
 
 // Private Edit Mode: only the configured Telegram account can enter here.
@@ -1397,7 +1428,7 @@ function alertPreview(plan:AnyRow,updated:string,prefs:AnyRow){
 
 Deno.serve(async (request:Request) => {
  if(request.method==="GET" && new URL(request.url).pathname.endsWith("/health"))
-  return respond({ok:true,service:"savings-tracker-bot",finance:"website-shared-v2.1",status:"ready"});
+  return respond({ok:true,service:"savings-tracker-bot",finance:"website-shared-v2.2.1",status:"ready"});
  if(request.method!=="POST")return respond({error:"method_not_allowed"},405);
  try {
   const {token,owner}=secrets();
