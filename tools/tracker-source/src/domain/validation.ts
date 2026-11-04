@@ -274,7 +274,7 @@ export function validatePlan(p: unknown): Plan {
     if (l.rows.some(r=>r.principal !== undefined || r.interest !== undefined || r.balance !== undefined)) {
       let balance=l.principal;
       for (const row of l.rows) {
-        if (row.principal === undefined || row.interest === undefined || row.balance === undefined || Math.abs(row.emi-row.principal-row.interest) > 0.001) throw Error('Lender schedule requires complete matching principal, interest and EMI amounts.');
+        if (row.principal === undefined || row.interest === undefined || row.balance === undefined || !isPaise(row.principal) || !isPaise(row.interest) || !isPaise(row.balance) || Math.abs(row.emi-row.principal-row.interest) > 0.001) throw Error('Lender schedule requires complete matching principal, interest and EMI amounts.');
         balance=Math.round((balance-row.principal)*100)/100;
         if(balance < 0 || Math.abs(balance-row.balance)>0.001) throw Error('Lender schedule running principal balance is inconsistent.');
       }

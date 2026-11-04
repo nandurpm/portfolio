@@ -669,8 +669,13 @@ function financialRange(p, start, end) {
 function financialCash(p, date) {
   return cumulative(p, date > monthEnd(p.settings.planEnd) ? monthEnd(p.settings.planEnd) : date).actualCash;
 }
-var financialForecast = forecast;
-var financialBudget = categoryPlan;
+function botReportPlan(p) {
+  if (!p.settings.liveDate) return p;
+  const date = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(/* @__PURE__ */ new Date());
+  return { ...p, settings: { ...p.settings, liveDate: false, reportDate: date } };
+}
+var financialForecast = (p) => forecast(botReportPlan(p));
+var financialBudget = (p, c, month) => categoryPlan(botReportPlan(p), c, month);
 var financialReconciliation = reconciliationResult;
 export {
   financialBudget,

@@ -15,6 +15,11 @@ export function financialCash(p:Plan,date:string) {
  return cumulative(p,date>monthEnd(p.settings.planEnd)?monthEnd(p.settings.planEnd):date).actualCash;
 }
 
-export const financialForecast=forecast;
-export const financialBudget=categoryPlan;
+function botReportPlan(p:Plan):Plan {
+ if (!p.settings.liveDate) return p;
+ const date=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ return {...p,settings:{...p.settings,liveDate:false,reportDate:date}};
+}
+export const financialForecast=(p:Plan)=>forecast(botReportPlan(p));
+export const financialBudget=(p:Plan,c:Parameters<typeof categoryPlan>[1],month:string)=>categoryPlan(botReportPlan(p),c,month);
 export const financialReconciliation=reconciliationResult;

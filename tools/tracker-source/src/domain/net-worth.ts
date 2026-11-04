@@ -91,7 +91,7 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
     estimated:
       (p.additionalLoans ?? []).some(l => !l.rows.every(r => r.principal !== undefined) || paymentRows(p,l.rows,date).some(r=>r.paidAmount > 0 && r.paidAmount < r.emi)) ||
       paymentRows(p, p.loan.rows, date).some(
-        (r) => r.paidAmount > 0 && r.paidAmount < r.emi,
+        (r) => (r.paidAmount > 0 && r.paidAmount < r.emi) || (r.paidBeforeOpening && r.dueDate > date),
       ),
   };
 }
