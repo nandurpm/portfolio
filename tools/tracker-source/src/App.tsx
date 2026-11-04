@@ -164,15 +164,17 @@ export function Shell() {
       (p.settings.theme === "system" &&
         matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.dataset.theme = dark ? "dark" : "light";
+    // Set the palette before computing native bar colours and cache it for the next first paint.
+    document.documentElement.dataset.palette = p.settings.palette;
     try {
       localStorage.setItem("tracker-theme", p.settings.theme);
+      localStorage.setItem("tracker-palette", p.settings.palette);
     } catch {
       /* Optional UI preference. */
     }
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute("content", dark ? "#1d2134" : "#ffffff");
-    document.documentElement.dataset.palette = p.settings.palette;
     void applySystemBarTheme(dark, {
       topColor: getComputedStyle(document.documentElement)
         .getPropertyValue("--surface")
@@ -181,7 +183,6 @@ export function Shell() {
         .getPropertyValue("--sidebar-b")
         .trim(),
     }).catch((e) => console.warn("System bar style:", e));
-    document.documentElement.dataset.palette = p.settings.palette;
     document.documentElement.dataset.animations = String(p.settings.animations);
     document.documentElement.dataset.animationIntensity = p.settings.animationIntensity ?? "balanced";
     const media = matchMedia("(prefers-color-scheme: dark)");
