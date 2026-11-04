@@ -583,7 +583,7 @@ export function Shell() {
             { id: "dashboard", name: "Home", icon: LayoutDashboard },
             { id: "entries", name: "Transactions", icon: ReceiptText },
             { id: "accounts", name: "Accounts", icon: CircleDollarSign },
-            { id: "reports", name: "Reports", icon: FileDown },
+            { id: "budget", name: "Budget", icon: WalletCards },
           ].map((x) => (
             <button
               key={x.id}
@@ -598,7 +598,7 @@ export function Shell() {
             aria-label="More screens"
             aria-expanded={more}
             aria-current={
-              ["budget", "loan", "employment", "forecast", "balances", "settings"].includes(page)
+              ["loan", "employment", "forecast", "balances", "reports", "settings"].includes(page)
                 ? "page"
                 : undefined
             }
@@ -622,7 +622,7 @@ export function Shell() {
             <div className="phone-menu">
               {pages
                 .filter((x) =>
-                  ["budget", "loan", "employment", "forecast", "balances", "settings"].includes(x.id),
+                  ["loan", "employment", "forecast", "balances", "reports", "settings"].includes(x.id),
                 )
                 .map((x) => (
                   <button

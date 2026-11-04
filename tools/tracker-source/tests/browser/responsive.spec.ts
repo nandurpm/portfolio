@@ -18,6 +18,7 @@ async function navigate(page: Page, name: string) {
     {
       Dashboard: 'Home',
       'Daily Entries': 'Transactions',
+      'Budget & Plan': 'Budget',
     } as Record<string, string>
   )[name];
   if (phoneName) {

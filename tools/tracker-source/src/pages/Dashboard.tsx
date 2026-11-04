@@ -32,6 +32,7 @@ import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../doma
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
+import { MobileRecentActivity } from '../components/MobileRecentActivity';
 const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
 const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 
@@ -306,6 +307,7 @@ export default function Dashboard({
           </article>
         </div>
       </section>
+      <MobileRecentActivity navigate={navigate} />
       <section className="dashboard-analytics" aria-labelledby="dashboard-analytics-title">
         <div className="dashboard-analytics-head">
           <div>
