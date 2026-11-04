@@ -199,7 +199,7 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
                 </ResponsiveContainer>
               )}
             </div>
-            <table className="data-table" aria-label="Net expense category totals"><thead><tr><th>Category</th><th>Net expenses</th></tr></thead><tbody>{expenseRows.map(c=><tr key={c.name}><td>{c.name}</td><td>{money(c.value)}</td></tr>)}</tbody></table>
+            <div className="table-scroll" tabIndex={0} role="region" aria-label="Expense category detail"><table className="data-table" aria-label="Net expense category totals"><thead><tr><th>Category</th><th>Net expenses</th></tr></thead><tbody>{expenseRows.map(c=><tr key={c.name}><td>{c.name}</td><td>{money(c.value)}</td></tr>)}</tbody></table></div>
           </Section>
         </>
       )}

@@ -60,7 +60,7 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
               caption="Recorded income less expenses; transfers and PF claims are excluded"
             />
           </div>
-          <div className="table-scroll">
+          <div className="table-scroll" tabIndex={0} role="region" aria-label="Financial position details">
             <table
               className="data-table"
               aria-label="Cross-module balance reconciliation"

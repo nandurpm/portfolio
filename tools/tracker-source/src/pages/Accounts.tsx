@@ -503,14 +503,14 @@ export default function Accounts() {
           caption="The original posting remains unchanged. A dated inverse posting corrects balances and income/expenses."
         >
           <Field label="Reversal date">
-            <input
+            <input aria-label="Reversal date"
               type="date"
               value={reversalDate}
               onChange={(e) => setReversalDate(e.target.value)}
             />
           </Field>
           <Field label="Correction reason">
-            <input
+            <input aria-label="Correction reason"
               value={reversalReason}
               onChange={(e) => setReversalReason(e.target.value)}
             />
@@ -548,14 +548,14 @@ export default function Accounts() {
         >
           <div className="form-grid three">
             <Field label="Account name">
-              <input
+              <input aria-label="Account name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Salary bank"
               />
             </Field>
             <Field label="Account type">
-              <select
+              <select aria-label="Account type"
                 value={accountKind}
                 onChange={(e) => setAccountKind(e.target.value as AccountKind)}
               >
@@ -568,7 +568,7 @@ export default function Accounts() {
             </Field>
             {accountKind === "liability" && (
               <Field label="Existing plan loan">
-                <select
+                <select aria-label="Existing plan loan"
                   value={linkedLoan}
                   onChange={(e) => setLinkedLoan(e.target.value)}
                 >
@@ -584,7 +584,7 @@ export default function Accounts() {
             )}
             {accountKind === "credit-card" && (
               <Field label="Credit limit">
-                <input
+                <input aria-label="Credit limit"
                   type="number"
                   min="0"
                   step="0.01"
@@ -594,7 +594,7 @@ export default function Accounts() {
               </Field>
             )}
             <Field label="Opening balance">
-              <input
+              <input aria-label="Opening balance"
                 type="number"
                 step="0.01"
                 value={opening}
@@ -603,7 +603,7 @@ export default function Accounts() {
             </Field>
           </div>
           <Field label="Account notes">
-            <textarea
+            <textarea aria-label="Account notes"
               value={accountNote}
               onChange={(e) => setAccountNote(e.target.value)}
             />
@@ -655,7 +655,7 @@ export default function Accounts() {
         >
           <div className="form-grid three">
             <Field label="Type">
-              <select
+              <select aria-label="Type"
                 value={kind}
                 onChange={(e) => {
                   setKind(e.target.value as LedgerKind);
@@ -676,14 +676,14 @@ export default function Accounts() {
               </select>
             </Field>
             <Field label="Date">
-              <input
+              <input aria-label="Date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
             </Field>
             <Field label="Amount">
-              <input
+              <input aria-label="Amount"
                 type="number"
                 min="0.01"
                 step="0.01"
@@ -693,7 +693,7 @@ export default function Accounts() {
               />
             </Field>
             <Field label="From account">
-              <select
+              <select aria-label="From account"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
               >
@@ -710,7 +710,7 @@ export default function Accounts() {
               </select>
             </Field>
             <Field label="To account">
-              <select
+              <select aria-label="To account"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
               >
@@ -732,7 +732,7 @@ export default function Accounts() {
               "investment-withdrawal",
             ].includes(kind) && (
               <Field label="Interest">
-                <input
+                <input aria-label="Interest"
                   type="number"
                   min="0"
                   step="0.01"
@@ -754,7 +754,7 @@ export default function Accounts() {
               "credit-card-payment",
             ].includes(kind) && (
               <Field label="Fees">
-                <input
+                <input aria-label="Fees"
                   type="number"
                   min="0"
                   step="0.01"
@@ -765,7 +765,7 @@ export default function Accounts() {
             )}
             {kind !== "refund" && hasIncome && (
               <Field label="Income category">
-                <select
+                <select aria-label="Income category"
                   value={incomeCategory}
                   onChange={(e) => setIncomeCategory(e.target.value)}
                 >
@@ -786,7 +786,7 @@ export default function Accounts() {
             )}
             {kind !== "refund" && hasExpenses && (
               <Field label="Expense category">
-                <select
+                <select aria-label="Expense category"
                   value={expenseCategory}
                   onChange={(e) => {
                     setExpenseCategory(e.target.value);
@@ -836,7 +836,7 @@ export default function Accounts() {
             </p>
             {kind === "refund" && (
               <Field label="Original purchase">
-                <select
+                <select aria-label="Original purchase"
                   value={original}
                   onChange={(e) => setOriginal(e.target.value)}
                 >
@@ -856,7 +856,7 @@ export default function Accounts() {
               </Field>
             )}
             <Field label="Description">
-              <input
+              <input aria-label="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional note"
