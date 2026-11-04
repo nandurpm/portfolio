@@ -1140,6 +1140,8 @@ function alertPreview(plan:AnyRow,updated:string,prefs:AnyRow){
 }
 
 Deno.serve(async (request:Request) => {
+ if(request.method==="GET" && new URL(request.url).pathname.endsWith("/health"))
+  return respond({ok:true,service:"savings-tracker-bot",finance:"website-shared-v2.1",status:"ready"});
  if(request.method!=="POST")return respond({error:"method_not_allowed"},405);
  try {
   const {token,owner}=secrets();
