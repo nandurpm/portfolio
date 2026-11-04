@@ -3859,3 +3859,7 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .progress-month-card dd { margin: 5px 0 0; font-weight: 650; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .progress-month-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.5; }
 @media (max-width: 380px) { .progress-month-card dl { grid-template-columns: 1fr; } }
+
+.position-breakdown { margin-top: 16px; }
+.position-breakdown > summary { cursor: pointer; font-weight: 600; padding: 12px 0; }
+.position-breakdown > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
