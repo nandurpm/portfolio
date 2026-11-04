@@ -14,7 +14,12 @@ assert.equal(evaluate('owns({message:{chat:{type:"private",id:123},from:{id:123,
 assert.equal(evaluate('owns({message:{chat:{type:"private",id:123},from:{id:999}}},"123")'),false);
 assert.equal(evaluate('owns({callback_query:{message:{chat:{type:"group",id:123}},from:{id:123}}},"123")'),false);
 assert.equal(evaluate('owns({callback_query:{message:{chat:{type:"private",id:123}},from:{id:123}}},"123")'),true);
-assert.equal(evaluate('homeKeyboard().inline_keyboard.flat().some(b=>b.callback_data==="e:add")'),true);
+assert.equal(evaluate('homeKeyboard().inline_keyboard.length'),5,'Compact menu: four rows and a website link');
+assert.equal(evaluate('homeKeyboard().inline_keyboard.flat().filter(b=>b.callback_data==="accounts").length'),1);
+assert.equal(evaluate('homeKeyboard().inline_keyboard.flat().filter(b=>b.callback_data==="entries").length'),0,'Entries appears under More');
+assert.equal(evaluate('quickKeyboard().inline_keyboard.flat().some(b=>b.callback_data==="e:add")'),true,'PIN-protected entry remains accessible');
+assert.equal(evaluate('moreKeyboard().inline_keyboard.flat().some(b=>b.callback_data==="entries")'),true);
+assert.equal(evaluate('reportsKeyboard().inline_keyboard.flat().some(b=>b.callback_data==="ranges")'),true);
 assert.equal(evaluate('isUnlocked({...defaultEditState("123"),pin_hash:"hash",unlocked_until:new Date(Date.now()-1).toISOString()})'),false);
 evaluate('telegram=async(method,token,body)=>{globalThis.calls.push({method,body});if(method==="getMe")return {id:1};if(method==="getUserProfilePhotos")return {total_count:1};if(method==="getMyShortDescription")return {short_description:"Your private money dashboard"};return true;}');
 sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
@@ -48,6 +53,11 @@ sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
  const command=sandbox.calls.find(c=>c.method==='setMyCommands');
  assert.equal(command.body.scope.type,'chat');assert.equal(command.body.scope.chat_id,123);
  assert.equal(sandbox.calls.filter(c=>c.method==='deleteMyCommands').length,4);
+ assert.equal(command.body.commands.some(c=>c.command==='accounts'),true);
+ assert.equal(command.body.commands.some(c=>c.command==='range'),true);
+ assert.equal(command.body.commands.some(c=>c.command==='search'),true);
+ assert.equal(command.body.commands.some(c=>c.command==='refreshmenu'),true);
+ assert.equal(command.body.commands.every(c=>/^[a-z0-9_]+$/.test(c.command)),true);
 
  sandbox.ledgerFixture={
   settings:{opening:1000,planStart:'2026-11',planEnd:'2026-12',mode:'Scheduled',emiPreviousMonth:false},
@@ -98,5 +108,29 @@ sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
  assert.match(evaluate('reportText(ledgerFixture,"month","2026-11-30","2026-11-04")'),/220\.00/);
  assert.match(evaluate('pdfLines(ledgerFixture,"month","2026-11-30","2026-11-04").join(" ")'),/ACCOUNT MOVEMENTS/);
 
- console.log('Savings bot: 27 privacy/edit checks and 7 synthetic account-ledger regression checks passed.');
+ assert.equal(evaluate('rangeValid("2026-11-01","2026-11-30")'),true);
+ assert.equal(evaluate('rangeValid("2026-11-31","2026-12-01")'),false);
+ assert.equal(evaluate('rangeValid("2026-12-01","2026-11-30")'),false);
+ assert.equal(evaluate('rangeValid("2024-01-01","2026-11-30")'),false);
+ assert.equal(evaluate('rangePreset("30","2026-11-30").from'),"2026-11-01");
+ assert.equal(evaluate('rangePreset("fy","2026-11-30").from'),"2026-04-01");
+ assert.match(evaluate('customRangeText(ledgerFixture,"2026-11-01","2026-11-30","2026-11-04")'),/220\.00/);
+ assert.match(evaluate('pdfLines(ledgerFixture,"range","2026-11-30","2026-11-04","2026-11-01","2026-11-30").join(" ")'),/2026-11-01 to 2026-11-30/);
+ assert.match(evaluate('searchTransactions(ledgerFixture,"Shopping","2026-11-04")'),/shopping/);
+ assert.match(evaluate('searchTransactions(ledgerFixture,"madeupxyz","2026-11-04")'),/No matching/);
+ assert.match(evaluate('lendingText(ledgerFixture,"2026-11-04")'),/100\.00/);
+ assert.match(evaluate('investmentsText(ledgerFixture,"2026-11-04")'),/FD/);
+ sandbox.emiFixture={...sandbox.ledgerFixture,settings:{...sandbox.ledgerFixture.settings,emiPreviousMonth:true,salaryDay:10},loan:{rows:[{id:'emi-1',dueDate:'2026-12-05',paid:false,paidBeforeOpening:false,emi:2000,paidAmount:0,paidDate:''}]},additionalLoans:[]};
+ assert.equal(evaluate('plannedEmiDate(emiFixture,loanInstallments(emiFixture)[0])'),'2026-11-10');
+ sandbox.emiFixtureNoAdvance={...sandbox.emiFixture,settings:{...sandbox.emiFixture.settings,emiPreviousMonth:false}};
+ assert.equal(evaluate('plannedEmiDate(emiFixtureNoAdvance,loanInstallments(emiFixtureNoAdvance)[0])'),'2026-12-05','Do not invent a planned date after the contractual due');
+
+ assert.match(evaluate('emiText(emiFixture,"2026-11-04")'),/Planned: 2026-11-10/);
+ sandbox.quiet={alerts_enabled:true,sync_alerts:false,budget_alerts:false,emi_reminders:true,low_balance_alerts:false};
+ assert.match(evaluate('alertItems(emiFixture,"2026-11-09",quiet,"2026-11-09").map(x=>x.html).join(" ")'),/ADVANCE EMI PLAN/);
+ sandbox.emiFixture.loan.rows[0].paidAmount=2000;sandbox.emiFixture.loan.rows[0].paidDate="2026-11-09";
+ assert.equal(evaluate('alertItems(emiFixture,"2026-11-09",quiet,"2026-11-09").filter(x=>x.key.startsWith("emi:")).length'),0,'Fully-paid EMI cannot remind again');
+
+
+ console.log('Savings bot: privacy/edit, compact menu, reports, search, account ledger and advance EMI checks passed.');
 })().catch(e=>{console.error(e);process.exitCode=1});
