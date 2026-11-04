@@ -7,11 +7,9 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 export function NearViewport({
   children,
   minHeight = 260,
-  label,
 }: {
   children: ReactNode;
   minHeight?: number;
-  label: string;
 }) {
   const target = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(() => typeof IntersectionObserver === 'undefined');
@@ -41,7 +39,7 @@ export function NearViewport({
         <div
           className="near-viewport-placeholder"
           style={{ minHeight }}
-          aria-label={label + ' load when nearing the viewport'}
+          aria-hidden="true"
         />
       )}
     </div>
