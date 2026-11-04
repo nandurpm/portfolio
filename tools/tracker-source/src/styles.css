@@ -4586,3 +4586,62 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   .employment-metric-grid > div { padding: 11px; }
   .employment-status-pill { align-self: flex-start; }
 }
+
+/*
+ * Dashboard hero readability.
+ * Keep the secondary action readable even though the shared .button.secondary
+ * rule appears after the original hero styles. Use darker palette-matched
+ * gradient stops and opaque-enough text for all six light/dark palettes.
+ */
+.dashboard-hero {
+  background:
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 28%),
+    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 33%),
+    linear-gradient(
+      135deg,
+      var(--sidebar-a) 0%,
+      color-mix(in srgb, var(--sidebar-a) 65%, var(--sidebar-b)) 54%,
+      color-mix(in srgb, var(--sidebar-a) 50%, var(--sidebar-b)) 100%
+    );
+}
+.dashboard-overline {
+  color: rgba(255, 255, 255, .95);
+  font-size: .8rem;
+}
+.dashboard-balance p {
+  color: rgba(255, 255, 255, .94);
+  font-size: .875rem;
+}
+.dashboard-balance-meta {
+  color: rgba(255, 255, 255, .94);
+  font-size: .8125rem;
+}
+.dashboard-balance-meta span + span::before { color: rgba(255, 255, 255, .8); }
+.dashboard-hero-insights span {
+  color: rgba(255, 255, 255, .94);
+  font-size: .875rem;
+}
+.dashboard-hero-insights small {
+  color: rgba(255, 255, 255, .92);
+  font-size: .8125rem;
+}
+.dashboard-hero-actions .button {
+  font-size: .875rem;
+  font-weight: 650;
+}
+.dashboard-hero-actions .button.secondary {
+  color: #fff;
+  background: rgba(255, 255, 255, .14);
+  border-color: rgba(255, 255, 255, .7);
+}
+@media (hover: hover) {
+  .dashboard-hero-actions .button.secondary:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(255, 255, 255, .24);
+    border-color: #fff;
+  }
+}
+.dashboard-hero-actions .button.secondary:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
