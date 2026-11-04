@@ -191,6 +191,19 @@ export default function Loan() {
         title="Make room for a debt-free future."
         description="Your agreement’s schedule, actual payments and early-closure options in one place."
       />
+      <section className="loan-command-strip" aria-labelledby="loan-command-title">
+        <div className="loan-command-heading">
+          <span className="section-kicker">LOAN SNAPSHOT</span>
+          <h2 id="loan-command-title">Stay ahead of the repayment curve</h2>
+          <p>{summary.paidCount} of {p.loan.rows.length} installments completed · {Math.round(percent)}% repaid by count</p>
+        </div>
+        <div className="loan-command-progress"><span style={{ width: `${Math.min(100, percent)}%` }} /></div>
+        <div className="loan-command-metrics">
+          <div><span>Next due</span><strong>{summary.next ? showDate(summary.next.dueDate) : 'Complete'}</strong></div>
+          <div><span>Remaining</span><strong>{money(summary.remaining)}</strong></div>
+          <div><span>Closure view</span><strong>{analysis.assessment}</strong></div>
+        </div>
+      </section>
       <Section
         title="Original loan · repayment overview"
         caption="Remaining repayment includes scheduled interest. It is different from the principal balance or an early-settlement quote."

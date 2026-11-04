@@ -30,6 +30,8 @@ export default function Employment() {
     p.settings.planStart,
     p.settings.planEnd,
   ).filter((row) => row.amount > 0);
+  const pfScheduled = schedule.reduce((sum, row) => sum + row.amount, 0);
+  const pfRecorded = schedule.reduce((sum, row) => sum + row.credited, 0);
   async function setMonthlyPf(id: string) {
     if (!(await prepare("salary"))) return;
     try {
@@ -173,6 +175,23 @@ export default function Employment() {
           </p>
         </article>
       </div>
+      <section className="employment-snapshot" aria-labelledby="employment-snapshot-title">
+        <div className="employment-snapshot-head">
+          <div>
+            <span className="section-kicker">PAYROLL SNAPSHOT</span>
+            <h2 id="employment-snapshot-title">Your salary and PF at a glance</h2>
+            <p>Salary stays separate from PF so your cash-flow plan remains clear.</p>
+          </div>
+          <span className="employment-status-pill">{history.length ? 'History enabled' : 'Using base salary'}</span>
+        </div>
+        <div className="employment-metric-grid">
+          <div><span>Current salary</span><strong>{money(salaryAtDate(p, today()).monthlySalary)}</strong><small>Take-home / month</small></div>
+          <div><span>PF balance</span><strong>{money(pf.balance)}</strong><small>Contributions less claims</small></div>
+          <div><span>Scheduled PF</span><strong>{money(pfScheduled)}</strong><small>{schedule.length} scheduled month{schedule.length === 1 ? '' : 's'}</small></div>
+          <div><span>Credit progress</span><strong>{pfScheduled ? `${Math.round((pfRecorded / pfScheduled) * 100)}%` : '—'}</strong><small>{money(pfRecorded)} recorded so far</small></div>
+        </div>
+        <div className="employment-progress"><span style={{ width: `${pfScheduled ? Math.min(100, (pfRecorded / pfScheduled) * 100) : 0}%` }} /></div>
+      </section>
       <Section
         title="Salary changes"
         caption="Add each change with its own effective date. Salary means take-home pay after deductions. PF starts from the effective salary month, separately from take-home salary."

@@ -4484,3 +4484,41 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   .budget-quick-actions > span { width: 100%; }
   .budget-quick-actions .button { flex: 1; }
 }
+
+
+/* Loan & Salary/PF modern snapshot surfaces */
+.loan-command-strip, .employment-snapshot {
+  margin: 0 0 22px;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--page-tone, var(--accent)) 20%, var(--border));
+  border-radius: 20px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--page-tone, var(--accent)) 8%, var(--surface)), var(--surface) 72%);
+  box-shadow: var(--shadow);
+}
+.loan-command-heading, .employment-snapshot-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.loan-command-heading h2, .employment-snapshot-head h2 { margin: 4px 0; font-size: 1.12rem; letter-spacing: -.025em; }
+.loan-command-heading p, .employment-snapshot-head p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.loan-command-progress, .employment-progress { height: 10px; margin: 18px 0 14px; overflow: hidden; border-radius: 99px; background: var(--border); }
+.loan-command-progress > span, .employment-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .25s ease; }
+.loan-command-metrics, .employment-metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.loan-command-metrics > div, .employment-metric-grid > div { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); }
+.loan-command-metrics span, .employment-metric-grid span, .employment-metric-grid small { color: var(--muted); font-size: 12px; }
+.loan-command-metrics strong, .employment-metric-grid strong { font-size: 16px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.employment-snapshot { margin-top: 2px; }
+.employment-snapshot-head { margin-bottom: 16px; }
+.employment-status-pill { flex: 0 0 auto; padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--green) 32%, var(--border)); border-radius: 999px; color: var(--green); background: color-mix(in srgb, var(--green) 9%, var(--surface)); font-size: 12px; font-weight: 700; }
+.employment-metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.employment-progress { margin-bottom: 0; height: 8px; }
+.employment-progress > span { background: var(--green); }
+.loan-command-strip + .panel, .employment-snapshot + .panel { border-radius: 20px; }
+@media (max-width: 900px) {
+  .employment-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .loan-command-strip, .employment-snapshot { padding: 16px; border-radius: 16px; }
+  .loan-command-heading, .employment-snapshot-head { flex-direction: column; gap: 8px; }
+  .loan-command-metrics { grid-template-columns: 1fr; }
+  .employment-metric-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .employment-metric-grid > div { padding: 11px; }
+  .employment-status-pill { align-self: flex-start; }
+}
