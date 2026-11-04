@@ -5,6 +5,7 @@ for (const width of [360,1366]) test(`website progress uses full budgets with un
   await page.goto('/tests/browser/harness.html');
   await expect(page.getByRole('heading',{name:'Monthly snapshot',exact:true})).toBeVisible();
   await page.getByLabel('Report through date',{exact:true}).fill('2026-11-03');
+  await page.locator('.dashboard-deep-dive > summary').click();
   const progress=page.getByRole('region',{name:'Recorded monthly progress',exact:true});
   await progress.scrollIntoViewIfNeeded();
   await expect(progress).toContainText('In progress');
