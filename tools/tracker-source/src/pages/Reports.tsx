@@ -199,7 +199,7 @@ export default function Reports() {
           <div><span>Entry total</span><strong>{money(reportPreview.total)}</strong></div>
           <div><span>Account movements</span><strong>{reportPreview.ledger}</strong></div>
         </div>
-        <div className="table-scroll export-preview-table"><table className="data-table"><thead><tr><th>File</th><th>Includes</th><th>Format</th><th>Status</th></tr></thead><tbody>
+        <div className="table-scroll export-preview-table" role="region" aria-label="Report export formats" tabIndex={0}><table className="data-table"><thead><tr><th>File</th><th>Includes</th><th>Format</th><th>Status</th></tr></thead><tbody>
           <tr><td className="strong">Monthly workbook</td><td>Plan, entries, budgets and overrides</td><td>XLSX</td><td><Badge tone="green">Ready</Badge></td></tr>
           <tr><td className="strong">Monthly report</td><td>Comparisons, categories and savings</td><td>PDF</td><td><Badge tone="violet">Previewable</Badge></td></tr>
           <tr><td className="strong">Transaction audit</td><td>Daily Entries and account movements</td><td>CSV</td><td><Badge tone="orange">Ready</Badge></td></tr>
@@ -401,7 +401,7 @@ export default function Reports() {
                     )}
                   </div>
                 )}
-                <div className="table-scroll">
+                <div className="table-scroll" role="region" aria-label="Imported transaction preview" tabIndex={0}>
                   <table className="data-table">
                     <thead>
                       <tr>
