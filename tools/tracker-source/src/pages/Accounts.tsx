@@ -1,5 +1,5 @@
 import { FinancialPosition } from "../components/FinancialPosition";
-import { today } from "../domain/dates";
+import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
 import { useMemo, useState } from "react";
@@ -524,6 +524,8 @@ export default function Accounts() {
           <Field label="Reversal date">
             <input aria-label="Reversal date"
               type="date"
+              min={`${plan.settings.planStart}-01`}
+              max={monthEnd(plan.settings.planEnd)}
               value={reversalDate}
               onChange={(e) => setReversalDate(e.target.value)}
             />
@@ -697,6 +699,8 @@ export default function Accounts() {
             <Field label="Date">
               <input aria-label="Date"
                 type="date"
+                min={`${plan.settings.planStart}-01`}
+                max={monthEnd(plan.settings.planEnd)}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
