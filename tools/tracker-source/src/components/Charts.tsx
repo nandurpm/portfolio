@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { reportCategories } from '../domain/ledger';
 import { currencyAxis } from '../domain/display';
 import {
@@ -40,14 +41,15 @@ const tip = {
   formatter: (v: any) => money(Number(v)),
   labelStyle: { color: 'var(--text)' },
 };
-export function SavingsCharts({ all = false }: { all?: boolean }) {
+export const SavingsCharts = memo(function SavingsCharts({ all = false }: { all?: boolean }) {
   const p = usePlan(),
     date = reportDate(p);
   // A PF claim changes cash but is not income or savings. Keep the savings chart
   // on cumulative income minus expenses, independently of the cash chart.
-  let plannedSavings = 0;
-  let recordedSavings = 0;
-  const data = progress(p, date)
+  const data = useMemo(() => {
+    let plannedSavings = 0;
+    let recordedSavings = 0;
+    return progress(p, date)
     .map((r) => {
       plannedSavings = round(plannedSavings + r.plan.savings);
       recordedSavings = round(recordedSavings + (r.actual?.savings ?? 0));
@@ -67,11 +69,12 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
       r.month <= p.settings.viewEnd &&
       r.month <= date.slice(0, 7),
     );
-  const expenseRows = reportCategories(p)
+  }, [p, date]);
+  const expenseRows = useMemo(() => reportCategories(p)
     .filter((c) => c.group !== 'Income')
     .map((c) => ({ name: c.name, value: actualCategory(p, c, p.settings.selectedMonth, date) }))
-    .filter((c) => c.value !== 0);
-  const expense = expenseRows.filter(c=>c.value>0);
+    .filter((c) => c.value !== 0), [p, date]);
+  const expense = useMemo(() => expenseRows.filter(c=>c.value>0), [expenseRows]);
   const negativeAdjustments = round(expenseRows.filter(c=>c.value<0).reduce((sum,c)=>sum+c.value,0));
   const empty = (
     <Empty
@@ -205,4 +208,4 @@ export function SavingsCharts({ all = false }: { all?: boolean }) {
       )}
     </div>
   );
-}
+});
