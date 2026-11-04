@@ -19,7 +19,8 @@ assert.equal(evaluate('isUnlocked({...defaultEditState("123"),pin_hash:"hash",un
 evaluate('telegram=async(method,token,body)=>{globalThis.calls.push({method,body});if(method==="getMe")return {id:1};if(method==="getUserProfilePhotos")return {total_count:1};if(method==="getMyShortDescription")return {short_description:"Your private money dashboard"};return true;}');
 sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
 (async()=>{
- sandbox.fixture={settings:{opening:100,planStart:'2020-01',planEnd:'2030-12'},categories:[{id:'food',name:'Food',group:'Living',active:true}],entries:[{id:'old',date:'2026-11-05',categoryId:'food',amount:150}],provisions:[]};
+ Object.assign(sandbox,await import(require('node:url').pathToFileURL(require('node:path').join(__dirname,'finance.js')).href));
+ sandbox.fixture={settings:{opening:100,planStart:'2020-01',planEnd:'2030-12',mode:'Scheduled',emiPreviousMonth:false},categories:[{id:'food',name:'Food',group:'Living',active:true,role:'regular',amount:0,timing:'Daily',day:1,months:[]}],entries:[{id:'old',date:'2026-11-05',categoryId:'food',amount:150}],provisions:[],overrides:{},loan:{rows:[],principal:0}};
  assert.equal(evaluate('possibleDuplicate(fixture,{id:"new",date:"2026-11-05",categoryId:"food",amount:150})'),true);
  assert.equal(evaluate('possibleDuplicate(fixture,{id:"new",date:"2026-11-05",categoryId:"food",amount:151})'),false);
  assert.match(evaluate('balanceText(fixture,"2026-10-29")'),/Opening savings/);
@@ -47,5 +48,48 @@ sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
  const command=sandbox.calls.find(c=>c.method==='setMyCommands');
  assert.equal(command.body.scope.type,'chat');assert.equal(command.body.scope.chat_id,123);
  assert.equal(sandbox.calls.filter(c=>c.method==='deleteMyCommands').length,4);
- console.log('Savings bot: 27 privacy, entry-flow, duplicate, undo, date and branding checks passed.');
+
+ sandbox.ledgerFixture={
+  settings:{opening:1000,planStart:'2026-11',planEnd:'2026-12',mode:'Scheduled',emiPreviousMonth:false},
+  categories:[
+   {id:'food',name:'Food',group:'Living',active:true,role:'regular',amount:0,timing:'Daily',day:1,months:[]},
+   {id:'salary',name:'Salary',group:'Income',active:true,role:'regular',amount:0,timing:'Daily',day:1,months:[]}
+  ],
+  entries:[],overrides:{},provisions:[],loan:{rows:[],principal:0},additionalLoans:[],
+  accounts:[
+   {id:'bank',name:'Bank',kind:'bank',openingBalance:1000,active:true,note:''},
+   {id:'cash',name:'Cash',kind:'cash',openingBalance:0,active:true,note:''},
+   {id:'owed',name:'Money lent',kind:'receivable',openingBalance:0,active:true,note:''},
+   {id:'fd',name:'FD',kind:'fixed-deposit',openingBalance:0,active:true,note:''},
+   {id:'card',name:'Credit card',kind:'credit-card',openingBalance:0,active:true,note:''},
+   {id:'debt',name:'Borrowing',kind:'liability',openingBalance:0,active:true,note:''}
+  ],
+  ledgerTransactions:[
+   {id:'tr',date:'2026-11-01',kind:'transfer',amount:200,sourceAccountId:'bank',destinationAccountId:'cash',description:'Transfer'},
+   {id:'lend',date:'2026-11-02',kind:'lend',amount:150,sourceAccountId:'cash',destinationAccountId:'owed',description:'Lent'},
+   {id:'repay',date:'2026-11-03',kind:'repayment-received',amount:50,sourceAccountId:'owed',destinationAccountId:'cash',description:'Repayment'},
+   {id:'deposit',date:'2026-11-04',kind:'fd-deposit',amount:300,sourceAccountId:'bank',destinationAccountId:'fd',description:'FD'},
+   {id:'mature',date:'2026-11-05',kind:'fd-withdrawal',amount:300,interestAmount:20,feeAmount:5,sourceAccountId:'fd',destinationAccountId:'bank',description:'Maturity'},
+   {id:'purchase',date:'2026-11-06',kind:'shopping',amount:100,sourceAccountId:'bank',expenseCategoryId:'food',description:'Shopping'},
+   {id:'refund',date:'2026-11-07',kind:'refund',amount:40,destinationAccountId:'bank',originalTransactionId:'purchase',description:'Refund'},
+   {id:'cardbuy',date:'2026-11-08',kind:'credit-card-purchase',amount:50,destinationAccountId:'card',expenseCategoryId:'food',description:'Card purchase'},
+   {id:'cardpay',date:'2026-11-09',kind:'credit-card-payment',amount:50,sourceAccountId:'bank',destinationAccountId:'card',description:'Card payment'},
+   {id:'income',date:'2026-11-10',kind:'income',amount:200,destinationAccountId:'bank',incomeCategoryId:'salary',description:'Income'},
+   {id:'expense',date:'2026-11-11',kind:'expense',amount:30,sourceAccountId:'bank',expenseCategoryId:'food',description:'Expense'},
+   {id:'borrow',date:'2026-11-12',kind:'borrow',amount:100,feeAmount:3,sourceAccountId:'debt',destinationAccountId:'bank',description:'Loan'},
+   {id:'principal',date:'2026-11-13',kind:'principal-repayment',amount:40,interestAmount:4,feeAmount:1,sourceAccountId:'bank',destinationAccountId:'debt',description:'Principal'}
+  ]
+ };
+ const finance = await import(require('node:url').pathToFileURL(require('node:path').join(__dirname,'finance.js')).href);
+ const sum=finance.financialRange(sandbox.ledgerFixture,'2026-11-01','2026-11-30');
+ assert.equal(sum.income,220,'FD interest and real income only');
+ assert.equal(sum.expenses,153,'Purchase, refund, card, interest and fees without duplicate principal');
+ assert.equal(sum.net,67,'Savings equals income less expenses');
+ assert.equal(finance.financialCash(sandbox.ledgerFixture,'2026-11-30'),1027,'Principal transfers affect liquid cash without changing savings');
+ assert.equal(sandbox.ledgerFixture.ledgerTransactions.length,13,'All account postings preserved');
+ assert.match(evaluate('entriesText(ledgerFixture,"2026-11-04")'),/Accounts/);
+ assert.match(evaluate('reportText(ledgerFixture,"month","2026-11-30","2026-11-04")'),/220\.00/);
+ assert.match(evaluate('pdfLines(ledgerFixture,"month","2026-11-30","2026-11-04").join(" ")'),/ACCOUNT MOVEMENTS/);
+
+ console.log('Savings bot: 27 privacy/edit checks and 7 synthetic account-ledger regression checks passed.');
 })().catch(e=>{console.error(e);process.exitCode=1});
