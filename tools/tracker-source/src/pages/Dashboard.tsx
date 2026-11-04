@@ -4,7 +4,7 @@ import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, memo, Suspense, useMemo } from 'react';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -92,7 +92,7 @@ export function MonthControls() {
     </div>
   );
 }
-export function ProgressTable({ whole = false }: { whole?: boolean }) {
+export const ProgressTable = memo(function ProgressTable({ whole = false }: { whole?: boolean }) {
   const phone = usePhone();
   const p = usePlan(),
     date = reportDate(p),
@@ -190,7 +190,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
       </table>
     </div>
   );
-}
+});
 export default function Dashboard({
   navigate,
   addEntry,
