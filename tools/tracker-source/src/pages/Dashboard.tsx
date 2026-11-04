@@ -4,7 +4,7 @@ import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, memo, Suspense, useMemo } from 'react';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -31,6 +31,7 @@ import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../doma
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
+import { NearViewport } from '../components/NearViewport';
 const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
 const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 
@@ -91,7 +92,7 @@ export function MonthControls() {
     </div>
   );
 }
-export function ProgressTable({ whole = false }: { whole?: boolean }) {
+export const ProgressTable = memo(function ProgressTable({ whole = false }: { whole?: boolean }) {
   const phone = usePhone();
   const p = usePlan(),
     date = reportDate(p),
@@ -189,7 +190,7 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
       </table>
     </div>
   );
-}
+});
 export default function Dashboard({
   navigate,
   addEntry,
@@ -312,9 +313,11 @@ export default function Dashboard({
           </div>
           <span className="dashboard-pulse-caption">Hover the graphs for month-by-month detail</span>
         </div>
-        <Suspense fallback={<p className="muted" role="status">Loading dashboard charts…</p>}>
-          <SavingsCharts />
-        </Suspense>
+        <NearViewport label="Dashboard trend charts" minHeight={360}>
+          <Suspense fallback={<p className="muted" role="status">Loading dashboard charts…</p>}>
+            <SavingsCharts />
+          </Suspense>
+        </NearViewport>
       </section>
       <FinancialPosition onManage={()=>navigate('accounts')}/>
       {date > today() && (
@@ -355,7 +358,11 @@ export default function Dashboard({
           </span>
         </div>
         <div className="dashboard-deep-dive-body">
-      <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
+      <NearViewport label="Full dashboard comparison charts" minHeight={340}>
+        <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}>
+          <ComparisonCharts />
+        </Suspense>
+      </NearViewport>
       <Section
         title={`${monthLabel(m, true)}, side by side`}
         caption={
@@ -469,7 +476,11 @@ export default function Dashboard({
           })}
         </div>
       </Section>
-      <Suspense fallback={<p className="muted" role="status">Loading savings charts…</p>}><SavingsCharts all /></Suspense>
+      <NearViewport label="Full dashboard savings and spending charts" minHeight={380}>
+        <Suspense fallback={<p className="muted" role="status">Loading savings charts…</p>}>
+          <SavingsCharts all />
+        </Suspense>
+      </NearViewport>
       <Section
         title="Every category, accounted for"
         caption="Income progress is measured by receipts; expense progress is measured by spending. Remaining budgets are not savings."

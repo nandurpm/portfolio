@@ -3827,6 +3827,19 @@ html[data-theme="dark"] .badge.past {
   .checklist-group-chevron { transition: none; }
 }
 
+/* Keep heavy SVG chart placeholders cheap until the user scrolls near the section. */
+.near-viewport { min-width: 0; }
+.near-viewport-placeholder { pointer-events: none; }
+
+/* Scroll the dedicated content surface without propagating wheel gestures into
+   the outer application shell. Never attach non-passive wheel listeners. */
+@media (min-width: 601px) {
+  .main-scroll { overscroll-behavior-y: contain; }
+}
+@media (max-width: 600px) {
+  .workspace { overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+}
+
 /* Shared screen-reader announcements, keyboard-accessible glossary, and table scroll cues. */
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .scroll-hint { color: var(--muted); font-size: 12px; margin: 7px 0; }

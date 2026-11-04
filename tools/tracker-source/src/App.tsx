@@ -512,16 +512,12 @@ export function Shell() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={page}
-                  initial={
-                    p.settings.animations ? { opacity: 0, y: 16, scale: 0.985 } : false
-                  }
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={p.settings.animations ? { opacity: 0, y: -8, scale: 0.992 } : undefined}
-                  transition={
-                    p.settings.animations
-                      ? { opacity: { duration: 0.18 }, y: { type: 'spring', stiffness: 420, damping: 32 }, scale: { duration: 0.24, ease: 'easeOut' } }
-                      : { duration: 0 }
-                  }
+                  // Opacity-only transitions avoid creating a scaled GPU layer for the
+                  // entire long financial screen, which can make wheel scrolling janky.
+                  initial={p.settings.animations ? { opacity: 0 } : false}
+                  animate={{ opacity: 1 }}
+                  exit={p.settings.animations ? { opacity: 0 } : undefined}
+                  transition={{ duration: p.settings.animations ? 0.14 : 0 }}
                 >
                   <Suspense
                     fallback={
