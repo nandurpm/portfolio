@@ -343,6 +343,7 @@ export function Shell() {
               <button
                 key={x.id}
                 className={page === x.id ? "active" : ""}
+                aria-current={page === x.id ? "page" : undefined}
                 onClick={() => {
                   navigate(x.id);
                 }}

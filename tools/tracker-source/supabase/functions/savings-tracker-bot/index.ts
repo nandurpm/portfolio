@@ -63,6 +63,7 @@ async function telegram(method:string,token:string,body:AnyRow) {
  return ans.result;
 }
 async function message(token:string,owner:string,html:string,keyboard?:AnyRow,messageId?:number) {
+ html="ℹ️ Reports cover Daily Entries only; Accounts ledger activity is excluded. Use the web tracker for complete totals.\n\n"+html;
  if(messageId) {
   try {await telegram("editMessageText",token,{chat_id:owner,message_id:messageId,text:html.slice(0,4000),parse_mode:"HTML",link_preview_options:{is_disabled:true},...(keyboard?{reply_markup:keyboard}:{})});return;}
   catch { /* A stale or unchanged panel falls back to a fresh message. */ }
@@ -228,7 +229,8 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
  const month=date.slice(0,7),byDay=mode==="day";
  const range=byDay?dateRange(plan,date,date):monthData(plan,month);
  const lines=[
-  "FINANCIAL REPORT OVERVIEW",
+  "DAILY ENTRIES REPORT ONLY",
+  "Accounts ledger movements are excluded. Use web tracker for complete totals.",
   "Reporting period: "+(byDay?date:month),
   "Cloud last synced: "+updated,
   "Plan period: "+plan.settings.planStart+" to "+plan.settings.planEnd,
@@ -341,7 +343,8 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
   page.drawText(line||" ",{x:44,y,size,font,color:header?rgb(0.07,.34,.53):rgb(.14,.21,.28)});
   y-=header?23:15.5;
  }
- const headers=new Set(["FINANCIAL REPORT OVERVIEW","RECORDED TRANSACTIONS (ACTUAL)",
+ const headers=new Set(["DAILY ENTRIES REPORT ONLY",
+  "Accounts ledger movements are excluded. Use web tracker for complete totals.","RECORDED TRANSACTIONS (ACTUAL)",
   "REGULAR CATEGORY BUDGET VS ACTUAL","BUDGET COMPARISON CHART",
   "CATEGORY DETAILS: RECORDED / PLANNED / GAP","CATEGORY-WISE RECORDED TOTALS",
   "EXPENSES BY PAYMENT METHOD","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
@@ -375,7 +378,7 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
  const form=new FormData();
  form.append("chat_id",owner);
  form.append("document",blob,"Savings_"+(mode==="day"?"Daily_":"Monthly_")+date.replaceAll("-","")+".pdf");
- form.append("caption","📄 Private "+(mode==="day"?"daily":"monthly")+" financial report · "+date);
+ form.append("caption","📄 Private "+(mode==="day"?"daily":"monthly")+" Daily Entries report (Accounts excluded) · "+date);
  form.append("protect_content","true");
  const response=await fetch("https://api.telegram.org/bot"+token+"/sendDocument",{method:"POST",body:form,signal:AbortSignal.timeout(45000)});
  const body=await response.json();
@@ -390,7 +393,9 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  } else if(action==="plan")report=planText(plan,updated);
  else if(action==="dashboard")report=dashboardText(plan,updated);
  else if(action==="entries")report=entriesText(plan,updated);
- else if(action==="reconcile")report=reconciliationText(plan,updated);
+ else if(action==="reconcile"){report=reconciliationText(plan,updated);
+   kb={inline_keyboard:[[button("📝 Record Reconciliation","e:reconcile")],
+     [{text:"🔐 Open Full Tracker",url:APP_URL},button("🏠 Main Menu","menu")]]};}
  else if(action==="compare")report=budgetCompareText(plan,month,updated);
  else if(action==="sync")report=syncStatusText(plan,updated);
  else if(action==="forecast")report=forecastText(plan,updated);
@@ -463,12 +468,12 @@ async function scheduled(kind:string,token:string,owner:string) {
  const {plan,updated}=await syncedPlan();const today=keyDate();
  if(kind==="alerts"){return await sendAlerts(token,owner,plan,updated);}
  if(kind==="daily"){
-  if(!isInPlan(plan,today.slice(0,7)))return;
+  if(!isInPlan(plan,today.slice(0,7)))return {skipped:true,reason:"plan_not_started_or_ended"};
   await message(token,owner,"⏰ <b>Scheduled 9 PM report</b>\n\n"+reportText(plan,"day",today,updated),homeKeyboard());
  }
  else if(kind==="monthly") {
   const prev=previousMonth(today.slice(0,7));
-  if(!isInPlan(plan,prev))return;
+  if(!isInPlan(plan,prev))return {skipped:true,reason:"month_outside_plan"};
   await message(token,owner,"📅 <b>Previous month's summary</b>\n\n"+reportText(plan,"month",prev+"-01",updated),pdfMenu());
   if((await botPreferences(owner)).monthly_pdf_enabled)await sendPdf(token,owner,plan,"month",prev+"-01",updated);
  }
@@ -523,6 +528,7 @@ async function eraseSecret(token:string,owner:string,update:AnyRow) {
 const editMenu=()=>({inline_keyboard:[
  [button("➕ New Entry","e:add"),button("✏️ Edit Entry","e:entries")],
  [button("💸 Change Budget","e:budget")],
+ [button("🏦 Reconcile Bank & Cash","e:reconcile")],
  [button("🔒 Lock Edit Mode","e:lock")],
  [button("🏠 Reports Menu","menu"),{text:"🔐 Full Tracker",url:APP_URL}]
 ]});
@@ -561,6 +567,9 @@ function updatePreview(state:EditState,plan:AnyRow):string {
   (possibleDuplicate(plan,p)?"⚠️ <b>Possible duplicate:</b> an entry with the same date, category and amount already exists. Save only if this is a separate transaction.\n\n":"")+
   "<b>Save this transaction to your synced tracker?</b>";
  }
+ if(p.action==="reconcile"){
+  return "🏦 <b>CONFIRM RECONCILIATION</b>\n━━━━━━━━━━━━━━━━━━\nAccount: "+escape(p.label)+"\nPeriod: "+escape(p.fromDate)+" to "+escape(p.throughDate)+"\nMethods: "+escape(p.methods.join(", "))+"\nOpening statement balance: "+amt(p.openingBalance)+"\nClosing statement balance: "+amt(p.statementBalance)+"\n\n<i>This only compares a statement with recorded transactions. It does not change income or expenses.</i>\n\n<b>Save this reconciliation?</b>";
+ }
  if(p.action==="budget"){
   const cat=plan.categories.find((c:AnyRow)=>c.id===p.categoryId);
   return "💸 <b>CONFIRM BUDGET CHANGE</b>\n━━━━━━━━━━━━━━━━━━\n"+
@@ -584,8 +593,11 @@ const saveKeyboard=()=>({inline_keyboard:[[button("✅ Confirm & Save","e:confir
 async function saveEdit(plan:AnyRow,userId:string,revision:number,state:EditState):Promise<boolean> {
  const pending=state.pending;
  if(pending.revision!==revision)throw Error("stale_revision");
- if(!["add","budget","editamount","delete"].includes(pending.action))throw Error("invalid_edit");
- const payload:any = pending.action==="add"
+ if(!["add","budget","editamount","delete","reconcile"].includes(pending.action))throw Error("invalid_edit");
+ const payload:any = pending.action==="reconcile"
+   ? {id:pending.id,label:pending.label,fromDate:pending.fromDate,throughDate:pending.throughDate,
+      openingBalance:pending.openingBalance,statementBalance:pending.statementBalance,methods:pending.methods}
+   : pending.action==="add"
   ? {id:pending.id,date:pending.date,categoryId:pending.categoryId,description:pending.description,amount:pending.amount,payment:pending.payment}
   : pending.action==="budget" ? {categoryId:pending.categoryId,amount:pending.amount}
   : pending.action==="delete" ? {entryId:pending.entryId}
@@ -601,7 +613,8 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
  const isText=!!update.message&&typeof update.message?.text==="string";
  const now=Date.now();
  const prepared=state.step==="setup"||state.step==="setupConfirm"||state.step==="pin"||state.step==="amount"||
-   state.step==="date"||state.step==="description"||state.step==="budgetAmount"||state.step==="entryAmount";
+   state.step==="date"||state.step==="description"||state.step==="budgetAmount"||state.step==="entryAmount"||
+ state.step==="recFrom"||state.step==="recTo"||state.step==="recOpening"||state.step==="recClosing";
  if(isText&&prepared&&!raw.startsWith("/")&&!raw.startsWith("e:")){
   if(["setup","setupConfirm","pin"].includes(state.step)) {
    await eraseSecret(token,owner,update);
@@ -641,6 +654,38 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
   }
   if(!isUnlocked(state)){state.step="locked";state.pending={};await writeEditState(state);await editSend(token,owner,"🔒 Edit session expired. Open Edit Mode to unlock.");return;}
   const p=state.pending;
+
+  if(state.step==="recFrom"||state.step==="recTo") {
+   const ok=/^\d{4}-\d{2}-\d{2}$/.test(raw)&&!Number.isNaN(Date.parse(raw+"T00:00:00Z"))
+     &&new Date(raw+"T00:00:00Z").toISOString().slice(0,10)===raw;
+   if(!ok){await editSend(token,owner,"📅 Enter a valid date as <b>YYYY-MM-DD</b>.");return;}
+   if(raw>keyDate()){await editSend(token,owner,"⚠️ Statement dates cannot be in the future.");return;}
+   if(state.step==="recFrom"){
+    p.fromDate=raw;state.step="recTo";await writeEditState(state);
+    await editSend(token,owner,"📅 Enter the statement <b>end date</b> as YYYY-MM-DD.");return;
+   }
+   if(raw<p.fromDate){await editSend(token,owner,"⚠️ End date must not precede start date.");return;}
+   const rangeDays=(Date.parse(raw+"T00:00:00Z")-Date.parse(p.fromDate+"T00:00:00Z"))/86400000;
+   if(rangeDays>366){await editSend(token,owner,"⚠️ One reconciliation can cover at most 366 days.");return;}
+   p.throughDate=raw;state.step="recOpening";await writeEditState(state);
+   await editSend(token,owner,"🏦 Enter the actual <b>opening balance</b> from the statement in ₹. Negative amounts are allowed for overdrafts.");
+   return;
+  }
+  if(state.step==="recOpening"||state.step==="recClosing"){
+   const cleaned=raw.replaceAll(",","").replace(/^₹/,"").trim();
+   if(!/^-?\d{1,8}(?:\.\d{1,2})?$/.test(cleaned)||!Number.isFinite(Number(cleaned))||Math.abs(Number(cleaned))>10000000){
+    await editSend(token,owner,"⚠️ Enter a valid statement balance (₹, up to 2 decimals).");return;
+   }
+   const val=Number(cleaned);
+   if(state.step==="recOpening"){
+    p.openingBalance=val;state.step="recClosing";await writeEditState(state);
+    await editSend(token,owner,"💰 Enter the actual <b>closing statement balance</b> in ₹.");return;
+   }
+   p.statementBalance=val;state.step="confirm";await writeEditState(state);
+   const {plan}=await syncedPlan();
+   await editSend(token,owner,updatePreview(state,plan),saveKeyboard());return;
+  }
+
   if(state.step==="amount"||state.step==="budgetAmount"||state.step==="entryAmount"){
    const n=Number(raw.replaceAll(",","").replace(/^₹/,"").trim());
    if(!/^(?:\d{1,8})(?:\.\d{1,2})?$/.test(raw.replaceAll(",","").replace(/^₹/,"").trim()) || !Number.isFinite(n) || n>(state.step==="budgetAmount"?10000000:10000000) || n<(state.step==="budgetAmount"?0:0.01)){
@@ -698,6 +743,26 @@ async function handleEdit(update:AnyRow,raw:string,token:string,owner:string):Pr
  }
  if(!isUnlocked(state)){await editSend(token,owner,"🔒 Editing is locked. Open Edit Mode to unlock.",{inline_keyboard:[[button("🔓 Edit Mode","e:open")]]});return;}
  if(raw==="e:menu"){state.step="menu";state.pending={};await writeEditState(state);await editSend(token,owner,editIntro(),editMenu());return;}
+
+ if(raw==="e:reconcile"){
+  const {revision}=await syncedPlan();
+  state.step="recSelect";state.pending={action:"reconcile",revision,id:crypto.randomUUID()};
+  await writeEditState(state);
+  await editSend(token,owner,"🏦 <b>BANK & CASH RECONCILIATION</b>\n━━━━━━━━━━━━━━━━━━\nChoose one account group.\n\nUPI and debit/card payments usually belong to the same bank statement; never count them as separate account balances.\n\nUse real statement amounts only.",{inline_keyboard:[
+   [button("🏦 Bank + UPI + Card","e:rec:bank")],
+   [button("💵 Cash","e:rec:cash")],
+   [button("❌ Cancel","e:cancel")]
+  ]});return;
+ }
+ if(raw==="e:rec:bank"||raw==="e:rec:cash"){
+  if(state.step!=="recSelect"||state.pending.action!=="reconcile")return;
+  const bank=raw==="e:rec:bank";
+  state.pending.label=bank?"Bank / UPI / Card":"Cash";
+  state.pending.methods=bank?["Bank","UPI","Card"]:["Cash"];
+  state.step="recFrom";await writeEditState(state);
+  await editSend(token,owner,"📅 Enter the statement <b>start date</b> as YYYY-MM-DD.");return;
+ }
+
  if(raw==="e:add"||raw==="e:budget"){
   const {plan,revision}=await syncedPlan();
   const what=raw==="e:add"?"add":"budget";state.step="select";state.pending={action:what,revision};
@@ -1048,7 +1113,7 @@ function alertItems(plan:AnyRow,updated:string,prefs:AnyRow,date=keyDate()){
   }
  }
 
- if(prefs.low_balance_alerts){
+ if(prefs.low_balance_alerts && !(plan.ledgerTransactions?.length)){
   const amount=cashEstimate(plan,date);
   if(amount<num(prefs.low_balance_threshold))list.push({key:"balance:"+date,html:"⚠️ <b>LOW ESTIMATED CASH</b>\n"+
    "Recorded tracker estimate: "+amt(amount)+" (threshold "+amt(num(prefs.low_balance_threshold))+")."+
@@ -1088,8 +1153,10 @@ Deno.serve(async (request:Request) => {
    const payload=await request.json();
    if(payload?.kind==="branding")return respond(await configureBranding(token,owner));
    if(!["daily","monthly","alerts"].includes(payload?.kind))return respond({error:"invalid_period"},400);
-   await scheduled(payload.kind,token,owner);
-   return respond({ok:true,sent:payload.kind});
+   const outcome=await scheduled(payload.kind,token,owner);
+   return respond({ok:true,kind:payload.kind,skipped:outcome?.skipped===true,
+     delivered:typeof outcome?.delivered==="number"?outcome.delivered:null,
+     sent:outcome?.skipped===true?false:(payload.kind==="alerts"?((outcome?.delivered??0)>0):true)});
   }
   if(!hook||(await sha(hook))!==HOOK_HASH)return respond({error:"forbidden"},403);
   const update=await request.json();
@@ -1120,7 +1187,7 @@ Deno.serve(async (request:Request) => {
     await handleEdit(update,action,token,owner);
   } else if(update.message?.text && !action.startsWith("/") && !action.startsWith("e:")) {
     const state=await editState(owner);
-    if(["setup","setupConfirm","pin","amount","date","description","budgetAmount","entryAmount"].includes(state.step)) await handleEdit(update,action,token,owner);
+    if(["setup","setupConfirm","pin","amount","date","description","budgetAmount","entryAmount","recFrom","recTo","recOpening","recClosing"].includes(state.step)) await handleEdit(update,action,token,owner);
     else await showAction(action,token,owner,update.callback_query?.message?.message_id);
   } else await showAction(action,token,owner,update.callback_query?.message?.message_id);
   return respond({ok:true});

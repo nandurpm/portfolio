@@ -22,10 +22,10 @@ export default function Forecast() {
   const payments = installmentTasks(p, s.selectedMonth);
   const milestones = [10000, 25000, 50000, 100000, 200000];
   const dates = p.categories
-    .filter((c) => c.active && c.timing === 'Fixed day' && fullAmount(p, c, s.selectedMonth) > 0)
+    .filter((c) => c.active && (c.timing === 'Fixed day' || p.provisions?.some(r => r.enabled && r.categoryId === c.id)) && fullAmount(p, c, s.selectedMonth) > 0)
     .map((c) => ({
       c,
-      date: monthDay(s.selectedMonth, c.role === 'emi' && s.emiPreviousMonth ? (c.loanId ? p.additionalLoans?.find((l) => l.id === c.loanId)?.plannedPayDay ?? s.salaryDay : s.salaryDay) : c.day),
+      date: monthDay(s.selectedMonth, c.role === 'emi' && s.emiPreviousMonth ? (c.loanId ? p.additionalLoans?.find((l) => l.id === c.loanId)?.plannedPayDay ?? s.salaryDay : s.salaryDay) : p.provisions?.find(r => r.enabled && r.categoryId === c.id)?.dueDay ?? c.day),
     }));
   return (
     <>

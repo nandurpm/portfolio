@@ -163,6 +163,7 @@ export async function readWorkbook(
   base: Plan = freshPlan(),
   map: ColumnMapping = defaultMapping,
 ): Promise<ImportPreview & { headers: string[] }> {
+  if (bytes.byteLength > 10 * 1024 * 1024) throw Error('Import is too large. Maximum size is 10 MB.');
   const { default: ExcelJS } = await import('exceljs');
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load((await excelCompatible(bytes)) as any);
@@ -431,8 +432,10 @@ export function parseCSV(text: string): string[][] {
   return rows;
 }
 export async function inspectColumns(bytes: Uint8Array, name: string) {
+  if (bytes.byteLength > 10 * 1024 * 1024) throw Error('Import is too large. Maximum size is 10 MB.');
   if (name.toLowerCase().endsWith('.csv'))
     return parseCSV(new TextDecoder().decode(bytes))[0] ?? [];
+  if (bytes.byteLength > 10 * 1024 * 1024) throw Error('Import is too large. Maximum size is 10 MB.');
   const { default: ExcelJS } = await import('exceljs');
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load((await excelCompatible(bytes)) as any);
@@ -445,6 +448,7 @@ export function readCSV(
   base: Plan,
   map = defaultMapping,
 ): ImportPreview & { headers: string[] } {
+  if (new TextEncoder().encode(text).byteLength > 10 * 1024 * 1024) throw Error('Import is too large. Maximum size is 10 MB.');
   const p = structuredClone(base),
     rows = parseCSV(text),
     head = rows.shift() ?? [];
@@ -512,7 +516,7 @@ export function ledgerCsvExport(p: Plan, start=p.settings.planStart,end=p.settin
  for(const row of p.ledgerTransactions ?? []) {
   if(row.date < start+'-01' || row.date > monthEnd(end))continue;
   const flow=ledgerPostingFlow(p,row);
-  rows.push(['Account ledger',row.id,row.date,row.kind,row.description,row.amount,row.interestAmount ?? 0,row.feeAmount ?? 0,name(row.sourceAccountId),name(row.destinationAccountId),flow.income,flow.expenses,category(flow.incomeCategoryId),category(flow.expenseCategoryId),row.provisionId,row.billDueMonth,row.reversalOfId,row.note]);
+  rows.push(['Account ledger',row.id,row.date,row.kind,row.description,row.amount,row.interestAmount ?? 0,row.feeAmount ?? 0,name(row.sourceAccountId),name(row.destinationAccountId),flow.income,flow.expenses,flow.income ? category(flow.incomeCategoryId) : '',flow.expenses ? category(flow.expenseCategoryId) : '',row.provisionId,row.billDueMonth,row.reversalOfId,row.note]);
  }
  return '\uFEFF'+rows.map(r=>r.map(v=>quote(safe(v))).join(',')).join('\r\n');
 }
