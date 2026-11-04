@@ -1923,6 +1923,80 @@ code {
   gap: 35px;
   margin-bottom: 18px;
 }
+.theme-presets {
+  margin: 4px 0 20px;
+}
+.theme-presets-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.theme-presets-heading h3 {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+}
+.theme-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.theme-preset {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+.theme-preset:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-ink);
+}
+.theme-preset.selected {
+  border-color: var(--accent-ink);
+  background: var(--accent-soft);
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.theme-preset-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px #fff4, 0 3px 8px #0002;
+}
+.theme-preset-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+.theme-preset-copy strong {
+  overflow: hidden;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.theme-preset-copy small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.theme-preset-meta {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.65rem;
+  text-transform: capitalize;
+}
 .settings-option-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3194,7 +3268,8 @@ html[data-platform="android"] .workspace::before {
   .chart-grid,
   .comparison-chart-grid,
   .appearance,
-  .settings-option-grid {
+  .settings-option-grid,
+  .theme-preset-grid {
     grid-template-columns: 1fr;
   }
   .quick-add > * {

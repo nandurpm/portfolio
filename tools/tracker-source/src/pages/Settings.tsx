@@ -21,6 +21,68 @@ export const palettes = [
   { id: 'sunset', name: 'Sunset', color: '#d67436' },
   { id: 'indigo', name: 'Midnight', color: '#4867c4' },
 ];
+const themePresets = [
+  {
+    id: 'lavender-burst',
+    name: 'Lavender Burst',
+    description: 'Balanced glow with a classic celebration burst',
+    palette: 'violet',
+    color: '#6255df',
+    accent: '#20b69c',
+    intensity: 'balanced',
+    style: 'burst',
+  },
+  {
+    id: 'ocean-cascade',
+    name: 'Ocean Cascade',
+    description: 'A calmer blue rhythm that falls gently from above',
+    palette: 'ocean',
+    color: '#238bc3',
+    accent: '#56c7d9',
+    intensity: 'subtle',
+    style: 'cascade',
+  },
+  {
+    id: 'emerald-ring',
+    name: 'Emerald Ring',
+    description: 'Expressive green energy radiating all around',
+    palette: 'emerald',
+    color: '#129c7e',
+    accent: '#a9d86e',
+    intensity: 'expressive',
+    style: 'ring',
+  },
+  {
+    id: 'sunset-spark',
+    name: 'Sunset Spark',
+    description: 'Warm, lively motion for high-energy progress days',
+    palette: 'sunset',
+    color: '#d67436',
+    accent: '#ffbd59',
+    intensity: 'expressive',
+    style: 'burst',
+  },
+  {
+    id: 'midnight-drift',
+    name: 'Midnight Drift',
+    description: 'Quiet indigo focus with a soft ring celebration',
+    palette: 'indigo',
+    color: '#4867c4',
+    accent: '#8d9cff',
+    intensity: 'subtle',
+    style: 'ring',
+  },
+  {
+    id: 'rose-cascade',
+    name: 'Rose Cascade',
+    description: 'A warm pink palette with a measured falling motion',
+    palette: 'rose',
+    color: '#ce5482',
+    accent: '#f39ab5',
+    intensity: 'balanced',
+    style: 'cascade',
+  },
+] as const;
 const compact = (v: unknown) =>
   v === undefined ? '(empty)' : typeof v === 'object' ? JSON.stringify(v) : String(v);
 export default function Settings({ navigate }: { navigate: (page: string) => void }) {
@@ -32,9 +94,22 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
     [animationPreview, setAnimationPreview] = useState(0),
     [search, setSearch] = useState(''),
     [status, , dataPath] = useSaveStatus();
+  const activePreset = themePresets.find(
+    (preset) =>
+      preset.palette === s.palette &&
+      preset.intensity === (s.animationIntensity ?? 'balanced') &&
+      preset.style === (s.celebrationStyle ?? 'burst'),
+  );
   function toggle(name: 'animations' | 'autoStart' | 'tray', v: boolean) {
     store.change(`Change ${name}`, (d) => {
       d.settings[name] = v;
+    });
+  }
+  function applyPreset(preset: (typeof themePresets)[number]) {
+    store.change(`Apply ${preset.name} theme`, (d) => {
+      d.settings.palette = preset.palette;
+      d.settings.animationIntensity = preset.intensity;
+      d.settings.celebrationStyle = preset.style;
     });
   }
   return (
@@ -90,6 +165,37 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+        <div className="theme-presets">
+          <div className="theme-presets-heading">
+            <div>
+              <h3>Preset moods</h3>
+              <p className="footnote">One tap pairs a colour palette with a matching motion language.</p>
+            </div>
+            {activePreset && <Badge>{activePreset.name}</Badge>}
+          </div>
+          <div className="theme-preset-grid">
+            {themePresets.map((preset) => (
+              <button
+                key={preset.id}
+                className={`theme-preset ${activePreset?.id === preset.id ? 'selected' : ''}`}
+                onClick={() => applyPreset(preset)}
+                aria-pressed={activePreset?.id === preset.id}
+              >
+                <span
+                  className="theme-preset-swatch"
+                  style={{ background: `linear-gradient(135deg, ${preset.color}, ${preset.accent})` }}
+                />
+                <span className="theme-preset-copy">
+                  <strong>{preset.name}</strong>
+                  <small>{preset.description}</small>
+                </span>
+                <span className="theme-preset-meta">
+                  {preset.intensity} · {preset.style}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
         <Toggle
