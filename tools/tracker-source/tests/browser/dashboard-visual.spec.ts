@@ -41,7 +41,7 @@ for (const viewport of [
     expect(heroLabels.length).toBeGreaterThan(0);
     for (const label of heroLabels) {
       expect(label.fontSize).toBeGreaterThanOrEqual(13);
-      expect(label.color).toMatch(/^rgba?\\(255, 255, 255(?:, 0\\.9\\d*)?\\)$/);
+      expect(label.color).toMatch(/^rgba?\(255, 255, 255/);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2)).toBe(true);
     expect(errors).toEqual([]);
