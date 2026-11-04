@@ -216,7 +216,7 @@ assert.equal(await as('authenticated', a, 'SELECT revision FROM public.tracker_p
 checks++;
 
 checks++;
-assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '6');
+assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '7');
 checks++;
 console.log(
   JSON.stringify({

@@ -49,6 +49,6 @@ it('recovers from a committed save whose response was lost without duplicating r
 it('retains the mutation key across a lost response but isolates changed payloads and owners',()=>{
  const keys=new MutationIdentity(),p=cloudPlan(financialFixture().data);
  const first=keys.idFor('owner',1,p);expect(keys.idFor('owner',1,structuredClone(p))).toBe(first);
- p.settings.opening++;expect(keys.idFor('owner',1,p)).not.toBe(first);const edited=keys.idFor('owner',1,p);
+ p.settings.opening=Number(p.settings.opening)+1;expect(keys.idFor('owner',1,p)).not.toBe(first);const edited=keys.idFor('owner',1,p);
  expect(keys.idFor('other-owner',1,p)).not.toBe(edited);
 });
