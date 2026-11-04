@@ -365,13 +365,14 @@ function savingsText(plan:AnyRow,updated:string) {
  "🏦 Estimated cash: <b>"+amt(cashEstimate(plan,now))+"</b>\n\n"+
  "<i>Recorded Daily Entries and Accounts movements. Budget forecasts, EMI reserves and reconciliation are separate.</i>"+syncInfo(updated);
 }
-function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):string[] {
- const month=date.slice(0,7),byDay=mode==="day";
- const range=byDay?dateRange(plan,date,date):monthData(plan,month);
+function pdfLines(plan:AnyRow,mode:"day"|"month"|"range",date:string,updated:string,from?:string,through?:string):string[] {
+ const month=date.slice(0,7),byDay=mode==="day",byRange=mode==="range";
+ if(byRange&&(!from||!through||!rangeValid(from,through)))throw Error("Invalid PDF date range");
+ const range=byRange?dateRange(plan,from!,through!):byDay?dateRange(plan,date,date):monthData(plan,month);
  const lines=[
   "FINANCIAL REPORT OVERVIEW",
   "Includes Daily Entries and Accounts activity. Transfers are not income or expenses.",
-  "Reporting period: "+(byDay?date:month),
+  "Reporting period: "+(byRange?from+" to "+through:byDay?date:month),
   "Cloud last synced: "+updated,
   "Plan period: "+plan.settings.planStart+" to "+plan.settings.planEnd,
   "",
@@ -382,16 +383,16 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
   "Total recorded expenses: "+rs(range.expense),
   "Recorded net change: "+rs(range.net),
   "Transaction count: "+transactionCount(plan,byDay?date:month+"-01",byDay?date:month+"-31"),
-  "Recorded cash estimate: "+rs(cashEstimate(plan,byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate())),
+  "Recorded cash estimate: "+rs(cashEstimate(plan,byRange?through!:byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate())),
  ];
  if(daysSince(updated)>2) lines.push("WARNING: Cloud data is "+daysSince(updated)+" days old and may be incomplete.");
- if(!isInPlan(plan,month))lines.push("WARNING: This period is outside the plan; budget comparison is unavailable.");
+ if(!byRange&&!isInPlan(plan,month))lines.push("WARNING: This period is outside the plan; budget comparison is unavailable.");
  const prev=monthData(plan,previousMonth(month));
- if(!byDay&&transactionCount(plan,previousMonth(month)+"-01",previousMonth(month)+"-31")>0){
+ if(!byDay&&!byRange&&transactionCount(plan,previousMonth(month)+"-01",previousMonth(month)+"-31")>0){
   lines.push("Previous month recorded net: "+rs(prev.net));
   lines.push("Month-on-month recorded net change: "+rs(range.net-prev.net));
  }
- if(!byDay&&isInPlan(plan,month)){
+ if(!byDay&&!byRange&&isInPlan(plan,month)){
   const items=categoryBudgetItems(plan,month);
   const planned=items.reduce((a:number,x:AnyRow)=>a+x.planned,0);
   const spent=items.reduce((a:number,x:AnyRow)=>a+x.actual,0);
@@ -420,7 +421,7 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
  for(const [method,value] of [...byPay.entries()].sort((a,b)=>b[1]-a[1]))lines.push(method+": "+rs(value));
  if(!byPay.size)lines.push("No recorded expense payments in period.");
  lines.push("","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)");
- const now=date;
+ const now=byRange?through!:date;
  const all=[
  ...(plan.loan?.rows||[]).map((r:AnyRow)=>({...r,label:"Main loan"})),
  ...(plan.additionalLoans||[]).flatMap((loan:AnyRow)=>(loan.rows||[]).map((r:AnyRow)=>({...r,label:loan.name||"Additional loan"})))
@@ -452,14 +453,14 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
  }
  if(range.entries.length>entries.length)lines.push("Additional transactions omitted; see authenticated tracker for the full ledger.");
  if((plan.accounts||[]).length){
-  const positions=financialAccounts(plan,byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate());
+  const positions=financialAccounts(plan,byRange?through!:byDay?date:month+"-"+new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate());
   lines.push("","ACCOUNT LEDGER POSITION (AS OF PERIOD END)",
    "Account assets: "+rs(positions.assets),"Account liabilities: "+rs(positions.liabilities),
    "Money lent outstanding: "+rs(positions.receivables),"FD and investments: "+rs(positions.investments),
    "Net worth of account ledger: "+rs(positions.netWorth));
  }
  lines.push("","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)");
- const movements=(plan.ledgerTransactions||[]).filter((e:AnyRow)=>e.date>=(byDay?date:month+"-01")&&e.date<=(byDay?date:month+"-31"))
+ const movements=(plan.ledgerTransactions||[]).filter((e:AnyRow)=>e.date>=(byRange?from!:byDay?date:month+"-01")&&e.date<=(byRange?through!:byDay?date:month+"-31"))
   .sort((a:AnyRow,b:AnyRow)=>String(b.date).localeCompare(String(a.date))).slice(0,70);
  for(const row of movements)lines.push(String(row.date)+" | "+String(row.kind)+" | "+rs(num(row.amount)));
  if(!movements.length)lines.push("No account movements in period.");
@@ -472,7 +473,7 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
 function ascii(value:string) {
  return value.normalize("NFKD").replace(/[^\x20-\x7e]/g,"?").replace(/\s+/g," ").trim();
 }
-async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",date:string,updated:string) {
+async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month"|"range",date:string,updated:string,from?:string,through?:string) {
  const pdf=await PDFDocument.create();
  const regular=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
  const pageSize:[number,number]=[595,842];
@@ -480,7 +481,7 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
  function drawLayout() {
   page.drawRectangle({x:0,y:783,width:595,height:59,color:rgb(0.06,0.17,0.28)});
   page.drawText("SAVINGS  /  EXPENSE TRACKER",{x:42,y:807,size:17,font:bold,color:rgb(1,1,1)});
-  page.drawText(mode==="day"?"DAILY FINANCIAL REPORT":"MONTHLY FINANCIAL REPORT",{x:43,y:793,size:9,font:regular,color:rgb(.68,.82,.92)});
+  page.drawText(mode==="range"?"CUSTOM DATE RANGE REPORT":mode==="day"?"DAILY FINANCIAL REPORT":"MONTHLY FINANCIAL REPORT",{x:43,y:793,size:9,font:regular,color:rgb(.68,.82,.92)});
   page.drawLine({start:{x:43,y:54},end:{x:552,y:54},thickness:0.5,color:rgb(.68,.75,.82)});
   page.drawText("PRIVATE - PERSONAL USE ONLY  |  INR",{x:43,y:41,size:8,font:regular,color:rgb(.40,.48,.57)});
   page.drawText("Page "+number,{x:505,y:41,size:8,font:regular,color:rgb(.40,.48,.57)});
@@ -501,7 +502,7 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
   "CATEGORY DETAILS: RECORDED / PLANNED / GAP","CATEGORY-WISE RECORDED TOTALS",
   "EXPENSES BY PAYMENT METHOD","ACCOUNT LEDGER POSITION (AS OF PERIOD END)","ACCOUNT MOVEMENTS (INCLUDING TRANSFERS / FD / LOAN PRINCIPAL)","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
   "BANK / CASH RECONCILIATION","TRANSACTION LEDGER (ACTUAL)","DISCLAIMER"]);
- const lines=pdfLines(plan,mode,date,updated);
+ const lines=pdfLines(plan,mode,date,updated,from,through);
  for(let i=0;i<lines.length;i++){
   const line=lines[i];const header=headers.has(line);
   if(line==="BUDGET COMPARISON CHART"&&mode==="month"&&isInPlan(plan,date.slice(0,7))){
@@ -529,8 +530,8 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
  const blob=new Blob([bytes],{type:"application/pdf"});
  const form=new FormData();
  form.append("chat_id",owner);
- form.append("document",blob,"Savings_"+(mode==="day"?"Daily_":"Monthly_")+date.replaceAll("-","")+".pdf");
- form.append("caption","📄 Private "+(mode==="day"?"daily":"monthly")+" financial report · "+date);
+ form.append("document",blob,"Savings_"+(mode==="day"?"Daily_":mode==="range"?"Custom_":"Monthly_")+(mode==="range"?from!.replaceAll("-","")+"_"+through!.replaceAll("-",""):date.replaceAll("-",""))+".pdf");
+ form.append("caption","📄 Private "+(mode==="range"?"custom":mode==="day"?"daily":"monthly")+" financial report · "+(mode==="range"?from+" to "+through:date));
  form.append("protect_content","true");
  const response=await fetch("https://api.telegram.org/bot"+token+"/sendDocument",{method:"POST",body:form,signal:AbortSignal.timeout(45000)});
  const body=await response.json();
