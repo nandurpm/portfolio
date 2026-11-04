@@ -208,6 +208,12 @@ export default function Dashboard({
     savings = savingsOverview(p, m, date),
     remainingBudget = full.expenses - act.expenses,
     status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
+  const monthStart = `${m}-01`,
+    monthEndDate = date < monthEnd(m) ? date : monthEnd(m),
+    entryCount = p.entries.filter((entry) => entry.date >= monthStart && entry.date <= monthEndDate).length,
+    budgetUsed = full.expenses > 0 ? Math.round((act.expenses / full.expenses) * 100) : 0,
+    budgetBar = Math.min(100, Math.max(0, budgetUsed)),
+    incomeGap = Math.max(0, full.income - act.income);
   const metrics = [
     ['Income', 'income', 'income'],
     ['Living expenses', 'living', 'living'],
@@ -220,8 +226,19 @@ export default function Dashboard({
       <PageHead
         eyebrow="PRIVATE FINANCE WORKSPACE"
         title="Monthly snapshot"
-        description="Know what’s planned, what’s spent, and what’s yours to keep."
+        description="A clear view of cash, monthly progress, and what needs attention next."
       />
+      <section className="dashboard-context" aria-label="Dashboard view controls">
+        <div className="dashboard-context-summary">
+          <span className="dashboard-context-overline">Reporting view</span>
+          <strong>{monthLabel(m, true)}</strong>
+          <span className={`dashboard-status ${status}`}>
+            <span className={`status-dot ${status}`} />
+            {status} month · {date > today() ? 'forecast' : 'live'}
+          </span>
+        </div>
+        <MonthControls />
+      </section>
       <section className="dashboard-hero" aria-labelledby="dashboard-balance-title">
         <div className="dashboard-balance">
           <span className="dashboard-hero-icon" aria-hidden="true"><Wallet /></span>
@@ -230,6 +247,10 @@ export default function Dashboard({
             <h2 id="dashboard-balance-title">Calculated cash balance</h2>
             <strong>{money(cum.actualCash)}</strong>
             <p>Opening savings + recorded cash movements, including Accounts and PF transfers</p>
+            <div className="dashboard-balance-meta">
+              <span>{date > today() ? 'Forecast through' : 'Through'} {displayDate(date, s.dateFormat)}</span>
+              <span>Updated from recorded activity</span>
+            </div>
           </div>
         </div>
         <div className="dashboard-hero-insights">
@@ -256,19 +277,34 @@ export default function Dashboard({
         <Stat label="Saved this year" value={savings.year} caption={`${savings.calendarYear} through ${displayDate(date, s.dateFormat)}`} tone={savings.year < 0 ? 'orange' : 'violet'} icon={<CalendarRange />} />
         <Stat label="Net savings since tracking began" value={savings.lifetime} caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`} tone={savings.lifetime < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
       </div>
+      <section className="dashboard-pulse" aria-labelledby="dashboard-pulse-title">
+        <div className="dashboard-pulse-head">
+          <div>
+            <span className="dashboard-section-kicker">MONTHLY PULSE</span>
+            <h2 id="dashboard-pulse-title">The numbers to act on first</h2>
+          </div>
+          <span className="dashboard-pulse-caption">{monthLabel(m, true)} · recorded through {displayDate(date, s.dateFormat)}</span>
+        </div>
+        <div className="dashboard-pulse-grid">
+          <article className="dashboard-pulse-item">
+            <span className="dashboard-pulse-label">Budget used</span>
+            <strong>{budgetUsed}%</strong>
+            <small>{money(act.expenses)} of {money(full.expenses)} recorded</small>
+            <div className="dashboard-pulse-bar" aria-hidden="true"><span style={{ width: `${budgetBar}%` }} /></div>
+          </article>
+          <article className="dashboard-pulse-item">
+            <span className="dashboard-pulse-label">Income still to record</span>
+            <strong>{incomeGap > 0 ? money(incomeGap) : 'On plan'}</strong>
+            <small>{incomeGap > 0 ? 'planned income not yet recorded' : 'planned income fully recorded'}</small>
+          </article>
+          <article className="dashboard-pulse-item">
+            <span className="dashboard-pulse-label">Entries this month</span>
+            <strong>{entryCount}</strong>
+            <small>{entryCount === 1 ? 'entry' : 'entries'} recorded in the selected month</small>
+          </article>
+        </div>
+      </section>
       <FinancialPosition onManage={()=>navigate('accounts')}/>
-      <MonthControls />
-      <div className="month-banner">
-        <span className={`status-dot ${status}`} />
-        <span>
-          Selected month: <strong>{monthLabel(m, true)}</strong> ({status} month)
-        </span>
-        <span className="muted">
-          {date < `${s.planStart}-01`
-            ? `Your plan begins ${displayDate(s.planStart + '-01')}`
-            : `Through ${displayDate(date, s.dateFormat)}`}
-        </span>
-      </div>
       {date > today() && (
         <div className="callout preview-banner" role="status">
           <strong>Future report preview</strong> · Reporting through {displayDate(date)}. Actuals
