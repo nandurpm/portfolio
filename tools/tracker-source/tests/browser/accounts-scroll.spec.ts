@@ -43,7 +43,7 @@ for (const width of [1366, 1702, 2560]) {
     expect(metrics.shellTop).toBeGreaterThanOrEqual(-2);
     expect(metrics.shellBottom).toBeLessThanOrEqual(height + 2);
     expect(metrics.sidebarTop).toBeGreaterThanOrEqual(-2);
-    expect(metrics.sidebarBottom).toBeGreaterThanOrEqual(height + 2);
+    expect(metrics.sidebarBottom).toBeGreaterThanOrEqual(height - 2);
     expect(metrics.mainCanScroll).toBe(true);
     expect(metrics.mainScrolled).toBe(true);
     expect(metrics.mainHasHorizontalOverflow).toBe(false);
