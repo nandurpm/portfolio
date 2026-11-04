@@ -122,6 +122,9 @@ sandbox.calls=[];sandbox.fetch=async()=>({json:async()=>({ok:true})});
  assert.match(evaluate('investmentsText(ledgerFixture,"2026-11-04")'),/FD/);
  sandbox.emiFixture={...sandbox.ledgerFixture,settings:{...sandbox.ledgerFixture.settings,emiPreviousMonth:true,salaryDay:10},loan:{rows:[{id:'emi-1',dueDate:'2026-12-05',paid:false,paidBeforeOpening:false,emi:2000,paidAmount:0,paidDate:''}]},additionalLoans:[]};
  assert.equal(evaluate('plannedEmiDate(emiFixture,loanInstallments(emiFixture)[0])'),'2026-11-10');
+ sandbox.emiFixtureNoAdvance={...sandbox.emiFixture,settings:{...sandbox.emiFixture.settings,emiPreviousMonth:false}};
+ assert.equal(evaluate('plannedEmiDate(emiFixtureNoAdvance,loanInstallments(emiFixtureNoAdvance)[0])'),'2026-12-05','Do not invent a planned date after the contractual due');
+
  assert.match(evaluate('emiText(emiFixture,"2026-11-04")'),/Planned: 2026-11-10/);
  sandbox.quiet={alerts_enabled:true,sync_alerts:false,budget_alerts:false,emi_reminders:true,low_balance_alerts:false};
  assert.match(evaluate('alertItems(emiFixture,"2026-11-09",quiet,"2026-11-09").map(x=>x.html).join(" ")'),/ADVANCE EMI PLAN/);
