@@ -33,7 +33,14 @@ BEGIN
       ) THEN RAISE EXCEPTION 'Update tracker clients: preserve %.%',collection_name,optional_key USING ERRCODE='22023'; END IF;
     END LOOP;
   END LOOP;
-  IF OLD.data->'settings' ? 'openingFromAccounts' AND NOT(coalesce(NEW.data->'settings','{}'::jsonb) ? 'openingFromAccounts') THEN
+  IF EXISTS (
+    SELECT 1 FROM jsonb_array_elements(coalesce(OLD.data->'additionalLoans','[]'::jsonb)) ol
+    JOIN jsonb_array_elements(coalesce(NEW.data->'additionalLoans','[]'::jsonb)) nl ON ol->>'id'=nl->>'id'
+    CROSS JOIN LATERAL jsonb_array_elements(ol->'rows') old_row
+    JOIN LATERAL jsonb_array_elements(nl->'rows') new_row ON old_row->>'id'=new_row->>'id'
+    WHERE old_row ? 'principal' AND (NOT(new_row ? 'principal') OR NOT(new_row ? 'interest') OR NOT(new_row ? 'balance'))
+  ) THEN RAISE EXCEPTION 'Update tracker client: preserve lender principal allocations' USING ERRCODE='22023'; END IF;
+  IF OLD.data->'settings' ? 'openingFromAccounts'  AND NOT(coalesce(NEW.data->'settings','{}'::jsonb) ? 'openingFromAccounts') THEN
     RAISE EXCEPTION 'Update tracker client before saving account opening source' USING ERRCODE='22023';
   END IF;
   IF OLD.data->'settings' ? 'emiPreviousMonth' AND NOT(coalesce(NEW.data->'settings','{}'::jsonb) ? 'emiPreviousMonth') THEN

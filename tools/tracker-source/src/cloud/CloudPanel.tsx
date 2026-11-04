@@ -358,6 +358,7 @@ export function CloudPanel() {
                   >
                     Apply selected versions
                   </button>
+                  <button className="button secondary" disabled={blocked} onClick={()=>void action(async()=>{if(await confirm('Use the complete cloud version?', 'This discards the conflicting merge, keeps the cloud snapshot and saves a local recovery copy of this device’s data before switching. Export a full backup first if you need a separate file.',true,'Use cloud version')) await sync.useCloudReview();})}>Use complete cloud version</button>
                 </div>
               )}
               {c.initial === undefined && !c.review && (

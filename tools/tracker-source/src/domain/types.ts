@@ -206,6 +206,10 @@ export interface InstallmentLoan {
   rows: InstallmentRow[];
 }
 export interface InstallmentRow {
+  /** Contractual allocation, when supplied by the lender schedule. */
+  principal?: number;
+  interest?: number;
+  balance?: number;
   id: string;
   month: string;
   dueDate: string;

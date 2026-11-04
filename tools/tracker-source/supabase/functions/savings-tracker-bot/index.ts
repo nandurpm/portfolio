@@ -1,3 +1,4 @@
+import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation } from "./finance.js";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 
@@ -63,7 +64,7 @@ async function telegram(method:string,token:string,body:AnyRow) {
  return ans.result;
 }
 async function message(token:string,owner:string,html:string,keyboard?:AnyRow,messageId?:number) {
- html="ℹ️ Reports cover Daily Entries only; Accounts ledger activity is excluded. Use the web tracker for complete totals.\n\n"+html;
+
  if(messageId) {
   try {await telegram("editMessageText",token,{chat_id:owner,message_id:messageId,text:html.slice(0,4000),parse_mode:"HTML",link_preview_options:{is_disabled:true},...(keyboard?{reply_markup:keyboard}:{})});return;}
   catch { /* A stale or unchanged panel falls back to a fresh message. */ }
@@ -102,7 +103,8 @@ function dateRange(plan:AnyRow,begin:string,end:string) {
   else unknown+=amount;
   byCat.set(String(e.categoryId),(byCat.get(String(e.categoryId))??0)+amount);
  }
- return {entries,byCat,map,income,living,debt,unknown,expense:living+debt,net:income-living-debt};
+ const shared=financialRange(plan,begin,end);
+ return {...shared,entries:[...entries,...shared.ledgerEntries],unknown};
 }
 function monthData(plan:AnyRow, month:string) {
  const last=new Date(Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),0)).getUTCDate();
@@ -112,9 +114,7 @@ function planPeriod(plan:AnyRow) {
  return String(plan.settings.planStart)+"-01";
 }
 function cashEstimate(plan:AnyRow, date:string) {
- const start=planPeriod(plan), end=String(plan.settings.planEnd)+"-31";
- if(date<start)return num(plan.settings.opening);
- return num(plan.settings.opening)+dateRange(plan,start,date>end?end:date).net;
+ return financialCash(plan,date);
 }
 function displayDate(value:string) {
  const d=new Date(value.length===10?value+"T00:00:00Z":value);
@@ -198,7 +198,7 @@ function balanceText(plan:AnyRow,updated:string) {
  return "🏦 <b>BALANCE EXPLAINED</b>\n━━━━━━━━━━━━━━━━━━\n"+
  "Opening savings: "+amt(opening)+"\n+ Recorded income: "+amt(actual.income)+
  "\n− Living expenses: "+amt(actual.living)+"\n− Debt payments: "+amt(actual.debt)+
- "\n= Recorded cash estimate: <b>"+amt(cash)+"</b>\n\n"+
+ "\n+ PF / principal cash adjustments: "+amt(cash-opening-actual.income+actual.living+actual.debt)+"\n= Recorded cash estimate: <b>"+amt(cash)+"</b>\n\n"+
  (cash<0?"⚠️ Recorded spending exceeds opening savings plus recorded income by "+amt(-cash)+". Check for missing income, duplicate expenses or an incorrect opening balance.\n\n":"")+
  (actual.unknown?"⚠️ Unclassified entries total "+amt(actual.unknown)+" and are excluded from this estimate.\n\n":"")+
  (today<start||today>end?"⚠️ Today is outside the active plan period.\n\n":"")+
@@ -229,8 +229,8 @@ function pdfLines(plan:AnyRow,mode:"day"|"month",date:string,updated:string):str
  const month=date.slice(0,7),byDay=mode==="day";
  const range=byDay?dateRange(plan,date,date):monthData(plan,month);
  const lines=[
-  "DAILY ENTRIES REPORT ONLY",
-  "Accounts ledger movements are excluded. Use web tracker for complete totals.",
+  "FINANCIAL REPORT OVERVIEW",
+  "Includes Daily Entries and Accounts activity. Transfers are not income or expenses.",
   "Reporting period: "+(byDay?date:month),
   "Cloud last synced: "+updated,
   "Plan period: "+plan.settings.planStart+" to "+plan.settings.planEnd,
@@ -343,8 +343,8 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
   page.drawText(line||" ",{x:44,y,size,font,color:header?rgb(0.07,.34,.53):rgb(.14,.21,.28)});
   y-=header?23:15.5;
  }
- const headers=new Set(["DAILY ENTRIES REPORT ONLY",
-  "Accounts ledger movements are excluded. Use web tracker for complete totals.","RECORDED TRANSACTIONS (ACTUAL)",
+ const headers=new Set(["FINANCIAL REPORT OVERVIEW",
+  "Includes Daily Entries and Accounts activity. Transfers are not income or expenses.","RECORDED TRANSACTIONS (ACTUAL)",
   "REGULAR CATEGORY BUDGET VS ACTUAL","BUDGET COMPARISON CHART",
   "CATEGORY DETAILS: RECORDED / PLANNED / GAP","CATEGORY-WISE RECORDED TOTALS",
   "EXPENSES BY PAYMENT METHOD","LOANS AND INSTALLMENTS (SCHEDULED - NOT CASH)",
@@ -378,7 +378,7 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month",
  const form=new FormData();
  form.append("chat_id",owner);
  form.append("document",blob,"Savings_"+(mode==="day"?"Daily_":"Monthly_")+date.replaceAll("-","")+".pdf");
- form.append("caption","📄 Private "+(mode==="day"?"daily":"monthly")+" Daily Entries report (Accounts excluded) · "+date);
+ form.append("caption","📄 Private "+(mode==="day"?"daily":"monthly")+" financial report · "+date);
  form.append("protect_content","true");
  const response=await fetch("https://api.telegram.org/bot"+token+"/sendDocument",{method:"POST",body:form,signal:AbortSignal.timeout(45000)});
  const body=await response.json();
@@ -877,15 +877,11 @@ function isInPlan(plan:AnyRow,month:string) {
  return month>=String(plan.settings?.planStart)&&month<=String(plan.settings?.planEnd);
 }
 function budgetAmount(plan:AnyRow,cat:AnyRow,month:string):number|null {
- if(!isInPlan(plan,month)||cat.active!==true||cat.role!=="regular")return null;
- if(Array.isArray(cat.months)&&cat.months.length&&!cat.months.includes(Number(month.slice(5,7))))return 0;
- if((plan.provisions||[]).some((r:AnyRow)=>r.enabled&&r.categoryId===cat.id))return null;
- const override=plan.overrides?.[month+"|"+cat.id];
- return num(override===undefined?cat.amount:override);
+ return isInPlan(plan,month)?financialBudget(plan,cat,month):null;
 }
 function categoryBudgetItems(plan:AnyRow,month:string) {
  const a=monthData(plan,month);
- return (plan.categories||[]).filter((c:AnyRow)=>c.group==="Living"||c.group==="Debt")
+ return [...a.map.values()].filter((c:AnyRow)=>c.group==="Living"||c.group==="Debt")
  .map((cat:AnyRow)=>({cat,planned:budgetAmount(plan,cat,month),actual:a.byCat.get(String(cat.id))||0}))
  .filter((x:AnyRow)=>x.planned!==null);
 }
@@ -918,7 +914,7 @@ function reconciliationText(plan:AnyRow,updated:string){
      const c=map.get(e.categoryId);if(!c)continue;
      if(c.group==="Income")inc+=num(e.amount);else out+=num(e.amount);
    }
-   const calculated=num(r.openingBalance)+inc-out;
+   const calculated=financialReconciliation(plan,r).calculated;
    const difference=num(r.statementBalance)-calculated;
    lines.push("\n<b>"+escape(r.label)+"</b>","Period: "+escape(r.fromDate)+" to "+escape(r.throughDate),
     "Recorded estimate: "+amt(calculated),"Statement balance: "+amt(num(r.statementBalance)),
@@ -1020,27 +1016,9 @@ async function backupText(){
  "\n\nSnapshots are restricted to the server and retained for up to 90 days. Restoring is intentionally not available through Telegram.";
 }
 function forecastText(plan:AnyRow,updated:string){
- const today=keyDate(),start= today.slice(0,7)<plan.settings.planStart?plan.settings.planStart:today.slice(0,7);
- const list: string[]=[];
- for(let i=0;i<3;i++){
-   const [y,m]=start.split("-").map(Number),d=new Date(Date.UTC(y,m-1+i,1)),month=d.toISOString().slice(0,7);
-   if(!isInPlan(plan,month))break;
-   const categories=plan.categories||[];
-   const regular=categories.filter((c:AnyRow)=>c.role==="regular"&&c.group!=="Income")
-     .map((c:AnyRow)=>budgetAmount(plan,c,month)).filter((v:number|null)=>v!==null).reduce((a:number,b:number)=>a+b,0);
-   const salary=previousMonth(month)<plan.settings.raiseStart?num(plan.settings.salary31):num(plan.settings.raisedSalary);
-   const due=[...(plan.loan?.rows||[]),...(plan.additionalLoans||[]).flatMap((l:AnyRow)=>l.rows||[])];
-   const emi=due.filter((r:AnyRow)=>{
-     const dueMonth=String(r.dueDate||"").slice(0,7);
-     const [yy,mm]=dueMonth.split("-").map(Number);
-     const pm=new Date(Date.UTC(yy,mm-2,1)).toISOString().slice(0,7);
-     return (plan.settings.emiPreviousMonth?pm:dueMonth)===month&&!r.paidBeforeOpening;
-   }).reduce((a:number,r:AnyRow)=>a+Math.max(0,num(r.emi)-num(r.paidAmount)),0);
-   list.push("• <b>"+month+"</b>: Income "+amt(salary)+", base living "+amt(regular)+", remaining EMI "+amt(emi));
- }
- return "📈 <b>3-MONTH ILLUSTRATIVE OUTLOOK</b>\n━━━━━━━━━━━━━━━━━━\n"+
- (list.join("\n")||"No forecast months remain in the plan.")+
- "\n\n<i>Base forecast only; excludes month-specific salary receipt timing, loan early-closure effects, provisions, unexpected costs and other cash movements. Not a bank-balance prediction.</i>"+syncInfo(updated);
+ const month=keyDate().slice(0,7);
+ const rows=financialForecast(plan).filter((r:AnyRow)=>r.month>=month).slice(0,3);
+ return "📈 <b>3-MONTH PLANNED OUTLOOK</b>\n"+rows.map((r:AnyRow)=>"• <b>"+r.month+"</b>: Income "+amt(r.income)+", expenses "+amt(r.expenses)+", planned cash "+amt(r.cash)+", after reserves "+amt(r.spendable)).join("\n")+"\n<i>Same planned forecast as the web tracker; future budgets are not recorded income or payments.</i>"+syncInfo(updated);
 }
 function alertItems(plan:AnyRow,updated:string,prefs:AnyRow,date=keyDate()){
  const list:{key:string;html:string}[]=[];
@@ -1113,7 +1091,7 @@ function alertItems(plan:AnyRow,updated:string,prefs:AnyRow,date=keyDate()){
   }
  }
 
- if(prefs.low_balance_alerts && !(plan.ledgerTransactions?.length)){
+ if(prefs.low_balance_alerts){
   const amount=cashEstimate(plan,date);
   if(amount<num(prefs.low_balance_threshold))list.push({key:"balance:"+date,html:"⚠️ <b>LOW ESTIMATED CASH</b>\n"+
    "Recorded tracker estimate: "+amt(amount)+" (threshold "+amt(num(prefs.low_balance_threshold))+")."+

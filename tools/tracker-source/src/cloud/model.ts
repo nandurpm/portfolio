@@ -78,6 +78,14 @@ export function localPlan(remote: CloudPlan, device: Plan): Plan {
  */
 export function assertModernLedgerPreserved(base: CloudPlan | undefined, local: Plan, remote: CloudPlan) {
   if (!base) return;
+  for (const loan of base.additionalLoans ?? []) {
+    const here=local.additionalLoans?.find(l=>l.id===loan.id), there=remote.additionalLoans?.find(l=>l.id===loan.id);
+    if(!here || !there) continue;
+    for(const row of loan.rows) {
+      const h=here.rows.find(r=>r.id===row.id), t=there.rows.find(r=>r.id===row.id);
+      if(h && t && row.principal !== undefined && h.principal !== undefined && t.principal === undefined) throw Error('Another device omitted lender principal allocations. Update that device before syncing; local data is preserved.');
+    }
+  }
   if(base.settings.openingFromAccounts !== undefined && local.settings.openingFromAccounts !== undefined && remote.settings.openingFromAccounts === undefined)
     throw Error('Another device omitted the account opening balance source. Update that device before syncing. Your local records are preserved.');
   // Older clients must not silently strip account assignments, loan links or card limits.
