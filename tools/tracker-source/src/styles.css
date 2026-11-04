@@ -4306,6 +4306,18 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   background: rgba(0, 0, 0, .19);
   border-color: rgba(255, 255, 255, .18);
 }
+/* The later generic .button.secondary background must not make white hero text invisible. */
+.dashboard-hero-actions .button.secondary {
+  color: #fff;
+  background: rgba(255, 255, 255, .15);
+  border-color: rgba(255, 255, 255, .35);
+}
+@media (hover: hover) {
+  .dashboard-hero-actions .button.secondary:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(255, 255, 255, .25);
+  }
+}
 .dashboard-pulse, .panel, .workspace-card, .stat-card, .account-card, .installment-card, .progress-month-card {
   border-radius: 18px;
   box-shadow: var(--shadow);
