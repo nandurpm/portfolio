@@ -54,6 +54,13 @@ export default function Reports() {
     [remap, setRemap] = useState<Record<string, string>>({}),
     [pdfPreview, setPdfPreview] = useState(false);
   const [start, end] = exportRange(p);
+  const reportEntries = p.entries.filter((e) => e.date >= start && e.date <= end);
+  const reportPreview = {
+    entries: reportEntries.length,
+    categories: new Set(reportEntries.map((e) => e.categoryId)).size,
+    total: reportEntries.reduce((sum, e) => sum + e.amount, 0),
+    ledger: (p.ledgerTransactions ?? []).filter((r) => r.date >= start && r.date <= end).length,
+  };
   async function run(label: string, fn: () => Promise<unknown>) {
     setBusy(label);
     try {
@@ -177,6 +184,27 @@ export default function Reports() {
           label="Apply view range to export"
         />
       </div>
+      <section className="export-preview-panel" aria-labelledby="export-preview-title">
+        <div className="export-preview-head">
+          <div>
+            <span className="section-kicker">EXPORT PREVIEW</span>
+            <h2 id="export-preview-title">Ready to export</h2>
+            <p>These records match the selected export range. Changing the range updates this preview instantly.</p>
+          </div>
+          <Badge tone="green">{monthLabel(start)} → {monthLabel(end)}</Badge>
+        </div>
+        <div className="export-preview-stats">
+          <div><span>Daily entries</span><strong>{reportPreview.entries}</strong></div>
+          <div><span>Categories used</span><strong>{reportPreview.categories}</strong></div>
+          <div><span>Entry total</span><strong>{money(reportPreview.total)}</strong></div>
+          <div><span>Account movements</span><strong>{reportPreview.ledger}</strong></div>
+        </div>
+        <div className="table-scroll export-preview-table"><table className="data-table"><thead><tr><th>File</th><th>Includes</th><th>Format</th><th>Status</th></tr></thead><tbody>
+          <tr><td className="strong">Monthly workbook</td><td>Plan, entries, budgets and overrides</td><td>XLSX</td><td><Badge tone="green">Ready</Badge></td></tr>
+          <tr><td className="strong">Monthly report</td><td>Comparisons, categories and savings</td><td>PDF</td><td><Badge tone="violet">Previewable</Badge></td></tr>
+          <tr><td className="strong">Transaction audit</td><td>Daily Entries and account movements</td><td>CSV</td><td><Badge tone="orange">Ready</Badge></td></tr>
+        </tbody></table></div>
+      </section>
       <div className="export-cards">
         <div className="export-card">
           <span className="export-icon green">

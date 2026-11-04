@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { store, usePlan } from '../store';
 import type { Category } from '../domain/types';
-import { fullAmount, key } from '../domain/calculate';
+import { actualCategory, fullAmount, key, money, reportDate } from '../domain/calculate';
 import { monthsBetween, monthLabel, clampMonth } from '../domain/dates';
 import {
   Section,
@@ -143,6 +143,15 @@ export default function Budget() {
     });
     toast('Percentage change applied to the target months.');
   }
+  function quickAdjust(value: number) {
+    store.change(`Apply ${value}% to budget`, (d) => {
+      for (const m of monthsBetween(targetStart, targetEnd).filter((x) => months.includes(x)))
+        for (const c of cats.filter((x) => !cell || x.id === cell.id))
+          d.overrides[key(m, c.id)] = Math.round(fullAmount(p, c, m) * (1 + value / 100) * 100) / 100;
+    });
+    setPercent(value);
+    toast(`${value > 0 ? 'Increased' : 'Reduced'} selected budget${Math.abs(value) === 1 ? '' : 's'} by ${Math.abs(value)}%.`);
+  }
   function saveCategory() {
     if (!edit) return;
     if (!isPaise(edit.amount) && p.categories.find(row => row.id === edit.id)?.amount !== edit.amount) {
@@ -221,6 +230,35 @@ export default function Budget() {
       >
         <IncomeSettings />
       </Section>
+      <section className="budget-snapshot" aria-labelledby="budget-snapshot-title">
+        <div className="budget-snapshot-head">
+          <div>
+            <span className="section-kicker">MONTHLY SNAPSHOT</span>
+            <h2 id="budget-snapshot-title">How this month is tracking</h2>
+            <p>Planned budget versus recorded entries for {monthLabel(budgetMonth, true)}.</p>
+          </div>
+          <Field label="Snapshot month"><select value={budgetMonth} onChange={(e) => setBudgetMonth(e.target.value)}>{months.map((m) => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></Field>
+        </div>
+        <div className="budget-progress-grid">
+          {cats.filter((c) => c.active && c.role === 'regular').slice(0, 8).map((c) => {
+            const planned = fullAmount(p, c, budgetMonth);
+            const actual = actualCategory(p, c, budgetMonth, reportDate(p));
+            const percentUsed = planned > 0 ? Math.min(100, Math.round((actual / planned) * 100)) : 0;
+            return <article className="budget-progress-card" key={c.id}>
+              <div className="budget-progress-title"><span className={`category-dot ${c.group.toLowerCase()}`} /><strong>{c.name}</strong><span>{percentUsed}%</span></div>
+              <div className={`budget-progress-track ${actual > planned && c.group !== 'Income' ? 'over' : ''}`}><span style={{ width: `${Math.max(0, percentUsed)}%` }} /></div>
+              <div className="budget-progress-meta"><span>{money(actual)} used</span><span>of {money(planned)}</span></div>
+            </article>;
+          })}
+        </div>
+        <div className="budget-quick-actions">
+          <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all categories'}</span>
+          <button className="button small secondary" onClick={() => quickAdjust(-10)}>−10%</button>
+          <button className="button small secondary" onClick={() => quickAdjust(-5)}>−5%</button>
+          <button className="button small secondary" onClick={() => quickAdjust(5)}>+5%</button>
+          <button className="button small secondary" onClick={() => quickAdjust(10)}>+10%</button>
+        </div>
+      </section>
       <Section
         title="Your categories"
         caption="Rename freely. Stable category IDs keep all existing transactions connected."

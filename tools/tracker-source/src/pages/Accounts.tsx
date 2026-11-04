@@ -3,7 +3,7 @@ import { today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Search, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import {
   ledgerTransactionLocked,
   openingAccountTotal,
@@ -97,6 +97,23 @@ export default function Accounts() {
   const [billDueMonth, setBillDueMonth] = useState("");
   const [original, setOriginal] = useState("");
   const [visibleCount, setVisibleCount] = useState(100);
+  const [accountQuery, setAccountQuery] = useState("");
+  const [accountSort, setAccountSort] = useState("balance-desc");
+  const [ledgerQuery, setLedgerQuery] = useState("");
+  const [ledgerKind, setLedgerKind] = useState<LedgerKind | "all">("all");
+  const [ledgerSort, setLedgerSort] = useState("date-desc");
+  const visibleAccounts = useMemo(() => {
+    const query = accountQuery.trim().toLowerCase();
+    return accounts
+      .filter((a) => !query || `${a.name} ${a.note} ${a.kind}`.toLowerCase().includes(query))
+      .sort((a, b) => accountSort === "name" ? a.name.localeCompare(b.name) : accountSort === "balance-asc" ? (namedBalances[a.id] ?? 0) - (namedBalances[b.id] ?? 0) : (namedBalances[b.id] ?? 0) - (namedBalances[a.id] ?? 0));
+  }, [accounts, accountQuery, accountSort, namedBalances]);
+  const visibleRows = useMemo(() => {
+    const query = ledgerQuery.trim().toLowerCase();
+    return [...rows]
+      .filter((r) => (ledgerKind === "all" || r.kind === ledgerKind) && (!query || `${r.description} ${r.note} ${r.date}`.toLowerCase().includes(query)))
+      .sort((a, b) => ledgerSort === "date-asc" ? a.date.localeCompare(b.date) : ledgerSort === "amount-desc" ? b.amount - a.amount : ledgerSort === "amount-asc" ? a.amount - b.amount : b.date.localeCompare(a.date));
+  }, [rows, ledgerQuery, ledgerKind, ledgerSort]);
   const startAccount = (a?: Account) => {
     setEditAccount(a?.id ?? "");
     setName(a?.name ?? "");
@@ -882,6 +899,11 @@ export default function Accounts() {
         title="Your accounts"
         caption="Named balances through the report date. Unassigned Entries are shown separately as unallocated cash."
       >
+        <div className="ledger-toolbar" aria-label="Account filters">
+          <label className="toolbar-search"><Search size={16} /><span className="sr-only">Search accounts</span><input value={accountQuery} onChange={(e) => setAccountQuery(e.target.value)} placeholder="Search accounts" /></label>
+          <label className="toolbar-select"><ArrowUpDown size={15} /><span className="sr-only">Sort accounts</span><select value={accountSort} onChange={(e) => setAccountSort(e.target.value)}><option value="balance-desc">Highest balance</option><option value="balance-asc">Lowest balance</option><option value="name">Name A–Z</option></select></label>
+          <span className="toolbar-count">{visibleAccounts.length} account{visibleAccounts.length === 1 ? '' : 's'}</span>
+        </div>
         {!accounts.length ? (
           <Empty
             title="No shared accounts yet"
@@ -894,8 +916,7 @@ export default function Accounts() {
           />
         ) : (
           <div className="account-card-grid">
-            {accounts
-              .map((a) => (
+            {visibleAccounts.map((a) => (
                 <article className="account-card" key={a.id}>
                   <span>
                     {accountKinds.find((x) => x.value === a.kind)?.label}
@@ -949,6 +970,12 @@ export default function Accounts() {
         title="Recent account activity"
         caption="A balance-safe audit trail shared by web, Windows and Android."
       >
+        <div className="ledger-toolbar" aria-label="Transaction filters">
+          <label className="toolbar-search"><Search size={16} /><span className="sr-only">Search transactions</span><input value={ledgerQuery} onChange={(e) => { setLedgerQuery(e.target.value); setVisibleCount(100); }} placeholder="Search description or date" /></label>
+          <label className="toolbar-select"><SlidersHorizontal size={15} /><span className="sr-only">Filter transaction type</span><select value={ledgerKind} onChange={(e) => { setLedgerKind(e.target.value as LedgerKind | 'all'); setVisibleCount(100); }}><option value="all">All types</option>{transactionKinds.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</select></label>
+          <label className="toolbar-select"><ArrowUpDown size={15} /><span className="sr-only">Sort transactions</span><select value={ledgerSort} onChange={(e) => setLedgerSort(e.target.value)}><option value="date-desc">Newest first</option><option value="date-asc">Oldest first</option><option value="amount-desc">Largest amount</option><option value="amount-asc">Smallest amount</option></select></label>
+          <span className="toolbar-count">{visibleRows.length} matching transaction{visibleRows.length === 1 ? '' : 's'}</span>
+        </div>
         {!rows.length ? (
           <Empty
             title="No account transactions"
@@ -956,8 +983,7 @@ export default function Accounts() {
           />
         ) : (
           <div className="ledger-list">
-            {[...rows]
-              .sort((a, b) => b.date.localeCompare(a.date))
+            {visibleRows
               .slice(0, visibleCount)
               .map((r) => (
                 <article key={r.id}>
