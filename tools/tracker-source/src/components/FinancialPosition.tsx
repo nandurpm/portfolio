@@ -70,8 +70,8 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
               ? ` You have spent ${money(-result.savings)} more than you have received since tracking began.`
               : ` You have received ${money(result.savings)} more than you have spent since tracking began.`}
           </p>
-          <details className="position-breakdown">
-            <summary>Balance breakdown</summary>
+          <section className="position-breakdown" aria-labelledby="balance-breakdown-title">
+            <h3 id="balance-breakdown-title">Balance breakdown</h3>
           <div className="table-scroll" tabIndex={0} role="region" aria-label="Financial position details">
             <table
               className="data-table"
@@ -163,7 +163,7 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
               : "total opening savings in Budget & Plan; named openings allocate that total"}
             .
           </p>
-          </details>
+          </section>
           {(Math.abs(w.unallocatedCash) >= 0.01 || w.unlinkedCount > 0) && (
             <p role="status" className="callout">
               Account allocation needs review: {money(w.unallocatedCash)}{" "}
