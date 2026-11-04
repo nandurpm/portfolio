@@ -96,7 +96,7 @@ export default function Accounts() {
     [expenseCategory, setExpenseCategory] = useState("");
   const [billDueMonth, setBillDueMonth] = useState("");
   const [original, setOriginal] = useState("");
-  const [visibleCount, setVisibleCount] = useState(100);
+  const [visibleCount, setVisibleCount] = useState(25);
   const [accountQuery, setAccountQuery] = useState("");
   const [accountSort, setAccountSort] = useState("balance-desc");
   const [ledgerQuery, setLedgerQuery] = useState("");
@@ -971,8 +971,8 @@ export default function Accounts() {
         caption="A balance-safe audit trail shared by web, Windows and Android."
       >
         <div className="ledger-toolbar" aria-label="Transaction filters">
-          <label className="toolbar-search"><Search size={16} /><span className="sr-only">Search transactions</span><input value={ledgerQuery} onChange={(e) => { setLedgerQuery(e.target.value); setVisibleCount(100); }} placeholder="Search description or date" /></label>
-          <label className="toolbar-select"><SlidersHorizontal size={15} /><span className="sr-only">Filter transaction type</span><select value={ledgerKind} onChange={(e) => { setLedgerKind(e.target.value as LedgerKind | 'all'); setVisibleCount(100); }}><option value="all">All types</option>{transactionKinds.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</select></label>
+          <label className="toolbar-search"><Search size={16} /><span className="sr-only">Search transactions</span><input value={ledgerQuery} onChange={(e) => { setLedgerQuery(e.target.value); setVisibleCount(25); }} placeholder="Search description or date" /></label>
+          <label className="toolbar-select"><SlidersHorizontal size={15} /><span className="sr-only">Filter transaction type</span><select value={ledgerKind} onChange={(e) => { setLedgerKind(e.target.value as LedgerKind | 'all'); setVisibleCount(25); }}><option value="all">All types</option>{transactionKinds.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</select></label>
           <label className="toolbar-select"><ArrowUpDown size={15} /><span className="sr-only">Sort transactions</span><select value={ledgerSort} onChange={(e) => setLedgerSort(e.target.value)}><option value="date-desc">Newest first</option><option value="date-asc">Oldest first</option><option value="amount-desc">Largest amount</option><option value="amount-asc">Smallest amount</option></select></label>
           <span className="toolbar-count">{visibleRows.length} matching transaction{visibleRows.length === 1 ? '' : 's'}</span>
         </div>
@@ -1033,12 +1033,12 @@ export default function Accounts() {
           </div>
         )}
       </Section>
-      {rows.length > visibleCount && (
+      {visibleRows.length > visibleCount && (
         <button
           className="button secondary"
-          onClick={() => setVisibleCount(visibleCount + 100)}
+          onClick={() => setVisibleCount((count) => count + 25)}
         >
-          Show more transactions
+          Show more transactions ({Math.min(25, visibleRows.length - visibleCount)} of {visibleRows.length - visibleCount} remaining)
         </button>
       )}
     </div>
