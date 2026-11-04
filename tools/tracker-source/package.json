@@ -17,7 +17,7 @@
     "build": "npm run build:web",
     "lint": "eslint src tests --ignore-pattern tests/browser",
     "audit": "npm audit",
-    "check": "npm run lint && npm test && npm run test:dependencies && npm run typecheck:quality && npm run build && npm run check:bundle",
+    "check": "npm run lint && npm test && npm run test:dependencies && npm run typecheck:quality && npm run build && npm run check:bundle && node scripts/build-bot-finance.mjs --check",
     "test:browser": "playwright test",
     "test:security": "node --import tsx scripts/test-security.ts",
     "verify:deployment": "node scripts/verify-deployment.mjs",

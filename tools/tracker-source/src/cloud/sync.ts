@@ -1,3 +1,6 @@
+import {MutationIdentity} from "./mutation-identity";
+const mutationIdentity = new MutationIdentity();
+import {canClearSignedOutCache} from "./cache-policy";
 import { useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase, readCachedSession } from "./client";
@@ -136,6 +139,7 @@ export const sync = {
       if (session) queue(0);
     };
     const cached = await readCachedSession();
+    if (!cached && WEB_APP && canClearSignedOutCache(store.get())) await store.clearBrowserData();
     if (cached) {
       applySession(cached);
       const epoch = authEpoch;
@@ -162,11 +166,19 @@ export const sync = {
       if (error) emit({ error: error.message });
     }
     const authListener = supabase.auth.onAuthStateChange((_event, session) => {
-      queueMicrotask(() => {
+      queueMicrotask(async () => {
+        const sessionEnded=!!state.session && !session;
         if (state.session?.user.id !== session?.user.id) {
           authEpoch++;
           applySession(session);
         } else emit({ session });
+        if (sessionEnded && WEB_APP) {
+          try {
+            await store.flush();
+            if (!state.session && canClearSignedOutCache(store.get())) await store.clearBrowserData();
+            else if (!state.session) emit({error:'Signed out. Unsynced changes remain locked on this device to prevent data loss. Sign in to sync or export a backup before clearing this browser.'});
+          } catch(error) { emit({error:String(error)}); }
+        }
       });
     });
     cleanups.push(() => authListener?.data?.subscription.unsubscribe());
@@ -283,7 +295,7 @@ export const sync = {
         .rpc("tracker_save_plan", {
           p_data: merged.plan,
           p_expected_revision: remote.revision,
-          p_mutation_id: crypto.randomUUID(),
+          p_mutation_id: mutationIdentity.idFor(session.user.id,remote.revision,merged.plan),
         })
         .setHeader("Authorization", `Bearer ${session.access_token}`);
       if (error) throw error;
@@ -355,7 +367,7 @@ export const sync = {
           .rpc("tracker_save_plan", {
             p_data: local,
             p_expected_revision: initial?.revision ?? 0,
-            p_mutation_id: crypto.randomUUID(),
+            p_mutation_id: mutationIdentity.idFor(session.user.id,initial?.revision ?? 0,local),
           })
           .setHeader("Authorization", `Bearer ${session.access_token}`);
         requireAccount();
@@ -381,6 +393,15 @@ export const sync = {
     } finally {
       emit({ busy: false });
     }
+  },
+  async useCloudReview() {
+    const review=state.review, session=state.session;
+    if (!review || !session) return;
+    if (WEB_APP) localStorage.setItem('tracker-before-sync', JSON.stringify(store.get()));
+    store.acceptCloud(review.remote.data, meta(session.user.id,review.remote));
+    await store.flush();
+    emit({review:null,error:'',status:'Ready to sync'});
+    queue(0);
   },
   async resolve(choices: ("local" | "remote")[]) {
     const review = state.review;

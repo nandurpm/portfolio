@@ -10,6 +10,7 @@ import { usePhone } from './usePhone';
 import { loanSummary, paymentRows } from '../domain/loan-summary';
 import { paymentDisplayStatus } from '../domain/payment-status';
 import {
+  applyLenderSchedule,
   addInstallmentLoan,
   saveInstallmentPayment,
   correctInstallmentDates,
@@ -22,6 +23,7 @@ export default function AdditionalLoans() {
   const p = usePlan(),
     { toast, confirm } = useUi();
   const showDate = (date: string) => displayDate(date, p.settings.dateFormat);
+  const [lenderSchedule, setLenderSchedule] = useState('');
   const [adding, setAdding] = useState(false);
   const [editingDates, setEditingDates] = useState(false);
   const [correctedFirst, setCorrectedFirst] = useState('');
@@ -45,7 +47,7 @@ export default function AdditionalLoans() {
     [method, setMethod] = useState('Not specified');
   const loans = p.additionalLoans ?? [],
     loan = loans.find((l) => l.id === selected) ?? loans[0];
-  const total = loan ? round(loan.monthlyEmi * loan.tenure) : 0;
+  const total = loan ? round(loan.rows.reduce((sum,r)=>sum+r.emi,0)) : 0;
   const rows = loan ? paymentRows(p, loan.rows) : [];
   const summary = loan ? loanSummary(rows) : null;
   const paid = summary?.paid ?? 0;
@@ -136,6 +138,7 @@ export default function AdditionalLoans() {
   }
   return (
     <>
+      {loan && <details className="position-breakdown"><summary>Lender repayment schedule</summary><p>Paste one line per installment: YYYY-MM-DD, principal, interest. This replaces scheduled amounts, including a different final installment, without recording a payment. Principal must total the financed amount.</p><textarea aria-label="Lender schedule rows" value={lenderSchedule} onChange={e=>setLenderSchedule(e.target.value)} rows={8}/><button className="button secondary" onClick={async()=>{if (!(await confirm('Apply lender schedule?', 'Review the dates, principal and interest against your lender document. Existing receipts are retained. No cash entry is created.',false,'Apply schedule'))) return;try {store.change('Apply lender repayment schedule',d=>applyLenderSchedule(d,loan.id,lenderSchedule));setLenderSchedule('');toast('Lender schedule saved.');} catch(e){toast(userError(e),true);}}}>Apply lender schedule</button></details>}
       <Section
         title="Additional loans & EMIs"
         caption="Keep each purchase or loan separate. Fixed installments include the lender’s agreed charges; no interest rate is assumed."
@@ -178,7 +181,7 @@ export default function AdditionalLoans() {
             </div>
             <p>
               {summary?.paidCount ?? 0} of {loan.tenure} installments paid ·{' '}
-              {money(loan.monthlyEmi)} monthly · {money(round(total - loan.principal))} total
+              {money(loan.monthlyEmi)} regular installment · {money(round(total - loan.principal))} total
               charges
             </p>
             {loan.note && <p className="muted">{loan.note}</p>}
@@ -218,7 +221,7 @@ export default function AdditionalLoans() {
               <div className="installment-cards">
                 {rows.map((r, i) => (
                   <article key={r.id} className="installment-card">
-                    <div className="installment-card-head">
+                    <p>{r.principal === undefined ? "Principal allocation not supplied" : `Principal ${money(r.principal)} · Interest ${money(r.interest ?? 0)} · Remaining principal ${money(r.balance ?? 0)}`}</p><div className="installment-card-head">
                       <strong>
                         Installment {i + 1} of {loan.tenure}
                       </strong>
@@ -268,6 +271,9 @@ export default function AdditionalLoans() {
                         'Planned pay date',
                         'Due date',
                         'Amount',
+                        'Principal',
+                        'Interest',
+                        'Principal remaining',
                         'Paid amount',
                         'Payment date',
                         'Status',
@@ -282,7 +288,7 @@ export default function AdditionalLoans() {
                         <td>{i + 1}</td>
                         <td>{showDate(plannedPaymentDate(p, r.dueDate, loan.id))}</td>
                         <td>{showDate(r.dueDate)}</td>
-                        <td>{money(r.emi)}</td>
+                        <td>{money(r.emi)}</td><td>{r.principal === undefined ? '—' : money(r.principal)}</td><td>{r.interest === undefined ? '—' : money(r.interest)}</td><td>{r.balance === undefined ? '—' : money(r.balance)}</td>
                         <td>{r.paidAmount ? money(r.paidAmount) : '—'}</td>
                         <td>
                           {r.paidDate ? showDate(r.paidDate) : '—'}

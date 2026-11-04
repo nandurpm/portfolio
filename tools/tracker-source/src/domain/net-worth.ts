@@ -41,14 +41,15 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
         0,
       ),
   );
-  // Additional fixed-payment loans do not store amortization. Disclose a proportional estimate,
-  // never mistake all future repayments (which include charges) for principal outstanding.
   const additionalPrincipal = (p.additionalLoans ?? []).reduce((sum, loan) => {
     const rows = paymentRows(p, loan.rows, date);
-    const total = rows.reduce((n, r) => n + r.emi, 0);
-    const paid = rows.reduce((n, r) => n + Math.min(r.emi, r.paidAmount), 0);
-    return sum + loan.principal * (total ? Math.max(0, 1 - paid / total) : 1);
-  }, 0);
+    if (loan.rows.every(r => r.principal !== undefined)) {
+      return sum + Math.max(0, loan.principal - rows.reduce((n,r,i) => n + (loan.rows[i]!.principal ?? 0) * Math.min(1, r.emi > 0 ? r.paidAmount/r.emi : 0),0));
+    }
+    const total = rows.reduce((n,r)=>n+r.emi,0);
+    const paid = rows.reduce((n,r)=>n+Math.min(r.emi,r.paidAmount),0);
+    return sum + loan.principal * (total ? Math.max(0,1-paid/total) : 1);
+  },0);
   const planLoans = round(originalPrincipal + additionalPrincipal);
   const liquidAssets = (p.accounts ?? [])
     .filter((a) => liquidKinds.includes(a.kind))
@@ -88,9 +89,9 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
     netWorth: round(assets - liabilities),
     planLoans,
     estimated:
-      additionalPrincipal > 0 ||
+      (p.additionalLoans ?? []).some(l => !l.rows.every(r => r.principal !== undefined) || paymentRows(p,l.rows,date).some(r=>r.paidAmount > 0 && r.paidAmount < r.emi)) ||
       paymentRows(p, p.loan.rows, date).some(
-        (r) => r.paidAmount > 0 && r.paidAmount < r.emi,
+        (r) => (r.paidAmount > 0 && r.paidAmount < r.emi) || (r.paidBeforeOpening && r.dueDate > date),
       ),
   };
 }

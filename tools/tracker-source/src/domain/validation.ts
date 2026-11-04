@@ -131,12 +131,7 @@ export const planSchema = z.object({
         plannedPayDay: z.number().int().min(1).max(31).optional(),
         note: z.string().max(5000),
         rows: z.array(
-          loanRow.omit({
-            principal: true,
-            interest: true,
-            balance: true,
-            edited: true,
-          }),
+          loanRow.omit({edited: true}).extend({principal: nonnegative.optional(), interest: nonnegative.optional(), balance: nonnegative.optional()}),
         ),
       }),
     )
@@ -276,6 +271,15 @@ export function validatePlan(p: unknown): Plan {
   if (new Set(allRows.map((r) => r.id)).size !== allRows.length)
     throw Error('Installment IDs must be unique.');
   for (const l of extra) {
+    if (l.rows.some(r=>r.principal !== undefined || r.interest !== undefined || r.balance !== undefined)) {
+      let balance=l.principal;
+      for (const row of l.rows) {
+        if (row.principal === undefined || row.interest === undefined || row.balance === undefined || !isPaise(row.principal) || !isPaise(row.interest) || !isPaise(row.balance) || Math.abs(row.emi-row.principal-row.interest) > 0.001) throw Error('Lender schedule requires complete matching principal, interest and EMI amounts.');
+        balance=Math.round((balance-row.principal)*100)/100;
+        if(balance < 0 || Math.abs(balance-row.balance)>0.001) throw Error('Lender schedule running principal balance is inconsistent.');
+      }
+      if (balance !== 0) throw Error('Lender schedule principal must total the financed amount.');
+    }
     if (l.rows.length !== l.tenure || new Set(l.rows.map((r) => r.month)).size !== l.rows.length)
       throw Error('Loan schedule must contain one row per installment.');
     if (

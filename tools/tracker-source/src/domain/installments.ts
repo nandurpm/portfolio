@@ -178,3 +178,25 @@ export function correctInstallmentDates(
   category.day = day;
   category.edited = true;
 }
+
+/** Import a lender's contractual allocation without creating a payment or cash movement. */
+export function applyLenderSchedule(p: Plan, loanId: string, text: string) {
+  const loan = p.additionalLoans?.find(l => l.id === loanId);
+  if (!loan) throw Error('Loan not found.');
+  const input = text.trim().split(/\r?\n/).filter(Boolean).map(line => line.trim().split(/[,;\t]/).map(v => v.trim()));
+  if (input.length !== loan.rows.length) throw Error('Provide one date, principal and interest row for every installment.');
+  let balance = loan.principal;
+  const rows = input.map((parts, i) => {
+    const [dueDate, rawPrincipal, rawInterest] = parts;
+    const principal = Number(rawPrincipal), interest = Number(rawInterest), old = loan.rows[i]!;
+    if (parts.length !== 3 || !dueDate || !validDate(dueDate) || !rawPrincipal || !rawInterest || !Number.isFinite(principal) || !Number.isFinite(interest) || principal < 0 || interest < 0 || !isPaise(principal) || !isPaise(interest) || (i > 0 && dueDate <= input[i-1]![0]!)) throw Error('Use ascending YYYY-MM-DD, principal, interest rows with nonnegative two-decimal amounts.');
+    const emi = round(principal + interest);
+    if (emi <= 0 || principal > balance || old.paidAmount > emi || (old.paidAmount > 0 && old.dueDate !== dueDate)) throw Error('Schedule conflicts with principal or existing payments. Correct receipts before changing paid installment dates.');
+    balance = round(balance - principal);
+    return {...old, dueDate, month: dueDate.slice(0,7), principal, interest, balance, emi};
+  });
+  if (balance !== 0) throw Error('Scheduled principal must total the financed principal exactly.');
+  loan.rows = rows;
+  loan.firstDueDate = rows[0]!.dueDate;
+  loan.monthlyEmi = rows[0]!.emi;
+}

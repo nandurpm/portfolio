@@ -56,6 +56,8 @@ assert.equal(await sql("SELECT has_table_privilege('authenticated','public.track
 const id = crypto.randomUUID();
 const first = await save(a, 0, id);
 assert.equal(first.ok, true);
+assert.equal((await save(a,0,id)).revision,1,'Replay after a lost response must not increment revision');checks++;
+assert.equal((await save(a,0,crypto.randomUUID())).ok,false,'Stale revision after a committed save must not overwrite');checks++;
 checks++;
 assert.equal((await save(b, 0, crypto.randomUUID())).ok, true);
 checks++;
@@ -148,6 +150,11 @@ assert.equal((await save(b,5,crypto.randomUUID(),categorized)).revision,6);check
 const missingCategory=structuredClone(categorized);
 delete (missingCategory.ledgerTransactions[0] as Record<string,unknown>).expenseCategoryId;
 await denied(save(b,6,crypto.randomUUID(),missingCategory),'Legacy client cannot strip expense stream category');
+const lender={...structuredClone(categorized), additionalLoans:[{id:'lender',name:'Synthetic lender',principal:100,monthlyEmi:110,tenure:1,firstDueDate:'2026-12-05',note:'',rows:[{id:'lender-row',month:'2026-12',dueDate:'2026-12-05',emi:110,principal:100,interest:10,balance:0,paid:false,paidAmount:0,paidBeforeOpening:false,paidDate:''}]}]};
+assert.equal((await save(b,6,crypto.randomUUID(),lender)).revision,7);checks++;
+const strippedLender=structuredClone(lender);delete (strippedLender.additionalLoans[0]!.rows[0]! as Record<string,unknown>).principal;
+await denied(save(b,7,crypto.randomUUID(),strippedLender),'Legacy client cannot strip lender principal allocation');
+
 const cross = structuredClone(data);
 cross.entries.push({ ...orphan.entries[0]!, id: 'cross', loanRowId: 'row-1', categoryId: 'bill' });
 cross.loan.rows[1]!.paidAmount = 1;
@@ -209,7 +216,7 @@ assert.equal(await as('authenticated', a, 'SELECT revision FROM public.tracker_p
 checks++;
 
 checks++;
-assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '6');
+assert.equal(await as('authenticated', b, 'SELECT revision FROM public.tracker_plans'), '7');
 checks++;
 console.log(
   JSON.stringify({

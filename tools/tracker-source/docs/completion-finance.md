@@ -1,0 +1,11 @@
+# Completing loan, bot, sync and cache findings
+
+Additional loans accept a complete lender schedule as YYYY-MM-DD, principal, interest rows. Validation requires matching EMI sums, nonnegative running balances and total principal equal to the financed amount. IDs and receipts are preserved; no cash receipt is invented. A paid installment's due date cannot silently move. Repayment totals are summed from rows, so the final EMI can differ. Net worth uses scheduled principal for full payments; partial allocation remains explicitly estimated. Legacy loans without allocations retain their previous labelled estimate until a lender schedule is supplied. No customer loan values are hardcoded or automatically migrated.
+
+The bot imports a generated bundle from the web domain. Cash, income/expenses, category budgets, forecast and reconciliation calculations are shared. Auditable Accounts activity is included in reports, and movement principal is not flattened into income/expenses. CI rejects a stale bundle. No test sends a Telegram message.
+
+Cloud review offers a complete-remote-snapshot escape route when individually selected records produce an invalid overpayment. It confirms replacement and retains a device recovery copy. Existing RPC revision and mutation checks plus stable record IDs protect replay; isolated tests cover a lost successful response and repeated mutation/revision handling. Lender allocations are protected against legacy-client omission on client and server.
+
+Web sign-out removes browser financial caches only after cloud-confirmed synchronization; session-end/startup cleanup does the same for already-synced caches. Unsynced data is retained behind the account lock with an explicit warning. Native offline profiles remain persistent by design; this is not a claim of encrypted financial storage. UI authentication is not encryption against someone with device/disk access.
+
+GitHub Pages cannot serve arbitrary response headers from _headers. The meta CSP and referrer policy remain active; frame-ancestors, nosniff and Permissions-Policy need configurable hosting/CDN administration. No DNS, hosting, authentication or billing changes are made without the necessary account access. Live account-link mismatches are not cleared or bypassed.
