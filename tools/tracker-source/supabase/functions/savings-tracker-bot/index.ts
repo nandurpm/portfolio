@@ -21,18 +21,41 @@ const num=(x:unknown) => typeof x==="number"&&Number.isFinite(x)?x:Number(x)||0;
 function escape(t:unknown):string {return String(t??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");}
 function button(label:string,code:string){return {text:label,callback_data:code};}
 const homeKeyboard = () => ({inline_keyboard:[
- [button("➕ New Entry","e:add"),button("📊 Dashboard","dashboard")],
- [button("🏦 Balance Explained","balance"),button("🏦 Accounts","accounts")],
- [button("📅 Month","month"),button("🧾 Entries","entries")],
+ [button("➕ Quick Add","quick"),button("📊 Dashboard","dashboard")],
+ [button("🏦 Accounts","accounts"),button("📅 This Month","month")],
+ [button("💳 EMI & Dues","emi"),button("🔔 Alerts","alerts")],
+ [button("📄 Reports","reports"),button("⚙️ More","more")],
+ [{text:"🌐 Open Full Tracker",url:APP_URL}]
+]});
+const quickKeyboard=()=>({inline_keyboard:[
+ [button("➕ Income / Expense","e:add"),button("🔐 Edit Mode","e:open")],
+ [{text:"🔁 Transfers / FD / Lending",url:APP_URL}],
+ [button("🔎 Search Transactions","search"),button("🏦 Accounts","accounts")],
+ [button("🏠 Main Menu","menu")]
+]});
+const moreKeyboard=()=>({inline_keyboard:[
  [button("🧾 Entries","entries"),button("🗂️ Plan","plan")],
  [button("💸 Budgets","budgets"),button("🏦 Reconcile","reconcile")],
- [button("💳 EMI & Loans","emi"),button("📈 Forecast","forecast")],
- [button("📄 PDF Reports","reports"),button("🔔 Alerts","alerts")],
+ [button("📈 Forecast","forecast"),button("💰 Savings","savings")],
  [button("🔄 Sync Check","sync"),button("⚙️ Settings","settings")],
  [button("🗄️ Backups","backups"),button("🛡️ Edit History","history")],
- [button("🔐 Edit Mode","e:open"),button("📊 Today","day")],
- [button("ℹ️ Help & Privacy","help")],
- [{text:"🔐 Open Full Tracker",url:APP_URL},button("🟢 Status","status")]
+ [button("🔐 Edit Mode","e:open"),button("🟢 Status","status")],
+ [button("ℹ️ Help & Privacy","help"),button("🏠 Main Menu","menu")]
+]});
+const accountKeyboard=()=>({inline_keyboard:[
+ [button("🤝 Money Lent","lending"),button("🏦 FD & Investments","investments")],
+ [button("🧾 Transactions","entries"),button("🏠 Main Menu","menu")]
+]});
+const reportsKeyboard=()=>({inline_keyboard:[
+ [button("📊 Today","day"),button("📅 This Month","month")],
+ [button("📆 Previous Month","prev"),button("🗓️ Custom Range","ranges")],
+ [button("📄 PDF Reports","pdfmenu"),button("🔎 Search","search")],
+ [button("🏠 Main Menu","menu")]
+]});
+const rangeKeyboard=()=>({inline_keyboard:[
+ [button("📅 Last 30 Days","range:30"),button("📅 Last 90 Days","range:90")],
+ [button("🗓️ Financial Year","range:fy"),button("✍️ Custom Dates","range:custom")],
+ [button("📄 Last 30 Days PDF","rangepdf:30"),button("🏠 Reports","reports")]
 ]});
 const back=(code="menu")=>({inline_keyboard:[[button("🏠 Main Menu",code)]]});
 const pdfMenu=()=>({inline_keyboard:[
@@ -134,6 +157,22 @@ function syncInfo(updated:string) {
 function categoriesByType(plan:AnyRow,group:string) {
  return (plan.categories as AnyRow[]).filter(c=>c.group===group&&c.active);
 }
+function searchTransactions(plan:AnyRow,term:string,updated:string) {
+ const value=term.trim().toLocaleLowerCase("en");
+ if(value.length<2||value.length>60)return "🔎 <b>SEARCH TRANSACTIONS</b>\n\nSend <code>/search Amazon</code> or <code>/search 500</code> (2–60 characters).";
+ const categories=new Map((plan.categories||[]).map((c:AnyRow)=>[String(c.id),String(c.name)]));
+ const accounts=new Map((plan.accounts||[]).map((a:AnyRow)=>[String(a.id),String(a.name)]));
+ const rows=[
+  ...(plan.entries||[]).map((e:AnyRow)=>({date:e.date,amount:num(e.amount),label:String(categories.get(String(e.categoryId))||e.categoryId||"Entry"),details:[e.description,e.notes,e.payment,e.merchant,e.orderId,e.date]})),
+  ...(plan.ledgerTransactions||[]).map((e:AnyRow)=>({date:e.date,amount:num(e.amount),label:String(e.kind).replaceAll("-"," "),details:[e.description,e.note,e.merchant,e.orderId,accounts.get(String(e.sourceAccountId)),accounts.get(String(e.destinationAccountId)),e.date]}))
+ ];
+ const hits=rows.filter((row:AnyRow)=>([row.label,row.amount.toString(),row.amount.toFixed(2),...row.details].join(" ").toLocaleLowerCase("en")).includes(value))
+ .sort((a:AnyRow,b:AnyRow)=>String(b.date).localeCompare(String(a.date))).slice(0,12);
+ const lines=hits.map((row:AnyRow)=>"• "+escape(row.date)+" · "+escape(row.label)+" · "+amt(row.amount));
+ return "🔎 <b>SEARCH RESULTS</b>\n━━━━━━━━━━━━━━━━━━\nQuery: <b>"+escape(term.trim())+"</b>\n"+
+  (lines.join("\n")||"No matching synced transactions found.")+
+  "\n\n<i>Searches only records already synchronized to the cloud. Showing up to 12 matching transactions.</i>"+syncInfo(updated);
+}
 function transactionCount(plan:AnyRow,from:string,through:string) {
  return (plan.entries||[]).filter((r:AnyRow)=>r.date>=from&&r.date<=through).length+
   (plan.ledgerTransactions||[]).filter((r:AnyRow)=>r.date>=from&&r.date<=through).length;
@@ -181,6 +220,29 @@ function budgetsText(plan:AnyRow,month:string,updated:string) {
  parts.push("\n<i>Base category amounts only. EMI timing, salary changes, overrides, and provisions may alter the full forecast shown in the app.</i>");
  return parts.join("\n")+syncInfo(updated);
 }
+function daysAgo(date:string,n:number) {
+ return new Date(Date.parse(date+"T12:00:00Z")-n*86400000).toISOString().slice(0,10);
+}
+function rangePreset(kind:string,today=keyDate()) {
+ if(kind==="30"||kind==="90")return {from:daysAgo(today,Number(kind)-1),through:today};
+ if(kind==="fy")return {from:Number(today.slice(5,7))>=4?today.slice(0,4)+"-04-01":String(Number(today.slice(0,4))-1)+"-04-01",through:today};
+ return null;
+}
+function rangeValid(from:string,through:string) {
+ if(!validDate(from)||!validDate(through)||from>through)return false;
+ return (Date.parse(through+"T12:00:00Z")-Date.parse(from+"T12:00:00Z"))/86400000<=366;
+}
+function customRangeText(plan:AnyRow,from:string,through:string,updated:string) {
+ if(!rangeValid(from,through))return "⚠️ Choose valid dates, earliest first, with a maximum span of 367 calendar days.\nUse <code>/range 2026-11-01 2026-11-30</code>.";
+ const out=dateRange(plan,from,through),count=transactionCount(plan,from,through);
+ const byCat=[...out.byCat].filter(([id,value]:[string,number])=>Math.abs(value)>0.001).sort((a:[string,number],b:[string,number])=>Math.abs(b[1])-Math.abs(a[1])).slice(0,6);
+ const lines=["📅 <b>CUSTOM FINANCIAL REPORT</b>","━━━━━━━━━━━━━━━━━━",escape(from)+" → "+escape(through),
+  "💵 Income: <b>"+amt(out.income)+"</b>","💸 Expenses: <b>"+amt(out.expense)+"</b>",
+  "💰 Recorded savings: <b>"+amt(out.net)+"</b>","🧾 Transactions: "+count];
+ if(byCat.length)lines.push("\n<b>Top categories</b>",...byCat.map(([id,value]:[string,number])=>"• "+escape(out.map.get(id)?.name||id)+": "+amt(value)));
+ lines.push("\n<i>Uses the same financial calculation engine as the website. Cash and investment transfers are not income or expenses. Cloud records only.</i>");
+ return lines.join("\n")+syncInfo(updated);
+}
 function reportText(plan:AnyRow,mode:"day"|"month",date:string,updated:string) {
  const period=mode==="day"?date:date.slice(0,7);
  const out=mode==="day"?dateRange(plan,date,date):monthData(plan,period);
@@ -220,6 +282,26 @@ function accountsText(plan:AnyRow,updated:string) {
  lines.push("\n<i>Account-ledger position only. Unassigned Daily Entries and PF may be separate; this is not a verified bank statement.</i>");
  return lines.join("\n")+syncInfo(updated);
 }
+function lendingText(plan:AnyRow,updated:string) {
+ const position=financialAccounts(plan,keyDate());
+ const accounts=(plan.accounts||[]).filter((a:AnyRow)=>a.kind==="receivable");
+ const lines=["🤝 <b>MONEY LENT / RECEIVABLES</b>","━━━━━━━━━━━━━━━━━━",
+  "Outstanding receivables: <b>"+amt(position.receivables)+"</b>"];
+ for(const a of accounts.slice(0,20))lines.push("• "+escape(a.name)+": "+amt(num(position.balances[a.id])));
+ if(!accounts.length)lines.push("No money-lent account is configured.");
+ lines.push("\n<i>Principal repayments reduce receivables, not income. Record or change lending transactions in the authenticated tracker.</i>");
+ return lines.join("\n")+syncInfo(updated);
+}
+function investmentsText(plan:AnyRow,updated:string) {
+ const position=financialAccounts(plan,keyDate());
+ const accounts=(plan.accounts||[]).filter((a:AnyRow)=>["fixed-deposit","investment"].includes(a.kind));
+ const lines=["🏦 <b>FD &amp; INVESTMENTS</b>","━━━━━━━━━━━━━━━━━━",
+  "Invested balance: <b>"+amt(position.investments)+"</b>"];
+ for(const a of accounts.slice(0,20))lines.push("• "+escape(a.name)+": "+amt(num(position.balances[a.id])));
+ if(!accounts.length)lines.push("No FD or investment account is configured.");
+ lines.push("\n<i>Principal movements do not count as expenses or income. Interest, fees and withdrawals follow the website ledger. Configure investments in the tracker.</i>");
+ return lines.join("\n")+syncInfo(updated);
+}
 function balanceText(plan:AnyRow,updated:string) {
  const today=keyDate(),start=planPeriod(plan),end=String(plan.settings.planEnd)+"-31";
  const actual=today<start?{income:0,living:0,debt:0,unknown:0}:dateRange(plan,start,today>end?end:today);
@@ -236,13 +318,42 @@ function balanceText(plan:AnyRow,updated:string) {
 function possibleDuplicate(plan:AnyRow,p:AnyRow) {
  return (plan.entries||[]).some((e:AnyRow)=>e.id!==p.id&&e.date===p.date&&e.categoryId===p.categoryId&&Math.round(num(e.amount)*100)===Math.round(num(p.amount)*100));
 }
+function loanInstallments(plan:AnyRow) {
+ const primary=(plan.loan?.rows||[]).map((r:AnyRow)=>({...r,label:"Main loan",advanceDay:plan.settings.salaryDay}));
+ const extra=(plan.additionalLoans||[]).flatMap((l:AnyRow)=>(l.rows||[]).map((r:AnyRow)=>({...r,label:l.name||"Additional EMI",advanceDay:l.plannedPayDay??plan.settings.salaryDay})));
+ return [...primary,...extra];
+}
+/** Match the web loan-summary rule: receipt-linked allocations override legacy paid flags. */
+function emiPaidAt(plan:AnyRow,row:AnyRow,cutoff:string) {
+ const receipts=(plan.entries||[]).filter((e:AnyRow)=>e.loanRowId===row.id);
+ const amount=receipts.length ? receipts.filter((e:AnyRow)=>e.date<=cutoff).reduce((n:number,e:AnyRow)=>n+num(e.amount),0)
+  : (row.paidBeforeOpening&&(!row.paidDate||row.paidDate<=cutoff))||(row.paidDate&&row.paidDate<=cutoff)?num(row.paidAmount):0;
+ return Math.max(0,Math.round(amount*100)/100);
+}
+function plannedEmiDate(plan:AnyRow,row:AnyRow) {
+ const due=String(row.dueDate||"");
+ if(!validDate(due))return "";
+ const month=plan.settings?.emiPreviousMonth?previousMonth(due.slice(0,7)):due.slice(0,7);
+ const maxDay=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate();
+ const day=Math.max(1,Math.min(31,Math.trunc(num(row.advanceDay)||num(plan.settings?.salaryDay)||10)));
+ return month+"-"+String(Math.min(day,maxDay)).padStart(2,"0");
+}
 function emiText(plan:AnyRow,updated:string) {
- const today=keyDate();
- const loans=[...(plan.loan?.rows||[]).map((r:AnyRow)=>({...r,label:"Main loan"})),...(plan.additionalLoans||[]).flatMap((l:AnyRow)=>(l.rows||[]).map((r:AnyRow)=>({...r,label:l.name||"Additional EMI"})))];
- const coming=loans.filter((r:AnyRow)=>String(r.dueDate||"")>=today && !r.paid).sort((a:AnyRow,b:AnyRow)=>String(a.dueDate).localeCompare(String(b.dueDate))).slice(0,8);
- const lines=coming.map((r:AnyRow)=>"• "+escape(r.dueDate)+" · "+escape(r.label)+" · "+amt(num(r.emi)-num(r.paidAmount)));
- return "💳 <b>UPCOMING EMI / LOANS</b>\n━━━━━━━━━━━━━━━━━━\n"+(lines.join("\n")||"No upcoming unpaid installments found.")+
- "\n\n<i>Payment dates and installment due dates differ. Confirm all actual payments in the tracker.</i>"+syncInfo(updated);
+ const now=keyDate();
+ const upcoming=loanInstallments(plan)
+  .map((row:AnyRow)=>({...row,remaining:Math.max(0,Math.round((num(row.emi)-emiPaidAt(plan,row,now))*100)/100)}))
+  .filter((row:AnyRow)=>validDate(row.dueDate)&&row.remaining>0.009)
+  .sort((a:AnyRow,b:AnyRow)=>String(a.dueDate).localeCompare(String(b.dueDate))).slice(0,10);
+ const lines=upcoming.map((row:AnyRow)=>{
+  const planned=plannedEmiDate(plan,row),paid=emiPaidAt(plan,row,now);
+  return "• "+escape(row.label)+": "+amt(row.remaining)+" remaining\n"+
+   "   Due: "+escape(row.dueDate)+(planned&&planned!==row.dueDate?" · Planned: "+escape(planned):"")+
+   (paid>0?"\n   Already recorded: "+amt(paid):"")+
+   (row.dueDate<now?"\n   ⚠️ Past contractual due date":"");
+ });
+ return "💳 <b>EMI &amp; UPCOMING DUES</b>\n━━━━━━━━━━━━━━━━━━\n"+
+  (lines.join("\n\n")||"No outstanding installments found in your synced plan.")+
+  "\n\n<i>Planned payment and contractual due dates are different. An installment already paid in full is excluded. Check your lender statement before paying.</i>"+syncInfo(updated);
 }
 function savingsText(plan:AnyRow,updated:string) {
  const now=keyDate(),d=monthData(plan,now.slice(0,7)),s=plan.settings;
