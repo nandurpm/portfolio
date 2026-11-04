@@ -147,6 +147,72 @@ test('dark theme and keyboard focus remain accessible', async ({ page }) => {
   expect(accessibility.violations).toEqual([]);
 });
 
+test('all six palettes update accent, sidebar, hero and active controls', async ({ page }) => {
+  await page.route('https://*.supabase.co/**', (route) => route.abort());
+  await page.goto('/');
+  const expected = {
+    violet: ['#6255df', '#33306b'],
+    ocean: ['#167ca0', '#102f45'],
+    emerald: ['#168b78', '#102f37'],
+    rose: ['#aa3f6a', '#532d49'],
+    sunset: ['#a95121', '#51342f'],
+    indigo: ['#4f6fba', '#172541'],
+  } as const;
+  for (const [palette, [accent, sidebarTop]] of Object.entries(expected)) {
+    const appearance = await page.evaluate((name) => {
+      document.documentElement.dataset.theme = 'light';
+      document.documentElement.dataset.palette = name;
+      const root = getComputedStyle(document.documentElement);
+      const sidebar = document.createElement('aside');
+      sidebar.className = 'sidebar';
+      const active = document.createElement('button');
+      active.className = 'active';
+      sidebar.appendChild(active);
+      const hero = document.createElement('div');
+      hero.className = 'dashboard-hero';
+      const label = document.createElement('label');
+      label.className = 'toggle-row';
+      const toggle = document.createElement('input');
+      toggle.type = 'checkbox';
+      toggle.checked = true;
+      label.appendChild(toggle);
+      document.body.append(sidebar, hero, label);
+      const result = {
+        accent: root.getPropertyValue('--accent').trim().toLowerCase(),
+        sidebarTop: root.getPropertyValue('--sidebar-a').trim().toLowerCase(),
+        sidebarBackground: getComputedStyle(sidebar).backgroundImage,
+        heroBackground: getComputedStyle(hero).backgroundImage,
+        activeHighlight: getComputedStyle(active).boxShadow,
+        toggleColor: getComputedStyle(toggle).backgroundColor,
+      };
+      sidebar.remove();
+      hero.remove();
+      label.remove();
+      return result;
+    }, palette);
+    expect(appearance.accent, palette + ' accent').toBe(accent);
+    expect(appearance.sidebarTop, palette + ' sidebar').toBe(sidebarTop);
+    const expectedToggle = 'rgb(' +
+      [1, 3, 5].map((start) => parseInt(accent.slice(start, start + 2), 16)).join(', ') +
+      ')';
+    expect(appearance.toggleColor, palette + ' toggle').toBe(expectedToggle);
+    expect(appearance.sidebarBackground, palette + ' sidebar gradient').toContain('linear-gradient');
+    expect(appearance.heroBackground, palette + ' dashboard hero').toContain('linear-gradient');
+    expect(appearance.activeHighlight, palette + ' active navigation').toContain('inset');
+  }
+  const lavender = await page.evaluate(() => {
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.dataset.palette = 'violet';
+    const root = getComputedStyle(document.documentElement);
+    return {
+      soft: root.getPropertyValue('--accent-soft').trim(),
+      bg: root.getPropertyValue('--bg').trim(),
+      sidebarBottom: root.getPropertyValue('--sidebar-b').trim(),
+    };
+  });
+  expect(lavender).toEqual({ soft: '#eeebff', bg: '#f6f7fc', sidebarBottom: '#6857c7' });
+});
+
 test('all palette combinations keep readable text at 360px and 1280px', async ({ page }) => {
   await page.route('https://*.supabase.co/**', (route) => route.abort());
   for (const width of [360, 1280]) {
