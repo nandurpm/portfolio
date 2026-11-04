@@ -5,7 +5,7 @@ import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
-import { lazy, memo, Suspense, useMemo } from 'react';
+import { lazy, memo, Suspense, useMemo, useState } from 'react';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -28,7 +28,7 @@ import {
   progress,
   savingsOverview,
 } from '../domain/calculate';
-import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
+import { addMonths, clampMonth, monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
@@ -192,6 +192,35 @@ export const ProgressTable = memo(function ProgressTable({ whole = false }: { wh
     </div>
   );
 });
+function DashboardProgress() {
+  const p = usePlan();
+  const current = today().slice(0, 7);
+  const defaultEnd = clampMonth(current, p.settings.planStart, p.settings.planEnd);
+  const defaultStart = clampMonth(addMonths(defaultEnd, -2), p.settings.planStart, defaultEnd);
+  const [start, setStart] = useState(defaultStart);
+  const [end, setEnd] = useState(defaultEnd);
+  const months = monthsBetween(p.settings.planStart, p.settings.planEnd);
+  return (
+    <>
+      <div className="progress-range-control" role="group" aria-label="Month-by-month progress range">
+        <span>Show months</span>
+        <label>From<select aria-label="Progress range start" value={start} onChange={(e) => setStart(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
+        <label>To<select aria-label="Progress range end" value={end} onChange={(e) => setEnd(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
+        <button className="button secondary" type="button" onClick={() => { setStart(defaultStart); setEnd(defaultEnd); }}>Recent 3 months</button>
+      </div>
+      {start <= end ? <ProgressTableFiltered start={start} end={end} /> : <p className="callout">Choose an ending month that is not before the starting month.</p>}
+    </>
+  );
+}
+function ProgressTableFiltered({ start, end }: { start: string; end: string }) {
+  const p = usePlan();
+  const phone = usePhone();
+  const date = reportDate(p);
+  const rows = useMemo(() => progress(p, date).filter((row) => row.month >= start && row.month <= end), [p, date, start, end]);
+  const inProgress = (month: string) => date >= month + '-01' && date < monthEnd(month);
+  if (phone) return <section className="progress-month-cards" aria-label="Recorded monthly progress">{rows.map((r) => <article className="progress-month-card" key={r.month}><header><strong>{monthLabel(r.month, true)}</strong><Badge tone={r.status.toLowerCase()}>{r.status}</Badge></header><dl><div><dt>Income plan</dt><dd>{money(r.plan.income)}</dd></div><div><dt>Income received</dt><dd>{r.actual ? money(r.actual.income) : '—'}</dd></div><div><dt>Expense plan</dt><dd>{money(r.plan.expenses)}</dd></div><div><dt>Expenses recorded</dt><dd>{r.actual ? money(r.actual.expenses) : '—'}</dd></div><div><dt>Actual savings</dt><dd>{r.actual ? money(r.actual.savings) : '—'}</dd></div><div><dt>Recorded cash</dt><dd>{r.recordedCash == null ? '—' : money(r.recordedCash)}</dd></div></dl><p className="progress-month-note">{inProgress(r.month) ? 'In progress' : r.status} · {r.count} {r.count === 1 ? 'entry' : 'entries'}</p></article>)}</section>;
+  return <div className="table-scroll long-table-scroll" tabIndex={0} role="region" aria-label="Recorded monthly progress"><table className="data-table progress-table"><thead><tr>{['Month','Planned income','Actual income','Planned expenses','Actual expenses','Planned savings','Actual savings','Savings gap','Planned cash','Recorded cash','Entries','Status'].map((h)=><th key={h} scope="col">{h}</th>)}</tr></thead><tbody>{rows.map((r)=><tr key={r.month}><td className="strong nowrap">{monthLabel(r.month)}</td><td>{money(r.plan.income)}</td><td>{r.actual ? money(r.actual.income) : '—'}</td><td>{money(r.plan.expenses)}</td><td>{r.actual ? money(r.actual.expenses) : '—'}</td><td>{money(r.plan.savings)}</td><td>{r.actual ? money(r.actual.savings) : '—'}</td><td>{inProgress(r.month) ? 'In progress' : r.actual ? money(r.actual.savings-r.plan.savings) : '—'}</td><td>{r.expectedCash == null ? '—' : money(r.expectedCash)}</td><td>{r.recordedCash == null ? '—' : money(r.recordedCash)}</td><td>{r.count || '—'}</td><td><Badge tone={r.status.toLowerCase()}>{r.status}</Badge></td></tr>)}</tbody></table></div>;
+}
 export default function Dashboard({
   navigate,
   addEntry,
@@ -542,7 +571,7 @@ export default function Dashboard({
         title="Month-by-month progress"
         caption="Complete monthly planned amounts, not daily allocations. Actual amounts count recorded transactions through the report date. Future actuals remain blank."
       >
-        <ProgressTable whole />
+        <DashboardProgress />
       </Section>
         </div>
       </section>
