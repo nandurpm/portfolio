@@ -13,6 +13,7 @@ import { freshPlan } from '../domain/defaults';
 import { APP_NAME } from '../domain/types';
 import { PageHead, Section, Toggle, Field, Badge, useUi, Modal } from '../components/UI';
 import { displayDate } from '../domain/dates';
+import { themePresets } from '../theme-presets';
 export const palettes = [
   { id: 'violet', name: 'Lavender', color: '#6255df' },
   { id: 'ocean', name: 'Ocean', color: '#238bc3' },
@@ -21,68 +22,6 @@ export const palettes = [
   { id: 'sunset', name: 'Sunset', color: '#d67436' },
   { id: 'indigo', name: 'Midnight', color: '#4867c4' },
 ];
-const themePresets = [
-  {
-    id: 'lavender-burst',
-    name: 'Lavender Burst',
-    description: 'Balanced glow with a classic celebration burst',
-    palette: 'violet',
-    color: '#6255df',
-    accent: '#20b69c',
-    intensity: 'balanced',
-    style: 'burst',
-  },
-  {
-    id: 'ocean-cascade',
-    name: 'Ocean Cascade',
-    description: 'A calmer blue rhythm that falls gently from above',
-    palette: 'ocean',
-    color: '#238bc3',
-    accent: '#56c7d9',
-    intensity: 'subtle',
-    style: 'cascade',
-  },
-  {
-    id: 'emerald-ring',
-    name: 'Emerald Ring',
-    description: 'Expressive green energy radiating all around',
-    palette: 'emerald',
-    color: '#129c7e',
-    accent: '#a9d86e',
-    intensity: 'expressive',
-    style: 'ring',
-  },
-  {
-    id: 'sunset-spark',
-    name: 'Sunset Spark',
-    description: 'Warm, lively motion for high-energy progress days',
-    palette: 'sunset',
-    color: '#d67436',
-    accent: '#ffbd59',
-    intensity: 'expressive',
-    style: 'burst',
-  },
-  {
-    id: 'midnight-drift',
-    name: 'Midnight Drift',
-    description: 'Quiet indigo focus with a soft ring celebration',
-    palette: 'indigo',
-    color: '#4867c4',
-    accent: '#8d9cff',
-    intensity: 'subtle',
-    style: 'ring',
-  },
-  {
-    id: 'rose-cascade',
-    name: 'Rose Cascade',
-    description: 'A warm pink palette with a measured falling motion',
-    palette: 'rose',
-    color: '#ce5482',
-    accent: '#f39ab5',
-    intensity: 'balanced',
-    style: 'cascade',
-  },
-] as const;
 const compact = (v: unknown) =>
   v === undefined ? '(empty)' : typeof v === 'object' ? JSON.stringify(v) : String(v);
 export default function Settings({ navigate }: { navigate: (page: string) => void }) {
@@ -171,7 +110,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           <div className="theme-presets-heading">
             <div>
               <h3>Preset moods</h3>
-              <p className="footnote">One tap pairs a colour palette with a matching motion language.</p>
+              <p className="footnote">One tap pairs a colour palette with a matching motion language. Use Alt+1–6 anywhere outside a form.</p>
             </div>
             {activePreset && <Badge>{activePreset.name}</Badge>}
           </div>
@@ -192,7 +131,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
                   <small>{preset.description}</small>
                 </span>
                 <span className="theme-preset-meta">
-                  {preset.intensity} · {preset.style}
+                  Alt+{preset.shortcut} · {preset.intensity} · {preset.style}
                 </span>
               </button>
             ))}

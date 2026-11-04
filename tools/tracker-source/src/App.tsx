@@ -49,6 +49,7 @@ import { today, monthsBetween } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
 import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic } from "./celebrations";
+import { themePresets } from "./theme-presets";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Accounts = lazy(() => import("./pages/Accounts"));
 const Employment = lazy(() => import("./pages/Employment"));
@@ -216,6 +217,19 @@ export function Shell() {
           ))
       )
         return;
+      if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        const preset = themePresets.find((item) => item.shortcut === e.key);
+        if (preset) {
+          e.preventDefault();
+          store.change(`Apply ${preset.name} theme`, (d) => {
+            d.settings.palette = preset.palette;
+            d.settings.animationIntensity = preset.intensity;
+            d.settings.celebrationStyle = preset.style;
+          });
+          toast(`${preset.name} theme applied`);
+          return;
+        }
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         if ((e.target as HTMLElement).closest('[role="dialog"]')) return;
         e.preventDefault();
