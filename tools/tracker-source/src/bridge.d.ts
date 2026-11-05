@@ -21,6 +21,7 @@ declare global {
       pdf: (html: string, name: string) => Promise<string | null>;
       onBeforeClose: (fn: () => Promise<void>) => () => void;
       version: () => Promise<string>;
+      openRelease?: (url: string) => Promise<void>;
     };
   }
 }

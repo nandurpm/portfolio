@@ -340,6 +340,16 @@ else {
         },
       ),
     );
+    handle("release:open", (url: string) => {
+      const link = new URL(url);
+      const notes = /^\/nandurpm\/portfolio\/releases\/tag\/tracker-v\d+\.\d+\.\d+$/.test(link.pathname);
+      const installer = /^\/nandurpm\/portfolio\/releases\/download\/tracker-v\d+\.\d+\.\d+\/Savings-and-Expense-Tracker-Setup-\d+\.\d+\.\d+\.exe$/.test(link.pathname);
+      if (link.origin !== "https://github.com" || link.username || link.password ||
+          link.search || link.hash || !(notes || installer)) {
+        throw Error("Untrusted update download address");
+      }
+      return shell.openExternal(link.toString());
+    });
     handle("auth:google-cancel", () => cancelGoogleOAuth());
     handle("session:get", async (key: string) => {
       const file = sessionPath(app.getPath("userData"), key);

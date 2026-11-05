@@ -92,6 +92,23 @@ public class TrackerNativePlugin extends Plugin {
  @PluginMethod public void readBackups(PluginCall call){synchronized(LOCK){JSArray a=new JSArray();for(File f:backups(getContext())){try{JSObject item=new JSObject();item.put("name",f.getName());item.put("text",new String(Files.readAllBytes(f.toPath()),StandardCharsets.UTF_8));a.put(item);}catch(Exception ignored){}}JSObject o=new JSObject();o.put("items",a);call.resolve(o);}}
  @PluginMethod public void backup(PluginCall call){try{JSObject o=new JSObject();o.put("path",backupFiles(getContext()));call.resolve(o);}catch(Exception e){call.reject("Backup failed",e);}}
  @PluginMethod public void status(PluginCall call){JSObject o=new JSObject();File[] b=backups(getContext());o.put("lastSavedAt",file().exists()?iso(file().lastModified()):"");o.put("lastBackupAt",b.length>0?iso(b[0].lastModified()):"");call.resolve(o);}
+ @PluginMethod public void openRelease(PluginCall call) {
+  try {
+   android.net.Uri uri=android.net.Uri.parse(call.getString("url", ""));
+   String location=uri.getPath();
+   boolean releaseNotes=location!=null && location.matches("^/nandurpm/portfolio/releases/tag/tracker-v[0-9]+\\.[0-9]+\\.[0-9]+$");
+   boolean signedApk=location!=null && location.matches("^/nandurpm/portfolio/releases/download/tracker-v[0-9]+\\.[0-9]+\\.[0-9]+/Savings-and-Expense-Tracker-[0-9]+\\.[0-9]+\\.[0-9]+\\.apk$");
+   if(!"https".equals(uri.getScheme()) || !"github.com".equals(uri.getHost()) ||
+     uri.getPort()!=-1 || uri.getUserInfo()!=null || uri.getQuery()!=null || uri.getFragment()!=null ||
+     !(releaseNotes||signedApk)) throw new IllegalArgumentException("Untrusted release address");
+   getActivity().runOnUiThread(() -> {
+    try {
+     getActivity().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,uri));
+     call.resolve();
+    } catch(Exception e) { call.reject("Could not open the official GitHub release",e); }
+   });
+  } catch(Exception e) { call.reject("Invalid official GitHub release link",e); }
+ }
  @PluginMethod public void openGoogle(PluginCall call) {
   try {
    android.net.Uri uri=android.net.Uri.parse(call.getString("url", ""));
