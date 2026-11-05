@@ -3,18 +3,46 @@ name: Release tracker web, Windows and Android
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - 'tracker-v*'
+    paths:
+      - 'tools/tracker-source/package.json'
+      - '.github/workflows/tracker-unified-release.yml'
 
 permissions:
   contents: write
 
 concurrency:
-  group: tracker-release-${{ github.ref }}
+  group: tracker-release-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      release_needed: ${{ steps.check.outputs.release_needed }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Skip already-published versions on automatic branch pushes
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./tools/tracker-source/package.json').version")"
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF_TYPE}" == "branch" ]] && \
+             gh release view "tracker-v${VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "release_needed=false" >> "${GITHUB_OUTPUT}"
+            echo "Release tracker-v${VERSION} is already published; no new APK or EXE needed."
+          else
+            echo "release_needed=true" >> "${GITHUB_OUTPUT}"
+            echo "Release build requested for tracker-v${VERSION}."
+          fi
   quality:
+    needs: prepare
+    if: needs.prepare.outputs.release_needed == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:

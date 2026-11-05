@@ -6,7 +6,7 @@ The repository maintains five active, purpose-specific workflows:
 | --- | --- | --- |
 | `build-tracker.yml` | Build and commit the authenticated web application into `track/` | Changes to Tracker source on `main`, manual dispatch |
 | `tracker-quality.yml` | Run Tracker tests, synthetic browser, database, Supabase and native dependency checks | Tracker pull requests and audit branches |
-| `tracker-unified-release.yml` | Build and publish signed Android APK, Windows installer and source archive | Manual dispatch or `tracker-v*` tag |
+| `tracker-unified-release.yml` | Build and publish signed Android APK, Windows installer and source archive | Automatic when `main` receives a new Tracker version, manual dispatch, or `tracker-v*` tag |
 | `publish-content.yml` | Publish staged website blog and project content | Upload changes on `main`, manual dispatch |
 | `sync-public-projects.yml` | Refresh portfolio project metadata and static pages | Weekly Monday schedule, manual dispatch |
 
@@ -21,3 +21,5 @@ The repository maintains five active, purpose-specific workflows:
 ## Cleanup (2026-11-05)
 
 Removed obsolete `site-audit.yml`: it ran automatically only on four deleted feature branches, and the website's normal publishing and Tracker verification workflows remain intact. Historical GitHub Actions run entries may still be visible in GitHub's interface even after their workflow files are removed.
+
+The unified release workflow checks whether the matching `tracker-vX.Y.Z` release already exists before automatically rebuilding on a branch push. This avoids duplicate releases when the workflow file changes. Telegram software alerts are independently checked by Supabase Cron every five minutes even without a GitHub Actions bot secret.

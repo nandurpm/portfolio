@@ -20,6 +20,9 @@ public class MainActivity extends BridgeActivity {
  @Override public void onCreate(Bundle state) {
   registerPlugin(TrackerNativePlugin.class);
   super.onCreate(state);
+  // Schedule OS-managed release notifications without accessing financial records.
+  try { TrackerUpdateWorker.schedule(getApplicationContext()); }
+  catch (RuntimeException ignored) { /* In-app version checking stays available. */ }
   if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED)
    requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 4101);
   EdgeToEdge.enable(this);
