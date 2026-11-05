@@ -5,6 +5,7 @@
 - If a newer verified production APK is published, Android can display a native system notification even while the app is closed, subject to notification permission, connectivity, and battery optimizations.
 - Tapping the notification opens the official GitHub APK download in the external browser.
 - Existing in-app update checks, manual Settings checks and 24-hour reminder snoozing remain available.
+- The native in-app update check is now mounted outside the cloud sign-in gate so update alerts are available before login or when cloud access needs attention.
 - Background work uses the Android WorkManager minimum periodic interval of 15 minutes. Execution is not guaranteed at an exact time, and it will not run after a user force-stops the app until reopened.
 
 ## Telegram notifications
