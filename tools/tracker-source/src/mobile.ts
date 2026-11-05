@@ -74,8 +74,8 @@ export async function installMobile() {
     openDataFolder: async () => {
       throw Error('Android keeps app files private. Export a JSON backup to save elsewhere.');
     },
-    notify: async () => {
-      throw Error('Windows reminders are available on the Windows app.');
+    notify: async (title, body) => {
+      await native.notify({ title, body, kind: 'reminder' });
     },
     version: async () => (await NativeApp.getInfo()).version,
     onBeforeClose: () => () => {},

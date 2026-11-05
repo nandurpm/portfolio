@@ -34,6 +34,7 @@ import {
 } from '../domain/dates';
 import { reportDate } from '../domain/calculate';
 import { validateEntry } from '../domain/validation';
+import { triggerActionFeedback } from '../celebrations';
 import {
   PageHead,
   Section,
@@ -230,6 +231,7 @@ export default function Entries({
       store.change(kind === 'Income' ? 'Add income' : 'Add expense', (d) => {
         d.entries.push(n);
       });
+      triggerActionFeedback(kind === 'Expense' ? 'expense' : 'success');
       setDraft((x) => ({ ...x, description: '', amount: '', notes: '' }));
       setBillDueMonth('');
       amountRef.current?.focus();

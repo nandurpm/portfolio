@@ -31,6 +31,7 @@ import {
 } from '../components/UI';
 import { IncomeSettings } from '../components/SettingsFields';
 import { RangeControl } from '../components/RangeControl';
+import { triggerActionFeedback } from '../celebrations';
 export default function Budget() {
   const p = usePlan(),
     { toast, confirm } = useUi(),
@@ -57,6 +58,7 @@ export default function Budget() {
     store.change(`Budget override: ${month} / ${cats.find((c) => c.id === id)?.name}`, (d) => {
       d.overrides[key(month, id)] = value;
     });
+    triggerActionFeedback('budget');
     setCell({ month, id });
   }
   function reset(scope: 'cell' | 'row' | 'month') {
@@ -141,6 +143,7 @@ export default function Budget() {
           d.overrides[key(m, c.id)] =
             Math.round(fullAmount(p, c, m) * (1 + percent / 100) * 100) / 100;
     });
+    triggerActionFeedback('budget');
     toast('Percentage change applied to the target months.');
   }
   function quickAdjust(value: number) {
@@ -149,6 +152,7 @@ export default function Budget() {
         for (const c of cats.filter((x) => !cell || x.id === cell.id))
           d.overrides[key(m, c.id)] = Math.round(fullAmount(p, c, m) * (1 + value / 100) * 100) / 100;
     });
+    triggerActionFeedback('budget');
     setPercent(value);
     toast(`${value > 0 ? 'Increased' : 'Reduced'} selected budget${Math.abs(value) === 1 ? '' : 's'} by ${Math.abs(value)}%.`);
   }
@@ -166,6 +170,7 @@ export default function Budget() {
         else d.categories[i] = c;
       });
       setEdit(null);
+      triggerActionFeedback('budget');
       toast('Category saved. Existing entries keep their mapping.');
     } catch (e) {
       toast(userError(e), true);

@@ -3,6 +3,8 @@ import { registerPlugin } from '@capacitor/core';
 // Share one plugin proxy across mobile storage and Android system-bar helpers.
 interface NativeTracker {
   setBarBackgrounds(colors: { topColor: string; bottomColor: string }): Promise<void>;
+  feedback(o: { kind: 'expense' | 'budget' | 'reminder' | 'success' }): Promise<void>;
+  notify(o: { title: string; body: string; kind?: 'reminder' | 'success' }): Promise<void>;
   openGoogle(o: { url: string }): Promise<void>;
   load(): Promise<{ text: string | null; dataPath: string }>;
   save(o: { text: string }): Promise<void>;

@@ -45,11 +45,11 @@ import { store, usePlan, useEnvelope, useSaveStatus } from "./store";
 import { APP_NAME } from "./domain/types";
 import { errorMessage } from "./domain/user-errors";
 import { cumulative, progress } from "./domain/calculate";
-import { today, monthsBetween } from "./domain/dates";
+import { today, monthsBetween, daysIn, inRange } from "./domain/dates";
 import { RangeControl } from "./components/RangeControl";
 import { ReleaseUpdate } from "./components/ReleaseUpdate";
 import { UiProvider, useUi, Modal } from "./components/UI";
-import { playMilestoneSound, triggerMilestoneHaptic } from "./celebrations";
+import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } from "./celebrations";
 import { themePresets } from "./theme-presets";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Accounts = lazy(() => import("./pages/Accounts"));
@@ -321,6 +321,27 @@ export function Shell() {
     p.settings.celebrationStyle,
     p.settings.haptics,
   ]);
+  useEffect(() => {
+    if (loading || recovery || !window.desktop?.notify || cloud.locked || cloud.review || cloud.initial !== undefined) return;
+    const date = today();
+    if (!inRange(date, p.settings.planStart, p.settings.planEnd)) return;
+    const hour = new Date().getHours();
+    const day = Number(date.slice(8, 10));
+    const enabled = p.settings.reminders;
+    const items: [keyof typeof enabled, boolean, string][] = [
+      ['salary', enabled.salary && day === Math.min(p.settings.salaryDay, daysIn(date.slice(0, 7))) && hour >= 9, 'Salary is expected today. Add it to Daily Entries when received.'],
+      ['emi', enabled.emi && [...p.loan.rows, ...(p.additionalLoans ?? []).flatMap((loan) => loan.rows)].some((row) => row.dueDate === date && !row.paid && (p.settings.mode !== 'Early closure' || row.month <= p.settings.closureMonth)) && hour >= 8, 'Your EMI is due today. Keep the money ready before salary arrives.'],
+      ['recharge', enabled.recharge && p.categories.some((c) => (c.id === 'mobile' || c.name.toLowerCase().includes('recharge')) && c.active && c.timing === 'Fixed day' && (!c.months.length || c.months.includes(Number(date.slice(5, 7)))) && c.day === day && !p.entries.some((entry) => entry.categoryId === c.id && entry.date === date)) && hour >= 9, 'Mobile recharge is due today.'],
+      ['missing', enabled.missing && hour >= 21 && !p.entries.some((entry) => entry.date === date), 'No entries recorded today. Take a moment to update your expenses.'],
+    ];
+    for (const [key, show, body] of items) {
+      const storageKey = `tracker-reminder-${key}-${date}`;
+      if (show && localStorage.getItem(storageKey) !== 'sent') {
+        localStorage.setItem(storageKey, 'sent');
+        void window.desktop.notify(APP_NAME, body).then(() => triggerActionFeedback('reminder', p.settings.haptics !== false)).catch(() => {});
+      }
+    }
+  }, [p, tick, loading, recovery, cloud.locked, cloud.review, cloud.initial]);
   if (!loading && (cloud.locked || cloud.review || cloud.initial !== undefined))
     return <CloudGate />;
   return (

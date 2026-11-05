@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core';
+import { native } from './native-tracker';
+
 type AudioContextConstructor = new () => AudioContext;
 
 function audioContextConstructor(): AudioContextConstructor | undefined {
@@ -41,4 +44,37 @@ export function triggerMilestoneHaptic(enabled: boolean) {
   } catch {
     // Some browsers expose vibrate but reject it without a user gesture.
   }
+}
+
+export function triggerActionFeedback(
+  kind: 'expense' | 'budget' | 'reminder' | 'success',
+  enabled = true,
+) {
+  if (!enabled) return;
+  if (Capacitor.getPlatform() === 'android') {
+    void native.feedback({ kind }).catch(() => {});
+    return;
+  }
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(kind === 'reminder' ? [48, 30, 90] : kind === 'budget' ? [24, 20, 45] : [18]);
+    } catch {}
+  }
+  const AudioContextClass = audioContextConstructor();
+  if (!AudioContextClass) return;
+  try {
+    const context = new AudioContextClass();
+    const now = context.currentTime;
+    const gain = context.createGain();
+    const oscillator = context.createOscillator();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(kind === 'reminder' ? 0.16 : 0.08, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+    oscillator.frequency.value = kind === 'budget' ? 660 : kind === 'reminder' ? 520 : 740;
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.15);
+    window.setTimeout(() => void context.close(), 220);
+  } catch {}
 }

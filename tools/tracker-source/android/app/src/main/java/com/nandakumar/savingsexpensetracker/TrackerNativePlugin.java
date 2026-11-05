@@ -7,6 +7,14 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.print.PrintManager;
 import android.content.Context;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
@@ -27,6 +35,41 @@ import javax.crypto.spec.GCMParameterSpec;
 @CapacitorPlugin(name="TrackerNative")
 public class TrackerNativePlugin extends Plugin {
  static final Object LOCK = new Object();
+ private static final String CHANNEL_ID = "tracker-reminders";
+ private void ensureNotificationChannel() {
+  if (Build.VERSION.SDK_INT < 26) return;
+  NotificationManager manager = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+  if (manager == null || manager.getNotificationChannel(CHANNEL_ID) != null) return;
+  NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Tracker reminders", NotificationManager.IMPORTANCE_DEFAULT);
+  channel.setDescription("Salary, EMI, recharge and missing-entry reminders");
+  channel.enableVibration(true);
+  manager.createNotificationChannel(channel);
+ }
+ @PluginMethod public void feedback(PluginCall call) {
+  String kind = call.getString("kind", "success");
+  long[] pattern = "reminder".equals(kind) ? new long[]{0, 48, 30, 90} : "budget".equals(kind) ? new long[]{0, 24, 20, 45} : new long[]{0, 18};
+  try {
+   Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
+   if (vibrator != null && vibrator.hasVibrator()) vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
+   ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, "reminder".equals(kind) ? 85 : 65);
+   tone.startTone("reminder".equals(kind) ? ToneGenerator.TONE_PROP_BEEP2 : ToneGenerator.TONE_PROP_ACK, "reminder".equals(kind) ? 180 : 90);
+   new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(tone::release, 260);
+   call.resolve();
+  } catch (Exception e) { call.reject("Could not play feedback", e); }
+ }
+ @PluginMethod public void notify(PluginCall call) {
+  try {
+   ensureNotificationChannel();
+   NotificationManager manager = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+   if (manager == null) throw new IOException("Notifications unavailable");
+   String title = call.getString("title", "Savings and Expense Tracker");
+   String body = call.getString("body", "You have a tracker reminder.");
+   Notification.Builder builder = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(getContext(), CHANNEL_ID) : new Notification.Builder(getContext());
+   builder.setSmallIcon(com.nandakumar.savingsexpensetracker.R.drawable.ic_launcher_foreground).setContentTitle(title).setContentText(body).setAutoCancel(true).setCategory(Notification.CATEGORY_REMINDER).setDefaults(Notification.DEFAULT_ALL);
+   manager.notify(Math.abs((title + body).hashCode()), builder.build());
+   call.resolve();
+  } catch (Exception e) { call.reject("Could not show reminder", e); }
+ }
  @PluginMethod public void setBarBackgrounds(PluginCall call) {
   try {
    String top=call.getString("topColor"),bottom=call.getString("bottomColor");
