@@ -170,11 +170,11 @@ test('all six palettes update accent, sidebar, hero and active controls', async 
   await page.goto('/');
   const expected = {
     violet: ['#6255df', '#33306b'],
-    ocean: ['#167ca0', '#102f45'],
-    emerald: ['#168b78', '#102f37'],
+    ocean: ['#176b93', '#163850'],
+    emerald: ['#08735e', '#174337'],
     rose: ['#aa3f6a', '#532d49'],
     sunset: ['#a95121', '#51342f'],
-    indigo: ['#4f6fba', '#172541'],
+    indigo: ['#4867c4', '#202d52'],
   } as const;
   for (const [palette, [accent, sidebarTop]] of Object.entries(expected)) {
     const appearance = await page.evaluate((name) => {

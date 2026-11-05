@@ -18,6 +18,7 @@ Reviewed shared calculations, cloud serialization/merge, revision and mutation h
 | Medium | Android Dashboard rendered desktop analytics, tables and multiple repeated summaries despite existing five-tab navigation. | Native-only compact Home using shared calculations; desktop Dashboard remains expanded. Existing Accounts, Transactions, Budget and advanced tools remain available. |
 | Medium | Native Home needed historical activity filtering and tablet visibility; shared recent widget was phone-width-only and included future activity. | Optional native/through-date inputs preserve Web behavior and let native Home show activity through its report cutoff on larger screens. |
 | Low | Electron-builder artifact name was hard-coded to 2.1.0 while package version was 2.2.1. | Use `${version}` in artifact name. Primary Inno build already derived the version correctly. |
+| Medium | CI browser run found shared-style regressions: white-on-white hero button, insufficient contrast, overwritten violet palette and dark accent ink, desktop outer scrolling and constrained wide content. | Added targeted CSS repairs; financial engine and expanded desktop analysis retained. Browser recheck required. |
 | Release blocker | No authorized signing variables in this environment, no Windows installer environment; Chromium could not start. | No new production app release or unsigned substitute published. Browser/native validation remains a release gate. |
 
 ## Android interface
@@ -122,6 +123,8 @@ No APK/EXE or app release is published by this implementation. Current public re
 - `tools/tracker-source/src/components/android-home.css`
 - `tools/tracker-source/src/components/MobileRecentActivity.tsx`
 - `tools/tracker-source/src/pages/Dashboard.tsx`
+- `tools/tracker-source/src/styles.css`
+- `tools/tracker-source/src/cloud/web-signin.css`
 - `tools/tracker-source/supabase/functions/savings-tracker-bot/index.ts`
 - `tools/tracker-source/supabase/functions/savings-tracker-bot/release.test.cjs`
 - `tools/tracker-source/tests/android-home.test.tsx`
@@ -136,3 +139,15 @@ The bot was deployed as Edge Function version **17**, pinned to source commit `0
 The exact remote 2.2.2 source passed `npm run check` locally: 221 tests, lint, TypeScript, bot/dependency checks, Web build and bundle integrity. A subsequent native Home styling adjustment also passed the Web build.
 
 GitHub Actions run [41966242346](https://github.com/nandurpm/portfolio/actions/runs/41966242346), for PR head `081445d7cfafa1b181a91de880c3fc92cb0d6b55`, passed **database**, **local-supabase**, and **native-dependencies** jobs. These CI results supersede the local-only database/security blockers above for that commit. Native evidence is eight compatibility groups, including disposable Android template debug compilation, unsigned Windows Electron directory packaging and ASAR runtime loading; it is not a signed tracker APK or an installable Windows release. The local-Supabase job includes disposable two-account security and email-recovery checks; it does not test production accounts or physical devices. The browser job was still running when this addendum was written. Subsequent CSS/report changes require their own final CI result.
+
+
+### Browser evidence and follow-up repairs
+
+The first complete CI browser run produced **27 passes / 23 failures**. These are actual UI failures, not the local Chromium launch blocker. Failures identified a shared style refresh overriding the violet theme, dark accent-ink contrast, primary button and sign-in contrast, white hero secondary buttons, viewport scrolling and wide desktop sizing. The new native Home tests exposed the primary-button contrast issue too. Source commit `9002633ea1a109838f0bd4fd45b98d013eb439f3` contains targeted repairs and before/after synthetic screenshot capture. All 221 local tests, lint, TypeScript, bot checks and Web build still pass after those repairs. Browser pass status must be taken from the newer CI run, not inferred from local checks.
+
+
+### Concurrent main update and final integration
+
+Main subsequently advanced to `90df8cc0e7b28f5d10ef2f0db277a922335d9ecf`, redesigning Dashboard and removing the prior shared refresh CSS. The PR preserves that new dashboard and its styles, adding only the existing responsive recent-activity component, an expanded analysis heading, and targeted audit repairs. Android Home is selected as a separate lazy-loaded module in App, so Android does not load or precompute the desktop dashboard. Palette test expectations for Ocean/Emerald/Indigo were updated to the canonical palette values restored by the incoming main change; all contrast assertions remain strict. Native Home now has an explicit six-palette/light-dark accessibility test.
+
+CI run 41966926310 improved to **44 browser passes / 6 failures**, with all default-theme native Home checks passing at 360/393/768 px and synthetic before/after screenshots captured. The remaining failures identified desktop document scrolling, small hero typography and per-page accent overrides. Follow-up fixes are included in the final integration; its CI status must be checked separately. Earlier results do not certify the final combined tree.
