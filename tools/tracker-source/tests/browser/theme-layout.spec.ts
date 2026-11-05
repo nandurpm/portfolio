@@ -49,6 +49,14 @@ test('wide desktop layout fills the workspace and all pages honour the selected 
   await page.getByRole('button', { name: 'Lavender palette' }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.palette)).toBe('violet');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('tracker-palette'))).toBe('violet');
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('light');
+  await expect.poll(() => page.evaluate(() => {
+    const root = getComputedStyle(document.documentElement);
+    return {
+      accent: root.getPropertyValue('--accent').trim(),
+      sidebar: root.getPropertyValue('--sidebar-a').trim(),
+    };
+  })).toEqual({ accent: '#6255df', sidebar: '#33306b' });
 
   for (const name of repoPages) {
     await nav.getByRole('button', { name }).click();
