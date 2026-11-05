@@ -3996,3 +3996,20 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .progress-month-card dd { margin: 5px 0 0; font-weight: 650; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .progress-month-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.5; }
 @media (max-width: 380px) { .progress-month-card dl { grid-template-columns: 1fr; } }
+
+/* Release safety repairs for the current desktop/Web presentation. Android loads
+   its separate 2.2.2 stylesheet and retains that appearance. */
+html:not([data-platform="android"]):has(.app-shell),
+html:not([data-platform="android"]) body:has(.app-shell) { height: 100%; overflow: clip; }
+html:not([data-platform="android"]) body:has(.app-shell) { position: fixed; inset: 0; width: 100%; }
+html:not([data-platform="android"]) .main-scroll[data-page] { --page-tone: var(--accent); }
+html:not([data-platform="android"]) .dashboard-hero-actions .button { font-size: 14px; }
+html:not([data-platform="android"]) :is(.dashboard-overline, .dashboard-balance p, .dashboard-balance-meta, .dashboard-hero-insights span, .dashboard-hero-insights small) { font-size: 13px; }
+html:not([data-platform="android"])[data-theme="dark"] .button:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button),
+html:not([data-platform="android"])[data-theme="dark"] .mobile-quick-add { color: #141625; }
+@media (min-width: 761px) {
+  html:not([data-platform="android"]) .workspace { min-height: 0; overflow: hidden; }
+  html:not([data-platform="android"]) .sidebar { min-height: 0; overflow-y: auto; }
+  html:not([data-platform="android"]) .main-scroll { min-height: 0; overflow: auto; scrollbar-gutter: stable; }
+  html:not([data-platform="android"]) .main-scroll > .edit-controls { width: 100%; max-width: none; }
+}
