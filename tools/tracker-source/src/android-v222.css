@@ -4053,75 +4053,34 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 }
 
 
-/* --------------------------------------------------------------------------
-   2026 workspace refresh
-   A calmer finance-console system: ink navy, paper surfaces, mint action
-   colour, and amber attention states. This layer intentionally sits last so
-   it can refresh every screen without changing page logic or stored data.
-   -------------------------------------------------------------------------- */
+/* 2026 workspace refresh: layout only, with the original palette tokens preserved.
+   Lavender/violet must never be overwritten with green/teal defaults. */
 html {
-  --accent: #168b78;
-  --accent-deep: #0f6f62;
-  --accent-ink: #0d665b;
-  --accent-soft: #e0f4ef;
-  --sidebar-a: #102c3a;
-  --sidebar-b: #164d54;
-  --bg: #f3f7f7;
+  --bg: #f6f7fc;
   --surface: #ffffff;
-  --surface-soft: #f7faf9;
-  --text: #17313a;
-  --muted: #64777c;
-  --border: #dce8e7;
-  --control-border: #b8cdcb;
-  --shadow: 0 10px 30px rgba(23, 49, 58, .07);
-  --green: #0d806b;
-  --orange: #b86d22;
-  --red: #b44255;
-  --ring-track: #d7ebe7;
-}
-html[data-palette="violet"] {
-  --accent: #168b78;
-  --accent-deep: #0f6f62;
-  --accent-ink: #0d665b;
-  --accent-soft: #e0f4ef;
-  --sidebar-a: #102c3a;
-  --sidebar-b: #164d54;
-}
-html[data-palette="ocean"] {
-  --accent: #167ca0;
-  --accent-deep: #105d7c;
-  --accent-ink: #0e5872;
-  --accent-soft: #e1f2f8;
-  --sidebar-a: #102f45;
-  --sidebar-b: #17627a;
-}
-html[data-palette="emerald"] {
-  --accent: #168b78;
-  --accent-deep: #0f6f62;
-  --accent-ink: #0d665b;
-  --accent-soft: #e0f4ef;
-  --sidebar-a: #102f37;
-  --sidebar-b: #176356;
-}
-html[data-palette="indigo"] {
-  --accent: #4f6fba;
-  --accent-deep: #385594;
-  --accent-ink: #304d8a;
-  --accent-soft: #e8edfb;
-  --sidebar-a: #172541;
-  --sidebar-b: #385889;
+  --surface-soft: #f8f9fd;
+  --text: #28324b;
+  --muted: #596579;
+  --border: #e9ecf4;
+  --control-border: #858fa3;
+  --shadow: 0 10px 30px rgba(39, 52, 102, .07);
+  --green: #087861;
+  --orange: #95500c;
+  --red: #b33b59;
+  --ring-track: color-mix(in srgb, var(--accent) 15%, #fff);
 }
 html[data-theme="dark"] {
-  --bg: #101b20;
-  --surface: #17262b;
-  --surface-soft: #1c3035;
-  --text: #e7f2f1;
-  --muted: #a8bebd;
-  --border: #2c464a;
-  --control-border: #537174;
+  --bg: #141625;
+  --surface: #1d2134;
+  --surface-soft: #24283c;
+  --text: #e7eaf6;
+  --muted: #b3bdd2;
+  --border: #30364c;
+  --control-border: #8996b2;
   --accent-soft: color-mix(in srgb, var(--accent) 20%, transparent);
   --shadow: 0 12px 32px rgba(0, 0, 0, .22);
 }
+
 body {
   background:
     radial-gradient(circle at 95% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 28rem),
@@ -4137,7 +4096,7 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
 .sidebar {
   padding: 26px 16px 16px;
   background:
-    radial-gradient(circle at 12% 0%, rgba(126, 234, 207, .16), transparent 22rem),
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 22rem),
     linear-gradient(160deg, var(--sidebar-a), var(--sidebar-b));
   border-right: 1px solid rgba(255,255,255,.08);
 }
@@ -4153,7 +4112,7 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
 }
 .sidebar-label {
   padding: 0 14px 10px;
-  color: rgba(215, 244, 239, .58);
+  color: rgba(255, 255, 255, .62);
   font-size: .68rem;
   letter-spacing: .16em;
 }
@@ -4163,29 +4122,29 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
   padding: 11px 13px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: rgba(235, 249, 246, .72);
+  color: rgba(255, 255, 255, .76);
   font-size: .78rem;
   transition: background .18s ease, border-color .18s ease, transform .18s ease, color .18s ease;
 }
-.sidebar nav button svg { color: rgba(192, 235, 224, .74); }
+.sidebar nav button svg { color: rgba(255, 255, 255, .78); }
 .sidebar nav button.active {
   color: #fff;
   background: rgba(255,255,255,.13);
-  border-color: rgba(183, 247, 226, .21);
-  box-shadow: inset 3px 0 0 #79e1c3, 0 8px 20px rgba(0,0,0,.11);
+  border-color: rgba(255, 255, 255, .22);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 65%, white), 0 8px 20px rgba(0,0,0,.11);
 }
-.sidebar nav button.active svg { color: #9af0d1; }
+.sidebar nav button.active svg { color: #fff; }
 .sidebar nav button:hover { transform: translateX(2px); }
-.nav-dot { background: #94eed0; box-shadow: 0 0 0 4px rgba(148, 238, 208, .12); }
+.nav-dot { background: color-mix(in srgb, var(--accent) 50%, white); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent); }
 .privacy-card {
   margin: 28px 5px 20px;
   padding: 15px;
   border-radius: 16px;
   background: rgba(7, 24, 30, .22);
-  border-color: rgba(188, 242, 228, .14);
+  border-color: rgba(255, 255, 255, .14);
 }
-.privacy-card svg { color: #8fe5c8; }
-.profile { border-top-color: rgba(205, 244, 235, .16); }
+.privacy-card svg { color: color-mix(in srgb, var(--accent) 45%, white); }
+.profile { border-top-color: rgba(255, 255, 255, .16); }
 .topbar {
   height: 76px;
   padding: 0 34px;
@@ -4244,16 +4203,16 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
 .dashboard-hero {
   margin-bottom: 20px;
   border-radius: 26px;
-  border-color: rgba(129, 231, 202, .22);
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
   background:
-    radial-gradient(circle at 92% 8%, rgba(151, 244, 218, .26), transparent 28%),
-    radial-gradient(circle at 0% 100%, rgba(70, 143, 191, .22), transparent 33%),
-    linear-gradient(135deg, #103845 0%, #155c60 54%, #248876 100%);
-  box-shadow: 0 18px 44px rgba(18, 77, 75, .2);
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 28%),
+    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--sidebar-b) 28%, transparent), transparent 33%),
+    linear-gradient(135deg, var(--sidebar-a) 0%, color-mix(in srgb, var(--sidebar-a) 85%, var(--sidebar-b)) 54%, color-mix(in srgb, var(--sidebar-a) 65%, var(--sidebar-b)) 100%);
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--sidebar-a) 24%, transparent);
 }
 .dashboard-hero-insights > div {
-  background: rgba(7, 39, 43, .24);
-  border-color: rgba(213, 255, 243, .18);
+  background: rgba(0, 0, 0, .2);
+  border-color: rgba(255, 255, 255, .2);
 }
 .dashboard-pulse, .panel, .workspace-card, .stat-card, .account-card, .installment-card, .progress-month-card {
   border-radius: 18px;
@@ -4295,7 +4254,7 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   .brand { justify-content: center; padding-inline: 0; }
   .brand span, .sidebar-label, .sidebar nav button span:not(.nav-dot), .privacy-card, .profile > div:not(.avatar) { display: none; }
   .sidebar nav button { justify-content: center; padding-inline: 10px; }
-  .sidebar nav button.active { box-shadow: 0 0 0 1px rgba(183, 247, 226, .21), 0 8px 20px rgba(0,0,0,.11); }
+  .sidebar nav button.active { box-shadow: 0 0 0 1px rgba(255, 255, 255, .22), 0 8px 20px rgba(0,0,0,.11); }
   .profile { justify-content: center; padding-inline: 0; }
   .profile .icon-button { display: none; }
   .topbar { padding-inline: 22px; }
@@ -4563,9 +4522,11 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
 
 /* Preserve readability, viewport scrolling and safe-area handling without changing
    the 2.2.2 layout, surfaces or financial behavior. */
+/* Page decoration follows the selected Android palette, excluding semantic finance colours. */
+html[data-platform="android"] .main-scroll[data-page] { --page-tone: var(--accent); }
 html[data-platform="android"] { --muted: #52656a; }
 html[data-platform="android"][data-theme="dark"] { --muted: #b3bdd2; --accent-ink: color-mix(in srgb, var(--accent) 25%, white); }
-html[data-platform="android"][data-theme="dark"][data-palette="violet"] { --accent: #78d3be; --accent-deep: #0f6f62; --accent-soft: #168b7833; --sidebar-a: #102c3a; --sidebar-b: #164d54; }
+/* Dark Lavender inherits its violet palette instead of a forced teal override. */
 html[data-platform="android"] .button:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button) { background: var(--accent-deep); color: white; }
 html[data-platform="android"][data-theme="dark"] .button:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button),
 html[data-platform="android"][data-theme="dark"] .mobile-quick-add { background: color-mix(in srgb, var(--accent-deep) 55%, black); color: white; }
