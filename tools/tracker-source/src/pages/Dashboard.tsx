@@ -35,6 +35,7 @@ import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../doma
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
+import { MobileRecentActivity } from '../components/MobileRecentActivity';
 const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
 const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 
@@ -301,6 +302,7 @@ export default function Dashboard({
           <ArrowUpRight size={16} />
         </button>
       </nav>
+      <MobileRecentActivity navigate={navigate} />
       <FinancialPosition onManage={()=>navigate('accounts')}/>
       <div className="month-banner">
         <span className={`status-dot ${status}`} />
@@ -343,6 +345,7 @@ export default function Dashboard({
       <CashAlerts />
       <BudgetAlerts />
       <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
+      <h2>Full dashboard analysis</h2>
       <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
       <Section
         title={`${monthLabel(m, true)}, side by side`}

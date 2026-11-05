@@ -27,10 +27,30 @@ localStorage.setItem('savings-expence-v1', JSON.stringify(fixture));
 sync.start = async () => {};
 sync.stop = () => {};
 sync.run = async () => {};
-void store.load().then(() =>
+void store.load().then(() => {
+  // Browser-only simulation of the Android presentation branch, never native I/O.
+  if (new URLSearchParams(location.search).has('android')) {
+    window.desktop = {
+      platform: 'android',
+      load: async () => ({ envelope: fixture, dataPath: 'synthetic-browser-only' }),
+      save: async (envelope) => { localStorage.setItem('savings-expence-v1', JSON.stringify(envelope)); },
+      saveFile: async () => { throw Error('Native file export is not simulated'); },
+      openFile: async () => null,
+      chooseBackupFolder: async () => null,
+      backup: async () => 'synthetic-browser-only',
+      storageStatus: async () => ({ lastSavedAt: '', lastBackupAt: '' }),
+      openDataFolder: async () => {},
+      notify: async () => {},
+      pdf: async () => null,
+      version: async () => '2.2.3',
+      onBeforeClose: () => () => {},
+    };
+    document.documentElement.dataset.platform = 'android';
+  }
+  return (
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <UiProvider>
       <Shell />
     </UiProvider>,
-  ),
-);
+  ));
+});

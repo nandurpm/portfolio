@@ -184,3 +184,18 @@ jobs:
           grep -Fx "Savings-and-Expense-Tracker-$VERSION.apk" release-assets/published-assets.txt
           grep -Fx "Savings-and-Expense-Tracker-$VERSION-Source.zip" release-assets/published-assets.txt
           grep -Fx 'SHA256SUMS.txt' release-assets/published-assets.txt
+      - name: Check owner software release notification after asset verification
+        env:
+          TRACKER_BOT_CRON_SECRET: ${{ secrets.TRACKER_BOT_CRON_SECRET }}
+        shell: bash
+        run: |
+          if [[ -z "$TRACKER_BOT_CRON_SECRET" ]]; then
+            echo '::warning::TRACKER_BOT_CRON_SECRET is not configured. Existing scheduled bot checks remain the notification fallback.'
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 45 \
+            --request POST \
+            --header 'content-type: application/json' \
+            --header "x-savings-cron-secret: $TRACKER_BOT_CRON_SECRET" \
+            --data '{"kind":"updates"}' \
+            'https://svqtisipjyymguswxteb.supabase.co/functions/v1/savings-tracker-bot'

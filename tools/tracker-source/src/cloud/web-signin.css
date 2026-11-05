@@ -33,7 +33,7 @@
   margin-bottom: 32px;
 }
 .web-signin {
-  --signin-ink: var(--accent);
+  --signin-ink: var(--accent-ink);
   font-size: 14px;
   line-height: 1.65;
 }

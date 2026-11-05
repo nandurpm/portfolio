@@ -1,0 +1,24 @@
+.android-home { display: grid; gap: 16px; max-width: 760px; margin: auto; }
+.android-home h1 { margin: 0; font-size: 24px; }
+.android-home h2 { margin: 0 0 8px; font-size: 17px; }
+.android-home p { margin: 6px 0; font-size: 14px; line-height: 1.5; }
+.android-balance, .android-card, .android-metrics > div, .android-home .mobile-recent { border: 1px solid var(--border); border-radius: 18px; padding: 16px; background: var(--surface); }
+.android-balance > strong { display: block; font-size: clamp(26px, 8vw, 38px); overflow-wrap: anywhere; margin: 8px 0; }
+.android-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.android-home dd { margin: 8px 0 0; font-weight: 650; overflow-wrap: anywhere; }
+.android-home dt { font-size: 14px; }
+.android-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.android-actions > button { flex: 1 1 100px; min-height: 48px; }
+.android-account-list { display: grid; gap: 12px; margin: 12px 0; }
+.android-account-list > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.android-account-list dt { overflow-wrap: anywhere; min-width: 0; }
+.android-account-list dd { margin: 0; flex-shrink: 0; max-width: 60%; }
+.android-home progress { width: 100%; accent-color: var(--accent); height: 10px; }
+.android-home .text-button { min-height: 44px; text-align: left; }
+.android-home .mobile-recent header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.android-home .mobile-recent ul { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.android-home .mobile-recent li > button { display: flex; width: 100%; min-height: 56px; align-items: center; gap: 8px; text-align: left; color: var(--text); background: transparent; border: 0; border-bottom: 1px solid var(--border); padding: 8px 0; }
+.android-home .mobile-recent-copy { min-width: 0; flex: 1; }
+.android-home .mobile-recent-copy strong, .android-home .mobile-recent-copy small { display: block; overflow-wrap: anywhere; }
+.android-home .mobile-recent-amount { max-width: 40%; overflow-wrap: anywhere; font-size: 14px; }
+.android-home .mobile-recent-icon { flex-shrink: 0; }

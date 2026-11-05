@@ -3976,3 +3976,24 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .progress-month-card dd { margin: 5px 0 0; font-weight: 650; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .progress-month-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.5; }
 @media (max-width: 380px) { .progress-month-card dl { grid-template-columns: 1fr; } }
+
+/* Verified audit repairs, kept separate from the current main dashboard design. */
+html { --muted: #52656a; }
+html[data-theme="dark"] { --muted: #b3bdd2; --accent-ink: #d5ceff; }
+.button:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button) { background: var(--accent-deep); }
+html[data-theme="dark"][data-palette]:not([data-palette="violet"]) .button:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button),
+html[data-theme="dark"][data-palette]:not([data-palette="violet"]) .mobile-quick-add { color: #141625; }
+.dashboard-hero .button.secondary { color: #fff; background: #ffffff1f; border-color: #ffffff66; }
+html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: clip; }
+body:has(.app-shell) { position: fixed; inset: 0; width: 100%; }
+.main-scroll[data-page] { --page-tone: var(--accent); }
+.dashboard-hero-actions .button { font-size: 14px; }
+.dashboard-overline, .dashboard-balance p, .dashboard-balance-meta,
+.dashboard-hero-insights span, .dashboard-hero-insights small { font-size: 13px; }
+@media (min-width: 761px) {
+  .app-shell { height: 100dvh; min-height: 0; }
+  .workspace { height: 100dvh; min-height: 0; overflow: hidden; }
+  .sidebar { height: 100dvh; min-height: 0; overflow-y: auto; }
+  .main-scroll { min-height: 0; overflow: auto; scrollbar-gutter: stable; }
+  .main-scroll > .edit-controls { width: 100%; max-width: none; }
+}

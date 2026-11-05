@@ -16,7 +16,7 @@ type Activity = {
   destination: 'entries' | 'accounts';
 };
 
-export function MobileRecentActivity({ navigate }: { navigate: (page: string) => void }) {
+export function MobileRecentActivity({ navigate, native = false, through }: { navigate: (page: string) => void; native?: boolean; through?: string }) {
   const phone = usePhone();
   const plan = usePlan();
   const rows = useMemo(() => {
@@ -51,11 +51,12 @@ export function MobileRecentActivity({ navigate }: { navigate: (page: string) =>
       };
     });
     return [...legacy, ...ledger]
+      .filter(row => !through || (row.date <= through && row.date >= plan.settings.planStart + '-01' && row.date <= plan.settings.planEnd + '-31'))
       .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
       .slice(0, 5);
-  }, [plan]);
+  }, [plan, through]);
 
-  if (!phone) return null;
+  if (!phone && !native) return null;
   return (
     <section className="mobile-recent" aria-labelledby="mobile-recent-title">
       <header>
