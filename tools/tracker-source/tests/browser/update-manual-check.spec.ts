@@ -19,7 +19,8 @@ for (const android of [true, false]) {
     await page.evaluate(() => {
       (window as typeof window & { testUpdateChecks?: number }).testUpdateChecks = 0;
       window.addEventListener('tracker:check-for-updates', () => {
-        (window as typeof window & { testUpdateChecks?: number }).testUpdateChecks!++;
+        const target = window as typeof window & { testUpdateChecks?: number };
+        target.testUpdateChecks = (target.testUpdateChecks ?? 0) + 1;
       });
     });
     await button.click();
