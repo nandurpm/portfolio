@@ -92,6 +92,72 @@ public class TrackerNativePlugin extends Plugin {
  @PluginMethod public void readBackups(PluginCall call){synchronized(LOCK){JSArray a=new JSArray();for(File f:backups(getContext())){try{JSObject item=new JSObject();item.put("name",f.getName());item.put("text",new String(Files.readAllBytes(f.toPath()),StandardCharsets.UTF_8));a.put(item);}catch(Exception ignored){}}JSObject o=new JSObject();o.put("items",a);call.resolve(o);}}
  @PluginMethod public void backup(PluginCall call){try{JSObject o=new JSObject();o.put("path",backupFiles(getContext()));call.resolve(o);}catch(Exception e){call.reject("Backup failed",e);}}
  @PluginMethod public void status(PluginCall call){JSObject o=new JSObject();File[] b=backups(getContext());o.put("lastSavedAt",file().exists()?iso(file().lastModified()):"");o.put("lastBackupAt",b.length>0?iso(b[0].lastModified()):"");call.resolve(o);}
+ private static final java.util.concurrent.atomic.AtomicBoolean UPDATE_BUSY =
+     new java.util.concurrent.atomic.AtomicBoolean(false);
+ private static final java.util.concurrent.ExecutorService UPDATE_EXECUTOR =
+     java.util.concurrent.Executors.newSingleThreadExecutor();
+
+ @PluginMethod public void isUpdateDownloaded(PluginCall call) {
+  try {
+   String version=TrackerApkUpdate.requireVersion(call.getString("version"));
+   String sha=TrackerApkUpdate.requireDigest(call.getString("sha256"));
+   UPDATE_EXECUTOR.execute(() -> {
+    JSObject response=new JSObject();
+    response.put("ready",TrackerApkUpdate.isDownloaded(getContext(),version,sha));
+    call.resolve(response);
+   });
+  } catch(Exception e) { call.reject("Cannot check downloaded update",e); }
+ }
+
+ @PluginMethod public void downloadUpdate(PluginCall call) {
+  final String version,sha,url;
+  try {
+   version=TrackerApkUpdate.requireVersion(call.getString("version"));
+   sha=TrackerApkUpdate.requireDigest(call.getString("sha256"));
+   url=TrackerApkUpdate.requireUrl(call.getString("url"),version);
+  } catch(Exception e) { call.reject("Untrusted APK update details",e); return; }
+  if(!UPDATE_BUSY.compareAndSet(false,true)){
+   call.reject("An update download is already running");
+   return;
+  }
+  UPDATE_EXECUTOR.execute(() -> {
+   try {
+    TrackerApkUpdate.download(getContext(),version,url,sha,(received,total)->{
+     JSObject progress=new JSObject();
+     progress.put("received",received);
+     progress.put("total",total);
+     progress.put("percent",total>0 ? (int)Math.min(100,received*100/total) : -1);
+     notifyListeners("trackerUpdateProgress",progress);
+    });
+    JSObject result=new JSObject();
+    result.put("ready",true);
+    call.resolve(result);
+   } catch(Exception e) {
+    call.reject("Cannot download and verify the official update: "+e.getMessage(),e);
+   } finally {
+    UPDATE_BUSY.set(false);
+   }
+  });
+ }
+
+ @PluginMethod public void installDownloadedUpdate(PluginCall call) {
+  try {
+   final String version=TrackerApkUpdate.requireVersion(call.getString("version"));
+   final String sha=TrackerApkUpdate.requireDigest(call.getString("sha256"));
+   getActivity().runOnUiThread(() -> {
+    try {
+     boolean launched=TrackerApkUpdate.install(getActivity(),version,sha);
+     JSObject result=new JSObject();
+     result.put("launched",launched);
+     result.put("permissionRequired",!launched);
+     call.resolve(result);
+    } catch(Exception e) {
+     call.reject("Cannot launch the Android update installer: "+e.getMessage(),e);
+    }
+   });
+  } catch(Exception e) { call.reject("Invalid update installation details",e); }
+ }
+
  @PluginMethod public void openRelease(PluginCall call) {
   try {
    android.net.Uri uri=android.net.Uri.parse(call.getString("url", ""));
