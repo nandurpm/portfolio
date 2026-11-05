@@ -9,7 +9,7 @@ for (const android of [true, false]) {
     if (android) {
       await page.getByRole('navigation', { name: 'Phone navigation' })
         .getByRole('button', { name: 'More screens' }).click();
-      await page.getByRole('dialog').getByRole('button', { name: 'Settings', exact: true }).click();
+      await page.locator('.android-more-card').filter({ has: page.getByText('Settings', { exact: true }) }).click();
     } else {
       await page.getByRole('navigation', { name: 'Main navigation' })
         .getByRole('button', { name: 'Settings' }).click();
