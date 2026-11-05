@@ -76,7 +76,12 @@ export function ReleaseUpdate() {
     let stopNative: (() => void) | null = null;
     if (Capacitor.getPlatform() === 'android') {
       void CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) checkRef.current(false);
+        if (isActive) {
+          // A background update notification opens the app: check immediately
+          // even when the previous automatic check happened recently.
+          lastAutoCheck.current = 0;
+          checkRef.current(false);
+        }
       }).then((listener) => {
         if (disposed) void listener.remove();
         else stopNative = () => { void listener.remove(); };
