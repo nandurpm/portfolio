@@ -58,6 +58,22 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
         title="Make it feel like you."
         description="Personalise the app. Your preferences stay on this device."
       />
+      <section className="settings-overview" aria-labelledby="settings-overview-title">
+        <div className="settings-overview-heading">
+          <div>
+            <span className="section-kicker">YOUR WORKSPACE</span>
+            <h2 id="settings-overview-title">A calmer way to tune the tracker</h2>
+            <p>Appearance is local to this device. Your financial plan and sync settings stay protected separately.</p>
+          </div>
+          <Badge tone="income">{status === 'Saved locally' ? 'All changes saved' : status}</Badge>
+        </div>
+        <div className="settings-overview-grid">
+          <div><span>Theme</span><strong>{s.theme === 'system' ? 'System' : s.theme === 'light' ? 'Light' : 'Dark'}</strong><small>{s.palette} palette</small></div>
+          <div><span>Motion</span><strong>{s.animations ? 'Enabled' : 'Off'}</strong><small>{s.animationIntensity ?? 'balanced'} intensity</small></div>
+          <div><span>Plan window</span><strong>{s.planStart} → {s.planEnd}</strong><small>{s.dateFormat}</small></div>
+          <div><span>Change history</span><strong>{env.audit.length}</strong><small>reversible updates</small></div>
+        </div>
+      </section>
       <Section title="Appearance" caption="Choose a look that makes checking your money feel good.">
         <div className="appearance">
           <div>

@@ -141,6 +141,12 @@ export default function Entries({
                 : b.date.localeCompare(a.date),
       );
   }, [p.entries, s.planStart, s.planEnd, archive, category, month, search, sort, catMap]);
+  const entrySummary = useMemo(() => {
+    const active = p.entries.filter((e) => archive ? !inRange(e.date, s.planStart, s.planEnd) : inRange(e.date, s.planStart, s.planEnd));
+    const income = active.filter((e) => catMap.get(e.categoryId)?.group === 'Income').reduce((sum, e) => sum + e.amount, 0);
+    const expense = active.filter((e) => catMap.get(e.categoryId)?.group !== 'Income').reduce((sum, e) => sum + e.amount, 0);
+    return { count: active.length, income, expense, net: income - expense };
+  }, [p.entries, s.planStart, s.planEnd, archive, catMap]);
   const virtual = useVirtualizer({
     count: rows.length,
     enabled: !phone,
@@ -379,6 +385,22 @@ export default function Entries({
           Add Expense
         </button>
       </div>
+      <section className="entries-overview" aria-labelledby="entries-overview-title">
+        <div className="entries-overview-heading">
+          <div>
+            <span className="section-kicker">CASH-FLOW LOG</span>
+            <h2 id="entries-overview-title">Your money, one clean timeline</h2>
+            <p>{archive ? 'Reviewing entries outside the current plan window.' : 'Record actual money movement and keep the plan honest.'}</p>
+          </div>
+          <Badge tone={entrySummary.net >= 0 ? 'income' : 'debt'}>{entrySummary.count.toLocaleString('en-IN')} total entries</Badge>
+        </div>
+        <div className="entries-overview-grid">
+          <div><span>Income</span><strong className="favourable">{money(entrySummary.income)}</strong><small>Recorded in this view</small></div>
+          <div><span>Expenses</span><strong>{money(entrySummary.expense)}</strong><small>Recorded in this view</small></div>
+          <div><span>Net movement</span><strong className={entrySummary.net >= 0 ? 'favourable' : 'unfavourable'}>{money(entrySummary.net)}</strong><small>Income minus expenses</small></div>
+          <div><span>Filtered rows</span><strong>{rows.length.toLocaleString('en-IN')}</strong><small>Ready for review</small></div>
+        </div>
+      </section>
       <Section
         title={kind === 'Income' ? 'Record actual income' : 'Record actual expense'}
         caption={

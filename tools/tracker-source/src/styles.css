@@ -3850,24 +3850,8 @@ html[data-theme="dark"][data-palette="indigo"] { --accent: #a99cfb; --accent-dee
 /* Small text uses the high-contrast accent ink, while controls keep their palette accent. */
 html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 
-.mobile-quick-add,
-.mobile-recent { display: none; }
+.mobile-quick-add { display: none; }
 @media (max-width: 600px) {
-  .mobile-recent { display: block; margin: 14px 0; padding: 18px; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); }
-  .mobile-recent > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .mobile-recent h2 { margin: 3px 0 0; font-size: 19px; }
-  .mobile-recent ul { list-style: none; margin: 0; padding: 0; }
-  .mobile-recent li + li { border-top: 1px solid var(--border); }
-  .mobile-recent li > button { width: 100%; min-height: 64px; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 0; border: 0; background: transparent; color: inherit; text-align: left; }
-  .mobile-recent-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: var(--accent-soft); color: var(--accent-ink); }
-  .mobile-recent-icon.income { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--surface)); }
-  .mobile-recent-icon.expense { color: var(--orange); background: color-mix(in srgb, var(--orange) 12%, var(--surface)); }
-  .mobile-recent-copy { min-width: 0; display: grid; gap: 3px; }
-  .mobile-recent-copy strong, .mobile-recent-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mobile-recent-copy small { color: var(--muted); }
-  .mobile-recent-amount { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .mobile-recent-amount.income { color: var(--green); }
-  .mobile-recent-amount.expense { color: var(--orange); }
   .mobile-quick-add { display: inline-flex; position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(78px + env(safe-area-inset-bottom, 0px)); z-index: 41; gap: 6px; align-items: center; justify-content: center; padding: 11px 18px; min-height: 46px; border: 2px solid var(--surface); border-radius: 999px; background: var(--accent-deep); color: #fff; box-shadow: 0 7px 20px #0004; font-weight: 650; }
   .mobile-quick-add:focus-visible { outline-color: var(--accent); outline-offset: 2px; }
 }
@@ -3953,7 +3937,8 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 @media (max-width: 380px) { .progress-month-card dl { grid-template-columns: 1fr; } }
 
 .position-breakdown { margin-top: 16px; }
-.position-breakdown > h3 { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--accent-soft); color: var(--text); font-size: .95rem; font-weight: 700; }
+.position-breakdown > summary { cursor: pointer; font-weight: 600; padding: 12px 0; }
+.position-breakdown > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
 /* Dashboard detail surfaces adapt to every palette and light/dark theme. */
 .dashboard-page .panel, .dashboard-page .workspace-card {
@@ -3967,12 +3952,13 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .dashboard-page .panel-head > div:first-child { padding-left: 13px; border-left: 4px solid var(--section-tone); }
 .dashboard-page .panel-head h2 { font-size: .96rem; letter-spacing: -.02em; }
 .dashboard-page .panel-head p { max-width: 82ch; line-height: 1.65; }
-/* Section borders and decorative tones follow the palette; chart series keep semantic colours. */
-.dashboard-page > .panel:nth-of-type(3n + 1), .dashboard-page .chart-grid > .panel:first-child { --section-tone: var(--accent); }
-.dashboard-page > .panel:nth-of-type(3n), .dashboard-page .chart-grid > .panel:nth-child(3) { --section-tone: var(--accent); }
+.dashboard-page > .panel:nth-of-type(3n + 1), .dashboard-page .chart-grid > .panel:first-child { --section-tone: var(--green); }
+.dashboard-page > .panel:nth-of-type(3n), .dashboard-page .chart-grid > .panel:nth-child(3) { --section-tone: var(--orange); }
 .dashboard-page .workspace-trust { border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border)); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-radius: 14px; }
 .dashboard-page .workspace-card { border-top: 3px solid var(--section-tone); padding: 22px; }
-.dashboard-page .workspace-card:nth-child(n) { --section-tone: var(--accent); }
+.dashboard-page .workspace-card:nth-child(2) { --section-tone: var(--green); }
+.dashboard-page .workspace-card:nth-child(3) { --section-tone: var(--orange); }
+.dashboard-page .workspace-card:nth-child(4) { --section-tone: var(--chart-4); }
 .dashboard-page .workspace-card h2 { font-size: .94rem; letter-spacing: -.02em; }
 .dashboard-page .workspace-card .text-button { background: color-mix(in srgb, var(--section-tone) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--section-tone) 20%, var(--border)); border-radius: 10px; padding: 9px 12px; margin-top: 12px; }
 .dashboard-page .stats-grid:not(.dashboard-kpis) .stat-card { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-top: 3px solid var(--accent); }
@@ -3992,7 +3978,7 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 .dashboard-page .data-table thead th { background: color-mix(in srgb, var(--section-tone, var(--accent)) 12%, var(--surface)); }
 .dashboard-page .data-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--section-tone, var(--accent)) 4%, var(--surface)); }
 .dashboard-page .data-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
-.dashboard-page .position-breakdown > h3 { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.dashboard-page .position-breakdown > summary { padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
 @media (max-width: 600px) {
   .dashboard-page .panel, .dashboard-page .workspace-card { border-radius: 16px; }
   .dashboard-page .workspace-card { padding: 17px; }
@@ -4003,9 +3989,11 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
   .dashboard-page .panel, .dashboard-page .workspace-card, .dashboard-page .comparison-chart { background: white; box-shadow: none; }
 }
 
-/* Decorative page surfaces honour the user's selected palette.
-   Keep green/orange/red only where they communicate financial status. */
+/* Each workspace page gets its own accent without changing saved palette preferences. */
 .main-scroll[data-page] { --page-tone: var(--accent); }
+.main-scroll[data-page="accounts"], .main-scroll[data-page="employment"] { --page-tone: var(--green); }
+.main-scroll[data-page="entries"], .main-scroll[data-page="forecast"] { --page-tone: var(--chart-4); }
+.main-scroll[data-page="loan"], .main-scroll[data-page="balances"] { --page-tone: var(--orange); }
 .main-scroll[data-page]:not([data-page="dashboard"]) .page-head {
   padding: 22px 24px;
   border: 1px solid color-mix(in srgb, var(--page-tone) 23%, var(--border));
@@ -4065,42 +4053,38 @@ html[data-theme="dark"] .checklist-group-icon { color: var(--accent-ink); }
 
 
 /* --------------------------------------------------------------------------
-   2026 workspace refresh — palette-aware across web, Windows and Android.
-   Neutral surfaces and semantic success/warning/danger tokens remain distinct
-   from the user's chosen accent. Never force mint over a selected palette.
+   2026 workspace refresh
+   A calmer finance-console system: ink navy, paper surfaces, mint action
+   colour, and amber attention states. This layer intentionally sits last so
+   it can refresh every screen without changing page logic or stored data.
    -------------------------------------------------------------------------- */
 html {
-  --accent: #6255df;
-  --accent-deep: #4838ac;
-  --accent-ink: #4838ac;
-  --accent-soft: #eeebff;
-  --sidebar-a: #33306b;
-  --sidebar-b: #6857c7;
-  --bg: #f6f7fc;
+  --accent: #168b78;
+  --accent-deep: #0f6f62;
+  --accent-ink: #0d665b;
+  --accent-soft: #e0f4ef;
+  --sidebar-a: #102c3a;
+  --sidebar-b: #164d54;
+  --bg: #f3f7f7;
   --surface: #ffffff;
-  --surface-soft: #f8f9fd;
-  --text: #28324b;
-  --muted: #596579;
-  --border: #e9ecf4;
-  --control-border: #858fa3;
+  --surface-soft: #f7faf9;
+  --text: #17313a;
+  --muted: #64777c;
+  --border: #dce8e7;
+  --control-border: #b8cdcb;
   --shadow: 0 10px 30px rgba(23, 49, 58, .07);
   --green: #0d806b;
   --orange: #b86d22;
   --red: #b44255;
-  --ring-track: #e9e5fb;
+  --ring-track: #d7ebe7;
 }
 html[data-palette="violet"] {
-  --accent: #6255df;
-  --accent-deep: #4838ac;
-  --accent-ink: #4838ac;
-  --accent-soft: #eeebff;
-  --sidebar-a: #33306b;
-  --sidebar-b: #6857c7;
-  --bg: #f6f7fc;
-  --surface-soft: #f8f9fd;
-  --border: #e9ecf4;
-  --control-border: #858fa3;
-  --ring-track: #e9e5fb;
+  --accent: #168b78;
+  --accent-deep: #0f6f62;
+  --accent-ink: #0d665b;
+  --accent-soft: #e0f4ef;
+  --sidebar-a: #102c3a;
+  --sidebar-b: #164d54;
 }
 html[data-palette="ocean"] {
   --accent: #167ca0;
@@ -4109,11 +4093,6 @@ html[data-palette="ocean"] {
   --accent-soft: #e1f2f8;
   --sidebar-a: #102f45;
   --sidebar-b: #17627a;
-  --bg: #f2f8fc;
-  --surface-soft: #f6fbfd;
-  --border: #dbe9f2;
-  --control-border: #a4bdc9;
-  --ring-track: #d7ebf3;
 }
 html[data-palette="emerald"] {
   --accent: #168b78;
@@ -4122,37 +4101,6 @@ html[data-palette="emerald"] {
   --accent-soft: #e0f4ef;
   --sidebar-a: #102f37;
   --sidebar-b: #176356;
-  --bg: #f3f8f6;
-  --surface-soft: #f7faf9;
-  --border: #dce8e4;
-  --control-border: #b8cdcb;
-  --ring-track: #d7ebe7;
-}
-html[data-palette="rose"] {
-  --accent: #aa3f6a;
-  --accent-deep: #98345d;
-  --accent-ink: #89314f;
-  --accent-soft: #fff0f6;
-  --sidebar-a: #532d49;
-  --sidebar-b: #b76098;
-  --bg: #fff8fb;
-  --surface-soft: #fffafd;
-  --border: #f0e0e9;
-  --control-border: #cbb0bf;
-  --ring-track: #f7dfeb;
-}
-html[data-palette="sunset"] {
-  --accent: #a95121;
-  --accent-deep: #954719;
-  --accent-ink: #884118;
-  --accent-soft: #fff0e5;
-  --sidebar-a: #51342f;
-  --sidebar-b: #b47153;
-  --bg: #fff9f4;
-  --surface-soft: #fffbf8;
-  --border: #eee4dd;
-  --control-border: #cbb9a9;
-  --ring-track: #f5e4d8;
 }
 html[data-palette="indigo"] {
   --accent: #4f6fba;
@@ -4161,32 +4109,18 @@ html[data-palette="indigo"] {
   --accent-soft: #e8edfb;
   --sidebar-a: #172541;
   --sidebar-b: #385889;
-  --bg: #f5f7fc;
-  --surface-soft: #f8faff;
-  --border: #e0e6f1;
-  --control-border: #aebcd4;
-  --ring-track: #e1e7f7;
 }
 html[data-theme="dark"] {
-  --bg: #141625;
-  --surface: #1d2134;
-  --surface-soft: #24283c;
-  --text: #e7eaf6;
-  --muted: #b3bdd2;
-  --border: #30364c;
-  --control-border: #8996b2;
-  --accent-ink: #d5ceff;
+  --bg: #101b20;
+  --surface: #17262b;
+  --surface-soft: #1c3035;
+  --text: #e7f2f1;
+  --muted: #a8bebd;
+  --border: #2c464a;
+  --control-border: #537174;
   --accent-soft: color-mix(in srgb, var(--accent) 20%, transparent);
   --shadow: 0 12px 32px rgba(0, 0, 0, .22);
 }
-/* Explicit accessible dark-mode text colors for all palette selections. */
-html[data-theme="dark"][data-palette="violet"] { --accent-ink: #d5ceff; }
-html[data-theme="dark"][data-palette="ocean"] { --accent-ink: #c1e8ff; }
-html[data-theme="dark"][data-palette="emerald"] { --accent-ink: #b2f8df; }
-html[data-theme="dark"][data-palette="rose"] { --accent-ink: #ffd4e4; }
-html[data-theme="dark"][data-palette="sunset"] { --accent-ink: #ffe0c1; }
-html[data-theme="dark"][data-palette="indigo"] { --accent-ink: #d7daff; }
-
 body {
   background:
     radial-gradient(circle at 95% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 28rem),
@@ -4202,7 +4136,7 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
 .sidebar {
   padding: 26px 16px 16px;
   background:
-    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 22rem),
+    radial-gradient(circle at 12% 0%, rgba(126, 234, 207, .16), transparent 22rem),
     linear-gradient(160deg, var(--sidebar-a), var(--sidebar-b));
   border-right: 1px solid rgba(255,255,255,.08);
 }
@@ -4218,7 +4152,7 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
 }
 .sidebar-label {
   padding: 0 14px 10px;
-  color: rgba(255, 255, 255, .62);
+  color: rgba(215, 244, 239, .58);
   font-size: .68rem;
   letter-spacing: .16em;
 }
@@ -4228,29 +4162,29 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
   padding: 11px 13px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: rgba(255, 255, 255, .76);
+  color: rgba(235, 249, 246, .72);
   font-size: .78rem;
   transition: background .18s ease, border-color .18s ease, transform .18s ease, color .18s ease;
 }
-.sidebar nav button svg { color: rgba(255, 255, 255, .72); }
+.sidebar nav button svg { color: rgba(192, 235, 224, .74); }
 .sidebar nav button.active {
   color: #fff;
   background: rgba(255,255,255,.13);
-  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
-  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 45%, white), 0 8px 20px rgba(0,0,0,.11);
+  border-color: rgba(183, 247, 226, .21);
+  box-shadow: inset 3px 0 0 #79e1c3, 0 8px 20px rgba(0,0,0,.11);
 }
-.sidebar nav button.active svg { color: color-mix(in srgb, var(--accent) 30%, white); }
+.sidebar nav button.active svg { color: #9af0d1; }
 .sidebar nav button:hover { transform: translateX(2px); }
-.nav-dot { background: color-mix(in srgb, var(--accent) 35%, white); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+.nav-dot { background: #94eed0; box-shadow: 0 0 0 4px rgba(148, 238, 208, .12); }
 .privacy-card {
   margin: 28px 5px 20px;
   padding: 15px;
   border-radius: 16px;
   background: rgba(7, 24, 30, .22);
-  border-color: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: rgba(188, 242, 228, .14);
 }
-.privacy-card svg { color: color-mix(in srgb, var(--accent) 35%, white); }
-.profile { border-top-color: rgba(255, 255, 255, .16); }
+.privacy-card svg { color: #8fe5c8; }
+.profile { border-top-color: rgba(205, 244, 235, .16); }
 .topbar {
   height: 76px;
   padding: 0 34px;
@@ -4267,17 +4201,9 @@ h1, h2, h3, .button, .sidebar nav button, .topbar, .stat-card > strong {
 }
 .cloud-button { padding: 8px 12px; }
 .main-scroll {
-  padding: 24px clamp(16px, 2.1vw, 36px) 24px;
+  padding: 34px clamp(20px, 3.2vw, 48px) 28px;
 }
-/* Use the available desktop workspace width rather than centring every screen in a 1480px column. */
-/* Limit width expansion to ordinary flow content. The sr-only status element is
-   absolutely positioned; giving it width:100% extends the document past the
-   sidebar and creates a second horizontal/vertical browser scrollbar. */
-.main-scroll > :is(.edit-controls, .callout, .tracker-glossary, .app-footer) {
-  width: 100%;
-  max-width: none;
-  margin-inline: 0;
-}
+.main-scroll > * { max-width: 1480px; margin-left: auto; margin-right: auto; }
 .page-head {
   margin-bottom: 24px;
   align-items: flex-end;
@@ -4317,28 +4243,16 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
 .dashboard-hero {
   margin-bottom: 20px;
   border-radius: 26px;
-  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: rgba(129, 231, 202, .22);
   background:
-    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent) 23%, transparent), transparent 28%),
-    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 33%),
-    linear-gradient(135deg, var(--sidebar-a) 0%, color-mix(in srgb, var(--sidebar-a) 42%, var(--sidebar-b)) 54%, var(--sidebar-b) 100%);
-  box-shadow: 0 18px 44px color-mix(in srgb, var(--sidebar-a) 20%, transparent);
+    radial-gradient(circle at 92% 8%, rgba(151, 244, 218, .26), transparent 28%),
+    radial-gradient(circle at 0% 100%, rgba(70, 143, 191, .22), transparent 33%),
+    linear-gradient(135deg, #103845 0%, #155c60 54%, #248876 100%);
+  box-shadow: 0 18px 44px rgba(18, 77, 75, .2);
 }
 .dashboard-hero-insights > div {
-  background: rgba(0, 0, 0, .19);
-  border-color: rgba(255, 255, 255, .18);
-}
-/* The later generic .button.secondary background must not make white hero text invisible. */
-.dashboard-hero-actions .button.secondary {
-  color: #fff;
-  background: rgba(255, 255, 255, .15);
-  border-color: rgba(255, 255, 255, .35);
-}
-@media (hover: hover) {
-  .dashboard-hero-actions .button.secondary:hover:not(:disabled) {
-    color: #fff;
-    background: rgba(255, 255, 255, .25);
-  }
+  background: rgba(7, 39, 43, .24);
+  border-color: rgba(213, 255, 243, .18);
 }
 .dashboard-pulse, .panel, .workspace-card, .stat-card, .account-card, .installment-card, .progress-month-card {
   border-radius: 18px;
@@ -4372,15 +4286,15 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
 }
 .entry-grid.header, .budget-grid.header { background: var(--surface-soft); }
 .entry-row, .budget-grid .cell { border-color: var(--border); }
-.tracker-glossary { max-width: none; margin-top: 26px; }
-.app-footer { max-width: none; margin-top: 22px; color: var(--muted); }
+.tracker-glossary { max-width: 1480px; margin-top: 26px; }
+.app-footer { max-width: 1480px; margin-top: 22px; color: var(--muted); }
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 82px minmax(0, 1fr); }
   .sidebar { padding-inline: 10px; }
   .brand { justify-content: center; padding-inline: 0; }
   .brand span, .sidebar-label, .sidebar nav button span:not(.nav-dot), .privacy-card, .profile > div:not(.avatar) { display: none; }
   .sidebar nav button { justify-content: center; padding-inline: 10px; }
-  .sidebar nav button.active { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent), 0 8px 20px rgba(0,0,0,.11); }
+  .sidebar nav button.active { box-shadow: 0 0 0 1px rgba(183, 247, 226, .21), 0 8px 20px rgba(0,0,0,.11); }
   .profile { justify-content: center; padding-inline: 0; }
   .profile .icon-button { display: none; }
   .topbar { padding-inline: 22px; }
@@ -4452,15 +4366,39 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   background: color-mix(in srgb, var(--surface) 80%, var(--bg));
   box-shadow: var(--shadow);
 }
-.dashboard-deep-dive-heading {
+.dashboard-deep-dive > summary {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
+  cursor: pointer;
+  list-style: none;
   padding: 17px 20px;
 }
-.dashboard-deep-dive-heading > span { display: grid; gap: 3px; }
-.dashboard-deep-dive-heading h2 { margin: 0; font-size: .95rem; line-height: 1.35; }
-.dashboard-deep-dive-heading small { color: var(--muted); font-size: .75rem; }
+.dashboard-deep-dive > summary::-webkit-details-marker { display: none; }
+.dashboard-deep-dive > summary::before {
+  content: '＋';
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 17px;
+  font-weight: 700;
+}
+.dashboard-deep-dive[open] > summary::before { content: '−'; }
+.dashboard-deep-dive > summary > span:first-of-type { display: grid; gap: 3px; margin-right: auto; }
+.dashboard-deep-dive > summary strong { font-size: .9rem; }
+.dashboard-deep-dive > summary small { color: var(--muted); font-size: .75rem; }
+.dashboard-deep-dive-toggle {
+  color: var(--accent-ink);
+  font-size: .75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
 .dashboard-deep-dive-body {
   padding: 0 20px 20px;
   border-top: 1px solid var(--border);
@@ -4473,8 +4411,9 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   .dashboard-analytics { padding: 16px; border-radius: 16px; }
   .dashboard-analytics-head { align-items: flex-start; flex-direction: column; gap: 6px; }
   .dashboard-analytics .chart-box { height: 210px; }
-  .dashboard-deep-dive-heading { padding: 15px 16px; }
-  .dashboard-deep-dive-heading small { max-width: 35ch; }
+  .dashboard-deep-dive > summary { padding: 15px 16px; }
+  .dashboard-deep-dive > summary small { max-width: 26ch; }
+  .dashboard-deep-dive-toggle { display: none; }
   .dashboard-deep-dive-body { padding-inline: 16px; }
 }
 
@@ -4584,135 +4523,39 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   .employment-status-pill { align-self: flex-start; }
 }
 
-/*
- * Dashboard hero readability.
- * Keep the secondary action readable even though the shared .button.secondary
- * rule appears after the original hero styles. Use darker palette-matched
- * gradient stops and opaque-enough text for all six light/dark palettes.
- */
-.dashboard-hero {
-  background:
-    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 28%),
-    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 33%),
-    linear-gradient(
-      135deg,
-      var(--sidebar-a) 0%,
-      color-mix(in srgb, var(--sidebar-a) 65%, var(--sidebar-b)) 54%,
-      color-mix(in srgb, var(--sidebar-a) 50%, var(--sidebar-b)) 100%
-    );
-}
-.dashboard-overline {
-  color: rgba(255, 255, 255, .95);
-  font-size: .8125rem;
-}
-.dashboard-balance p {
-  color: rgba(255, 255, 255, .94);
-  font-size: .875rem;
-}
-.dashboard-balance-meta {
-  color: rgba(255, 255, 255, .94);
-  font-size: .8125rem;
-}
-.dashboard-balance-meta span + span::before { color: rgba(255, 255, 255, .8); }
-.dashboard-hero-insights span {
-  color: rgba(255, 255, 255, .94);
-  font-size: .875rem;
-}
-.dashboard-hero-insights small {
-  color: rgba(255, 255, 255, .92);
-  font-size: .8125rem;
-}
-.dashboard-hero-actions .button {
-  font-size: .875rem;
-  font-weight: 650;
-}
-.dashboard-hero-actions .button.secondary {
-  color: #fff;
-  background: rgba(255, 255, 255, .14);
-  border-color: rgba(255, 255, 255, .7);
-}
-@media (hover: hover) {
-  .dashboard-hero-actions .button.secondary:hover:not(:disabled) {
-    color: #fff;
-    background: rgba(255, 255, 255, .24);
-    border-color: #fff;
-  }
-}
-.dashboard-hero-actions .button.secondary:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 3px;
-}
 
-/* Desktop tracker must have one vertical scrolling surface. Without a document
-   scroll boundary, the page itself can scroll past the app-shell and expose
-   a large blank area below the footer (especially after long Accounts views).
-   Scope this to the mounted shell so the sign-in/recovery pages remain scrollable. */
-html:has(.app-shell),
-body:has(.app-shell),
-#root:has(.app-shell) {
-  width: 100%;
-  height: 100%;
-  /* Hidden still permits window.scrollTo and creates a second scroll position.
-     Clip disallows document scrolling while the internal workspace still scrolls. */
-  overflow: clip;
+/* Settings and Daily Entries modern overview surfaces */
+.settings-overview, .entries-overview {
+  margin: 0 0 22px;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--page-tone, var(--accent)) 20%, var(--border));
+  border-radius: 20px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--page-tone, var(--accent)) 7%, var(--surface)), var(--surface) 72%);
+  box-shadow: var(--shadow);
 }
-.app-shell {
-  /* Establish the containing block for absolute sr-only status elements.
-     Otherwise they escape overflow clipping and enlarge the document's
-     scrollable area below the app even with a fixed-height shell. */
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-.workspace {
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
-}
-.main-scroll {
-  min-height: 0;
-  min-width: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  /* Reserve scrollbar space so navigating between short and long tabs does
-     not shift the entire page and trigger unnecessary layout work. */
-  scrollbar-gutter: stable;
-  overscroll-behavior-y: contain;
-}
-@media (hover: hover) and (pointer: fine) {
-  /* Cheaper, subtler shadows on large vertically moving card surfaces.
-     Preserve the full shadow treatment on static headers and modal dialogs. */
-  .main-scroll :is(.panel, .workspace-card, .stat-card, .account-card, .installment-card, .progress-month-card) {
-    box-shadow: 0 2px 9px rgba(23, 49, 58, .065);
-  }
-  .main-scroll[data-page]:not([data-page="dashboard"]) .page-head {
-    box-shadow: 0 2px 9px rgba(23, 49, 58, .065);
-  }
-}
-.main-scroll > .edit-controls,
-.main-scroll .page,
-.main-scroll .accounts-page,
-.main-scroll .panel {
-  min-width: 0;
-  max-width: 100%;
-}
-.main-scroll .table-scroll {
-  max-width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-}
+.settings-overview-heading, .entries-overview-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 17px; }
+.settings-overview-heading h2, .entries-overview-heading h2 { margin: 4px 0; font-size: 1.12rem; letter-spacing: -.025em; }
+.settings-overview-heading p, .entries-overview-heading p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.settings-overview-grid, .entries-overview-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.settings-overview-grid > div, .entries-overview-grid > div { display: grid; gap: 4px; padding: 13px 14px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); }
+.settings-overview-grid span, .entries-overview-grid span, .settings-overview-grid small, .entries-overview-grid small { color: var(--muted); font-size: 12px; }
+.settings-overview-grid strong, .entries-overview-grid strong { font-size: 16px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.entries-overview { --page-tone: var(--chart-4); }
+.entries-overview-heading { margin-bottom: 15px; }
+.entries-overview-grid strong.favourable { color: var(--green); }
+.entries-overview-grid strong.unfavourable { color: var(--red); }
+.main-scroll[data-page="settings"] .panel, .main-scroll[data-page="entries"] .panel { border-radius: 18px; }
+.main-scroll[data-page="settings"] .theme-preset:hover, .main-scroll[data-page="settings"] .theme-options button:hover, .main-scroll[data-page="settings"] .palette-options button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 10%, transparent); }
+.main-scroll[data-page="settings"] .theme-preset, .main-scroll[data-page="settings"] .theme-options button, .main-scroll[data-page="settings"] .palette-options button { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.main-scroll[data-page="entries"] .filter-bar { padding: 11px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); }
+.main-scroll[data-page="entries"] .filter-bar .search-box { background: var(--surface); border-color: var(--control-border); }
+.main-scroll[data-page="entries"] .entry-grid-wrap { border-radius: 14px; box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 5%, transparent); }
+.main-scroll[data-page="entries"] .entry-grid.header { letter-spacing: .02em; text-transform: uppercase; font-size: 10px; }
+.main-scroll[data-page="entries"] .entry-row:hover { background: color-mix(in srgb, var(--accent) 4%, var(--surface)); }
+@media (max-width: 900px) { .settings-overview-grid, .entries-overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) {
-  /* Phones scroll within .workspace; they do not create a second page scrollbar. */
-  .workspace {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .main-scroll {
-    overflow: visible;
-    overscroll-behavior-y: auto;
-  }
+  .settings-overview, .entries-overview { padding: 16px; border-radius: 16px; }
+  .settings-overview-heading, .entries-overview-heading { flex-direction: column; gap: 8px; }
+  .settings-overview-grid, .entries-overview-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .settings-overview-grid > div, .entries-overview-grid > div { padding: 11px; }
 }
-.progress-range-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}.progress-range-control>span{font-weight:700}.progress-range-control label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px}.progress-range-control select{min-width:150px}.update-release-copy{max-width:560px}
-@media(max-width:700px){.progress-range-control{align-items:stretch}.progress-range-control>span{width:100%}.progress-range-control label{justify-content:space-between}.progress-range-control select{min-width:0;flex:1}.progress-range-control .button{width:100%;justify-content:center}}
