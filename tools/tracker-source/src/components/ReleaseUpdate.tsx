@@ -47,7 +47,7 @@ export function ReleaseUpdate() {
         if (manual || !isReleaseSnoozed(saved, update.tag)) {
           setAvailable({ update, installed });
         }
-      } catch (error) {
+      } catch {
         if (controller.signal.aborted) return;
         // Automatic checks never interrupt offline finance workflows.
         lastAutoCheck.current = 0;
