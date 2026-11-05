@@ -1,9 +1,9 @@
 {
-  "version": "2.2.8",
-  "releaseTag": "tracker-v2.2.8",
-  "releasePage": "https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.8",
-  "windows": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.8/Savings-and-Expense-Tracker-Setup-2.2.8.exe",
-  "android": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.8/Savings-and-Expense-Tracker-2.2.8.apk",
-  "source": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.8/Savings-and-Expense-Tracker-2.2.8-Source.zip",
-  "checksums": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.8/SHA256SUMS.txt"
+  "version": "2.2.9",
+  "releaseTag": "tracker-v2.2.9",
+  "releasePage": "https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.9",
+  "windows": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.9/Savings-and-Expense-Tracker-Setup-2.2.9.exe",
+  "android": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.9/Savings-and-Expense-Tracker-2.2.9.apk",
+  "source": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.9/Savings-and-Expense-Tracker-2.2.9-Source.zip",
+  "checksums": "https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.9/SHA256SUMS.txt"
 }
