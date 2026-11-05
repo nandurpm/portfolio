@@ -349,7 +349,6 @@ export function Shell() {
   return (
     <MotionConfig reducedMotion={p.settings.animations ? "user" : "always"}>
       <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
-        <ReleaseUpdate />
         <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{current.name} screen</div>
         <a className="skip-link" href="#main-content">
           Skip to content
@@ -727,6 +726,7 @@ export default function App() {
   return (
     <Boundary>
       <UiProvider>
+        {!WEB_APP && <ReleaseUpdate />}
         {WEB_APP ? (
           <WebAccess>
             <Shell />
