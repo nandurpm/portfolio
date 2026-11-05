@@ -31,7 +31,10 @@ function parts(value: string): number[] | null {
 export function compareTrackerVersions(candidate: string, current: string): number {
   const a = parts(candidate), b = parts(current);
   if (!a || !b || a.some((n) => !Number.isSafeInteger(n)) || b.some((n) => !Number.isSafeInteger(n))) return 0;
-  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
+  for (let i = 0; i < 3; i++) {
+    const left = a[i] ?? 0, right = b[i] ?? 0;
+    if (left !== right) return left > right ? 1 : -1;
+  }
   return 0;
 }
 
