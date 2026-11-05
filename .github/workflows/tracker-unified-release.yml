@@ -1,0 +1,184 @@
+name: Release tracker web, Windows and Android
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'tracker-v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tracker-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Verify version and release tag
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" != "tracker-v${VERSION}" ]]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version ${VERSION}." >&2
+            exit 1
+          fi
+      - name: Run financial, lint, TypeScript and bundle checks
+        run: npm run check
+      - name: Build exact web payload
+        run: npm run build:web && npm run check:bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tracker-web-${{ github.sha }}
+          path: tools/tracker-source/dist-web
+          if-no-files-found: error
+          retention-days: 30
+
+  windows:
+    needs: quality
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Build Windows x64 installer
+        run: npm run dist:win
+      - name: Verify installer and collect artifact
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $installer = "release/installers/Savings-and-Expense-Tracker-Setup-$version.exe"
+          if (-not (Test-Path -LiteralPath $installer)) { throw "Missing installer: $installer" }
+          if ((Get-Item -LiteralPath $installer).Length -lt 50MB) { throw 'Installer is unexpectedly small.' }
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP/tracker-windows" | Out-Null
+          Copy-Item -LiteralPath $installer -Destination "$env:RUNNER_TEMP/tracker-windows/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tracker-windows-${{ github.sha }}
+          path: ${{ runner.temp }}/tracker-windows/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  android:
+    needs: quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/tracker-source
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: tools/tracker-source/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+      - name: Restore authorized production signing identity
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.TRACKER_ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/tracker-release.jks"
+          chmod 600 "$RUNNER_TEMP/tracker-release.jks"
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Build signed Android release APK
+        env:
+          TRACKER_KEYSTORE_PATH: ${{ runner.temp }}/tracker-release.jks
+          TRACKER_KEYSTORE_PASSWORD: ${{ secrets.TRACKER_KEYSTORE_PASSWORD }}
+          TRACKER_KEY_ALIAS: ${{ vars.TRACKER_ANDROID_KEY_ALIAS }}
+        run: npm run android:release
+      - name: Verify APK identity and collect artifact
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          APK='android/app/build/outputs/apk/release/app-release.apk'
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" > "$RUNNER_TEMP/apk-badging.txt"
+          grep -q "package: name='com.nandakumar.savingsexpensetracker'" "$RUNNER_TEMP/apk-badging.txt"
+          grep -q "versionName='$VERSION'" "$RUNNER_TEMP/apk-badging.txt"
+          mkdir -p "$RUNNER_TEMP/tracker-android"
+          cp "$APK" "$RUNNER_TEMP/tracker-android/Savings-and-Expense-Tracker-$VERSION.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tracker-android-${{ github.sha }}
+          path: ${{ runner.temp }}/tracker-android/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: [quality, windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: tracker-windows-${{ github.sha }}
+          path: release-assets
+      - uses: actions/download-artifact@v4
+        with:
+          name: tracker-android-${{ github.sha }}
+          path: release-assets
+      - name: Package source and checksums
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./tools/tracker-source/package.json').version")"
+          TAG="tracker-v$VERSION"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" != "$TAG" ]]; then exit 1; fi
+          git archive --format=zip --output="release-assets/Savings-and-Expense-Tracker-$VERSION-Source.zip" HEAD tools/tracker-source scripts/stage-tracker.mjs .github/workflows
+          cp "tools/tracker-source/CHANGELOG-$VERSION.md" release-assets/ 2>/dev/null || true
+          (cd release-assets && sha256sum *.exe *.apk *.zip > SHA256SUMS.txt)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+      - name: Publish one GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          NOTES="tools/tracker-source/CHANGELOG-$VERSION.md"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
+          elif [[ -f "$NOTES" ]]; then
+            gh release create "$TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --title "Savings and Expense Tracker $VERSION" --notes-file "$NOTES" --target "$GITHUB_SHA"
+          else
+            gh release create "$TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --title "Savings and Expense Tracker $VERSION" --generate-notes --target "$GITHUB_SHA"
+          fi
+      - name: Confirm public release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | tee release-assets/published-assets.txt
+          grep -Fx "Savings-and-Expense-Tracker-Setup-$VERSION.exe" release-assets/published-assets.txt
+          grep -Fx "Savings-and-Expense-Tracker-$VERSION.apk" release-assets/published-assets.txt
+          grep -Fx "Savings-and-Expense-Tracker-$VERSION-Source.zip" release-assets/published-assets.txt
+          grep -Fx 'SHA256SUMS.txt' release-assets/published-assets.txt

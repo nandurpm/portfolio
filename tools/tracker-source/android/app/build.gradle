@@ -25,7 +25,7 @@ android {
             if (System.getenv('TRACKER_KEYSTORE_PATH')) {
                 storeFile file(System.getenv('TRACKER_KEYSTORE_PATH'))
                 storePassword System.getenv('TRACKER_KEYSTORE_PASSWORD')
-                keyAlias 'tracker'
+                keyAlias System.getenv('TRACKER_KEY_ALIAS') ?: 'tracker'
                 keyPassword System.getenv('TRACKER_KEYSTORE_PASSWORD')
             }
         }
