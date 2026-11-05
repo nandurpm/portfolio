@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld("desktop", {
   pdf: (html: string, name: string) =>
     ipcRenderer.invoke("report:pdf", html, name),
   version: () => ipcRenderer.invoke("version"),
+  openRelease: (url: string) => ipcRenderer.invoke("release:open", url),
   onBeforeClose: (fn: () => Promise<void>) => {
     const handler = () => {
       void fn()
