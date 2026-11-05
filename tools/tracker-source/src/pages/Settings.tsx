@@ -439,7 +439,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           </div>
           <Info size={22} />
         </div>
-        {!WEB_APP && (
+        {(!WEB_APP || window.desktop?.platform === 'android') && (
           <button type="button" className="button secondary"
             onClick={() => window.dispatchEvent(new Event(CHECK_UPDATES_EVENT))}>
             Check for updates
