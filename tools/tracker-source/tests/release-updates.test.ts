@@ -94,6 +94,30 @@ describe('native Tracker releases', () => {
     expect(isReleaseSnoozed('not-json', 'tracker-v2.2.3', now)).toBe(false);
   });
 
+  it('keeps verified in-app APK install isolated from financial storage and external browsers', () => {
+    const nativePlugin = readFileSync(new URL('../android/app/src/main/java/com/nandakumar/savingsexpensetracker/TrackerNativePlugin.java', import.meta.url), 'utf8');
+    const installer = readFileSync(new URL('../android/app/src/main/java/com/nandakumar/savingsexpensetracker/TrackerApkUpdate.java', import.meta.url), 'utf8');
+    const manifest = readFileSync(new URL('../android/app/src/main/AndroidManifest.xml', import.meta.url), 'utf8');
+    const paths = readFileSync(new URL('../android/app/src/main/res/xml/tracker_update_paths.xml', import.meta.url), 'utf8');
+    const ui = readFileSync(new URL('../src/components/ReleaseUpdate.tsx', import.meta.url), 'utf8');
+    expect(manifest).toContain('android.permission.REQUEST_INSTALL_PACKAGES');
+    expect(manifest).toContain('android:exported="false"');
+    expect(manifest).toContain('@xml/tracker_update_paths');
+    expect(paths).toContain('path="tracker-updates/"');
+    expect(paths).not.toContain('<root-path');
+    expect(paths).not.toContain('path="."');
+    expect(installer).toContain('getPackageArchiveInfo');
+    expect(installer).toContain('getApkContentsSigners');
+    expect(installer).toContain('SHA-256');
+    expect(installer).toContain('canRequestPackageInstalls');
+    expect(installer).toContain('FLAG_GRANT_READ_URI_PERMISSION');
+    expect(nativePlugin).toContain('downloadUpdate(PluginCall call)');
+    expect(nativePlugin).toContain('installDownloadedUpdate(PluginCall call)');
+    expect(ui).toContain('Download & install in app');
+    expect(ui).toContain('native.downloadUpdate(');
+    expect(ui).toContain('native.installDownloadedUpdate(');
+  });
+
   it('permits the GitHub API in the release build CSP while retaining the Supabase endpoint', () => {
     const vite = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
     const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
