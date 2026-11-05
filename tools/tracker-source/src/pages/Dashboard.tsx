@@ -33,6 +33,7 @@ import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../componen
 
 import { RangeControl } from '../components/RangeControl';
 import { MobileRecentActivity } from '../components/MobileRecentActivity';
+import { AndroidHome } from '../components/AndroidHome';
 const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
 const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 
@@ -253,6 +254,7 @@ export default function Dashboard({
     ['Total expenses', 'expenses', 'living'],
     ['Savings / deficit', 'savings', 'income'],
   ] as const;
+  if (window.desktop?.platform === 'android') return <AndroidHome navigate={navigate} addEntry={addEntry} />;
   return (
     <div className="dashboard-page">
       <PageHead

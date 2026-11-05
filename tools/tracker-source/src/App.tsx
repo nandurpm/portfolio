@@ -643,6 +643,10 @@ export function Shell() {
         {more && (
           <Modal title="More screens & tools" onClose={() => setMore(false)}>
             <div className="phone-menu">
+              <p>Loans &amp; EMI · Salary &amp; PF · Forecast · Reports &amp; backup · Settings, sync &amp; help</p>
+              <button className="button secondary" onClick={() => navigate('accounts')}>Reconciliation, transfers &amp; account activity</button>
+              <button className="button secondary" onClick={() => navigate('balances')}>Provisions &amp; reserves</button>
+              <button className="button secondary" onClick={() => navigate('accounts')}>Financial position &amp; net worth</button>
               {pages
                 .filter((x) =>
                   ["loan", "employment", "forecast", "balances", "reports", "settings"].includes(x.id),

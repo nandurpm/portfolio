@@ -1,6 +1,6 @@
 import { financialRange, financialCash, financialForecast, financialBudget, financialReconciliation, financialAccounts } from "./finance.js";
 import { WISHES, wishForDate } from "./wishes.js";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.118.0";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 
 const HOOK_HASH = "62bebaca4a6106dad90a394e70388235d4a2647692bec817e87a0371b04015f4";
@@ -86,7 +86,7 @@ function secrets() {
 async function telegram(method:string,token:string,body:AnyRow) {
  const res=await fetch("https://api.telegram.org/bot"+token+"/"+method,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body),signal:AbortSignal.timeout(28000)});
  const ans=await res.json();
- if(!ans?.ok)throw Error("Telegram "+method+" failed");
+ if(!ans?.ok)throw Object.assign(Error("Telegram "+method+" failed"),{deliveryRejected:true});
  return ans.result;
 }
 async function message(token:string,owner:string,html:string,keyboard?:AnyRow,messageId?:number) {
@@ -548,6 +548,9 @@ async function sendPdf(token:string,owner:string,plan:AnyRow,mode:"day"|"month"|
  if(!body.ok)throw Error("PDF was not accepted by Telegram");
 }
 async function showAction(action:string,token:string,owner:string,messageId?:number) {
+ if(["updates","changelog","software","software:on","software:off"].includes(action)) {
+  await softwareAction(action,token,owner,messageId);return;
+ }
  const {plan,updated}=await syncedPlan();
  const today=keyDate(),month=today.slice(0,7);
  let report:string|undefined;let kb:AnyRow=back();
@@ -676,7 +679,7 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
   kb={inline_keyboard:[[button("🔐 Edit Mode","e:open"),button("🔒 Lock Now","e:lock")],[button("🏠 Main Menu","menu")]]};
  }
  else if(action==="help"){
-  report="🧭 <b>COMMANDS</b>\n/start · /quick · /dashboard · /accounts · /lending · /investments · /emi · /month · /reports · /range · /rangepdf · /search · /alerts · /wishes · /more · /edit · /lock · /sync · /status\n\nExamples:\n<code>/search Amazon</code>\n<code>/range 2026-11-01 2026-11-30</code>\n\nOnly the owner can use this bot. Edit Mode is PIN protected. Use /refreshmenu to restore the slash-command list.";
+  report="🧭 <b>COMMANDS</b>\n/start · /quick · /dashboard · /accounts · /lending · /investments · /emi · /month · /reports · /range · /rangepdf · /search · /updates · /changelog · /alerts · /wishes · /more · /edit · /lock · /sync · /status\n\nExamples:\n<code>/search Amazon</code>\n<code>/range 2026-11-01 2026-11-30</code>\n\nOnly the owner can use this bot. Edit Mode is PIN protected. Use /refreshmenu to restore the slash-command list.";
   kb=moreKeyboard();
   kb=homeKeyboard();
  }
@@ -687,11 +690,12 @@ async function showAction(action:string,token:string,owner:string,messageId?:num
  await message(token,owner,report||"Please choose an option.",kb,messageId);
 }
 async function scheduled(kind:string,token:string,owner:string) {
+ if(kind==="updates")return await sendReleaseUpdate(token,owner);
  if(kind==="wishes")return await sendTodayWish(token,owner);
+ const release=kind==="alerts"?await sendReleaseUpdate(token,owner):{delivered:0};
  const {plan,updated}=await syncedPlan();const today=keyDate();
  if(kind==="alerts"){
   const alerts=await sendAlerts(token,owner,plan,updated);
-  const release=await sendReleaseUpdate(token,owner);
   return {delivered:alerts.delivered+release.delivered};
  }
  if(kind==="daily"){
@@ -707,30 +711,111 @@ async function scheduled(kind:string,token:string,owner:string) {
  else throw Error("Invalid schedule type");
 }
 
-async function sendReleaseUpdate(token:string,owner:string) {
- const response=await fetch("https://api.github.com/repos/nandurpm/portfolio/releases/latest",{
-  headers:{accept:"application/vnd.github+json","user-agent":"savings-expense-tracker-bot"},
-  signal:AbortSignal.timeout(15000)
- });
- if(!response.ok)return {delivered:0};
- const release=await response.json();
+// Software preferences and delivery markers reuse the private, owner-keyed alert table.
+// No financial preference or production schema is changed.
+const SOFTWARE_OFF = "software-preference:disabled";
+async function softwareEnabled(owner:string) {
+ const {data,error}=await adminClient().from("tracker_bot_sent_alerts").select("alert_key")
+  .eq("owner_chat_id",owner).eq("alert_key",SOFTWARE_OFF).maybeSingle();
+ if(error)throw Error("Software notification preferences unavailable");
+ return !data;
+}
+function verifiedTrackerRelease(release:AnyRow) {
  const tag=String(release?.tag_name||"");
- if(!/^tracker-v\d+\.\d+\.\d+$/.test(tag))return {delivered:0};
- const key="software-release:"+tag;
+ if(!/^tracker-v\d+\.\d+\.\d+$/.test(tag)||release.draft!==false||release.prerelease!==false||!release.published_at||!Number.isFinite(Date.parse(release.published_at)))return null;
+ const version=tag.slice(9), root="https://github.com/nandurpm/portfolio/releases/";
+ if(release.html_url!==root+"tag/"+tag)return null;
+ const assets=Array.isArray(release.assets)?release.assets:[];
+ const asset=(name:string)=>assets.find((a:AnyRow)=>a.name===name&&a.state==="uploaded"&&Number.isSafeInteger(a.size)&&a.size>0&&
+  /^sha256:[a-f0-9]{64}$/.test(String(a.digest||""))&&a.browser_download_url===root+"download/"+tag+"/"+name);
+ const apk=asset("Savings-and-Expense-Tracker-"+version+".apk");
+ const exe=asset("Savings-and-Expense-Tracker-Setup-"+version+".exe");
+ const checksums=asset("SHA256SUMS.txt");
+ if(!apk||!exe||!checksums)return null;
+ return {...release,tag_name:tag,version,apk,exe};
+}
+async function trackerReleases() {
+ const response=await fetch("https://api.github.com/repos/nandurpm/portfolio/releases?per_page=100",{
+  headers:{accept:"application/vnd.github+json","user-agent":"savings-expense-tracker-bot"},signal:AbortSignal.timeout(15000)
+ });
+ if(!response.ok)throw Error(response.status===403||response.status===429?"GitHub rate limit; try again later":"GitHub releases unavailable");
+ const rows=await response.json();if(!Array.isArray(rows))throw Error("Invalid GitHub release response");
+ return rows.map(verifiedTrackerRelease).filter(Boolean).sort((a:AnyRow,b:AnyRow)=>{
+  const av=a.version.split(".").map(Number),bv=b.version.split(".").map(Number);
+  return bv[0]-av[0]||bv[1]-av[1]||bv[2]-av[2];
+ });
+}
+function releaseText(release:AnyRow) {
+ const notes=escape(String(release.body||"No release notes supplied. See the official release page.")
+  .replace(/\r/g,"").slice(0,400));
+ return "🆕 <b>New Tracker Release Published</b>\n<b>Savings &amp; Expense Tracker "+escape(release.version)+"</b>"+
+  "\n📅 "+escape(displayDate(release.published_at.slice(0,10)))+"\n\n<b>Release notes</b>\n"+notes+
+  "\n\n🛡️ Sync and export a full JSON backup before updating. Keep pending offline changes. Install over the existing app; do not uninstall or clear data. Android updates require the same package and signing certificate. Your installed version has not been checked.";
+}
+function releaseKeyboard(release:AnyRow) {
+ return {inline_keyboard:[[{text:"🤖 Android APK",url:release.apk.browser_download_url}],
+  [{text:"🪟 Windows installer",url:release.exe.browser_download_url}],
+  [{text:"📋 View Release Notes",url:release.html_url}],
+  [button("⚙️ Software notifications","software")]]};
+}
+async function softwareAction(action:string,token:string,owner:string,messageId?:number) {
  const client=adminClient();
- const {error}=await client.from("tracker_bot_sent_alerts").insert({owner_chat_id:owner,alert_key:key,delivered_at:new Date().toISOString()});
- if(error){if(error.code==="23505")return {delivered:0};throw Error("Unable to reserve release notification");}
+ if(action==="software:on"||action==="software:off") {
+  const result=action==="software:on"
+   ?await client.from("tracker_bot_sent_alerts").delete().eq("owner_chat_id",owner).eq("alert_key",SOFTWARE_OFF)
+   :await client.from("tracker_bot_sent_alerts").upsert({owner_chat_id:owner,alert_key:SOFTWARE_OFF,delivered_at:new Date().toISOString()},{onConflict:"owner_chat_id,alert_key"});
+  if(result.error)throw Error("Software notification preference was not saved");
+ }
+ const enabled=await softwareEnabled(owner);
+ if(action.startsWith("software")) {
+  await message(token,owner,"⚙️ <b>Software Update Notifications: "+(enabled?"On":"Off")+"</b>\n\nIndependent of financial alerts. /updates checks manually without sending an automatic announcement.",
+   {inline_keyboard:[[button(enabled?"Turn Off":"Turn On",enabled?"software:off":"software:on")],[button("🔎 Check releases","updates"),button("📋 Changelog","changelog")],[button("🏠 Main Menu","menu")]]},messageId);return;
+ }
  try {
-  const assets=Array.isArray(release.assets)?release.assets:[];
-  const apk=assets.find((asset:AnyRow)=>String(asset.name||"").endsWith(".apk"));
-  const exe=assets.find((asset:AnyRow)=>String(asset.name||"").endsWith(".exe"));
-  const links=[["ðŸ¤– Android APK",apk?.browser_download_url],["ðŸªŸ Windows installer",exe?.browser_download_url],["ðŸ“‹ Release notes",release.html_url]]
-   .filter((item)=>item[1]).map((item)=>'<a href="'+escape(String(item[1]))+'">'+item[0]+'</a>').join("\n");
-  await message(token,owner,"ðŸ†• <b>TRACKER UPDATE AVAILABLE</b>\n━━━━━━━━━━━━━━━━━━\n<b>"+escape(String(release.name||tag))+"</b> has been released.\n\n"+links+"\n\n<i>Back up the tracker before updating. Install only packages published in the official repository.</i>");
- } catch(e) {
-  await client.from("tracker_bot_sent_alerts").delete().eq("owner_chat_id",owner).eq("alert_key",key);
+  const releases=await trackerReleases();
+  if(!releases.length){await message(token,owner,"No complete, verified tracker release is available.",back(),messageId);return;}
+  if(action==="changelog") {
+   await message(token,owner,"📋 <b>Recent Tracker Releases</b>\n\n"+releases.slice(0,3).map((r:AnyRow)=>"<b>"+escape(r.version)+"</b> · "+escape(displayDate(r.published_at.slice(0,10)))+"\n"+escape(String(r.body||"See release notes.").slice(0,120))).join("\n\n"),releaseKeyboard(releases[0]),messageId);
+  }else await message(token,owner,releaseText(releases[0]),releaseKeyboard(releases[0]),messageId);
+ }catch {await message(token,owner,"⚠️ GitHub release check unavailable. No update status has been inferred. Try /updates later.",back(),messageId);}
+}
+async function sendReleaseUpdate(token:string,owner:string) {
+ if(!await softwareEnabled(owner))return {delivered:0};
+ let releases;
+ try{releases=await trackerReleases();}catch{return {delivered:0};}
+ const release=releases[0];if(!release)return {delivered:0};
+ const key="software-release:"+release.tag_name, pending="software-pending:"+release.tag_name;
+ const client=adminClient();
+ const {data:sent,error:readError}=await client.from("tracker_bot_sent_alerts").select("alert_key")
+  .eq("owner_chat_id",owner).eq("alert_key",key).maybeSingle();
+ if(readError)throw Error("Unable to check release delivery");if(sent)return {delivered:0};
+ // Unique pending key prevents overlapping cron/webhook runs from both sending.
+ const {error}=await client.from("tracker_bot_sent_alerts").insert({owner_chat_id:owner,alert_key:pending,delivered_at:new Date().toISOString()});
+ if(error){if(error.code==="23505")return {delivered:0};throw Error("Unable to reserve release notification");}
+ // A previous worker may have completed between our first read and reservation.
+ const {data:completed,error:recheckError}=await client.from("tracker_bot_sent_alerts").select("alert_key")
+  .eq("owner_chat_id",owner).eq("alert_key",key).maybeSingle();
+ if(recheckError)throw Error("Release reservation needs review; delivery not attempted");
+ if(completed){
+  const {error:cleanup}=await client.from("tracker_bot_sent_alerts").delete().eq("owner_chat_id",owner).eq("alert_key",pending);
+  if(cleanup)throw Error("Release reservation cleanup failed");
+  return {delivered:0};
+ }
+ try {
+  await message(token,owner,releaseText(release),releaseKeyboard(release));
+ }catch(e) {
+  // Only an explicit Telegram rejection proves no delivery occurred. A timeout or
+  // process crash is ambiguous: retain pending for review rather than duplicate.
+  if((e as AnyRow)?.deliveryRejected) {
+   const {error:cleanup}=await client.from("tracker_bot_sent_alerts").delete().eq("owner_chat_id",owner).eq("alert_key",pending);
+   if(cleanup)throw Error("Release retry reservation could not be cleared");
+  }
   throw e;
  }
+ const {error:saved}=await client.from("tracker_bot_sent_alerts").upsert({owner_chat_id:owner,alert_key:key,delivered_at:new Date().toISOString()},{onConflict:"owner_chat_id,alert_key"});
+ if(saved)throw Error("Release delivered; acknowledgement pending review");
+ const {error:cleanup}=await client.from("tracker_bot_sent_alerts").delete().eq("owner_chat_id",owner).eq("alert_key",pending);
+ if(cleanup)throw Error("Release delivered; reservation cleanup failed");
  return {delivered:1};
 }
 
@@ -1103,6 +1188,7 @@ async function configureOwnerCommands(token:string,owner:string) {
   ["reports","Reports and private PDFs"],["range","Custom reporting dates"],
   ["search","Find synced transactions"],["alerts","Payment reminders"],
   ["wishes","Annual Malayalam special days"],
+  ["updates","Check latest verified tracker release"],["changelog","Recent tracker release notes"],
   ["edit","PIN-protected entry editing"],["lock","Lock Edit Mode now"],
   ["sync","Check cloud snapshot"],["more","All other tools"],
   ["refreshmenu","Refresh the private menu"],["help","Help and privacy"]
@@ -1231,6 +1317,7 @@ function settingsKeyboard(p:AnyRow) {
   [b("EMI reminders","emi",p.emi_reminders),b("Budget alerts","budget",p.budget_alerts)],
   [b("Sync warnings","sync",p.sync_alerts),b("Low balance","balance",p.low_balance_alerts)],
   [b("Monthly PDF","pdf",p.monthly_pdf_enabled)],
+  [button("⚙️ Software Update Notifications","software")],
   [button("💰 Change low-cash threshold","pref:threshold")],
   [button("🔄 Sync status","sync"),button("🏠 Main Menu","menu")]
  ]};
@@ -1428,7 +1515,7 @@ function alertPreview(plan:AnyRow,updated:string,prefs:AnyRow){
 
 Deno.serve(async (request:Request) => {
  if(request.method==="GET" && new URL(request.url).pathname.endsWith("/health"))
-  return respond({ok:true,service:"savings-tracker-bot",finance:"website-shared-v2.2.1",status:"ready"});
+  return respond({ok:true,service:"savings-tracker-bot",finance:"website-shared-v2.2.1",software:"release-notifications-v2",status:"ready"});
  if(request.method!=="POST")return respond({error:"method_not_allowed"},405);
  try {
   const {token,owner}=secrets();
@@ -1437,11 +1524,11 @@ Deno.serve(async (request:Request) => {
   if(cron && (await sha(cron))===CRON_HASH) {
    const payload=await request.json();
    if(payload?.kind==="branding")return respond(await configureBranding(token,owner));
-   if(!["daily","monthly","alerts","wishes"].includes(payload?.kind))return respond({error:"invalid_period"},400);
+   if(!["daily","monthly","alerts","wishes","updates"].includes(payload?.kind))return respond({error:"invalid_period"},400);
    const outcome=await scheduled(payload.kind,token,owner);
    return respond({ok:true,kind:payload.kind,skipped:outcome?.skipped===true,
      delivered:typeof outcome?.delivered==="number"?outcome.delivered:null,
-     sent:outcome?.skipped===true?false:((payload.kind==="alerts"||payload.kind==="wishes")?((outcome?.delivered??0)>0):true)});
+     sent:outcome?.skipped===true?false:((payload.kind==="alerts"||payload.kind==="wishes"||payload.kind==="updates")?((outcome?.delivered??0)>0):true)});
   }
   if(!hook||(await sha(hook))!==HOOK_HASH)return respond({error:"forbidden"},403);
   const update=await request.json();
@@ -1469,7 +1556,7 @@ Deno.serve(async (request:Request) => {
    "/pdf":"pdfmenu","/reports":"reports","/range":"ranges","/search":"search",
    "/status":"status","/pdfdaily":"pdfday","/pdfmonth":"pdfmonth","/add":"/edit",
    "/dashboard":"dashboard","/reconcile":"reconcile","/compare":"compare","/forecast":"forecast",
-   "/sync":"sync","/alerts":"alerts","/wishes":"wishes","/settings":"settings","/reminders":"alerts",
+   "/updates":"updates","/changelog":"changelog","/sync":"sync","/alerts":"alerts","/wishes":"wishes","/settings":"settings","/reminders":"alerts",
    "/history":"history","/backups":"backups","/edit":"/edit","/lock":"/lock","/cancel":"/cancel"
   };
   if(raw==="/start"||raw==="/refreshmenu"){

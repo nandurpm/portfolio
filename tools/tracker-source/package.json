@@ -26,7 +26,7 @@
     "build:release": "tsc --noEmit && vite build --mode release && node scripts/build-electron.mjs --release",
     "android:release": "npm run build:release && cap sync android && node scripts/build-android.mjs --release",
     "dist:win": "npm run build:release && node scripts/build-windows-installer.mjs",
-    "test:bot": "node supabase/functions/savings-tracker-bot/test.cjs",
+    "test:bot": "node supabase/functions/savings-tracker-bot/test.cjs && node supabase/functions/savings-tracker-bot/release.test.cjs",
     "check:bot-finance": "node scripts/build-bot-finance.mjs --check"
   },
   "build": {
@@ -57,7 +57,7 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "Savings-and-Expense-Tracker-Setup-2.1.0.exe"
+      "artifactName": "Savings-and-Expense-Tracker-Setup-${version}.exe"
     },
     "nsis": {
       "oneClick": false,
