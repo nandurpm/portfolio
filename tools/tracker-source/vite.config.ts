@@ -71,7 +71,7 @@ export default defineConfig(({ command, mode }) => {
         transformIndexHtml(html) {
           html = html.replace(
             "__TRACKER_CONNECT_SRC__",
-            `${endpoint.origin} wss://${endpoint.host}`,
+            `${endpoint.origin} wss://${endpoint.host} https://api.github.com`,
           );
           if (mode === "web")
             html = html.replace(
