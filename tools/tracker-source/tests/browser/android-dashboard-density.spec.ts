@@ -27,6 +27,11 @@ for (const width of [320, 360, 390, 412, 480]) {
       const bounds = await context.boundingBox();
       expect(bounds!.width).toBeGreaterThanOrEqual(width - 18);
       expect(bounds!.height).toBeLessThan(scale === 1 ? 215 : 330);
+      // Nested activity cards should not accumulate panel + group gutters.
+      const activityCard = await page.locator('.monthly-activity .checklist-card').first().boundingBox();
+      expect(activityCard!.x).toBeGreaterThanOrEqual(6);
+      expect(activityCard!.x).toBeLessThanOrEqual(18);
+      expect(activityCard!.x + activityCard!.width).toBeGreaterThanOrEqual(width - 18);
       const hero = await page.locator('.dashboard-hero').boundingBox();
       expect(hero!.y).toBeLessThan(scale === 1 ? 400 : 540);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);

@@ -4544,7 +4544,7 @@ html[data-platform="android"] body:has(.app-shell) { position: fixed; inset: 0; 
 
 /* 2.9.1 phone density; native reporting controls retain their existing handlers. */
 @media (max-width: 600px) {
-  html[data-platform="android"] .main-scroll { padding: 10px max(8px, env(safe-area-inset-right)) calc(92px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+  html[data-platform="android"] .main-scroll { padding: 10px max(6px, env(safe-area-inset-right)) calc(92px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
   html[data-platform="android"] .main-scroll > *, html[data-platform="android"] .dashboard-page { min-width: 0; max-width: 100%; }
   html[data-platform="android"] .dashboard-page > .page-head { margin-bottom: 10px; padding: 0 4px; gap: 4px; }
   html[data-platform="android"] .dashboard-page > .page-head .eyebrow { display: none; }
@@ -4587,4 +4587,15 @@ html[data-platform="android"] body:has(.app-shell) { position: fixed; inset: 0; 
   html[data-platform="android"] .dashboard-hero-insights { grid-template-columns: repeat(2, minmax(0, 1fr)); overflow-wrap: anywhere; }
   html[data-platform="android"] .panel { padding: 12px; }
   html[data-platform="android"] .main-scroll[data-page]:not([data-page="dashboard"]) .page-head { padding: 12px; }
+}
+
+/* Remove repeated gutters around nested phone activity and budget cards. */
+@media (max-width: 600px) {
+  html[data-platform="android"] .monthly-activity { padding-inline: 4px; }
+  html[data-platform="android"] .monthly-activity > .panel-head,
+  html[data-platform="android"] .monthly-activity > .checklist-overview,
+  html[data-platform="android"] .monthly-activity > .checklist-disclaimer { margin-inline: 4px; }
+  html[data-platform="android"] .checklist-group-body { padding: 0 4px 8px; }
+  html[data-platform="android"] .checklist-group > summary { padding-inline: 8px; }
+  html[data-platform="android"] .checklist-card { padding-inline: 12px; min-width: 0; }
 }
