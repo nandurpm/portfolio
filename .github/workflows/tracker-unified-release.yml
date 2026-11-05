@@ -63,6 +63,8 @@ jobs:
       - name: Install pinned dependencies
         run: npm ci
       - name: Build Windows x64 installer
+        env:
+          INNO_COMPILER: C:\Program Files (x86)\Inno Setup 6\ISCC.exe
         run: npm run dist:win
       - name: Verify installer and collect artifact
         shell: pwsh
