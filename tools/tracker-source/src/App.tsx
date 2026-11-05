@@ -52,6 +52,7 @@ import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } from "./celebrations";
 import { themePresets } from "./theme-presets";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AndroidHome = lazy(() => import('./components/AndroidHome').then(m => ({ default: m.AndroidHome })));
 const Accounts = lazy(() => import("./pages/Accounts"));
 const Employment = lazy(() => import("./pages/Employment"));
 const Entries = lazy(() => import("./pages/Entries")),
@@ -142,6 +143,7 @@ export function Shell() {
   );
   const recovery = status === "Recovery needed";
   const current = pages.find((x) => x.id === page)!;
+  const Home = window.desktop?.platform === 'android' ? AndroidHome : Dashboard;
   useEffect(() => {
     document.title = `${current.name} · Tracker`;
   }, [current.name]);
@@ -551,7 +553,7 @@ export function Shell() {
                     }
                   >
                     {page === "dashboard" ? (
-                      <Dashboard
+                      <Home
                         navigate={navigate}
                         addEntry={(kind) => {
                           setEntryKind(kind);

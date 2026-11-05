@@ -37,3 +37,22 @@ test('desktop dashboard retains full analysis and balance breakdown', async ({ p
   await expect(page.getByRole('heading', { name: 'Balance breakdown', exact: true })).toBeVisible();
   expect(await page.locator('.android-home').count()).toBe(0);
 });
+
+test('Android Home remains readable across all palettes in light and dark mode', async ({ page }) => {
+  await page.setViewportSize({ width: 393, height: 873 });
+  await page.route('https://*.supabase.co/**', r => r.abort());
+  await page.route('https://api.github.com/**', r => r.abort());
+  await page.goto('/tests/browser/harness.html?android=1');
+  await expect(page.locator('.android-home h1')).toHaveText('Home');
+  for (const theme of ['light', 'dark']) {
+    for (const palette of ['violet', 'ocean', 'emerald', 'rose', 'sunset', 'indigo']) {
+      await page.evaluate(({ theme, palette }) => {
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.palette = palette;
+      }, { theme, palette });
+      const violations = (await new AxeBuilder({ page }).include('.android-home').analyze()).violations;
+      expect(violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')), `${theme} / ${palette}`).toEqual([]);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
+    }
+  }
+});

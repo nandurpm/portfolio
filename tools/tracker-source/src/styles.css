@@ -4573,7 +4573,7 @@ html[data-palette="violet"] {
   --bg: #f6f7fc;
 }
 html[data-theme="dark"] { --muted: #b3bdd2; --accent-ink: #d5ceff; }
-.button:not(.secondary) { background: var(--accent-deep); }
+.button:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button) { background: var(--accent-deep); }
 .dashboard-hero .button.secondary { color: #fff; background: #ffffff1f; border-color: #ffffff66; }
 html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: clip; }
 @media (min-width: 761px) {
@@ -4583,3 +4583,8 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: clip; }
   .main-scroll { min-height: 0; overflow: auto; scrollbar-gutter: stable; }
   .main-scroll > .edit-controls { width: 100%; max-width: none; }
 }
+body:has(.app-shell) { position: fixed; inset: 0; width: 100%; }
+.main-scroll[data-page] { --page-tone: var(--accent); }
+.dashboard-hero-actions .button { font-size: 14px; }
+.dashboard-overline, .dashboard-balance p, .dashboard-balance-meta,
+.dashboard-hero-insights span, .dashboard-hero-insights small { font-size: 13px; }
