@@ -1,4 +1,4 @@
-import { registerPlugin } from '@capacitor/core';
+import { registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 
 // Share one plugin proxy across mobile storage and Android system-bar helpers.
 interface NativeTracker {
@@ -7,6 +7,12 @@ interface NativeTracker {
   notify(o: { title: string; body: string; kind?: 'reminder' | 'success' }): Promise<void>;
   openGoogle(o: { url: string }): Promise<void>;
   openRelease(o: { url: string }): Promise<void>;
+  /** Verified, private APK download. The native installer always requires user confirmation. */
+  isUpdateDownloaded(o: { version: string; sha256: string }): Promise<{ ready: boolean }>;
+  downloadUpdate(o: { version: string; sha256: string; url: string }): Promise<{ ready: boolean }>;
+  installDownloadedUpdate(o: { version: string; sha256: string }): Promise<{ launched: boolean; permissionRequired: boolean }>;
+  addListener(eventName: 'trackerUpdateProgress',
+    listener: (event: { received: number; total: number; percent: number }) => void): Promise<PluginListenerHandle>;
   load(): Promise<{ text: string | null; dataPath: string }>;
   save(o: { text: string }): Promise<void>;
   confirmValid(o: { text: string }): Promise<void>;

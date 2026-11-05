@@ -187,17 +187,21 @@ public final class TrackerUpdateWorker extends Worker {
             channel.setDescription("Official Savings & Expense Tracker Android releases");
             manager.createNotificationChannel(channel);
         }
-        Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse(download));
-        open.addCategory(Intent.CATEGORY_BROWSABLE);
+        // Open Tracker's own update dialog instead of a GitHub browser download.
+        // Foreground release checking will offer the verified in-app APK installer.
+        Intent open = new Intent(context, MainActivity.class);
+        open.setAction(Intent.ACTION_MAIN);
+        open.addCategory(Intent.CATEGORY_LAUNCHER);
+        open.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent intent = PendingIntent.getActivity(context, 90224, open,
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new Notification.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Tracker update " + version + " available")
-            .setContentText("An official Android APK is available. Sync and back up before updating.")
+            .setContentText("Open Tracker to download and install the verified update.")
             .setStyle(new Notification.BigTextStyle().bigText(
                 "Savings & Expense Tracker " + version +
-                " has been released. Sync pending changes and export a JSON backup before installing over the existing app."))
+                " has been released. Open Tracker to download and install it in the app. Sync pending changes and export a JSON backup first."))
             .setContentIntent(intent)
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_STATUS)

@@ -19,7 +19,8 @@ const makeRelease = (version: string, options: Record<string, unknown> = {}) => 
   prerelease: false,
   assets: [
     { name: 'Savings-and-Expense-Tracker-' + version + '.apk',
-      browser_download_url: 'https://github.com/nandurpm/portfolio/releases/download/tracker-v' + version + '/Savings-and-Expense-Tracker-' + version + '.apk' },
+      browser_download_url: 'https://github.com/nandurpm/portfolio/releases/download/tracker-v' + version + '/Savings-and-Expense-Tracker-' + version + '.apk',
+      digest: 'sha256:' + 'a'.repeat(64), size: 10000000, state: 'uploaded' },
     { name: 'Savings-and-Expense-Tracker-Setup-' + version + '.exe',
       browser_download_url: 'https://github.com/nandurpm/portfolio/releases/download/tracker-v' + version + '/Savings-and-Expense-Tracker-Setup-' + version + '.exe' },
   ],
@@ -43,6 +44,7 @@ describe('native Tracker releases', () => {
       makeRelease('2.2.11', { prerelease: true }),
     ];
     expect(latestTrackerUpdate(releases, '2.2.2', 'android')?.version).toBe('2.2.10');
+    expect(latestTrackerUpdate(releases, '2.2.2', 'android')?.sha256).toBe('a'.repeat(64));
     expect(latestTrackerUpdate(releases, '2.2.2', 'windows')?.downloadUrl).toContain('Setup-2.2.10.exe');
     expect(latestTrackerUpdate(releases, '2.2.10', 'android')).toBeNull();
   });
@@ -55,6 +57,15 @@ describe('native Tracker releases', () => {
     ] };
     expect(latestTrackerUpdate([altered], '2.2.2', 'android')).toBeNull();
     expect(latestTrackerUpdate([{ ...asset, assets: [] }], '2.2.2', 'android')).toBeNull();
+    expect(latestTrackerUpdate([{ ...asset, assets: [
+      { ...asset.assets[0], digest: 'sha256:untrusted' }, asset.assets[1],
+    ] }], '2.2.2', 'android')).toBeNull();
+    expect(latestTrackerUpdate([{ ...asset, assets: [
+      { ...asset.assets[0], digest: undefined }, asset.assets[1],
+    ] }], '2.2.2', 'android')).toBeNull();
+    expect(latestTrackerUpdate([{ ...asset, assets: [
+      { ...asset.assets[0], state: 'new' }, asset.assets[1],
+    ] }], '2.2.2', 'android')).toBeNull();
     expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.3')).toBe(true);
     expect(isTrustedTrackerUrl('https://github.com.evil.example/nandurpm/portfolio/releases/tag/tracker-v2.2.3')).toBe(false);
     expect(isTrustedTrackerUrl('http://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.3')).toBe(false);
