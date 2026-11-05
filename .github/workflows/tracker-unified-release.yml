@@ -158,6 +158,52 @@ jobs:
           grep -q "versionName='$VERSION'" "$RUNNER_TEMP/apk-badging.txt"
           mkdir -p "$RUNNER_TEMP/tracker-android"
           cp "$APK" "$RUNNER_TEMP/tracker-android/Savings-and-Expense-Tracker-$VERSION.apk"
+      - name: Verify signing certificate matches previous published Android APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          export VERSION
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" > "$RUNNER_TEMP/tracker-releases.json"
+          PREVIOUS_TAG="$(node - "$RUNNER_TEMP/tracker-releases.json" <<'NODE'
+          const fs = require('node:fs');
+          const releases = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const parse = (v) => /^\d+\.\d+\.\d+$/.test(v) ? v.split('.').map(Number) : null;
+          const compare = (a, b) => {
+            for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i];
+            return 0;
+          };
+          const current = parse(process.env.VERSION);
+          if (!current) throw new Error('Invalid package version');
+          const valid = releases.filter(r => {
+            const m = /^tracker-v(\d+\.\d+\.\d+)$/.exec(r.tag_name || '');
+            return m && !r.draft && !r.prerelease && compare(parse(m[1]), current) < 0 &&
+              r.assets?.some(a => a.name === `Savings-and-Expense-Tracker-${m[1]}.apk` && a.state === 'uploaded');
+          }).sort((a, b) => compare(parse(b.tag_name.slice(9)), parse(a.tag_name.slice(9))));
+          process.stdout.write(valid[0]?.tag_name ?? '');
+          NODE
+          )"
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            echo "::warning::No older production APK found; cannot check certificate continuity."
+          else
+            PREVIOUS_VERSION="${PREVIOUS_TAG#tracker-v}"
+            mkdir -p "$RUNNER_TEMP/tracker-previous"
+            gh release download "$PREVIOUS_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --pattern "Savings-and-Expense-Tracker-$PREVIOUS_VERSION.apk" \
+              --dir "$RUNNER_TEMP/tracker-previous"
+            APK_SIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+            PREVIOUS_APK="$RUNNER_TEMP/tracker-previous/Savings-and-Expense-Tracker-$PREVIOUS_VERSION.apk"
+            PREVIOUS_CERT="$("$APK_SIGNER" verify --print-certs "$PREVIOUS_APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)"
+            CURRENT_CERT="$("$APK_SIGNER" verify --print-certs android/app/build/outputs/apk/release/app-release.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)"
+            if [[ -z "$PREVIOUS_CERT" || -z "$CURRENT_CERT" || "$PREVIOUS_CERT" != "$CURRENT_CERT" ]]; then
+              echo "::error::Android signing certificate changed; this APK cannot update the previously installed app."
+              exit 1
+            fi
+            echo "Android signing certificate matches previously published $PREVIOUS_TAG."
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: tracker-android-${{ github.sha }}

@@ -64,7 +64,10 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
           <span className="dashboard-section-kicker">RECENT ACTIVITY</span>
           <h2 id="mobile-recent-title">Latest money movements</h2>
         </div>
-        <button className="text-button" onClick={() => navigate('entries')}>View all</button>
+        <div className="mobile-recent-links" role="group" aria-label="Activity history">
+          <button className="text-button" onClick={() => navigate('entries')}>Daily entries</button>
+          <button className="text-button" onClick={() => navigate('accounts')}>Account activity</button>
+        </div>
       </header>
       {rows.length ? (
         <ul>
