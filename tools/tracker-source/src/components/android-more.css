@@ -1,0 +1,79 @@
+/* Scoped to the native Android More view. No financial or shared screen styles. */
+html[data-platform="android"] .android-more {
+  --more-bg: #efebff;
+  --more-card: #ffffffd9;
+  --more-text: #19132f;
+  --more-muted: #5c536f;
+  --more-border: #d8cff3;
+  position: fixed;
+  inset: 0 0 calc(var(--phone-nav-height, 66px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)));
+  z-index: 42;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--more-text);
+  background: radial-gradient(ellipse at top right, #dfd6ff 0, transparent 65%), var(--more-bg);
+  text-align: left;
+}
+html[data-platform="android"][data-theme="dark"] .android-more {
+  --more-bg: #181426;
+  --more-card: #272137;
+  --more-text: #f4efff;
+  --more-muted: #c4bbd7;
+  --more-border: #4a3d65;
+  background: radial-gradient(ellipse at top right, #382952 0, transparent 65%), var(--more-bg);
+}
+.android-more .android-more-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(12px + var(--safe-top, env(safe-area-inset-top, 0px))) max(12px, env(safe-area-inset-right, 0px)) 16px max(12px, env(safe-area-inset-left, 0px));
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(120deg, #6e4eae, #30225f 65%, #7545be);
+  color: white;
+  box-shadow: 0 6px 20px #37236b1a;
+}
+.android-more-header > div { flex: 1; min-width: 0; }
+.android-more .android-more-header h1 { margin: 0; font-size: 1.75rem; line-height: 1.2; color: white; }
+.android-more .android-more-header p { margin: 4px 0 0; font-size: .875rem; color: #f3edff; }
+.android-more-header button { display: grid; place-items: center; flex: none; width: 44px; min-height: 44px; padding: 10px; border: 0; border-radius: 50%; color: white; background: transparent; }
+.android-more-header button svg { width: 24px; height: 24px; }
+.android-more-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px max(12px, env(safe-area-inset-right, 0px)) 16px max(12px, env(safe-area-inset-left, 0px)); }
+.android-more-groups { display: grid; gap: 20px; max-width: 900px; margin: 0 auto; }
+.android-more .android-more-groups h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 1rem; line-height: 1.4; color: var(--more-text); }
+.android-more-groups h2 svg { flex: none; color: #7752b8; }
+.android-more-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.android-more .android-more-card { min-width: 0; min-height: 88px; display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--more-border); border-radius: 18px; background: var(--more-card); color: var(--more-text); text-align: left; box-shadow: 0 5px 13px #35225c0b; transition: transform .15s ease, box-shadow .15s ease; }
+.android-more-card:active { transform: scale(.975); box-shadow: none; }
+.android-more .android-more-icon { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px; }
+.android-more-icon svg { width: 25px; height: 25px; stroke-width: 1.9; }
+.android-more-icon.purple { background: linear-gradient(140deg, #f0dfff, #d2b9fa); color: #6d26b8; }
+.android-more-icon.blue { background: linear-gradient(140deg, #e6f0ff, #bbd7ff); color: #0755a2; }
+.android-more-icon.mint { background: linear-gradient(140deg, #dff5ef, #b5e6dd); color: #087b66; }
+.android-more-icon.peach { background: linear-gradient(140deg, #fff2df, #ffdfb4); color: #91430d; }
+.android-more-icon.coral { background: linear-gradient(140deg, #ffe8dd, #ffcdbb); color: #a53a06; }
+.android-more-copy { min-width: 0; flex: 1; }
+.android-more-copy strong { display: block; font-size: .875rem; line-height: 1.35; overflow-wrap: anywhere; }
+.android-more-copy small { display: block; margin-top: 5px; font-size: .75rem; line-height: 1.45; color: var(--more-muted); }
+.android-more-chevron { flex: none; }
+.android-more .android-more-history { display: flex; max-width: 900px; margin: 22px auto 0; padding: 8px; border-radius: 18px; background: color-mix(in srgb, var(--more-border) 65%, var(--more-bg)); }
+.android-more-history button { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 8px; border: 0; background: transparent; border-radius: 10px; color: var(--more-text); font-weight: 650; }
+.android-more-history button + button { border-left: 1px solid var(--more-border); }
+.android-more-history button:disabled { color: var(--more-muted); opacity: .5; cursor: default; }
+.android-more-search { display: flex; align-items: center; gap: 8px; max-width: 900px; margin: 0 auto 16px; padding: 0 12px; border: 1px solid var(--more-border); border-radius: 14px; color: var(--more-text); background: var(--more-card); }
+.android-more .android-more-search input { min-width: 0; width: 100%; min-height: 44px; border: 0; background: transparent; color: var(--more-text); }
+.android-more button:focus-visible, .android-more input:focus-visible { outline: 3px solid #a181e4; outline-offset: 3px; }
+@media (max-width: 479px) {
+  .android-more .android-more-card { min-height: 76px; gap: 8px; padding: 10px; }
+  .android-more-grid.primary .android-more-card { min-height: 120px; align-items: flex-start; }
+  .android-more-chevron { display: none; }
+  .android-more .android-more-icon { width: 32px; height: 36px; border-radius: 11px; }
+  .android-more-icon svg { width: 23px; height: 23px; }
+  /* Retain descriptions in accessible button names while keeping secondary rows compact. */
+  .android-more-grid:not(.primary) .android-more-copy small { display: none; }
+}
+@media (max-width: 340px) { .android-more-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 761px) { html[data-platform="android"] .android-more { bottom: 0; } }
+@media (prefers-reduced-motion: reduce) { .android-more .android-more-card { transition: none; } }
+html[data-animations="false"] .android-more-card { transition: none; }

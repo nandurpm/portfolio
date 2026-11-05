@@ -51,6 +51,7 @@ import { ReleaseUpdate } from "./components/ReleaseUpdate";
 import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } from "./celebrations";
 import { themePresets } from "./theme-presets";
+import { AndroidMore } from './components/AndroidMore';
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AndroidDashboard = lazy(() => import('./pages/AndroidDashboard222'));
 const Accounts = lazy(() => import("./pages/Accounts"));
@@ -120,12 +121,37 @@ export function Shell() {
     [tick, setTick] = useState(0);
   const pageRef = useRef(page);
   pageRef.current = page;
-  const navigate = (next: string) => {
+  const androidMore = more && window.desktop?.platform === 'android';
+  const [navigationSection, setNavigationSection] = useState<string | undefined>();
+  const navigate = (next: string, section?: string) => {
     setPage(next);
     setMore(false);
+    setNavigationSection(section);
     document.querySelector(".main-scroll")?.scrollTo(0, 0);
     document.querySelector(".workspace")?.scrollTo(0, 0);
   };
+  // Wait for lazy screen content before focusing a More-card destination.
+  // This changes presentation only; the destination retains all of its existing handlers.
+  useEffect(() => {
+    if (!navigationSection) return;
+    const main = document.querySelector('.main-scroll');
+    if (!main) return;
+    const focusSection = () => {
+      const heading = Array.from(main.querySelectorAll<HTMLElement>('h2')).find(
+        item => item.textContent?.trim() === navigationSection,
+      );
+      if (!heading) return false;
+      heading.tabIndex = -1;
+      heading.scrollIntoView({ block: 'start' });
+      heading.focus({ preventScroll: true });
+      setNavigationSection(undefined);
+      return true;
+    };
+    if (focusSection()) return;
+    const observer = new MutationObserver(() => { if (focusSection()) observer.disconnect(); });
+    observer.observe(main, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [page, navigationSection]);
   useEffect(
     () =>
       listenForAndroidBack(() => {
@@ -413,7 +439,7 @@ export function Shell() {
           </div>
         </aside>
         <div className="workspace">
-          <header className="topbar">
+          <header className="topbar" inert={androidMore}>
             <strong className="phone-title">
               {
                 (
@@ -507,7 +533,7 @@ export function Shell() {
               </button>
             </div>
           </header>
-          <main id="main-content" tabIndex={-1} className="main-scroll" data-page={page}>
+          <main id="main-content" tabIndex={-1} className="main-scroll" data-page={page} inert={androidMore}>
             <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
               {current.name} page opened
             </div>
@@ -632,7 +658,7 @@ export function Shell() {
             <span>More</span>
           </button>
         </nav>
-        {page !== "dashboard" && <button type="button" className="mobile-quick-add" aria-label="Add income or expense" aria-expanded={quickAdd} onClick={() => setQuickAdd(true)}><Plus size={20} aria-hidden="true" /> Add</button>}
+        {page !== "dashboard" && !androidMore && <button type="button" className="mobile-quick-add" aria-label="Add income or expense" aria-expanded={quickAdd} onClick={() => setQuickAdd(true)}><Plus size={20} aria-hidden="true" /> Add</button>}
         {quickAdd && (
           <Modal title="Add a transaction" onClose={() => setQuickAdd(false)}>
             <div className="phone-menu">
@@ -641,7 +667,15 @@ export function Shell() {
             </div>
           </Modal>
         )}
-        {more && (
+        {androidMore && <AndroidMore
+          onClose={() => setMore(false)}
+          navigate={navigate}
+          canUndo={!recovery && !!env.undo.length}
+          canRedo={!recovery && !!env.redo.length}
+          undo={() => { try { store.undo(); } catch (e) { toast(userError(e), true); } }}
+          redo={() => { try { store.redo(); } catch (e) { toast(userError(e), true); } }}
+        />}
+        {more && !androidMore && (
           <Modal title="More screens & tools" onClose={() => setMore(false)}>
             <div className="phone-menu">
               <p>Loans &amp; EMI · Salary &amp; PF · Forecast · Reports &amp; backup · Settings, sync &amp; help</p>

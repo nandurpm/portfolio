@@ -27,7 +27,7 @@ for (const width of [360, 393, 768]) {
       for (const name of ['Home', 'Transactions', 'Accounts', 'Budget'])
         await expect(nav.getByRole('button', { name, exact: true })).toBeVisible();
       await nav.getByRole('button', { name: 'More screens', exact: true }).click();
-      await expect(page.getByRole('dialog').getByRole('button', { name: 'Reports & Export/Import', exact: true })).toBeVisible();
+      await expect(page.locator('.android-more').getByRole('button', { name: /^Reports / })).toBeVisible();
     }
   });
 }
@@ -58,7 +58,7 @@ test('Android Settings Lavender selection changes the actual UI from green to vi
 
   const nav = page.getByRole('navigation', { name: 'Phone navigation' });
   await nav.getByRole('button', { name: 'More screens' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.locator('.android-more').getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Appearance' })).toBeVisible();
 
   const colours = async () => page.evaluate(() => {

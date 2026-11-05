@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_needed: ${{ steps.check.outputs.release_needed }}
+      windows_needed: ${{ steps.check.outputs.windows_needed }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Skip already-published versions on automatic branch pushes
@@ -32,6 +33,9 @@ jobs:
         shell: bash
         run: |
           VERSION="$(node -p "require('./tools/tracker-source/package.json').version")"
+          # UI-only Android releases retain the shared version policy without shipping an EXE.
+          WINDOWS_NEEDED="$(node -e "const p=require('./tools/tracker-source/package.json'); const targets=p.trackerReleasePlatforms ?? ['android','windows']; if (!Array.isArray(targets) || !targets.includes('android') || targets.some(x => !['android','windows'].includes(x))) throw Error('Invalid trackerReleasePlatforms'); process.stdout.write(String(targets.includes('windows')))")"
+          echo "windows_needed=$WINDOWS_NEEDED" >> "$GITHUB_OUTPUT"
           if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF_TYPE}" == "branch" ]] && \
              gh release view "tracker-v${VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
             echo "release_needed=false" >> "${GITHUB_OUTPUT}"
@@ -76,7 +80,8 @@ jobs:
           retention-days: 30
 
   windows:
-    needs: quality
+    needs: [prepare, quality]
+    if: needs.prepare.outputs.windows_needed == 'true'
     runs-on: windows-latest
     defaults:
       run:
@@ -212,7 +217,8 @@ jobs:
           retention-days: 30
 
   publish:
-    needs: [quality, windows, android]
+    needs: [prepare, quality, windows, android]
+    if: always() && needs.quality.result == 'success' && needs.android.result == 'success' && (needs.windows.result == 'success' || (needs.prepare.outputs.windows_needed == 'false' && needs.windows.result == 'skipped'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -220,6 +226,7 @@ jobs:
         with:
           name: tracker-windows-${{ github.sha }}
           path: release-assets
+        if: needs.prepare.outputs.windows_needed == 'true'
       - uses: actions/download-artifact@v4
         with:
           name: tracker-android-${{ github.sha }}
@@ -232,7 +239,7 @@ jobs:
           if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" != "$TAG" ]]; then exit 1; fi
           git archive --format=zip --output="release-assets/Savings-and-Expense-Tracker-$VERSION-Source.zip" HEAD tools/tracker-source scripts/stage-tracker.mjs .github/workflows
           cp "tools/tracker-source/CHANGELOG-$VERSION.md" release-assets/ 2>/dev/null || true
-          (cd release-assets && sha256sum *.exe *.apk *.zip > SHA256SUMS.txt)
+          (cd release-assets && shopt -s nullglob && assets=(*.exe *.apk *.zip) && sha256sum "${assets[@]}" > SHA256SUMS.txt)
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
       - name: Publish one GitHub release
@@ -254,7 +261,9 @@ jobs:
         shell: bash
         run: |
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | tee release-assets/published-assets.txt
-          grep -Fx "Savings-and-Expense-Tracker-Setup-$VERSION.exe" release-assets/published-assets.txt
+          if [[ "${{ needs.prepare.outputs.windows_needed }}" == "true" ]]; then
+            grep -Fx "Savings-and-Expense-Tracker-Setup-$VERSION.exe" release-assets/published-assets.txt
+          fi
           grep -Fx "Savings-and-Expense-Tracker-$VERSION.apk" release-assets/published-assets.txt
           grep -Fx "Savings-and-Expense-Tracker-$VERSION-Source.zip" release-assets/published-assets.txt
           grep -Fx 'SHA256SUMS.txt' release-assets/published-assets.txt
