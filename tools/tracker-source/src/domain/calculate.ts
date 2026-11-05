@@ -288,12 +288,13 @@ export function cumulative(p: Plan, date = reportDate(p)) {
     t.debt += v.debt;
   }
   const plan = finish(t),
-    a = actual(p, `${p.settings.planStart}-01`, date);
+    a = actual(p, `${p.settings.planStart}-01`, date),
+    ledger = ledgerPeriod(p, p.settings.planStart + '-01', date);
   return {
     plan,
     actual: a,
     expectedCash: round(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
-    actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date) + ledgerCashEffect(p, p.settings.planStart + '-01', date) - ledgerPeriod(p, p.settings.planStart + '-01', date).income + ledgerPeriod(p, p.settings.planStart + '-01', date).expenses),
+    actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date) + ledgerCashEffect(p, p.settings.planStart + '-01', date) - ledger.income + ledger.expenses),
   };
 }
 export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
@@ -321,7 +322,8 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
       a = bucket || ledger.count ? actual(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)) : null;
     // Match the PF cash ledger used by recorded cash, without treating PF as savings.
     pc = round(pc + t.savings + (future ? 0 : pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m))));
-    ac = cumulative(p, date < monthEnd(m) ? date : monthEnd(m)).actualCash;
+    // Future rows expose no recorded cash; avoid repeating the same historical scan for each one.
+    if (!future) ac = cumulative(p, date < monthEnd(m) ? date : monthEnd(m)).actualCash;
     return {
       month: m,
       plan: t,
