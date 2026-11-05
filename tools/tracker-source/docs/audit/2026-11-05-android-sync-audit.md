@@ -73,7 +73,7 @@ Supabase advisors reported:
 
 ## Data preservation and app identity
 
-Android package remains `com.nandakumar.savingsexpensetracker`. Version remains 2.2.1 / code 20201; this PR is not a newly numbered production release. Next production build must increment version/code and use the existing authorized certificate. Do not distribute a rebuilt 20201 APK as a new update.
+Android package remains `com.nandakumar.savingsexpensetracker`. While this PR was being prepared, main independently advanced to 2.2.2 / code 20202 (`e9368010645cade9b224970c43e1ae3c4eff25cc`). That version and the matching lockfile are preserved, not reverted to 2.2.1. Latest published release still observed is 2.2.1. This work does not publish a new production release. If 2.2.2 has already been distributed before this PR is released, increment version/code again and use the existing authorized certificate.
 
 Windows app ID and installer identity are unchanged. Electron continues using the legacy `Savings and Expence Tracker` user-data directory; no data-path migration was introduced. No uninstall, cache clearing, production-plan replacement or schema migration was performed. Existing JSON envelope/backups, financial IDs and pending edits retain their format.
 
@@ -111,7 +111,7 @@ Asset verification here means GitHub metadata and canonical URLs, not downloaded
 
 Browser regression tests are committed for 360, 393 and 768 px Android presentation and desktop analysis preservation. Existing responsive/theme/keyboard/auth/accessibility suites remain in CI. Before publication, run them on the PR commit; inspect all palettes and light/dark mode; capture before/after screenshots; test actual signed upgrades and real account round trips without using production financial records as fixtures.
 
-No APK/EXE or app release is published by this implementation. Current public release: https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.1 . PR and Edge Function deployment results are recorded in the completion message and subsequent verification notes.
+No APK/EXE or app release is published by this implementation. Current public release: https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.1 . Pull request: https://github.com/nandurpm/portfolio/pull/81 . Edge Function deployment results are recorded in the completion message and subsequent verification notes.
 
 ## Changed files
 
