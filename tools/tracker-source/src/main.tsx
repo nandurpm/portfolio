@@ -6,6 +6,7 @@ import './styles.css';
 import { WEB_APP } from './web-mode';
 void installMobile()
   .then(async () => {
+    if (Capacitor.getPlatform() === 'android') await import('./android-v222.css');
     if (Capacitor.isNativePlatform()) {
       const { installGoogleCallbacks } = await import('./cloud/google');
       await installGoogleCallbacks();
