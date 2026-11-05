@@ -4062,3 +4062,9 @@ html:not([data-platform="android"])[data-theme="dark"] .mobile-quick-add { color
 @media (max-width: 410px) {
   .mobile-recent-links { width: 100%; justify-content: flex-start; }
 }
+
+/* Native APK downloads stay in-app; only the Android installer requests permission. */
+.tracker-update-download { display: grid; gap: 8px; margin-block: 14px; }
+.tracker-update-download progress { display: block; width: 100%; height: 12px; accent-color: var(--accent); }
+.update-release-copy .update-error { color: var(--red); font-weight: 650; overflow-wrap: anywhere; }
+.update-release-copy [role="status"] { line-height: 1.5; }
