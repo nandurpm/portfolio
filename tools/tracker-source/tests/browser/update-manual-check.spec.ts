@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 for (const android of [true, false]) {
-  test('Settings exposes a manual update check on ' + (android ? 'Android' : 'Windows preview'), async ({ page }) => {
+  test('Settings update button visibility on ' + (android ? 'Android simulation' : 'Web preview'), async ({ page }) => {
     await page.setViewportSize({ width: android ? 393 : 1380, height: 900 });
     await page.route('https://*.supabase.co/**', route => route.abort());
     await page.route('https://api.github.com/**', route => route.abort());
@@ -15,6 +15,11 @@ for (const android of [true, false]) {
         .getByRole('button', { name: 'Settings' }).click();
     }
     const button = page.getByRole('button', { name: 'Check for updates', exact: true });
+    if (!android) {
+      // The browser-only website never offers native APK installation controls.
+      await expect(button).toHaveCount(0);
+      return;
+    }
     await expect(button).toBeVisible();
     await page.evaluate(() => {
       (window as typeof window & { testUpdateChecks?: number }).testUpdateChecks = 0;
