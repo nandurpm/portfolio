@@ -1,5 +1,5 @@
 import { App as CapacitorApp } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { useEffect, useRef, useState } from 'react';
 import { version as packagedVersion } from '../../package.json';
 import { WEB_APP } from '../web-mode';
@@ -19,6 +19,12 @@ const RESUME_CHECK_INTERVAL_MS = 30 * 60 * 1000;
 export function ReleaseUpdate() {
   const [available, setAvailable] = useState<{ update: TrackerUpdate; installed: string } | null>(null);
   const { toast } = useUi();
+  const [downloading, setDownloading] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
+  const [downloadPercent, setDownloadPercent] = useState<number | null>(null);
+  const [installHint, setInstallHint] = useState('');
+  const [downloadError, setDownloadError] = useState('');
+  const isAndroid = Capacitor.getPlatform() === 'android';
   const lastAutoCheck = useRef(0);
   const pending = useRef<AbortController | null>(null);
   const checkRef = useRef<(manual: boolean) => void>(() => {});
@@ -86,9 +92,82 @@ export function ReleaseUpdate() {
     };
   }, []);
 
+  const update = available?.update;
+  useEffect(() => {
+    setDownloaded(false);
+    setInstallHint('');
+    setDownloadError('');
+    setDownloadPercent(null);
+    if (!isAndroid || !update?.sha256) return;
+    let active = true;
+    void native.isUpdateDownloaded({ version: update.version, sha256: update.sha256 })
+      .then(({ ready }) => { if (active) setDownloaded(ready); })
+      .catch(() => { /* No cached APK. Download remains available. */ });
+    return () => { active = false; };
+  }, [isAndroid, update?.tag, update?.sha256]);
+
+  const installDownloaded = async () => {
+    if (!available || !available.update.sha256) return;
+    try {
+      setDownloadError('');
+      const result = await native.installDownloadedUpdate({
+        version: available.update.version,
+        sha256: available.update.sha256,
+      });
+      setInstallHint(result.permissionRequired
+        ? 'Android opened Install unknown apps. Allow installs from Tracker, return here, then tap Install downloaded update.'
+        : 'Confirm the update in Android’s system installer. Your saved data stays in place.');
+    } catch (error) {
+      setDownloadError(error instanceof Error ? error.message : 'Could not open the Android installer.');
+    }
+  };
+
+  const downloadInsideApp = async () => {
+    if (!available || downloading || !available.update.sha256) return;
+    if (downloaded) { await installDownloaded(); return; }
+    setDownloading(true);
+    setDownloadError('');
+    setInstallHint('');
+    setDownloadPercent(null);
+    let listener: PluginListenerHandle | undefined;
+    try {
+      listener = await native.addListener('trackerUpdateProgress', ({ percent }) => {
+        setDownloadPercent(percent >= 0 ? percent : null);
+      });
+      await native.downloadUpdate({
+        version: available.update.version,
+        sha256: available.update.sha256,
+        url: available.update.downloadUrl,
+      });
+      setDownloaded(true);
+      setDownloadPercent(100);
+      const result = await native.installDownloadedUpdate({
+        version: available.update.version,
+        sha256: available.update.sha256,
+      });
+      setInstallHint(result.permissionRequired
+        ? 'Allow installs from Tracker on the Android screen, return here and tap Install downloaded update.'
+        : 'Confirm Update in Android’s installer to keep the existing app and financial records.');
+    } catch (error) {
+      setDownloadError(error instanceof Error ? error.message : 'Update download or installation failed.');
+      // The download can be valid even when the installer was blocked by permissions.
+      try {
+        const { ready } = await native.isUpdateDownloaded({
+          version: available.update.version,
+          sha256: available.update.sha256,
+        });
+        setDownloaded(ready);
+      } catch { /* Retry download if verification is unavailable. */ }
+    } finally {
+      if (listener) await listener.remove().catch(() => {});
+      setDownloading(false);
+    }
+  };
+
   if (!available || WEB_APP) return null;
   const { update, installed } = available;
   const remindTomorrow = () => {
+    if (downloading) return;
     try { localStorage.setItem(RELEASE_SNOOZE_KEY, releaseSnoozeRecord(update.tag)); }
     catch { /* A non-persistent reminder must never block the app. */ }
     setAvailable(null);
@@ -105,17 +184,30 @@ export function ReleaseUpdate() {
   const summary = update.body.split('\n').map((line) => line.trim())
     .find((line) => line && !line.startsWith('#') && !line.startsWith(String.fromCharCode(96)));
 
-  return <Modal title="A tracker update is available" onClose={remindTomorrow}>
+  return <Modal title="A tracker update is available" onClose={downloading ? () => {} : remindTomorrow}>
     <div className="modal-copy update-release-copy">
       <p><strong>{update.name}</strong> (v{update.version}) is newer than your installed version {installed}.</p>
       <p>Export a full JSON backup and sync any pending edits before updating. Install over the existing app; do not uninstall it.</p>
       {summary && <p>{summary.slice(0, 240)}</p>}
-      <p className="muted">The update opens in your external browser. Financial data is not sent to GitHub.</p>
+      {isAndroid ? <>
+        <p className="muted">Download the official APK inside Tracker. Android will still ask you to approve installation.</p>
+        {downloading && <div className="tracker-update-download" role="status">
+          <span>{downloadPercent === null ? 'Downloading verified APK…' : 'Downloading APK: ' + downloadPercent + '%'}</span>
+          <progress max={100} value={downloadPercent === null ? undefined : downloadPercent} aria-label="APK download progress" />
+        </div>}
+        {downloadError && <p className="update-error" role="alert">{downloadError}</p>}
+        {installHint && <p role="status">{installHint}</p>}
+      </> : <p className="muted">The Windows installer opens in your external browser. Financial data is not sent to GitHub.</p>}
     </div>
     <div className="modal-actions">
-      <button className="button secondary" onClick={remindTomorrow}>Remind me tomorrow</button>
-      <button className="button secondary" onClick={() => void openOfficialUrl(update.releaseUrl)}>Release notes</button>
-      <button className="button" onClick={() => void openOfficialUrl(update.downloadUrl)}>Download update</button>
+      <button className="button secondary" disabled={downloading} onClick={remindTomorrow}>Remind me tomorrow</button>
+      <button className="button secondary" disabled={downloading} onClick={() => void openOfficialUrl(update.releaseUrl)}>Release notes</button>
+      {isAndroid
+        ? <button className="button" disabled={downloading || !update.sha256}
+            onClick={() => void downloadInsideApp()}>
+            {downloading ? 'Downloading…' : downloaded ? 'Install downloaded update' : 'Download & install in app'}
+          </button>
+        : <button className="button" onClick={() => void openOfficialUrl(update.downloadUrl)}>Download update</button>}
     </div>
   </Modal>;
 }
