@@ -6,6 +6,7 @@ interface NativeTracker {
   feedback(o: { kind: 'expense' | 'budget' | 'reminder' | 'success' }): Promise<void>;
   notify(o: { title: string; body: string; kind?: 'reminder' | 'success' }): Promise<void>;
   openGoogle(o: { url: string }): Promise<void>;
+  openRelease(o: { url: string }): Promise<void>;
   load(): Promise<{ text: string | null; dataPath: string }>;
   save(o: { text: string }): Promise<void>;
   confirmValid(o: { text: string }): Promise<void>;
