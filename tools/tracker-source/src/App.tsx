@@ -52,6 +52,7 @@ import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } from "./celebrations";
 import { themePresets } from "./theme-presets";
 import { AndroidMore } from './components/AndroidMore';
+import { ShortcutHelp } from "./components/ShortcutHelp";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AndroidDashboard = lazy(() => import('./pages/AndroidDashboard222'));
 const Accounts = lazy(() => import("./pages/Accounts"));
@@ -114,6 +115,7 @@ export function Shell() {
     { toast } = useUi(),
     [page, setPage] = useState("dashboard"),
     [more, setMore] = useState(false),
+    [shortcutHelp, setShortcutHelp] = useState(false),
     [quickAdd, setQuickAdd] = useState(false),
     [entryKind, setEntryKind] = useState<"Income" | "Expense">("Expense"),
     [collapsed, setCollapsed] = useState(false),
@@ -247,6 +249,11 @@ export function Shell() {
           ))
       )
         return;
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setShortcutHelp((open) => !open);
+        return;
+      }
       if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
         const preset = themePresets.find((item) => item.shortcut === e.key);
         if (preset) {
@@ -733,6 +740,7 @@ export function Shell() {
             </div>
           </Modal>
         )}
+        {shortcutHelp && <ShortcutHelp onClose={() => setShortcutHelp(false)} />}
         <AnimatePresence>
           {loading && (
             <motion.div

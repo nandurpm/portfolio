@@ -1327,6 +1327,48 @@ code {
   line-height: 1.9;
   color: var(--muted);
 }
+.shortcut-help {
+  display: grid;
+  gap: 14px;
+}
+.shortcut-help .modal-copy {
+  margin: 0;
+}
+.shortcut-list {
+  display: grid;
+  gap: 7px;
+}
+.shortcut-row {
+  display: grid;
+  grid-template-columns: minmax(145px, 0.7fr) 1fr;
+  align-items: center;
+  gap: 14px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.shortcut-row kbd {
+  width: fit-content;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--accent-ink);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.shortcut-section-title {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  color: var(--text);
+}
 .modal-actions {
   display: flex;
   align-items: center;
@@ -2713,6 +2755,10 @@ html[data-animations="false"] *::after {
   transform-origin: bottom;
 }
 @media (max-width: 600px) {
+  .shortcut-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
   .animation-preview-scene {
     flex-basis: 100%;
   }
