@@ -1,3 +1,4 @@
+import { cachedLoader } from "./page-loader";
 import { userError } from './domain/user-error';
 import {
   listenForAndroidBack,
@@ -53,17 +54,29 @@ import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } fro
 import { themePresets } from "./theme-presets";
 import { AndroidMore } from './components/AndroidMore';
 import { ShortcutHelp } from "./components/ShortcutHelp";
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const AndroidDashboard = lazy(() => import('./pages/AndroidDashboard222'));
-const Accounts = lazy(() => import("./pages/Accounts"));
-const Employment = lazy(() => import("./pages/Employment"));
-const Entries = lazy(() => import("./pages/Entries")),
-  Budget = lazy(() => import("./pages/Budget")),
-  Loan = lazy(() => import("./pages/Loan")),
-  Forecast = lazy(() => import("./pages/Forecast")),
-  Reports = lazy(() => import("./pages/Reports")),
-  Balances = lazy(() => import("./pages/Balances")),
-  Settings = lazy(() => import("./pages/Settings"));
+const pageLoaders = {
+  dashboard: cachedLoader(() => import("./pages/Dashboard")),
+  androidDashboard: cachedLoader(() => import("./pages/AndroidDashboard222")),
+  accounts: cachedLoader(() => import("./pages/Accounts")),
+  employment: cachedLoader(() => import("./pages/Employment")),
+  entries: cachedLoader(() => import("./pages/Entries")),
+  budget: cachedLoader(() => import("./pages/Budget")),
+  loan: cachedLoader(() => import("./pages/Loan")),
+  forecast: cachedLoader(() => import("./pages/Forecast")),
+  reports: cachedLoader(() => import("./pages/Reports")),
+  balances: cachedLoader(() => import("./pages/Balances")),
+  settings: cachedLoader(() => import("./pages/Settings")),
+};
+const preloadPage = (page: string) => {
+  const key = page === 'dashboard' && window.desktop?.platform === 'android' ? 'androidDashboard' : page;
+  const loader = pageLoaders[key as keyof typeof pageLoaders];
+  if (loader) void loader().catch(() => { /* Navigation can retry a failed speculative import. */ });
+};
+const Dashboard = lazy(pageLoaders.dashboard), AndroidDashboard = lazy(pageLoaders.androidDashboard),
+  Accounts = lazy(pageLoaders.accounts), Employment = lazy(pageLoaders.employment),
+  Entries = lazy(pageLoaders.entries), Budget = lazy(pageLoaders.budget), Loan = lazy(pageLoaders.loan),
+  Forecast = lazy(pageLoaders.forecast), Reports = lazy(pageLoaders.reports),
+  Balances = lazy(pageLoaders.balances), Settings = lazy(pageLoaders.settings);
 const pages = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
   { id: "entries", name: "Daily Entries", icon: ReceiptText },
@@ -126,12 +139,26 @@ export function Shell() {
   const androidMore = more && window.desktop?.platform === 'android';
   const [navigationSection, setNavigationSection] = useState<string | undefined>();
   const navigate = (next: string, section?: string) => {
+    preloadPage(next);
     setPage(next);
     setMore(false);
     setNavigationSection(section);
     document.querySelector(".main-scroll")?.scrollTo(0, 0);
     document.querySelector(".workspace")?.scrollTo(0, 0);
   };
+  useEffect(() => {
+    if (loading) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      void (async () => {
+        for (const key of ['entries', 'accounts', 'budget'] as const) {
+          if (cancelled) break;
+          try { await pageLoaders[key](); } catch { /* Keep current screen usable offline. */ }
+        }
+      })();
+    }, 1000);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [loading]);
   // Wait for lazy screen content before focusing a More-card destination.
   // This changes presentation only; the destination retains all of its existing handlers.
   useEffect(() => {
@@ -402,6 +429,8 @@ export function Shell() {
                 key={x.id}
                 className={page === x.id ? "active" : ""}
                 aria-current={page === x.id ? "page" : undefined}
+                onPointerEnter={() => preloadPage(x.id)}
+                onFocus={() => preloadPage(x.id)}
                 onClick={() => {
                   navigate(x.id);
                 }}
@@ -566,14 +595,13 @@ export function Shell() {
               className="edit-controls"
               aria-label="Screen controls"
             >
-              <AnimatePresence mode="wait">
+              {/* Mount the selected screen immediately; never wait for an outgoing fade. */}
                 <motion.div
                   key={page}
                   // Keep large report pages outside a persistent transform/composited
                   // layer: translating/scaling the whole page can hurt scrolling.
                   initial={p.settings.animations ? { opacity: 0 } : false}
                   animate={{ opacity: 1 }}
-                  exit={p.settings.animations ? { opacity: 0 } : undefined}
                   transition={{ duration: p.settings.animations ? 0.12 : 0 }}
                 >
                   <Suspense
@@ -613,7 +641,6 @@ export function Shell() {
                     )}
                   </Suspense>
                 </motion.div>
-              </AnimatePresence>
             </fieldset>
             <details className="tracker-glossary">
               <summary>Financial terms explained</summary>
@@ -645,6 +672,8 @@ export function Shell() {
             <button
               key={x.id}
               aria-current={page === x.id ? "page" : undefined}
+              onPointerEnter={() => preloadPage(x.id)}
+              onFocus={() => preloadPage(x.id)}
               onClick={() => navigate(x.id)}
             >
               <x.icon size={22} />
@@ -697,7 +726,9 @@ export function Shell() {
                   <button
                     key={x.id}
                     className="button secondary"
-                    onClick={() => navigate(x.id)}
+                    onPointerEnter={() => preloadPage(x.id)}
+              onFocus={() => preloadPage(x.id)}
+              onClick={() => navigate(x.id)}
                   >
                     <x.icon size={22} />
                     {x.name}

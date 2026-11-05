@@ -617,12 +617,12 @@ function cumulative(p, date = reportDate(p)) {
     t.living += v.living;
     t.debt += v.debt;
   }
-  const plan = finish(t), a = actual(p, `${p.settings.planStart}-01`, date);
+  const plan = finish(t), a = actual(p, `${p.settings.planStart}-01`, date), ledger = ledgerPeriod(p, p.settings.planStart + "-01", date);
   return {
     plan,
     actual: a,
     expectedCash: round2(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
-    actualCash: round2(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + "-01", date) + ledgerCashEffect(p, p.settings.planStart + "-01", date) - ledgerPeriod(p, p.settings.planStart + "-01", date).income + ledgerPeriod(p, p.settings.planStart + "-01", date).expenses)
+    actualCash: round2(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + "-01", date) + ledgerCashEffect(p, p.settings.planStart + "-01", date) - ledger.income + ledger.expenses)
   };
 }
 
