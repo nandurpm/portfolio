@@ -1,25 +1,23 @@
-# Workflows
+# GitHub Actions workflows
 
-## Purpose
+The repository maintains five active, purpose-specific workflows:
 
-Contains executable GitHub Actions definitions for repository automation.
+| Workflow | Purpose | Trigger |
+| --- | --- | --- |
+| `build-tracker.yml` | Build and commit the authenticated web application into `track/` | Changes to Tracker source on `main`, manual dispatch |
+| `tracker-quality.yml` | Run Tracker tests, synthetic browser, database, Supabase and native dependency checks | Tracker pull requests and audit branches |
+| `tracker-unified-release.yml` | Build and publish signed Android APK, Windows installer and source archive | Manual dispatch or `tracker-v*` tag |
+| `publish-content.yml` | Publish staged website blog and project content | Upload changes on `main`, manual dispatch |
+| `sync-public-projects.yml` | Refresh portfolio project metadata and static pages | Weekly Monday schedule, manual dispatch |
 
-## Contents
+## Operational protections
 
-- `publish-content.yml` — Publishes staged blog posts and project pages from pushes to `main` that touch `uploads/blog/**` or `uploads/projects/**`; it may also be started manually.
+- Do not delete `tracker-unified-release.yml`: its signing secrets and Android/Windows release jobs are required for in-place updates.
+- Do not delete `build-tracker.yml`: GitHub Pages serves the generated `track/` route, not raw source.
+- `tracker-quality.yml` uses disposable test records; it is separate from production release publication.
+- `build-tracker.yml`, `publish-content.yml` and `sync-public-projects.yml` serialize writes to `main` with `portfolio-main-writer`.
+- The built-in **pages build and deployment** workflow is managed by GitHub Pages, not by a file in this directory.
 
-## Execution Order
+## Cleanup (2026-11-05)
 
-1. Check out the complete repository history.
-2. Select Node.js 22.
-3. Validate and publish staged uploads with `scripts/publish-content.mjs`.
-4. Regenerate static cards with `scripts/render-static-content.mjs`.
-5. Commit and push generated site files when the working tree changed.
-
-## Responsibilities
-
-Workflow orchestration belongs here. Content parsing and generation logic stays in `scripts/` so it remains runnable and reviewable outside GitHub Actions.
-
-## Important Notes
-
-The workflow intentionally uses `contents: write`, serializes publisher runs through a concurrency group, and does not cancel a publication already in progress. Keep the bot-actor guard and non-force push behavior unless the publication model changes.
+Removed obsolete `site-audit.yml`: it ran automatically only on four deleted feature branches, and the website's normal publishing and Tracker verification workflows remain intact. Historical GitHub Actions run entries may still be visible in GitHub's interface even after their workflow files are removed.
