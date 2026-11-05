@@ -128,3 +128,11 @@ No APK/EXE or app release is published by this implementation. Current public re
 - `tools/tracker-source/tests/browser/android-home.spec.ts`
 - `tools/tracker-source/tests/browser/harness.tsx`
 - This audit report.
+
+## Deployment and CI verification addendum
+
+The bot was deployed as Edge Function version **17**, pinned to source commit `081445d7cfafa1b181a91de880c3fc92cb0d6b55`, using the existing pinned-source deployment approach. A fresh read confirms that pinned import and the existing `verify_jwt=false` setting; function-level webhook/cron authentication remains active. Public health returns `software: release-notifications-v2`. An unauthenticated POST returns HTTP 403. No real notification was sent as a test.
+
+The exact remote 2.2.2 source passed `npm run check` locally: 221 tests, lint, TypeScript, bot/dependency checks, Web build and bundle integrity. A subsequent native Home styling adjustment also passed the Web build.
+
+GitHub Actions run [41966242346](https://github.com/nandurpm/portfolio/actions/runs/41966242346), for PR head `081445d7cfafa1b181a91de880c3fc92cb0d6b55`, passed **database**, **local-supabase**, and **native-dependencies** jobs. These CI results supersede the local-only database/security blockers above for that commit. Native evidence is eight compatibility groups, including disposable Android template debug compilation, unsigned Windows Electron directory packaging and ASAR runtime loading; it is not a signed tracker APK or an installable Windows release. The local-Supabase job includes disposable two-account security and email-recovery checks; it does not test production accounts or physical devices. The browser job was still running when this addendum was written. Subsequent CSS/report changes require their own final CI result.
