@@ -62,9 +62,11 @@ export function latestTrackerUpdate(
     if (typeof release.tag_name !== 'string' || release.draft || release.prerelease) continue;
     const match = /^tracker-v(\d+\.\d+\.\d+)$/.exec(release.tag_name);
     if (!match || compareTrackerVersions(release.tag_name, installedVersion) <= 0) continue;
+    const releaseVersion = match[1];
+    if (!releaseVersion) continue;
     const fileName = platform === 'android'
-      ? 'Savings-and-Expense-Tracker-' + match[1] + '.apk'
-      : 'Savings-and-Expense-Tracker-Setup-' + match[1] + '.exe';
+      ? 'Savings-and-Expense-Tracker-' + releaseVersion + '.apk'
+      : 'Savings-and-Expense-Tracker-Setup-' + releaseVersion + '.exe';
     const asset = Array.isArray(release.assets)
       ? release.assets.find((entry) => entry?.name === fileName)
       : undefined;
@@ -73,7 +75,7 @@ export function latestTrackerUpdate(
     if (!asset || asset.browser_download_url !== expectedDownload || !isTrustedTrackerUrl(expectedDownload)) continue;
     candidates.push({
       tag: release.tag_name,
-      version: match[1],
+      version: releaseVersion,
       name: String(release.name || 'Savings and Expense Tracker ' + match[1]).slice(0, 120),
       body: String(release.body || ''),
       downloadUrl: expectedDownload,
