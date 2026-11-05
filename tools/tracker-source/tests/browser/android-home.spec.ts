@@ -58,7 +58,7 @@ test('Android Settings Lavender selection changes the actual UI from green to vi
 
   const nav = page.getByRole('navigation', { name: 'Phone navigation' });
   await nav.getByRole('button', { name: 'More screens' }).click();
-  await page.locator('.android-more').getByRole('button', { name: /^Settings / }).click();
+  await page.locator('.android-more').getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Appearance' })).toBeVisible();
 
   const colours = async () => page.evaluate(() => {
