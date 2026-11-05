@@ -42,7 +42,7 @@ void store.load().then(() => {
       openDataFolder: async () => {},
       notify: async () => {},
       pdf: async () => null,
-      version: async () => '2.2.2',
+      version: async () => '2.2.3',
       onBeforeClose: () => () => {},
     };
     document.documentElement.dataset.platform = 'android';
