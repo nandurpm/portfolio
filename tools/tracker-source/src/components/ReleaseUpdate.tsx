@@ -76,7 +76,12 @@ export function ReleaseUpdate() {
     let stopNative: (() => void) | null = null;
     if (Capacitor.getPlatform() === 'android') {
       void CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) checkRef.current(false);
+        if (isActive) {
+          // A background update notification opens the app: check immediately
+          // even when the previous automatic check happened recently.
+          lastAutoCheck.current = 0;
+          checkRef.current(false);
+        }
       }).then((listener) => {
         if (disposed) void listener.remove();
         else stopNative = () => { void listener.remove(); };
@@ -92,19 +97,19 @@ export function ReleaseUpdate() {
     };
   }, []);
 
-  const update = available?.update;
+  const candidate = available?.update;
   useEffect(() => {
     setDownloaded(false);
     setInstallHint('');
     setDownloadError('');
     setDownloadPercent(null);
-    if (!isAndroid || !update?.sha256) return;
+    if (!isAndroid || !candidate?.sha256) return;
     let active = true;
-    void native.isUpdateDownloaded({ version: update.version, sha256: update.sha256 })
+    void native.isUpdateDownloaded({ version: candidate.version, sha256: candidate.sha256 })
       .then(({ ready }) => { if (active) setDownloaded(ready); })
       .catch(() => { /* No cached APK. Download remains available. */ });
     return () => { active = false; };
-  }, [isAndroid, update?.tag, update?.sha256]);
+  }, [isAndroid, candidate?.tag, candidate?.sha256]);
 
   const installDownloaded = async () => {
     if (!available || !available.update.sha256) return;
