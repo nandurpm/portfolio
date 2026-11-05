@@ -1,6 +1,7 @@
 import { userError } from '../domain/user-error';
 import { buildInfo } from '../build-info';
 import { WEB_APP } from '../web-mode';
+import { CHECK_UPDATES_EVENT } from '../domain/release-updates';
 import { CloudButton } from '../cloud/CloudPanel';
 import { RangeControl } from '../components/RangeControl';
 import { motion } from 'framer-motion';
@@ -437,6 +438,15 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           </div>
           <Info size={22} />
         </div>
+        {!WEB_APP && (
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => window.dispatchEvent(new Event(CHECK_UPDATES_EVENT))}
+          >
+            Check for updates
+          </button>
+        )}
       </Section>
       <Section
         title="Start fresh"
