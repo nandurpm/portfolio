@@ -4559,3 +4559,27 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   .settings-overview-grid, .entries-overview-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .settings-overview-grid > div, .entries-overview-grid > div { padding: 11px; }
 }
+
+/* Audit repairs: retain the refreshed surfaces while restoring palette contrast,
+   readable hero controls and one viewport-bounded desktop scroll container. */
+html { --muted: #52656a; }
+html[data-palette="violet"] {
+  --accent: #6255df;
+  --accent-deep: #4838ac;
+  --accent-ink: #4838ac;
+  --accent-soft: #eeebff;
+  --sidebar-a: #33306b;
+  --sidebar-b: #6857c7;
+  --bg: #f6f7fc;
+}
+html[data-theme="dark"] { --muted: #b3bdd2; --accent-ink: #d5ceff; }
+.button:not(.secondary) { background: var(--accent-deep); }
+.dashboard-hero .button.secondary { color: #fff; background: #ffffff1f; border-color: #ffffff66; }
+html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: clip; }
+@media (min-width: 761px) {
+  .app-shell { height: 100dvh; min-height: 0; }
+  .workspace { height: 100dvh; min-height: 0; overflow: hidden; }
+  .sidebar { height: 100dvh; min-height: 0; overflow-y: auto; }
+  .main-scroll { min-height: 0; overflow: auto; scrollbar-gutter: stable; }
+  .main-scroll > .edit-controls { width: 100%; max-width: none; }
+}
