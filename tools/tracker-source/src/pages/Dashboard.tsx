@@ -1,11 +1,10 @@
-import { ledgerPeriod, reportCategories } from '../domain/ledger';
-import { archivedEntryCount } from '../domain/archive';
+import { reportCategories } from '../domain/ledger';
 import { FinancialPosition } from '../components/FinancialPosition';
 import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
 import { HelpTerm } from '../components/HelpTerm';
-import { lazy, memo, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -15,6 +14,10 @@ import {
   CalendarDays,
   RotateCcw,
   Plus,
+  BarChart3,
+  Landmark,
+  ListChecks,
+  FileDown,
 } from 'lucide-react';
 import { store, usePlan } from '../store';
 import {
@@ -28,11 +31,10 @@ import {
   progress,
   savingsOverview,
 } from '../domain/calculate';
-import { addMonths, clampMonth, monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
+import { monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
 import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
-import { MobileRecentActivity } from '../components/MobileRecentActivity';
 const ComparisonCharts = lazy(() => import('../components/ComparisonCharts').then((m) => ({ default: m.ComparisonCharts })));
 const SavingsCharts = lazy(() => import('../components/Charts').then((m) => ({ default: m.SavingsCharts })));
 
@@ -93,7 +95,7 @@ export function MonthControls() {
     </div>
   );
 }
-export const ProgressTable = memo(function ProgressTable({ whole = false }: { whole?: boolean }) {
+export function ProgressTable({ whole = false }: { whole?: boolean }) {
   const phone = usePhone();
   const p = usePlan(),
     date = reportDate(p),
@@ -191,35 +193,6 @@ export const ProgressTable = memo(function ProgressTable({ whole = false }: { wh
       </table>
     </div>
   );
-});
-function DashboardProgress() {
-  const p = usePlan();
-  const current = today().slice(0, 7);
-  const defaultEnd = clampMonth(current, p.settings.planStart, p.settings.planEnd);
-  const defaultStart = clampMonth(addMonths(defaultEnd, -2), p.settings.planStart, defaultEnd);
-  const [start, setStart] = useState(defaultStart);
-  const [end, setEnd] = useState(defaultEnd);
-  const months = monthsBetween(p.settings.planStart, p.settings.planEnd);
-  return (
-    <>
-      <div className="progress-range-control" role="group" aria-label="Month-by-month progress range">
-        <span>Show months</span>
-        <label>From<select aria-label="Progress range start" value={start} onChange={(e) => setStart(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
-        <label>To<select aria-label="Progress range end" value={end} onChange={(e) => setEnd(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
-        <button className="button secondary" type="button" onClick={() => { setStart(defaultStart); setEnd(defaultEnd); }}>Recent 3 months</button>
-      </div>
-      {start <= end ? <ProgressTableFiltered start={start} end={end} /> : <p className="callout">Choose an ending month that is not before the starting month.</p>}
-    </>
-  );
-}
-function ProgressTableFiltered({ start, end }: { start: string; end: string }) {
-  const p = usePlan();
-  const phone = usePhone();
-  const date = reportDate(p);
-  const rows = useMemo(() => progress(p, date).filter((row) => row.month >= start && row.month <= end), [p, date, start, end]);
-  const inProgress = (month: string) => date >= month + '-01' && date < monthEnd(month);
-  if (phone) return <section className="progress-month-cards" aria-label="Recorded monthly progress">{rows.map((r) => <article className="progress-month-card" key={r.month}><header><strong>{monthLabel(r.month, true)}</strong><Badge tone={r.status.toLowerCase()}>{r.status}</Badge></header><dl><div><dt>Income plan</dt><dd>{money(r.plan.income)}</dd></div><div><dt>Income received</dt><dd>{r.actual ? money(r.actual.income) : '—'}</dd></div><div><dt>Expense plan</dt><dd>{money(r.plan.expenses)}</dd></div><div><dt>Expenses recorded</dt><dd>{r.actual ? money(r.actual.expenses) : '—'}</dd></div><div><dt>Actual savings</dt><dd>{r.actual ? money(r.actual.savings) : '—'}</dd></div><div><dt>Recorded cash</dt><dd>{r.recordedCash == null ? '—' : money(r.recordedCash)}</dd></div></dl><p className="progress-month-note">{inProgress(r.month) ? 'In progress' : r.status} · {r.count} {r.count === 1 ? 'entry' : 'entries'}</p></article>)}</section>;
-  return <div className="table-scroll long-table-scroll" tabIndex={0} role="region" aria-label="Recorded monthly progress"><table className="data-table progress-table"><thead><tr>{['Month','Planned income','Actual income','Planned expenses','Actual expenses','Planned savings','Actual savings','Savings gap','Planned cash','Recorded cash','Entries','Status'].map((h)=><th key={h} scope="col">{h}</th>)}</tr></thead><tbody>{rows.map((r)=><tr key={r.month}><td className="strong nowrap">{monthLabel(r.month)}</td><td>{money(r.plan.income)}</td><td>{r.actual ? money(r.actual.income) : '—'}</td><td>{money(r.plan.expenses)}</td><td>{r.actual ? money(r.actual.expenses) : '—'}</td><td>{money(r.plan.savings)}</td><td>{r.actual ? money(r.actual.savings) : '—'}</td><td>{inProgress(r.month) ? 'In progress' : r.actual ? money(r.actual.savings-r.plan.savings) : '—'}</td><td>{r.expectedCash == null ? '—' : money(r.expectedCash)}</td><td>{r.recordedCash == null ? '—' : money(r.recordedCash)}</td><td>{r.count || '—'}</td><td><Badge tone={r.status.toLowerCase()}>{r.status}</Badge></td></tr>)}</tbody></table></div>;
 }
 export default function Dashboard({
   navigate,
@@ -238,14 +211,8 @@ export default function Dashboard({
     cum = cumulative(p),
     savings = savingsOverview(p, m, date),
     remainingBudget = full.expenses - act.expenses,
+    budgetUsed = full.expenses > 0 ? Math.min(100, Math.max(0, (act.expenses / full.expenses) * 100)) : 0,
     status = m > date.slice(0, 7) ? 'future' : m < date.slice(0, 7) ? 'past' : 'current';
-  const monthStart = `${m}-01`,
-    monthEndDate = date < monthEnd(m) ? date : monthEnd(m),
-    entryCount = p.entries.filter((entry) => entry.date >= monthStart && entry.date <= monthEndDate).length + ledgerPeriod(p, monthStart, monthEndDate).count,
-    archivedCount = archivedEntryCount(p),
-    budgetUsed = full.expenses > 0 ? Math.round((act.expenses / full.expenses) * 100) : 0,
-    budgetBar = Math.min(100, Math.max(0, budgetUsed)),
-    incomeGap = Math.max(0, full.income - act.income);
   const metrics = [
     ['Income', 'income', 'income'],
     ['Living expenses', 'living', 'living'],
@@ -254,24 +221,28 @@ export default function Dashboard({
     ['Savings / deficit', 'savings', 'income'],
   ] as const;
   return (
-    <div className="dashboard-page">
+    <>
       <PageHead
         eyebrow="PRIVATE FINANCE WORKSPACE"
         title="Monthly snapshot"
-        description="A clear view of cash, monthly progress, and what needs attention next."
+        description="Know what’s planned, what’s spent, and what’s yours to keep."
       />
-      <section className="dashboard-context" aria-label="Dashboard view controls">
-        <div className="dashboard-context-summary">
-          <span className="dashboard-context-overline">Reporting view</span>
+      <div className="dashboard-context" aria-label="Dashboard reporting context">
+        <div className="dashboard-context-copy">
+          <span className="dashboard-context-label">Reviewing</span>
           <strong>{monthLabel(m, true)}</strong>
-          <span className={`dashboard-status ${status}`}>
-            <span className={`status-dot ${status}`} />
-            {status} month · {date > today() ? 'forecast' : 'live'}
+          <span className={`dashboard-context-status ${status}`}>
+            <span className="status-dot" aria-hidden="true" />
+            {status === 'current' ? 'Current month' : status === 'future' ? 'Future plan' : 'Past month'}
           </span>
         </div>
         <MonthControls />
-      </section>
+      </div>
       <section className="dashboard-hero" aria-labelledby="dashboard-balance-title">
+        <div className="dashboard-hero-meta">
+          <span className="dashboard-live-pill"><span className={`status-dot ${date > today() ? 'past' : 'current'}`} aria-hidden="true" /> {date > today() ? 'Preview date' : 'Live reporting'}</span>
+          <span>Through {displayDate(date, s.dateFormat)}</span>
+        </div>
         <div className="dashboard-balance">
           <span className="dashboard-hero-icon" aria-hidden="true"><Wallet /></span>
           <div>
@@ -279,10 +250,6 @@ export default function Dashboard({
             <h2 id="dashboard-balance-title">Calculated cash balance</h2>
             <strong>{money(cum.actualCash)}</strong>
             <p>Opening savings + recorded cash movements, including Accounts and PF transfers</p>
-            <div className="dashboard-balance-meta">
-              <span>{date > today() ? 'Forecast through' : 'Through'} {displayDate(date, s.dateFormat)}</span>
-              <span>Updated from recorded activity</span>
-            </div>
           </div>
         </div>
         <div className="dashboard-hero-insights">
@@ -295,6 +262,9 @@ export default function Dashboard({
             <span>{remainingBudget < 0 ? 'Over monthly budget' : 'Expense budget left'}</span>
             <strong className={remainingBudget < 0 ? 'unfavourable' : ''}>{money(Math.abs(remainingBudget))}</strong>
             <small>{money(act.expenses)} of {money(full.expenses)} used</small>
+            <div className="dashboard-budget-meter" role="progressbar" aria-label="Monthly expense budget used" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(budgetUsed)}>
+              <span style={{ width: `${budgetUsed}%` }} />
+            </div>
           </div>
         </div>
         <div className="dashboard-hero-actions" role="group" aria-label="Quick actions">
@@ -309,52 +279,40 @@ export default function Dashboard({
         <Stat label="Saved this year" value={savings.year} caption={`${savings.calendarYear} through ${displayDate(date, s.dateFormat)}`} tone={savings.year < 0 ? 'orange' : 'violet'} icon={<CalendarRange />} />
         <Stat label="Net savings since tracking began" value={savings.lifetime} caption={`Since ${monthLabel(s.planStart, true)} · excludes opening savings`} tone={savings.lifetime < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
       </div>
-      <section className="dashboard-pulse" aria-labelledby="dashboard-pulse-title">
-        <div className="dashboard-pulse-head">
-          <div>
-            <span className="dashboard-section-kicker">MONTHLY PULSE</span>
-            <h2 id="dashboard-pulse-title">The numbers to act on first</h2>
-          </div>
-          <span className="dashboard-pulse-caption">{monthLabel(m, true)} · recorded through {displayDate(date, s.dateFormat)}</span>
-        </div>
-        <div className="dashboard-pulse-grid">
-          <article className="dashboard-pulse-item">
-            <span className="dashboard-pulse-label">Budget used</span>
-            <strong>{budgetUsed}%</strong>
-            <small>{money(act.expenses)} of {money(full.expenses)} recorded</small>
-            <div className="dashboard-pulse-bar" aria-hidden="true"><span style={{ width: `${budgetBar}%` }} /></div>
-          </article>
-          <article className="dashboard-pulse-item">
-            <span className="dashboard-pulse-label">Income still to record</span>
-            <strong>{incomeGap > 0 ? money(incomeGap) : 'On plan'}</strong>
-            <small>{incomeGap > 0 ? 'planned income not yet recorded' : 'planned income fully recorded'}</small>
-          </article>
-          <article className="dashboard-pulse-item">
-            <span className="dashboard-pulse-label">Recorded activity this month</span>
-            <strong>{entryCount}</strong>
-            <small>{entryCount === 1 ? 'record' : 'records'} from Daily Entries and Accounts</small>
-          </article>
-        </div>
-      </section>
-      <MobileRecentActivity navigate={navigate} />
-      <section className="dashboard-analytics" aria-labelledby="dashboard-analytics-title">
-        <div className="dashboard-analytics-head">
-          <div>
-            <span className="dashboard-section-kicker">VISUAL OVERVIEW</span>
-            <h2 id="dashboard-analytics-title">See the trend, not just the total</h2>
-          </div>
-          <span className="dashboard-pulse-caption">Hover the graphs for month-by-month detail</span>
-        </div>
-        <Suspense fallback={<p className="muted" role="status">Loading dashboard charts…</p>}>
-          <SavingsCharts />
-        </Suspense>
-      </section>
+      <nav className="dashboard-quick-links" aria-label="Dashboard shortcuts">
+        <button className="dashboard-quick-link" onClick={() => navigate('budget')}>
+          <span className="dashboard-quick-icon violet"><ListChecks size={17} /></span>
+          <span><strong>Review budget</strong><small>Adjust this month’s plan</small></span>
+          <ArrowUpRight size={16} />
+        </button>
+        <button className="dashboard-quick-link" onClick={() => navigate('accounts')}>
+          <span className="dashboard-quick-icon blue"><Landmark size={17} /></span>
+          <span><strong>Check accounts</strong><small>See cash by account</small></span>
+          <ArrowUpRight size={16} />
+        </button>
+        <button className="dashboard-quick-link" onClick={() => navigate('forecast')}>
+          <span className="dashboard-quick-icon green"><BarChart3 size={17} /></span>
+          <span><strong>View forecast</strong><small>Plan upcoming months</small></span>
+          <ArrowUpRight size={16} />
+        </button>
+        <button className="dashboard-quick-link" onClick={() => navigate('reports')}>
+          <span className="dashboard-quick-icon orange"><FileDown size={17} /></span>
+          <span><strong>Export reports</strong><small>Back up or download</small></span>
+          <ArrowUpRight size={16} />
+        </button>
+      </nav>
       <FinancialPosition onManage={()=>navigate('accounts')}/>
-      {archivedCount > 0 && (
-        <div className="callout" role="status">
-          <strong>{archivedCount} archived {archivedCount === 1 ? 'entry is' : 'entries are'} excluded from plan totals.</strong> They remain available in your full backup and archived history.
-        </div>
-      )}
+      <div className="month-banner">
+        <span className={`status-dot ${status}`} />
+        <span>
+          Selected month: <strong>{monthLabel(m, true)}</strong> ({status} month)
+        </span>
+        <span className="muted">
+          {date < `${s.planStart}-01`
+            ? `Your plan begins ${displayDate(s.planStart + '-01')}`
+            : `Through ${displayDate(date, s.dateFormat)}`}
+        </span>
+      </div>
       {date > today() && (
         <div className="callout preview-banner" role="status">
           <strong>Future report preview</strong> · Reporting through {displayDate(date)}. Actuals
@@ -385,14 +343,6 @@ export default function Dashboard({
       <CashAlerts />
       <BudgetAlerts />
       <MonthlyChecklist navigate={navigate} addEntry={addEntry} />
-      <section className="dashboard-deep-dive" aria-labelledby="dashboard-deep-dive-title">
-        <div className="dashboard-deep-dive-heading">
-          <span>
-            <h2 id="dashboard-deep-dive-title">Full dashboard analysis</h2>
-            <small>Comparison tables, category detail, forecasts and extended charts</small>
-          </span>
-        </div>
-        <div className="dashboard-deep-dive-body">
       <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
       <Section
         title={`${monthLabel(m, true)}, side by side`}
@@ -571,10 +521,8 @@ export default function Dashboard({
         title="Month-by-month progress"
         caption="Complete monthly planned amounts, not daily allocations. Actual amounts count recorded transactions through the report date. Future actuals remain blank."
       >
-        <DashboardProgress />
+        <ProgressTable whole />
       </Section>
-        </div>
-      </section>
-    </div>
+    </>
   );
 }
