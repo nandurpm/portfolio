@@ -137,3 +137,10 @@ jobs:
           "${ANDROID_HOME:?}/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0'
       - name: Exercise archive/export APIs and disposable unsigned native packages
         run: npm run test:dependencies
+      - name: Compile actual Tracker Android project and run native unit tests
+        run: |
+          npm run build:release
+          npx cap sync android
+          cd android
+          ./gradlew --no-daemon assembleDebug testDebugUnitTest
+
