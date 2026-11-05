@@ -5,7 +5,7 @@ export const CHECK_UPDATES_EVENT = 'tracker:check-for-updates';
 export const RELEASE_SNOOZE_KEY = 'tracker-release-remind-after-v2';
 export const RELEASE_REMINDER_MS = 24 * 60 * 60 * 1000;
 
-type Asset = { name: string; browser_download_url: string };
+type Asset = { name: string; browser_download_url: string; digest?: string; size?: number; state?: string };
 export type TrackerRelease = {
   tag_name: string;
   name?: string;
@@ -21,6 +21,8 @@ export type TrackerUpdate = {
   version: string;
   downloadUrl: string;
   releaseUrl: string;
+  /** Official GitHub asset checksum, required to download inside Android. */
+  sha256?: string;
 };
 
 function parts(value: string): number[] | null {
@@ -73,6 +75,12 @@ export function latestTrackerUpdate(
     const expectedDownload =
       'https://github.com/nandurpm/portfolio/releases/download/' + release.tag_name + '/' + fileName;
     if (!asset || asset.browser_download_url !== expectedDownload || !isTrustedTrackerUrl(expectedDownload)) continue;
+    // Native APK installation requires GitHub's trusted asset digest, not only a URL.
+    // Older releases without a digest remain available for manual browser downloads.
+    const hash = typeof asset.digest === 'string' && /^sha256:([a-f0-9]{64})$/i.test(asset.digest)
+      ? asset.digest.slice('sha256:'.length).toLowerCase() : undefined;
+    if (platform === 'android' && (!hash || asset.state !== 'uploaded' ||
+        typeof asset.size !== 'number' || asset.size < 1 || asset.size > 200 * 1024 * 1024)) continue;
     candidates.push({
       tag: release.tag_name,
       version: releaseVersion,
@@ -80,6 +88,7 @@ export function latestTrackerUpdate(
       body: String(release.body || ''),
       downloadUrl: expectedDownload,
       releaseUrl: 'https://github.com/nandurpm/portfolio/releases/tag/' + release.tag_name,
+      sha256: hash,
     });
   }
   candidates.sort((a, b) => compareTrackerVersions(b.tag, a.tag));
