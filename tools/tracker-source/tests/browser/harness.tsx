@@ -27,7 +27,7 @@ localStorage.setItem('savings-expence-v1', JSON.stringify(fixture));
 sync.start = async () => {};
 sync.stop = () => {};
 sync.run = async () => {};
-void store.load().then(() => {
+void store.load().then(async () => {
   // Browser-only simulation of the Android presentation branch, never native I/O.
   if (new URLSearchParams(location.search).has('android')) {
     window.desktop = {
@@ -42,10 +42,11 @@ void store.load().then(() => {
       openDataFolder: async () => {},
       notify: async () => {},
       pdf: async () => null,
-      version: async () => '2.2.3',
+      version: async () => '2.2.4',
       onBeforeClose: () => () => {},
     };
     document.documentElement.dataset.platform = 'android';
+    await import('../../src/android-v222.css');
   }
   return (
   ReactDOM.createRoot(document.getElementById('root')!).render(

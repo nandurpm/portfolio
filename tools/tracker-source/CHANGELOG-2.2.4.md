@@ -1,0 +1,9 @@
+# Savings & Expense Tracker 2.2.4
+
+- Restore Android's 2.2.2 dashboard, theme surfaces, gradients, cards and complete analysis in place of the compact 2.2.3 Home layout.
+- Retain readable controls, accessible contrast and viewport scrolling fixes.
+- Keep current update detection, Telegram notifications, storage, account authentication, shared financial calculations and synchronization.
+- Preserve the Android package identity and existing records. This is a forward update, not an application downgrade.
+- Web and Windows presentation are unchanged.
+
+Use the existing signing identity for the release APK and verify in-place installation before distribution.
