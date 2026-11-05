@@ -30,7 +30,7 @@ import {
   savingsOverview,
 } from '../domain/calculate';
 import { addMonths, clampMonth, monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
-import { Section, PageHead, Stat, Badge, ProgressBar, Edited } from '../components/UI';
+import { Section, PageHead, Stat, Badge, ProgressBar } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
 import { MobileRecentActivity } from '../components/MobileRecentActivity';
@@ -42,8 +42,8 @@ export function MonthControls() {
     s = p.settings;
   return (
     <div className="month-controls">
-      <label>
-        <CalendarDays size={16} />
+      <label className="review-month-control">
+        <CalendarDays size={16} aria-hidden="true" />
         <select
           aria-label="Review month"
           value={s.selectedMonth}
@@ -55,13 +55,13 @@ export function MonthControls() {
         >
           {monthsBetween(s.planStart, s.planEnd).map((m) => (
             <option key={m} value={m}>
-              {monthLabel(m, true)}
+              {monthLabel(m)}
             </option>
           ))}
         </select>
       </label>
-      <label>
-        Report through{' '}
+      <label className="report-cutoff-control">
+        <span>Through</span>
         <input
           aria-label="Report through date"
           type="date"
@@ -74,9 +74,8 @@ export function MonthControls() {
               });
           }}
         />
-        {!s.liveDate && <Edited />}
+        {!s.liveDate && <span className="cutoff-edited" title="Manually selected reporting date" aria-label="Manually selected reporting date">•</span>}
       </label>
-      <HelpTerm term="report through" />
       <button
         className="icon-button"
         aria-label="Reset report date to today"
@@ -259,15 +258,16 @@ export default function Dashboard({
       <PageHead
         eyebrow="PRIVATE FINANCE WORKSPACE"
         title="Monthly snapshot"
-        description="A clear view of cash, monthly progress, and what needs attention next."
+        description=""
       />
       <section className="dashboard-context" aria-label="Dashboard view controls">
         <div className="dashboard-context-summary">
           <span className="dashboard-context-overline">Reporting view</span>
+          <HelpTerm term="report through" />
           <strong>{monthLabel(m, true)}</strong>
           <span className={`dashboard-status ${status}`}>
             <span className={`status-dot ${status}`} />
-            {status} month · {date > today() ? 'forecast' : 'live'}
+            {date > today() ? 'Forecast' : 'Live'} · {status} month
           </span>
         </div>
         <MonthControls />
