@@ -4013,3 +4013,52 @@ html:not([data-platform="android"])[data-theme="dark"] .mobile-quick-add { color
   html:not([data-platform="android"]) .main-scroll { min-height: 0; overflow: auto; scrollbar-gutter: stable; }
   html:not([data-platform="android"]) .main-scroll > .edit-controls { width: 100%; max-width: none; }
 }
+
+/* Recent activity is shared by Web mobile and the restored Android dashboard.
+   Keep its styling independent of removed AndroidHome-only stylesheets. */
+.mobile-recent {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: clamp(12px, 2vw, 20px);
+  background: var(--surface);
+  color: var(--text);
+}
+.mobile-recent > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+}
+.mobile-recent > header h2 { margin: 4px 0 0; font-size: 1rem; }
+.mobile-recent-links { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.mobile-recent-links .text-button { min-height: 44px; padding: 7px 4px; }
+.mobile-recent ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.mobile-recent li > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 9px 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.mobile-recent li:last-child > button { border-bottom: 0; }
+.mobile-recent li > button:hover { color: var(--accent-ink); }
+.mobile-recent li > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mobile-recent-copy { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.mobile-recent-copy strong, .mobile-recent-copy small { overflow-wrap: anywhere; }
+.mobile-recent-copy small { color: var(--muted); font-size: .78rem; }
+.mobile-recent-amount { flex: 0 1 auto; max-width: 35%; overflow-wrap: anywhere; text-align: right; font-variant-numeric: tabular-nums; }
+.mobile-recent-icon { flex: 0 0 auto; }
+@media (max-width: 410px) {
+  .mobile-recent-links { width: 100%; justify-content: flex-start; }
+}
