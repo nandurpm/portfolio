@@ -163,7 +163,7 @@ final class TrackerApkUpdate {
             reporter.report(destination.length(), destination.length());
             return;
         }
-        File partial = new File(updateFolder(context), FILE_PREFIX + version + ".part");
+        File partial = new File(updateFolder(context), FILE_PREFIX + version + ".download.apk");
         Files.deleteIfExists(partial.toPath());
         HttpURLConnection connection = null;
         try {
