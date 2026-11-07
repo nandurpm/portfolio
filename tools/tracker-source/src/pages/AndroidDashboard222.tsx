@@ -111,11 +111,11 @@ export const ProgressTable = memo(function ProgressTable({ whole = false }: { wh
             <Badge tone={r.status.toLowerCase()}>{r.status}</Badge>
           </header>
           <dl>
-            <div><dt>Full-month income plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.income)}</dd></div>
+            <div><dt>Full-month income plan</dt><dd>{money(r.plan.income)}</dd></div>
             <div><dt>Income received</dt><dd>{r.actual ? money(r.actual.income) : '—'}</dd></div>
-            <div><dt>Full-month expense plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.expenses)}</dd></div>
+            <div><dt>Full-month expense plan</dt><dd>{money(r.plan.expenses)}</dd></div>
             <div><dt>Expenses recorded</dt><dd>{r.actual ? money(r.actual.expenses) : '—'}</dd></div>
-            <div><dt>Full-month savings plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.savings)}</dd></div>
+            <div><dt>Full-month savings plan</dt><dd>{money(r.plan.savings)}</dd></div>
             <div><dt>Actual savings / deficit</dt><dd>{r.actual ? money(r.actual.savings) : '—'}</dd></div>
             <div><dt>Planned month-end cash</dt><dd>{r.expectedCash === null ? 'Future' : money(r.expectedCash)}</dd></div>
             <div><dt>Recorded cash</dt><dd>{r.recordedCash === null ? 'Future' : money(r.recordedCash)}</dd></div>
@@ -199,16 +199,18 @@ function DashboardProgress() {
   const defaultStart = clampMonth(addMonths(defaultEnd, -2), p.settings.planStart, defaultEnd);
   const [start, setStart] = useState(defaultStart);
   const [end, setEnd] = useState(defaultEnd);
+  const rangeStart = clampMonth(start, p.settings.planStart, p.settings.planEnd);
+  const rangeEnd = clampMonth(end, p.settings.planStart, p.settings.planEnd);
   const months = monthsBetween(p.settings.planStart, p.settings.planEnd);
   return (
     <>
       <div className="progress-range-control" role="group" aria-label="Month-by-month progress range">
         <span>Show months</span>
-        <label>From<select aria-label="Progress range start" value={start} onChange={(e) => setStart(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
-        <label>To<select aria-label="Progress range end" value={end} onChange={(e) => setEnd(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
+        <label>From<select aria-label="Progress range start" value={rangeStart} onChange={(e) => setStart(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
+        <label>To<select aria-label="Progress range end" value={rangeEnd} onChange={(e) => setEnd(e.target.value)}>{months.map((month) => <option key={month} value={month}>{monthLabel(month, true)}</option>)}</select></label>
         <button className="button secondary" type="button" onClick={() => { setStart(defaultStart); setEnd(defaultEnd); }}>Recent 3 months</button>
       </div>
-      {start <= end ? <ProgressTableFiltered start={start} end={end} /> : <p className="callout">Choose an ending month that is not before the starting month.</p>}
+      {rangeStart <= rangeEnd ? <ProgressTableFiltered start={rangeStart} end={rangeEnd} /> : <p className="callout">Choose an ending month that is not before the starting month.</p>}
     </>
   );
 }

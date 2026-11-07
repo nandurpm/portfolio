@@ -1,1 +1,1 @@
-export function getBuildInfo(mode: string): {schemaVersion:number;version:string;sourceCommit:string;sourceTree:string;dirty:boolean;builtAt:string;mode:string;nodeVersion:string;lockSha256:string};
+export function getBuildInfo(mode: string): {schemaVersion:number;financialLogicSha256:string;dataModelSha256:string;version:string;sourceCommit:string;sourceTree:string;dirty:boolean;builtAt:string;mode:string;nodeVersion:string;lockSha256:string};

@@ -1,9 +1,10 @@
+import { roundMoney } from './round-money';
 import { billReceipts, ledgerCashEffect, ledgerPeriod, reportCategories } from './ledger';
 import { isSalaryCategory, salaryForReceiptMonth, pfCashEffect } from './employment';
 import type { Plan, Category, Totals, ForecastRow, ProgressRow, LoanRow } from './types';
 import { formatMoney, compactMoney } from './format-money';
 import { today, monthDay, monthEnd, monthsBetween, addMonths, inRange } from './dates';
-export const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+export const round = roundMoney;
 export const moneyCompact = compactMoney;
 export const money = formatMoney;
 export const key = (month: string, id: string) => `${month}|${id}`;

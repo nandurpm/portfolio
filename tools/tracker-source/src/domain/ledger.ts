@@ -1,6 +1,7 @@
+import { roundMoney } from './round-money';
 import type { Account, Category, LedgerTransaction, Plan } from "./types";
 import { inRange, today, validDate } from "./dates";
-const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+const round = roundMoney;
 export const liquidKinds: Account["kind"][] = ["cash", "bank", "wallet"];
 export const isLiability = (kind: Account["kind"]) =>
   ["credit-card", "liability"].includes(kind);

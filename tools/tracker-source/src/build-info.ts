@@ -1,5 +1,7 @@
 declare const __TRACKER_BUILD_INFO__: {
   version: string;
+  financialLogicSha256: string;
+  dataModelSha256: string;
   sourceCommit: string;
   sourceTree: string;
   builtAt: string;

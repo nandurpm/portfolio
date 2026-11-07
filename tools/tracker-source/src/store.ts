@@ -1,3 +1,4 @@
+import { assertEditedBillLinks } from './domain/bill-schedule';
 import { initializeDisplayRange } from './domain/view-range';
 import { assertEditedMoneyPrecision } from './domain/money-precision';
 import { userError } from './domain/user-error';
@@ -107,7 +108,10 @@ export const store = {
   change(label: string, fn: (draft: Draft<Plan>) => void) {
     requireEditable();
     const next = commit(current, label, fn);
-    if (next !== current) assertEditedMoneyPrecision(current.data, next.data);
+    if (next !== current) {
+      assertEditedMoneyPrecision(current.data, next.data);
+      assertEditedBillLinks(current.data, next.data);
+    }
     if (next !== current) {
       current = next;
       persist();

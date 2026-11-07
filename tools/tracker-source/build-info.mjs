@@ -1,3 +1,4 @@
+import { financialFingerprints } from './scripts/financial-fingerprint.mjs';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -23,6 +24,7 @@ export function getBuildInfo(mode) {
   if (epoch && !/^\d+$/.test(epoch)) throw Error('SOURCE_DATE_EPOCH must be integer seconds');
   return {
     schemaVersion: 1,
+    ...financialFingerprints(),
     version: JSON.parse(fs.readFileSync('package.json', 'utf8')).version,
     sourceCommit,
     sourceTree,
