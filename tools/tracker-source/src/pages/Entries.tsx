@@ -119,9 +119,14 @@ export default function Entries({
     // A new widget action starts a new draft, including when Entries is already open.
     setDraft(previous => ({ ...previous, date: defaultDate, amount: '', description: '', notes: '' }));
     setBillDueMonth('');
+    setEditEntry(null);
+    setBulk(false);
     // Opening a widget never submits the form or carries an amount in an intent.
-    amountRef.current?.closest('form')?.scrollIntoView({ block: 'center' });
-    amountRef.current?.focus({ preventScroll: true });
+    const frame = requestAnimationFrame(() => {
+      amountRef.current?.closest('form')?.scrollIntoView({ block: 'center' });
+      amountRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
   }, [widgetEntry]);
   const rows = useMemo(() => {
     const q = search.toLowerCase();

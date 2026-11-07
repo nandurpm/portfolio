@@ -206,6 +206,9 @@ export function Shell() {
   }, [current.name]);
   useEffect(() => {
     const widgets = startAndroidWidgets(action => {
+      closeTopDialog();
+      setQuickAdd(false);
+      setShortcutHelp(false);
       if (action === 'refresh') { navigate('dashboard'); return; }
       const kind = action === 'income' ? 'Income' : 'Expense';
       setEntryKind(kind);
