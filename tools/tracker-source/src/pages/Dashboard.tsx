@@ -114,11 +114,11 @@ export function ProgressTable({ whole = false }: { whole?: boolean }) {
             <Badge tone={r.status.toLowerCase()}>{r.status}</Badge>
           </header>
           <dl>
-            <div><dt>Full-month income plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.income)}</dd></div>
+            <div><dt>Full-month income plan</dt><dd>{money(r.plan.income)}</dd></div>
             <div><dt>Income received</dt><dd>{r.actual ? money(r.actual.income) : '—'}</dd></div>
-            <div><dt>Full-month expense plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.expenses)}</dd></div>
+            <div><dt>Full-month expense plan</dt><dd>{money(r.plan.expenses)}</dd></div>
             <div><dt>Expenses recorded</dt><dd>{r.actual ? money(r.actual.expenses) : '—'}</dd></div>
-            <div><dt>Full-month savings plan</dt><dd>{r.status === 'Future' ? 'Future' : money(r.plan.savings)}</dd></div>
+            <div><dt>Full-month savings plan</dt><dd>{money(r.plan.savings)}</dd></div>
             <div><dt>Actual savings / deficit</dt><dd>{r.actual ? money(r.actual.savings) : '—'}</dd></div>
             <div><dt>Planned month-end cash</dt><dd>{r.expectedCash === null ? 'Future' : money(r.expectedCash)}</dd></div>
             <div><dt>Recorded cash</dt><dd>{r.recordedCash === null ? 'Future' : money(r.recordedCash)}</dd></div>

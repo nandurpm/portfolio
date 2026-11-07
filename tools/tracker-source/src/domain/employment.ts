@@ -1,6 +1,7 @@
+import { toPaise } from './round-money';
 import type { Category, Plan, SalaryChange, PfMovement } from "./types";
 import { addMonths, monthEnd, monthsBetween } from "./dates";
-const cents = (amount: number) => Math.round((amount + Number.EPSILON) * 100);
+const cents = toPaise;
 export const isSalaryCategory = (category: Category) =>
   category.role === "salary" || category.role === "salary-history";
 /** Reading a legacy plan never migrates or changes it. */

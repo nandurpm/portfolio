@@ -1,3 +1,5 @@
+import { userError } from '../domain/user-error';
+import { nextBillDueMonth, offScheduleBillLinks } from '../domain/bill-schedule';
 import { FinancialPosition } from "../components/FinancialPosition";
 import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
@@ -69,6 +71,7 @@ export default function Accounts() {
   const accounts = plan.accounts ?? [],
     rows = plan.ledgerTransactions ?? [];
   const dateThrough = reportDate(plan);
+  const billLinkWarnings = offScheduleBillLinks(plan);
   const result = useMemo(() => {
     try {
       return {
@@ -292,7 +295,7 @@ export default function Accounts() {
       setOpening("0");
       setShowAccount(false);
     } catch (error) {
-      toast(String(error), true);
+      toast(userError(error), true);
     }
   };
   const activeBill = ["expense", "shopping", "credit-card-purchase"].includes(
@@ -420,7 +423,7 @@ export default function Accounts() {
       setDescription("");
       setShowTransaction(false);
     } catch (error) {
-      toast(String(error), true);
+      toast(userError(error), true);
     }
   };
   return (
@@ -444,6 +447,10 @@ export default function Accounts() {
           </div>
         }
       />
+      {billLinkWarnings.length > 0 && <div className="callout" role="status">
+        {billLinkWarnings.length} bill payment {billLinkWarnings.length === 1 ? 'links' : 'link'} to a month outside its provision schedule.
+        {' '}Review the Bill due month on these transactions. Saved records have been kept.
+      </div>}
       <p>
         Uses the same report date and balances as your Dashboard. Record each
         transaction once, in Daily Entries or here.
@@ -818,9 +825,7 @@ export default function Accounts() {
                     );
                     setBillDueMonth(
                       provision
-                        ? provision.firstDueMonth > date.slice(0, 7)
-                          ? provision.firstDueMonth
-                          : date.slice(0, 7)
+                        ? nextBillDueMonth(provision, date.slice(0, 7))
                         : "",
                     );
                   }}
@@ -847,6 +852,7 @@ export default function Accounts() {
               >
                 <input
                   type="month"
+                  aria-label="Bill due month"
                   value={billDueMonth}
                   onChange={(e) => setBillDueMonth(e.target.value)}
                 />

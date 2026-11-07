@@ -1,5 +1,15 @@
 // Generated from src/domain/bot-finance.ts; run node scripts/build-bot-finance.mjs. Do not edit.
 
+// src/domain/round-money.ts
+function toPaise(value) {
+  if (!Number.isFinite(value)) return value;
+  const [mantissa, exponent = "0"] = Math.abs(value).toString().split("e");
+  const shifted = Number(`${mantissa}e${Number(exponent) + 2}`);
+  const paise = Math.round(shifted);
+  return paise === 0 ? 0 : Math.sign(value) * paise;
+}
+var roundMoney = (value) => toPaise(value) / 100;
+
 // src/domain/dates.ts
 var today = () => {
   const d = /* @__PURE__ */ new Date();
@@ -27,7 +37,7 @@ function monthsBetween(start, end) {
 var inRange = (date, start, end) => validDate(date) && date >= `${start}-01` && date <= monthEnd(end);
 
 // src/domain/ledger.ts
-var round = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+var round = roundMoney;
 var liquidKinds = ["cash", "bank", "wallet"];
 var isLiability = (kind) => ["credit-card", "liability"].includes(kind);
 var cents = (value) => {
@@ -396,7 +406,7 @@ function billReceipts(p) {
 }
 
 // src/domain/employment.ts
-var cents2 = (amount) => Math.round((amount + Number.EPSILON) * 100);
+var cents2 = toPaise;
 var isSalaryCategory = (category) => category.role === "salary" || category.role === "salary-history";
 function salaryHistory(p) {
   const history = p.salaryChanges ?? (p.settings.raisedSalary !== p.settings.salary31 ? [
@@ -432,7 +442,7 @@ function pfCashEffect(p, from, through, methods = []) {
 var compactNumber = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 1, minimumFractionDigits: 0 });
 
 // src/domain/calculate.ts
-var round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+var round2 = roundMoney;
 var key = (month, id) => `${month}|${id}`;
 var reportDate = (p) => p.settings.liveDate ? today() : p.settings.reportDate;
 var emptyTotals = () => ({

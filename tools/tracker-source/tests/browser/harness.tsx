@@ -29,9 +29,10 @@ sync.stop = () => {};
 sync.run = async () => {};
 void store.load().then(async () => {
   // Browser-only simulation of the Android presentation branch, never native I/O.
-  if (new URLSearchParams(location.search).has('android')) {
+  if (new URLSearchParams(location.search).has('android') || new URLSearchParams(location.search).has('windows')) {
+    const platform = new URLSearchParams(location.search).has('android') ? 'android' : 'windows';
     window.desktop = {
-      platform: 'android',
+      platform,
       load: async () => ({ envelope: fixture, dataPath: 'synthetic-browser-only' }),
       save: async (envelope) => { localStorage.setItem('savings-expence-v1', JSON.stringify(envelope)); },
       saveFile: async () => { throw Error('Native file export is not simulated'); },
@@ -45,8 +46,10 @@ void store.load().then(async () => {
       version: async () => '2.2.5',
       onBeforeClose: () => () => {},
     };
-    document.documentElement.dataset.platform = 'android';
-    await import('../../src/android-v222.css');
+    if (platform === 'android') {
+      document.documentElement.dataset.platform = 'android';
+      await import('../../src/android-v222.css');
+    }
   }
   return (
   ReactDOM.createRoot(document.getElementById('root')!).render(

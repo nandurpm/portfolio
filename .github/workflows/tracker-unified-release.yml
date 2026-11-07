@@ -72,6 +72,8 @@ jobs:
         run: npm run check
       - name: Build exact web payload
         run: npm run build:web && npm run check:bundle
+      - name: Verify Web and native financial engine parity
+        run: npm run build:release && node scripts/verify-financial-parity.mjs dist-web dist
       - uses: actions/upload-artifact@v4
         with:
           name: tracker-web-${{ github.sha }}

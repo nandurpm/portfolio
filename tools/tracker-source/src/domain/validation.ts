@@ -1,3 +1,4 @@
+import { isBillDueMonth } from './bill-schedule';
 import { isPaise } from './money-precision';
 import { z } from 'zod';
 import { validatePfMovements } from './employment';
@@ -313,10 +314,7 @@ export function validatePlan(p: unknown): Plan {
         !provision ||
         !e.billDueMonth ||
         provision.categoryId !== e.categoryId ||
-        e.billDueMonth < provision.firstDueMonth ||
-        (monthsBetween(provision.firstDueMonth, e.billDueMonth).length - 1) %
-          provision.everyMonths !==
-          0 ||
+        !isBillDueMonth(provision, e.billDueMonth) ||
         e.loanRowId
       )
         throw Error('Invalid bill liability link. Select the correct provision and due month.');
