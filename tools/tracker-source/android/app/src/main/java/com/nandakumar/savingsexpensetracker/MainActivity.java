@@ -25,6 +25,7 @@ public class MainActivity extends BridgeActivity {
  String consumeWidgetAction() { String action=pendingWidgetAction;pendingWidgetAction=null;return action; }
 
  @Override public void onCreate(Bundle state) {
+  pendingWidgetAction=WidgetPolicy.action(getIntent()==null?null:getIntent().getAction());
   registerPlugin(TrackerNativePlugin.class);
   super.onCreate(state);
   // Schedule OS-managed release notifications without accessing financial records.
