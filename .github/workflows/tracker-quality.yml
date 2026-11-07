@@ -142,5 +142,5 @@ jobs:
           npm run build:release
           npx cap sync android
           cd android
-          bash ./gradlew --no-daemon assembleDebug testDebugUnitTest
+          bash ./gradlew --no-daemon assembleDebug testDebugUnitTest assembleReleaseAndroidTest
 

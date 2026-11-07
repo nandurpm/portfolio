@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="12dp" android:background="@drawable/tracker_widget_background">
+    <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Quick Entry" android:textSize="16sp" android:textColor="@color/widget_text" android:includeFontPadding="false" android:textStyle="bold" android:minHeight="28dp"/>
+    <TextView android:id="@+id/widget_quick_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="4dp" android:text="Opens app · Review before saving" android:textSize="12sp" android:textColor="@color/widget_muted"/>
+    <LinearLayout android:id="@+id/widget_entries" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <Button android:id="@+id/widget_expense" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:minWidth="0dp" android:layout_margin="2dp" android:padding="4dp" android:background="@drawable/tracker_widget_button" android:text="Add Expense" android:textAllCaps="false" android:textSize="14sp" android:textColor="@color/widget_text"/>
+        <Button android:id="@+id/widget_income" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:minWidth="0dp" android:layout_margin="2dp" android:padding="4dp" android:background="@drawable/tracker_widget_button" android:text="Add Income" android:textAllCaps="false" android:textSize="14sp" android:textColor="@color/widget_text"/>
+    </LinearLayout>
+</LinearLayout>

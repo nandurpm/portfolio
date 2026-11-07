@@ -34,6 +34,34 @@ import javax.crypto.spec.GCMParameterSpec;
 
 @CapacitorPlugin(name="TrackerNative")
 public class TrackerNativePlugin extends Plugin {
+ @PluginMethod public void beginWidgets(PluginCall call) {
+  try { JSObject result=new JSObject();result.put("epoch",new WidgetStore(getContext()).begin());TrackerWidgets.updateAll(getContext());call.resolve(result); }
+  catch(Exception e) { call.reject("Widget cache unavailable",e); }
+ }
+ @PluginMethod public void updateWidgets(PluginCall call) {
+  try {
+   new WidgetStore(getContext()).write(call.getLong("epoch",-1L),call.getLong("sequence",-1L),call.getString("owner",""),call.getString("access","attention"),call.getObject("snapshot"));
+   TrackerWidgets.updateAll(getContext());call.resolve();
+  } catch(Exception e) { call.reject("Could not update home-screen widgets",e); }
+ }
+ @PluginMethod public void consumeWidgetAction(PluginCall call) {
+  getActivity().runOnUiThread(()->{
+   Intent intent=getActivity().getIntent();String action=WidgetPolicy.action(intent==null?null:intent.getAction());
+   if(action!=null) intent.setAction(Intent.ACTION_MAIN);
+   JSObject result=new JSObject();result.put("action",action==null?org.json.JSONObject.NULL:action);call.resolve(result);
+  });
+ }
+ @Override protected void handleOnNewIntent(Intent intent) {
+  if(WidgetPolicy.action(intent.getAction())!=null) notifyListeners("trackerWidgetAction",new JSObject());
+ }
+ private void widgetSession(String slot,String value) {
+  if(!"tracker-auth-v1".equals(slot)) return;
+  String owner="";
+  try { if(value!=null) owner=new org.json.JSONObject(value).getJSONObject("user").getString("id"); }
+  catch(Exception ignored) { /* Missing identity always hides the widget cache. */ }
+  try { new WidgetStore(getContext()).sessionOwner(owner); TrackerWidgets.updateAll(getContext()); }
+  catch(RuntimeException ignored) { /* Optional display cache must never break secure session storage. */ }
+ }
  static final Object LOCK = new Object();
  private static final String CHANNEL_ID = "tracker-reminders";
  private void ensureNotificationChannel() {
@@ -187,9 +215,9 @@ public class TrackerNativePlugin extends Plugin {
  }
  private void checkKey(PluginCall c)throws Exception{String k=c.getString("key");if(k==null||k.length()>160||!k.matches("^tracker-auth-v1(?:-[A-Za-z0-9._:-]+)?$"))throw new IOException("Unknown credential key");}
  private javax.crypto.SecretKey key()throws Exception{KeyStore ks=KeyStore.getInstance("AndroidKeyStore");ks.load(null);String alias="SavingsTrackerSession";if(!ks.containsAlias(alias)){KeyGenerator gen=KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore");gen.init(new KeyGenParameterSpec.Builder(alias,KeyProperties.PURPOSE_ENCRYPT|KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build());gen.generateKey();}return (javax.crypto.SecretKey)ks.getKey(alias,null);}
- @PluginMethod public void sessionGet(PluginCall call){try{checkKey(call);}catch(Exception e){call.reject("Unknown credential key",e);return;}String slot=call.getString("key");android.content.SharedPreferences prefs=getContext().getSharedPreferences("auth",Context.MODE_PRIVATE);try{String stored=prefs.getString(slot,null);boolean legacy=false;if(stored==null&&"tracker-auth-v1".equals(slot)){stored=prefs.getString("session",null);legacy=stored!=null;}String value=null;if(stored!=null){String[] parts=stored.split("\\.");Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.DECRYPT_MODE,key(),new GCMParameterSpec(128,Base64.decode(parts[0],Base64.NO_WRAP)));value=new String(cipher.doFinal(Base64.decode(parts[1],Base64.NO_WRAP)),StandardCharsets.UTF_8);if(legacy&&!prefs.edit().putString(slot,stored).remove("session").commit())throw new IOException("Credential migration failed");}JSObject o=new JSObject();o.put("value",value);call.resolve(o);}catch(Exception e){android.content.SharedPreferences.Editor edit=prefs.edit().remove(slot);if("tracker-auth-v1".equals(slot))edit.remove("session");edit.commit();JSObject o=new JSObject();o.put("value",org.json.JSONObject.NULL);call.resolve(o);}}
- @PluginMethod public void sessionSet(PluginCall call){try{checkKey(call);String value=call.getString("value");if(value==null||value.length()>100000)throw new IOException("Invalid session");Cipher c=Cipher.getInstance("AES/GCM/NoPadding");c.init(Cipher.ENCRYPT_MODE,key());String encrypted=Base64.encodeToString(c.getIV(),Base64.NO_WRAP)+"."+Base64.encodeToString(c.doFinal(value.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP);if(!getContext().getSharedPreferences("auth",Context.MODE_PRIVATE).edit().putString(call.getString("key"),encrypted).commit())throw new IOException("Credential storage failed");call.resolve();}catch(Exception e){call.reject("Secure sign-in storage failed",e);}}
- @PluginMethod public void sessionRemove(PluginCall call){try{checkKey(call);String slot=call.getString("key");android.content.SharedPreferences.Editor edit=getContext().getSharedPreferences("auth",Context.MODE_PRIVATE).edit().remove(slot);if("tracker-auth-v1".equals(slot))edit.remove("session");if(!edit.commit())throw new IOException("Credential removal failed");call.resolve();}catch(Exception e){call.reject("Could not sign out securely",e);}}
+ @PluginMethod public void sessionGet(PluginCall call){try{checkKey(call);}catch(Exception e){call.reject("Unknown credential key",e);return;}String slot=call.getString("key");android.content.SharedPreferences prefs=getContext().getSharedPreferences("auth",Context.MODE_PRIVATE);try{String stored=prefs.getString(slot,null);boolean legacy=false;if(stored==null&&"tracker-auth-v1".equals(slot)){stored=prefs.getString("session",null);legacy=stored!=null;}String value=null;if(stored!=null){String[] parts=stored.split("\\.");Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.DECRYPT_MODE,key(),new GCMParameterSpec(128,Base64.decode(parts[0],Base64.NO_WRAP)));value=new String(cipher.doFinal(Base64.decode(parts[1],Base64.NO_WRAP)),StandardCharsets.UTF_8);if(legacy&&!prefs.edit().putString(slot,stored).remove("session").commit())throw new IOException("Credential migration failed");}JSObject o=new JSObject();o.put("value",value);widgetSession(slot,value);call.resolve(o);}catch(Exception e){android.content.SharedPreferences.Editor edit=prefs.edit().remove(slot);if("tracker-auth-v1".equals(slot))edit.remove("session");edit.commit();JSObject o=new JSObject();o.put("value",org.json.JSONObject.NULL);widgetSession(slot,null);call.resolve(o);}}
+ @PluginMethod public void sessionSet(PluginCall call){try{checkKey(call);String value=call.getString("value");if(value==null||value.length()>100000)throw new IOException("Invalid session");Cipher c=Cipher.getInstance("AES/GCM/NoPadding");c.init(Cipher.ENCRYPT_MODE,key());String encrypted=Base64.encodeToString(c.getIV(),Base64.NO_WRAP)+"."+Base64.encodeToString(c.doFinal(value.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP);if(!getContext().getSharedPreferences("auth",Context.MODE_PRIVATE).edit().putString(call.getString("key"),encrypted).commit())throw new IOException("Credential storage failed");widgetSession(call.getString("key"),value);call.resolve();}catch(Exception e){call.reject("Secure sign-in storage failed",e);}}
+ @PluginMethod public void sessionRemove(PluginCall call){try{checkKey(call);String slot=call.getString("key");android.content.SharedPreferences.Editor edit=getContext().getSharedPreferences("auth",Context.MODE_PRIVATE).edit().remove(slot);if("tracker-auth-v1".equals(slot))edit.remove("session");if(!edit.commit())throw new IOException("Credential removal failed");widgetSession(slot,null);call.resolve();}catch(Exception e){call.reject("Could not sign out securely",e);}}
  private String mime(String ext){if("xlsx".equals(ext))return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";if("csv".equals(ext))return "text/csv";if("pdf".equals(ext))return "application/pdf";return "application/json";}
  @PluginMethod public void saveFile(PluginCall call){String ext=call.getString("extension");if(!Arrays.asList("xlsx","csv","json","pdf").contains(ext)){call.reject("Unsupported export");return;}Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.addCategory(Intent.CATEGORY_OPENABLE);i.setType(mime(ext));i.putExtra(Intent.EXTRA_TITLE,call.getString("name","Savings and Expense Tracker."+ext));startActivityForResult(call,i,"exportDone");}
  @ActivityCallback private void exportDone(PluginCall call,ActivityResult result){if(call==null)return;try{JSObject o=new JSObject();Uri uri=result.getData()==null?null:result.getData().getData();if(result.getResultCode()!=Activity.RESULT_OK||uri==null){o.put("path",org.json.JSONObject.NULL);call.resolve(o);return;}byte[] bytes=Base64.decode(call.getString("base64",""),Base64.DEFAULT);try(OutputStream out=getContext().getContentResolver().openOutputStream(uri,"wt")){if(out==null)throw new IOException("Cannot open destination");out.write(bytes);}o.put("path",uri.toString());call.resolve(o);}catch(Exception e){call.reject("Export failed",e);}}
