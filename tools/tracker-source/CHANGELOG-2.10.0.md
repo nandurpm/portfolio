@@ -4,6 +4,7 @@
 - Resizable **Monthly Summary** widget shows the current calendar month's recorded income received, expenses paid and savings through today. It uses the same financial engine as Web, Windows and Android; internal transfers remain outside income and expenses.
 - Amounts are hidden initially. Each summary widget has Show/Hide, last updated time and Refresh. Refresh opens the app to update local figures and synchronize when possible.
 - Native bridge payload logging is disabled in all build modes. Unchanged sync events reuse cached results to avoid extra ledger calculations and writes; a new quick-entry action opens a fresh empty draft.
+- Widget navigation dismisses the previous Add chooser or entry editor so the new form remains visible, including when the app is already open.
 - Widgets support light/dark system appearance, offline cached summaries and explicit signed-out, locked, missing-data, stale-data and month-change states. Old-account display data is cleared on logout/account switching.
 - Widget layouts adapt to available space and font size; enlarge a small widget when prompted. Quick-entry buttons also appear in a summary when space permits.
 - Release checks now verify signed ZIP integrity/alignment, Android 14–16 signatures, and Android 16 installation/upgrade with isolated test data. Widget cache, privacy and native layout regression tests are included.

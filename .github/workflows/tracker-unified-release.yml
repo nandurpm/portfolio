@@ -221,25 +221,61 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          EVIDENCE="$RUNNER_TEMP/tracker-android-evidence"
+          mkdir -p "$EVIDENCE"
+          # Report the emulator's own failure before returning. Waiting for adb
+          # alone hides an exited emulator and previously stranded diagnostics.
+          report_boot_failure() {
+            local result=$?
+            if (( result != 0 )); then
+              echo '::error::Android emulator did not become ready; bootstrap diagnostics follow.'
+              for log in avd-create.log avd-list.log acceleration.log emulator.log; do
+                if [[ -f "$EVIDENCE/$log" ]]; then
+                  echo "::group::$log"
+                  tail -n 120 "$EVIDENCE/$log" || true
+                  echo '::endgroup::'
+                fi
+              done
+              timeout 10 adb devices -l || true
+            fi
+          }
+          trap report_boot_failure EXIT
           # GitHub-hosted Linux runners support KVM. These permissions apply only
           # to this disposable CI machine; no user's device or data is accessed.
           test -c /dev/kvm
           sudo chmod 666 /dev/kvm
           sdkmanager --install 'emulator' 'system-images;android-36;google_apis;x86_64'
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/tracker-avds"
+          mkdir -p "$ANDROID_AVD_HOME"
           printf 'no\n' | avdmanager create avd --force --name tracker-api36 \
-            --package 'system-images;android-36;google_apis;x86_64' --device pixel_6
-          mkdir -p "$RUNNER_TEMP/tracker-android-evidence"
-          adb start-server
+            --package 'system-images;android-36;google_apis;x86_64' --device pixel_6 \
+            2>&1 | tee "$EVIDENCE/avd-create.log"
+          test -s "$ANDROID_AVD_HOME/tracker-api36.avd/config.ini"
+          "$ANDROID_HOME/emulator/emulator" -list-avds > "$EVIDENCE/avd-list.log" 2>&1
+          grep -Fx tracker-api36 "$EVIDENCE/avd-list.log"
+          "$ANDROID_HOME/emulator/emulator" -accel-check > "$EVIDENCE/acceleration.log" 2>&1
+          timeout 20 adb start-server
           nohup "$ANDROID_HOME/emulator/emulator" -avd tracker-api36 -port 5554 \
             -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader \
             -accel on -camera-back none -camera-front none \
-            > "$RUNNER_TEMP/tracker-android-evidence/emulator.log" 2>&1 &
-          timeout 300 adb -s emulator-5554 wait-for-device
-          for attempt in $(seq 1 150); do
-            if [[ "$(adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]; then break; fi
+            > "$EVIDENCE/emulator.log" 2>&1 &
+          EMULATOR_PID=$!
+          READY=false
+          DEADLINE=$((SECONDS + 300))
+          while (( SECONDS < DEADLINE )); do
+            if ! kill -0 "$EMULATOR_PID" 2>/dev/null; then
+              echo '::error::Android emulator exited before boot completed.'
+              wait "$EMULATOR_PID" || true
+              exit 1
+            fi
+            if [[ "$(timeout 5 adb -s emulator-5554 get-state 2>/dev/null || true)" == device ]] && \
+               [[ "$(timeout 5 adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)" == 1 ]]; then
+              READY=true
+              break
+            fi
             sleep 2
           done
-          test "$(adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r')" = 1
+          test "$READY" = true
           adb -s emulator-5554 shell input keyevent 82
           adb -s emulator-5554 shell settings put global window_animation_scale 0
           adb -s emulator-5554 shell settings put global transition_animation_scale 0
@@ -308,11 +344,12 @@ jobs:
           done
       - name: Collect native test evidence
         if: always()
+        timeout-minutes: 2
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/tracker-android-evidence"
-          adb -s emulator-5554 pull /sdcard/Android/data/com.nandakumar.savingsexpensetracker/files/widget-test-screenshots "$RUNNER_TEMP/tracker-android-evidence/" 2>/dev/null || true
-          adb -s emulator-5554 logcat -d -s AndroidRuntime:E > "$RUNNER_TEMP/tracker-android-evidence/crashes.txt" 2>/dev/null || true
+          timeout 30 adb -s emulator-5554 pull /sdcard/Android/data/com.nandakumar.savingsexpensetracker/files/widget-test-screenshots "$RUNNER_TEMP/tracker-android-evidence/" 2>/dev/null || true
+          timeout 20 adb -s emulator-5554 logcat -d -s AndroidRuntime:E > "$RUNNER_TEMP/tracker-android-evidence/crashes.txt" 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -326,8 +363,9 @@ jobs:
           retention-days: 30
       - name: Stop isolated emulator
         if: always()
+        timeout-minutes: 1
         shell: bash
-        run: adb -s emulator-5554 emu kill >/dev/null 2>&1 || true
+        run: timeout 10 adb -s emulator-5554 emu kill >/dev/null 2>&1 || true
       - uses: actions/upload-artifact@v4
         with:
           name: tracker-android-${{ github.sha }}
