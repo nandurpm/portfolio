@@ -4,4 +4,6 @@
     <string name="title_activity_main">Savings and Expense Tracker</string>
     <string name="package_name">com.nandakumar.savingsexpensetracker</string>
     <string name="custom_url_scheme">com.nandakumar.savingsexpensetracker</string>
+<string name="widget_quick_description">Add income or expense. Opens the app before saving.</string>
+<string name="widget_summary_description">Current month recorded cash flow. Refresh opens the app. Amounts hidden by default.</string>
 </resources>

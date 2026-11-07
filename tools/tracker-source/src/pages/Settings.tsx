@@ -75,6 +75,12 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
           <div><span>Change history</span><strong>{env.audit.length}</strong><small>reversible updates</small></div>
         </div>
       </section>
+      {window.desktop?.platform === 'android' && (
+        <Section title="Home-screen widgets" caption="Long-press your Android home screen, choose Widgets, then Savings and Expense Tracker.">
+          <p>Add Quick Entry for income and expense forms, or Monthly Summary for this calendar month’s recorded income, expenses and savings. Tapping a shortcut opens the app; saving always needs your confirmation.</p>
+          <p>Amounts start hidden. Use Show or Hide on each summary widget. Refresh opens the app to update local totals and sync when available. Cached totals can be older while the app is closed; Android schedules refreshes to save battery.</p>
+        </Section>
+      )}
       <Section title="Appearance" caption="Choose a look that makes checking your money feel good.">
         <div className="appearance">
           <div>

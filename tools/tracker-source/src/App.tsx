@@ -54,6 +54,7 @@ import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } fro
 import { themePresets } from "./theme-presets";
 import { AndroidMore } from './components/AndroidMore';
 import { ShortcutHelp } from "./components/ShortcutHelp";
+import { startAndroidWidgets } from './widgets/android-widgets';
 const pageLoaders = {
   dashboard: cachedLoader(() => import("./pages/Dashboard")),
   androidDashboard: cachedLoader(() => import("./pages/AndroidDashboard222")),
@@ -138,6 +139,7 @@ export function Shell() {
   pageRef.current = page;
   const androidMore = more && window.desktop?.platform === 'android';
   const [navigationSection, setNavigationSection] = useState<string | undefined>();
+  const [widgetEntry, setWidgetEntry] = useState<{ kind: 'Income' | 'Expense'; sequence: number }>();
   const navigate = (next: string, section?: string) => {
     preloadPage(next);
     setPage(next);
@@ -203,16 +205,24 @@ export function Shell() {
     document.title = `${current.name} · Tracker`;
   }, [current.name]);
   useEffect(() => {
+    const widgets = startAndroidWidgets(action => {
+      if (action === 'refresh') { navigate('dashboard'); return; }
+      const kind = action === 'income' ? 'Income' : 'Expense';
+      setEntryKind(kind);
+      setWidgetEntry(previous => ({ kind, sequence: (previous?.sequence ?? 0) + 1 }));
+      navigate('entries');
+    });
     void store
       .load()
       .then(() => sync.start())
       .catch((e) => toast(userError(e), true))
-      .finally(() => setLoading(false));
+      .finally(() => { setLoading(false); widgets?.ready(); });
     const timer = setInterval(() => setTick((t) => t + 1), 60_000);
     const off = window.desktop?.onBeforeClose(() => store.flush());
     return () => {
       clearInterval(timer);
       sync.stop();
+      widgets?.stop();
       off?.();
     };
   }, []);
@@ -621,7 +631,7 @@ export function Shell() {
                         }}
                       />
                     ) : page === "entries" ? (
-                      <Entries initialKind={entryKind} />
+                      <Entries initialKind={entryKind} widgetEntry={widgetEntry} />
                     ) : page === "accounts" ? (
                       <Accounts />
                     ) : page === "employment" ? (

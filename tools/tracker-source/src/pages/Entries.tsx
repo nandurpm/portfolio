@@ -51,8 +51,10 @@ const payments = ['Cash', 'UPI', 'Card', 'Bank', 'Other'];
 type EntryFillField = 'categoryId' | 'date' | 'payment';
 export default function Entries({
   initialKind = 'Expense',
+  widgetEntry,
 }: {
   initialKind?: 'Income' | 'Expense';
+  widgetEntry?: { kind: 'Income' | 'Expense'; sequence: number };
 }) {
   const p = usePlan(),
     s = p.settings,
@@ -111,6 +113,13 @@ export default function Entries({
     amountRef = useRef<HTMLInputElement>(null),
     drag = useRef<{ id: string; field: EntryFillField; value: string } | null>(null);
   const catMap = useMemo(() => new Map(p.categories.map((c) => [c.id, c])), [p.categories]);
+  useEffect(() => {
+    if (!widgetEntry) return;
+    setKind(widgetEntry.kind);
+    // Opening a widget never submits the form or carries an amount in an intent.
+    amountRef.current?.closest('form')?.scrollIntoView({ block: 'center' });
+    amountRef.current?.focus({ preventScroll: true });
+  }, [widgetEntry]);
   const rows = useMemo(() => {
     const q = search.toLowerCase();
     return p.entries

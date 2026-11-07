@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<resources>
+    <color name="widget_surface">#211F35</color>
+    <color name="widget_text">#F4F0FF</color>
+    <color name="widget_muted">#C5C0D8</color>
+    <color name="widget_button">#40365D</color>
+    <color name="widget_border">#504568</color>
+</resources>

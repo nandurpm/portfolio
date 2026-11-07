@@ -120,6 +120,7 @@ jobs:
   android:
     needs: quality
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: tools/tracker-source
@@ -159,7 +160,10 @@ jobs:
           VERSION="$(node -p "require('./package.json').version")"
           APK='android/app/build/outputs/apk/release/app-release.apk'
           test -s "$APK"
+          unzip -tq "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --min-sdk-version 34 --max-sdk-version 36 "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 4 "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" > "$RUNNER_TEMP/apk-badging.txt"
           grep -q "package: name='com.nandakumar.savingsexpensetracker'" "$RUNNER_TEMP/apk-badging.txt"
           grep -q "versionName='$VERSION'" "$RUNNER_TEMP/apk-badging.txt"
@@ -210,7 +214,120 @@ jobs:
               exit 1
             fi
             echo "Android signing certificate matches previously published $PREVIOUS_TAG."
+            echo "TRACKER_PREVIOUS_APK=$PREVIOUS_APK" >> "$GITHUB_ENV"
           fi
+      - name: Prepare isolated Android 16 emulator
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          # GitHub-hosted Linux runners support KVM. These permissions apply only
+          # to this disposable CI machine; no user's device or data is accessed.
+          test -c /dev/kvm
+          sudo chmod 666 /dev/kvm
+          sdkmanager --install 'emulator' 'system-images;android-36;google_apis;x86_64'
+          printf 'no\n' | avdmanager create avd --force --name tracker-api36 \
+            --package 'system-images;android-36;google_apis;x86_64' --device pixel_6
+          mkdir -p "$RUNNER_TEMP/tracker-android-evidence"
+          adb start-server
+          nohup "$ANDROID_HOME/emulator/emulator" -avd tracker-api36 -port 5554 \
+            -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader \
+            -accel on -camera-back none -camera-front none \
+            > "$RUNNER_TEMP/tracker-android-evidence/emulator.log" 2>&1 &
+          timeout 300 adb -s emulator-5554 wait-for-device
+          for attempt in $(seq 1 150); do
+            if [[ "$(adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]; then break; fi
+            sleep 2
+          done
+          test "$(adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r')" = 1
+          adb -s emulator-5554 shell input keyevent 82
+          adb -s emulator-5554 shell settings put global window_animation_scale 0
+          adb -s emulator-5554 shell settings put global transition_animation_scale 0
+          adb -s emulator-5554 shell settings put global animator_duration_scale 0
+      - name: Verify signed APK installation and in-place upgrade
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG=com.nandakumar.savingsexpensetracker
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          VERSION="$(node -p "require('./package.json').version")"
+          # Only synthetic data on a newly created emulator; never sign in.
+          # adb root is used solely to plant/read a non-financial private-file
+          # marker because production APKs correctly disallow run-as.
+          if [[ -n "${TRACKER_PREVIOUS_APK:-}" ]]; then
+            adb -s emulator-5554 install "$TRACKER_PREVIOUS_APK"
+            adb -s emulator-5554 shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS
+            adb -s emulator-5554 shell am start -W -n "$PKG/.MainActivity"
+            adb -s emulator-5554 shell am force-stop "$PKG"
+            adb -s emulator-5554 root
+            adb -s emulator-5554 wait-for-device
+            APP_UID="$(adb -s emulator-5554 shell stat -c '%u' "/data/user/0/$PKG" | tr -d '\r')"
+            [[ "$APP_UID" =~ ^[0-9]+$ ]]
+            adb -s emulator-5554 shell "mkdir -p /data/user/0/$PKG/files; printf 'tracker-upgrade-fixture' > /data/user/0/$PKG/files/widget-upgrade-probe; chown $APP_UID:$APP_UID /data/user/0/$PKG/files /data/user/0/$PKG/files/widget-upgrade-probe; restorecon -RF /data/user/0/$PKG/files"
+            adb -s emulator-5554 unroot
+            adb -s emulator-5554 wait-for-device
+          fi
+          adb -s emulator-5554 install -r "$APK"
+          if [[ -n "${TRACKER_PREVIOUS_APK:-}" ]]; then
+            adb -s emulator-5554 root
+            adb -s emulator-5554 wait-for-device
+            test "$(adb -s emulator-5554 shell cat "/data/user/0/$PKG/files/widget-upgrade-probe" | tr -d '\r')" = tracker-upgrade-fixture
+            adb -s emulator-5554 unroot
+            adb -s emulator-5554 wait-for-device
+            echo 'Previous signed APK upgraded successfully; isolated private-file marker survived.'
+          fi
+          adb -s emulator-5554 shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS
+          adb -s emulator-5554 shell dumpsys package "$PKG" > "$RUNNER_TEMP/tracker-android-evidence/package.txt"
+          grep -F "versionName=$VERSION" "$RUNNER_TEMP/tracker-android-evidence/package.txt"
+          adb -s emulator-5554 shell am start -W -n "$PKG/.MainActivity" | tee "$RUNNER_TEMP/tracker-android-evidence/launch.txt"
+          grep -F 'Status: ok' "$RUNNER_TEMP/tracker-android-evidence/launch.txt"
+          adb -s emulator-5554 shell pidof "$PKG"
+          adb -s emulator-5554 exec-out screencap -p > "$RUNNER_TEMP/tracker-android-evidence/installed.png"
+      - name: Run native unit and widget instrumentation tests on Android 16
+        timeout-minutes: 15
+        env:
+          TRACKER_KEYSTORE_PATH: ${{ runner.temp }}/tracker-release.jks
+          TRACKER_KEYSTORE_PASSWORD: ${{ secrets.TRACKER_KEYSTORE_PASSWORD }}
+          TRACKER_KEY_ALIAS: ${{ vars.TRACKER_ANDROID_KEY_ALIAS }}
+          ANDROID_SERIAL: emulator-5554
+        working-directory: tools/tracker-source/android
+        run: |
+          set -euo pipefail
+          bash gradlew :app:testReleaseUnitTest :app:connectedReleaseAndroidTest
+          adb -s emulator-5554 install -r app/build/outputs/apk/release/app-release.apk
+          adb -s emulator-5554 install -r app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
+          for phase in seed read; do
+            adb -s emulator-5554 shell am force-stop com.nandakumar.savingsexpensetracker
+            adb -s emulator-5554 shell am instrument -w \
+              -e class com.nandakumar.savingsexpensetracker.WidgetsTest#separateProcessRestoresPrivateCacheAndPrivacy \
+              -e widgetProcessPhase "$phase" \
+              com.nandakumar.savingsexpensetracker.test/androidx.test.runner.AndroidJUnitRunner \
+              | tee "$RUNNER_TEMP/tracker-android-evidence/process-$phase.txt"
+            grep -F 'OK (1 test)' "$RUNNER_TEMP/tracker-android-evidence/process-$phase.txt"
+          done
+      - name: Collect native test evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/tracker-android-evidence"
+          adb -s emulator-5554 pull /sdcard/Android/data/com.nandakumar.savingsexpensetracker/files/widget-test-screenshots "$RUNNER_TEMP/tracker-android-evidence/" 2>/dev/null || true
+          adb -s emulator-5554 logcat -d -s AndroidRuntime:E > "$RUNNER_TEMP/tracker-android-evidence/crashes.txt" 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tracker-android-tests-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/tracker-android-evidence
+            tools/tracker-source/android/app/build/reports/tests/testReleaseUnitTest
+            tools/tracker-source/android/app/build/reports/androidTests/connected
+            tools/tracker-source/android/app/build/outputs/androidTest-results/connected
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Stop isolated emulator
+        if: always()
+        shell: bash
+        run: adb -s emulator-5554 emu kill >/dev/null 2>&1 || true
       - uses: actions/upload-artifact@v4
         with:
           name: tracker-android-${{ github.sha }}
