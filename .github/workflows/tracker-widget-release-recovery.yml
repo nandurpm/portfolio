@@ -1,0 +1,25 @@
+name: Recover stalled widget release test
+on:
+  push:
+    branches: [fix/android-widget-navigation]
+    paths: [.github/workflows/tracker-widget-release-recovery.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  stop-failed-test-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Cancel only the known failed unpublished release test
+        run: |
+          set -euo pipefail
+          test "$GH_REPO" = nandurpm/portfolio
+          gh api "repos/$GH_REPO/actions/runs/42422182658" > "$RUNNER_TEMP/run.json"
+          jq -e '.head_sha == "99068e69bc8dd7479666b31c5ea9a3ae4b70a0be" and .name == "Release tracker web, Windows and Android"' "$RUNNER_TEMP/run.json"
+          gh api "repos/$GH_REPO/actions/runs/42422182658/jobs" > "$RUNNER_TEMP/jobs.json"
+          jq -e '.jobs[] | select(.name == "android") | .steps[] | select(.name == "Prepare isolated Android 16 emulator" and .conclusion == "failure")' "$RUNNER_TEMP/jobs.json"
+          gh api --method POST "repos/$GH_REPO/actions/runs/42422182658/force-cancel"
