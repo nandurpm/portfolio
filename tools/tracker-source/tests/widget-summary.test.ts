@@ -69,6 +69,24 @@ describe('native widget shared financial contract', () => {
 });
 
 describe('widget navigation and refresh lifecycle', () => {
+  it('avoids duplicate bridge writes for unchanged plans and forces a new manual refresh', async () => {
+    const c = context(), writes: Parameters<WidgetTransport['updateWidgets']>[0][] = [];
+    let clock = now(), action: string | null = null;
+    const widget = widgetCoordinator({ beginWidgets: async () => ({ epoch: 1 }),
+      updateWidgets: async value => { writes.push(value); },
+      consumeWidgetAction: async () => { const value = action; action = null; return { action: value }; },
+    }, () => c, () => {}, () => clock);
+    await widget.start(); widget.publish(); widget.publish();
+    expect(writes).toHaveLength(1);
+    clock = new Date(clock.getTime() + 1000); widget.publish();
+    expect(writes).toHaveLength(1);
+    action = 'refresh'; await widget.consume();
+    expect(writes).toHaveLength(2);
+    expect(writes.at(-1)?.snapshot?.updatedAt).toBe(clock.getTime());
+    c.plan = { ...c.plan }; widget.publish();
+    c.online = false; widget.publish();
+    expect(writes.at(-1)?.snapshot?.offline).toBe(true);
+  });
   it('defers quick entry until unlocked, consumes once and only calls navigation', async () => {
     const c = context(); c.planOwner = 'alice';
     let action: string | null = 'expense';
