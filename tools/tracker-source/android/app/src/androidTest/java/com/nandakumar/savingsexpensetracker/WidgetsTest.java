@@ -68,21 +68,28 @@ public class WidgetsTest {
     "(()=>{const e=document.querySelector('[aria-label=\"New transaction amount\"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,'123');e.dispatchEvent(new Event('input',{bubbles:true}));return e.value;})()",
     value->draft.countDown()));
    assertTrue(draft.await(2,TimeUnit.SECONDS));
+   CountDownLatch chooser=new CountDownLatch(1);
+   scenario.onActivity(activity->activity.getBridge().getWebView().evaluateJavascript("document.querySelector('.mobile-quick-add').click()",value->chooser.countDown()));
+   assertTrue(chooser.await(2,TimeUnit.SECONDS));
+   assertWebCondition(scenario,"Boolean(document.querySelector('[role=dialog]'))","Quick-add chooser must be open before a warm widget action");
    InstrumentationRegistry.getInstrumentation().runOnMainSync(()->context().startActivity(new Intent(context(),MainActivity.class)
     .setAction(context().getPackageName()+".WIDGET_INCOME").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP)));
    assertWebForm(scenario,"Income");
   }
  }
  private void assertWebForm(ActivityScenario<MainActivity> scenario,String kind) throws Exception {
+  assertWebCondition(scenario,"Boolean(!document.querySelector('[role=dialog]') && document.querySelector('.quick-add') && [...document.querySelectorAll('.entry-kind button')].some(x=>x.textContent.trim()==='Add "+kind+"' && x.getAttribute('aria-pressed')==='true') && document.querySelector('[aria-label=\"New transaction amount\"]').value==='')","Widget must open an unobscured empty "+kind+" form without submitting");
+ }
+ private void assertWebCondition(ActivityScenario<MainActivity> scenario,String condition,String message) throws Exception {
   AtomicBoolean found=new AtomicBoolean(false);
   for(int attempt=0;attempt<120 && !found.get();attempt++) {
    CountDownLatch latch=new CountDownLatch(1);
    scenario.onActivity(activity->activity.getBridge().getWebView().evaluateJavascript(
-    "Boolean(document.querySelector('.quick-add') && [...document.querySelectorAll('.entry-kind button')].some(x=>x.textContent.trim()==='Add "+kind+"' && x.getAttribute('aria-pressed')==='true') && document.querySelector('[aria-label=\"New transaction amount\"]').value==='')",
+    condition,
     value->{found.set("true".equals(value));latch.countDown();}));
    assertTrue(latch.await(2,TimeUnit.SECONDS));if(!found.get())Thread.sleep(250);
   }
-  assertTrue("Widget must open an empty "+kind+" form without submitting",found.get());
+  assertTrue(message,found.get());
  }
  @Test public void restartLogoutSwitchAndLateUpdatesAreIsolated() throws Exception {
   WidgetStore store=cache();long now=System.currentTimeMillis(),epoch=store.begin();
@@ -122,7 +129,8 @@ public class WidgetsTest {
   }
  }
  @Test public void hiddenStaleMissingAndNewMonthStatesNeverInventZeros() throws Exception {
-  WidgetStore store=cache();long now=System.currentTimeMillis(),epoch=store.begin();
+  // A fixed mid-month fixture keeps this stale-cache test valid on the first of a month too.
+  WidgetStore store=cache();long now=new java.util.GregorianCalendar(2026,10,8,12,0).getTimeInMillis(),epoch=store.begin();
   assertTrue(store.write(epoch,1,"local","ready",snapshot(now-WidgetPolicy.STALE_AFTER_MS-100)));
   InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
    View hidden=TrackerWidgets.views(context(),store,1,true,250,410,now).apply(context(),new FrameLayout(context()));
