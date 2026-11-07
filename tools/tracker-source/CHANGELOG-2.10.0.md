@@ -5,6 +5,7 @@
 - Amounts are hidden initially. Each summary widget has Show/Hide, last updated time and Refresh. Refresh opens the app to update local figures and synchronize when possible.
 - Native bridge payload logging is disabled in all build modes. Unchanged sync events reuse cached results to avoid extra ledger calculations and writes; a new quick-entry action opens a fresh empty draft.
 - Widget navigation dismisses the previous Add chooser or entry editor so the new form remains visible, including when the app is already open.
+- Native controls wrap at large fonts, and summaries use measured Android layouts before adding extra buttons. Widget actions are consumed separately from Android's launch intent to preserve activity lifecycle behavior.
 - Widgets support light/dark system appearance, offline cached summaries and explicit signed-out, locked, missing-data, stale-data and month-change states. Old-account display data is cleared on logout/account switching.
 - Widget layouts adapt to available space and font size; enlarge a small widget when prompted. Quick-entry buttons also appear in a summary when space permits.
 - Release checks now verify signed ZIP integrity/alignment, Android 14–16 signatures, and Android 16 installation/upgrade with isolated test data. Widget cache, privacy and native layout regression tests are included.

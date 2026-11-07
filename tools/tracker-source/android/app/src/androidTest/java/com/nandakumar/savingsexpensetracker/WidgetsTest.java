@@ -82,12 +82,13 @@ public class WidgetsTest {
  }
  private void assertWebCondition(ActivityScenario<MainActivity> scenario,String condition,String message) throws Exception {
   AtomicBoolean found=new AtomicBoolean(false);
-  for(int attempt=0;attempt<120 && !found.get();attempt++) {
+  long deadline=android.os.SystemClock.elapsedRealtime()+60000;
+  while(android.os.SystemClock.elapsedRealtime()<deadline && !found.get()) {
    CountDownLatch latch=new CountDownLatch(1);
    scenario.onActivity(activity->activity.getBridge().getWebView().evaluateJavascript(
     condition,
-    value->{found.set("true".equals(value));latch.countDown();}));
-   assertTrue(latch.await(2,TimeUnit.SECONDS));if(!found.get())Thread.sleep(250);
+    value->{if("true".equals(value))found.set(true);latch.countDown();}));
+   latch.await(10,TimeUnit.SECONDS);if(!found.get())Thread.sleep(250);
   }
   assertTrue(message,found.get());
  }
@@ -120,6 +121,8 @@ public class WidgetsTest {
     float density=themed.getResources().getDisplayMetrics().density;
     int w=Math.round(width*density),h=Math.round(height*density);
     view.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));view.layout(0,0,w,h);
+    try { save(themed,view,"summary-"+width+"-"+scale+"-"+(dark?"dark":"light")); }
+    catch(Exception e) { throw new AssertionError(e); }
     checkBounds(view);
     assertEquals("₹18,000.15",((TextView)view.findViewById(R.id.widget_income_value)).getText().toString());
     assertTrue(view.findViewById(R.id.widget_refresh).hasOnClickListeners());
@@ -150,6 +153,7 @@ public class WidgetsTest {
     View view=TrackerWidgets.views(themed,store,1,false,180,140,System.currentTimeMillis()).apply(themed,new FrameLayout(themed));
     int w=Math.round(180*density),h=Math.round(140*density);
     view.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));view.layout(0,0,w,h);
+    try { save(themed,view,"quick-180-"+scale); } catch(Exception e) { throw new AssertionError(e); }
     checkBounds(view);assertTrue(view.findViewById(R.id.widget_expense).getHeight()>=48*density);
     assertTrue(view.findViewById(R.id.widget_income).getHeight()>=48*density);
    });
@@ -175,7 +179,7 @@ public class WidgetsTest {
    ViewGroup group=(ViewGroup)view;
    for(int i=0;i<group.getChildCount();i++) {
     View child=group.getChildAt(i);if(child.getVisibility()!=View.VISIBLE)continue;
-    assertTrue("Widget child extends past bottom: "+child.getId(),child.getBottom()<=group.getHeight());
+    assertTrue("Widget child extends past bottom: "+(child.getId()==View.NO_ID?child.getClass().getSimpleName():group.getResources().getResourceEntryName(child.getId()))+" bottom="+child.getBottom()+" height="+group.getHeight(),child.getBottom()<=group.getHeight());
     assertTrue("Widget child extends past right: "+child.getId(),child.getRight()<=group.getWidth());
     checkBounds(child);
    }

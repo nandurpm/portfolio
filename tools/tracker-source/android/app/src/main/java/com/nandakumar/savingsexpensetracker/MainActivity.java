@@ -16,10 +16,13 @@ import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
  private int topColor=Color.WHITE, bottomColor=Color.rgb(104,87,199), navigationInset=0;
+ private String pendingWidgetAction;
  @Override protected void onNewIntent(android.content.Intent intent) {
-  setIntent(intent);
+  String action=WidgetPolicy.action(intent==null?null:intent.getAction());
+  if(action!=null) pendingWidgetAction=action;
   super.onNewIntent(intent);
  }
+ String consumeWidgetAction() { String action=pendingWidgetAction;pendingWidgetAction=null;return action; }
 
  @Override public void onCreate(Bundle state) {
   registerPlugin(TrackerNativePlugin.class);
