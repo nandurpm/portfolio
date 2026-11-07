@@ -46,8 +46,7 @@ public class TrackerNativePlugin extends Plugin {
  }
  @PluginMethod public void consumeWidgetAction(PluginCall call) {
   getActivity().runOnUiThread(()->{
-   Intent intent=getActivity().getIntent();String action=WidgetPolicy.action(intent==null?null:intent.getAction());
-   if(action!=null) intent.setAction(Intent.ACTION_MAIN);
+   String action=((MainActivity)getActivity()).consumeWidgetAction();
    JSObject result=new JSObject();result.put("action",action==null?org.json.JSONObject.NULL:action);call.resolve(result);
   });
  }
