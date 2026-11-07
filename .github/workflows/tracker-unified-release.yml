@@ -8,7 +8,8 @@ on:
     tags:
       - 'tracker-v*'
     paths:
-      - 'tools/tracker-source/package.json'
+      # Retry fixes to an unpublished version; prepare still skips published versions.
+      - 'tools/tracker-source/**'
       - '.github/workflows/tracker-unified-release.yml'
 
 permissions:
