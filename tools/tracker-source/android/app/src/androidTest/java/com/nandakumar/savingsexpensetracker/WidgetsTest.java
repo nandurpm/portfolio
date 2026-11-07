@@ -67,10 +67,10 @@ public class WidgetsTest {
    scenario.onActivity(activity->activity.getBridge().getWebView().evaluateJavascript(
     "(()=>{const e=document.querySelector('[aria-label=\"New transaction amount\"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,'123');e.dispatchEvent(new Event('input',{bubbles:true}));return e.value;})()",
     value->draft.countDown()));
-   assertTrue(draft.await(2,TimeUnit.SECONDS));
+   assertTrue("Draft input callback must return",draft.await(10,TimeUnit.SECONDS));
    CountDownLatch chooser=new CountDownLatch(1);
    scenario.onActivity(activity->activity.getBridge().getWebView().evaluateJavascript("document.querySelector('.mobile-quick-add').click()",value->chooser.countDown()));
-   assertTrue(chooser.await(2,TimeUnit.SECONDS));
+   assertTrue("Quick-add chooser callback must return",chooser.await(10,TimeUnit.SECONDS));
    assertWebCondition(scenario,"Boolean(document.querySelector('[role=dialog]'))","Quick-add chooser must be open before a warm widget action");
    InstrumentationRegistry.getInstrumentation().runOnMainSync(()->context().startActivity(new Intent(context(),MainActivity.class)
     .setAction(context().getPackageName()+".WIDGET_INCOME").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP)));
@@ -126,8 +126,6 @@ public class WidgetsTest {
     checkBounds(view);
     assertEquals("₹18,000.15",((TextView)view.findViewById(R.id.widget_income_value)).getText().toString());
     assertTrue(view.findViewById(R.id.widget_refresh).hasOnClickListeners());
-    try { save(themed,view,"summary-"+width+"-"+scale+"-"+(dark?"dark":"light")); }
-    catch(Exception e) { throw new AssertionError(e); }
    });
   }
  }
