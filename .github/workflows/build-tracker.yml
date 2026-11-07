@@ -6,6 +6,7 @@ on:
       - 'tools/tracker-source/**'
       - 'scripts/stage-tracker.mjs'
       - '.github/workflows/build-tracker.yml'
+      - '.github/workflows/tracker-unified-release.yml'
   workflow_dispatch:
 permissions:
   contents: write

@@ -288,6 +288,23 @@ jobs:
           PKG=com.nandakumar.savingsexpensetracker
           APK=android/app/build/outputs/apk/release/app-release.apk
           VERSION="$(node -p "require('./package.json').version")"
+          set_adbd_mode() {
+            local mode="$1" expected_uid="$2" uid deadline=$((SECONDS + 60))
+            local log="$RUNNER_TEMP/tracker-android-evidence/adb-$mode.log"
+            while (( SECONDS < deadline )); do
+              # adbd restarts its transport during root/unroot. A closed socket
+              # can report failure even when the requested transition succeeded.
+              timeout 10 adb -s emulator-5554 "$mode" >> "$log" 2>&1 || true
+              if timeout 10 adb -s emulator-5554 wait-for-device; then
+                uid="$(timeout 10 adb -s emulator-5554 shell id -u 2>/dev/null | tr -d '\r' || true)"
+                if [[ "$uid" == "$expected_uid" ]]; then return 0; fi
+              fi
+              sleep 2
+            done
+            echo "::error::Emulator adbd did not reach $mode mode (UID $expected_uid)."
+            tail -n 20 "$log" || true
+            return 1
+          }
           # Only synthetic data on a newly created emulator; never sign in.
           # adb root is used solely to plant/read a non-financial private-file
           # marker because production APKs correctly disallow run-as.
@@ -296,21 +313,17 @@ jobs:
             adb -s emulator-5554 shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS
             adb -s emulator-5554 shell am start -W -n "$PKG/.MainActivity"
             adb -s emulator-5554 shell am force-stop "$PKG"
-            adb -s emulator-5554 root
-            adb -s emulator-5554 wait-for-device
+            set_adbd_mode root 0
             APP_UID="$(adb -s emulator-5554 shell stat -c '%u' "/data/user/0/$PKG" | tr -d '\r')"
             [[ "$APP_UID" =~ ^[0-9]+$ ]]
             adb -s emulator-5554 shell "mkdir -p /data/user/0/$PKG/files; printf 'tracker-upgrade-fixture' > /data/user/0/$PKG/files/widget-upgrade-probe; chown $APP_UID:$APP_UID /data/user/0/$PKG/files /data/user/0/$PKG/files/widget-upgrade-probe; restorecon -RF /data/user/0/$PKG/files"
-            adb -s emulator-5554 unroot
-            adb -s emulator-5554 wait-for-device
+            set_adbd_mode unroot 2000
           fi
           adb -s emulator-5554 install -r "$APK"
           if [[ -n "${TRACKER_PREVIOUS_APK:-}" ]]; then
-            adb -s emulator-5554 root
-            adb -s emulator-5554 wait-for-device
+            set_adbd_mode root 0
             test "$(adb -s emulator-5554 shell cat "/data/user/0/$PKG/files/widget-upgrade-probe" | tr -d '\r')" = tracker-upgrade-fixture
-            adb -s emulator-5554 unroot
-            adb -s emulator-5554 wait-for-device
+            set_adbd_mode unroot 2000
             echo 'Previous signed APK upgraded successfully; isolated private-file marker survived.'
           fi
           adb -s emulator-5554 shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS
