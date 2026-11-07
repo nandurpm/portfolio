@@ -116,6 +116,9 @@ export default function Entries({
   useEffect(() => {
     if (!widgetEntry) return;
     setKind(widgetEntry.kind);
+    // A new widget action starts a new draft, including when Entries is already open.
+    setDraft(previous => ({ ...previous, date: defaultDate, amount: '', description: '', notes: '' }));
+    setBillDueMonth('');
     // Opening a widget never submits the form or carries an amount in an intent.
     amountRef.current?.closest('form')?.scrollIntoView({ block: 'center' });
     amountRef.current?.focus({ preventScroll: true });

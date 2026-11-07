@@ -61,7 +61,13 @@ public class WidgetsTest {
  @Test public void coldExpenseAndWarmIncomeIntentsOpenExistingEmptyForms() throws Exception {
   Intent expense=new Intent(context(),MainActivity.class).setAction(context().getPackageName()+".WIDGET_EXPENSE").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
   try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(expense)) {
+   scenario.onActivity(activity->assertFalse("Native bridge payloads must not be logged",activity.getBridge().getConfig().isLoggingEnabled()));
    assertWebForm(scenario,"Expense");
+   CountDownLatch draft=new CountDownLatch(1);
+   scenario.onActivity(activity->activity.getBridge().getWebView().evaluateJavascript(
+    "(()=>{const e=document.querySelector('[aria-label=\"New transaction amount\"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,'123');e.dispatchEvent(new Event('input',{bubbles:true}));return e.value;})()",
+    value->draft.countDown()));
+   assertTrue(draft.await(2,TimeUnit.SECONDS));
    InstrumentationRegistry.getInstrumentation().runOnMainSync(()->context().startActivity(new Intent(context(),MainActivity.class)
     .setAction(context().getPackageName()+".WIDGET_INCOME").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP)));
    assertWebForm(scenario,"Income");
