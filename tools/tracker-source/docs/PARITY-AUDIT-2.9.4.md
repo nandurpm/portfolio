@@ -9,6 +9,8 @@
 | Medium: Android display | Local progress start/end state could remain outside a changed synchronized plan range | Clamp effective range values without discarding valid selections; browser regression changes the plan while Home remains mounted |
 | Low: inconsistent information | Android's filtered progress showed future planned amounts while other progress views replaced them with “Future” | All show known planned income/expenses/savings; future recorded actuals remain blank |
 
+CI also found a build reproducibility issue: npm 11.17 rejected transitive entries accepted by local npm 11.9. Regenerated the lockfile with the CI npm version; its clean-install validation passes. App dependencies remain pinned, with the resolved minimatch/nonrecursive-glob-match entries repaired.
+
 ## Data protection
 No production records were read or written in this audit. Existing lender schedules are not regenerated automatically. New/changed money calculations use corrected rounding. Legacy off-cycle Accounts records remain readable; unrelated edits, backups and incoming sync are not rejected. User-created/financially edited links must follow their provision schedule. Refunds/reversals retain the original receipt link. Changes are shared across platforms; no schema/version migration is required.
 

@@ -7,6 +7,7 @@
 - Clamp Android progress filters to a changed/synchronized plan range.
 - Show known future income/expense/savings plans consistently across progress views; keep future actuals blank.
 - Add financial-engine/data-model SHA-256 fingerprints to Web and native build manifests, an extracted-payload comparison script, and a release quality gate comparing Web/native financial source identity.
+- Repair transitive dependency lock entries using the CI npm version so clean installations remain reproducible.
 - Add rounding, recurrence, legacy compatibility, build-tampering and Web/Windows-shell/Android parity regressions.
 
 UI layout and native integration features intentionally differ. Equal financial records, settings and reporting cutoff use the same shared calculation engine. Physical-device installation/native integration and authenticated production offline/reconnect tests are distinct from source, browser-simulation and packaged-payload checks.
