@@ -7,30 +7,6 @@ on:
 permissions:
   contents: read
 jobs:
-  android-compile:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tools/tracker-source
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version-file: tools/tracker-source/.nvmrc
-          cache: npm
-          cache-dependency-path: tools/tracker-source/package-lock.json
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-      - uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
-      - run: npm ci
-      - run: npm run build:release && npx cap sync android
-      - name: Compile widgets and run native unit regressions without production keys
-        working-directory: tools/tracker-source/android
-        run: bash gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleReleaseAndroidTest
   quality:
     runs-on: ubuntu-latest
     defaults:
@@ -166,5 +142,5 @@ jobs:
           npm run build:release
           npx cap sync android
           cd android
-          bash ./gradlew --no-daemon assembleDebug testDebugUnitTest
+          bash ./gradlew --no-daemon assembleDebug testDebugUnitTest assembleReleaseAndroidTest
 
