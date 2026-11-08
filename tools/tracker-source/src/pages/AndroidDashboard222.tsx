@@ -260,15 +260,14 @@ export default function Dashboard({
   ] as const;
   return (
     <div className="dashboard-page" data-android-design="2.2.2">
-      <h1 className="dashboard-compact-title">Monthly snapshot</h1>
+      <div className="dashboard-title-row">
+        <h1 className="dashboard-compact-title">Monthly snapshot</h1>
+        <span className={`dashboard-status ${status}`}>
+          <span className={`status-dot ${status}`} />{date > today() ? 'Forecast' : 'Live'}
+        </span>
+        <HelpTerm term="report through" />
+      </div>
       <section className="dashboard-context" aria-label="Dashboard view controls">
-        <div className="dashboard-context-summary">
-          <HelpTerm term="report through" />
-          <span className={`dashboard-status ${status}`}>
-            <span className={`status-dot ${status}`} />
-            {date > today() ? 'Forecast' : 'Live'} · {status} month
-          </span>
-        </div>
         <MonthControls />
       </section>
       <section className="dashboard-hero" aria-labelledby="dashboard-balance-title">
