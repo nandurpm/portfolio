@@ -7,6 +7,7 @@ import { store } from '../../src/store';
 import { sync } from '../../src/cloud/sync';
 import { financialFixture } from '../fixtures/financial';
 import '../../src/styles.css';
+import '../../src/dashboard-controls.css';
 const fixture = financialFixture();
 fixture.data.settings.animations = false;
 fixture.data.settings.planEnd = '2034-12';
