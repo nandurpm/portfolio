@@ -347,6 +347,17 @@ jobs:
           bash gradlew :app:testReleaseUnitTest :app:connectedReleaseAndroidTest
           adb -s emulator-5554 install -r app/build/outputs/apk/release/app-release.apk
           adb -s emulator-5554 install -r app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
+          # AGP removes external app files while cleaning up connected tests.
+          # Capture the packaged release renderer before any further reinstall.
+          for method in remoteViewsRenderInLightDarkCompactWideAndLargeFontWithoutClipping quickEntryRemainsTouchableAtMinimumSizeAndLargeFonts; do
+            adb -s emulator-5554 shell am instrument -w \
+              -e class "com.nandakumar.savingsexpensetracker.WidgetsTest#$method" \
+              com.nandakumar.savingsexpensetracker.test/androidx.test.runner.AndroidJUnitRunner \
+              | tee "$RUNNER_TEMP/tracker-android-evidence/render-$method.txt"
+            grep -F 'OK (1 test)' "$RUNNER_TEMP/tracker-android-evidence/render-$method.txt"
+          done
+          adb -s emulator-5554 pull /sdcard/Android/data/com.nandakumar.savingsexpensetracker/files/widget-test-screenshots "$RUNNER_TEMP/tracker-android-evidence/"
+          test "$(find "$RUNNER_TEMP/tracker-android-evidence/widget-test-screenshots" -name '*.png' | wc -l)" -eq 27
           for phase in seed read; do
             adb -s emulator-5554 shell am force-stop com.nandakumar.savingsexpensetracker
             adb -s emulator-5554 shell am instrument -w \
