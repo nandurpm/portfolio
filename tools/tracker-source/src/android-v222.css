@@ -4599,3 +4599,13 @@ html[data-platform="android"] body:has(.app-shell) { position: fixed; inset: 0; 
   html[data-platform="android"] .checklist-group > summary { padding-inline: 8px; }
   html[data-platform="android"] .checklist-card { padding-inline: 12px; min-width: 0; }
 }
+
+/* One month selector; the distinct plan horizon stays available on demand. */
+html[data-platform="android"] .dashboard-range-options { grid-column: 1 / -1; min-width: 0; }
+html[data-platform="android"] .dashboard-range-options > summary { cursor: pointer; color: var(--muted); font-size: .75rem; padding: 6px 2px; }
+html[data-platform="android"] .dashboard-range-options .range-mini { width: 100%; margin-top: 6px; }
+html[data-platform="android"] .dashboard-context .month-controls > .icon-button { grid-row: 1; }
+html[data-platform="android"] .dashboard-context .report-cutoff-control { grid-column: 2; }
+html[data-platform="android"] .dashboard-context-summary { justify-content: space-between; }
+
+html[data-platform="android"] .dashboard-compact-title { font-size: .95rem; margin: 4px 2px 8px; line-height: 1.2; }
