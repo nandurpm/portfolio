@@ -37,6 +37,7 @@ for (const width of [320, 360, 390, 412, 480]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
       for (const selector of ['select', 'input', '.range-mini', '.icon-button']) {
         for (const control of await context.locator(selector).all()) {
+          if (!await control.isVisible()) continue;
           const box = await control.boundingBox();
           expect(box!.x).toBeGreaterThanOrEqual(8);
           expect(box!.x + box!.width).toBeLessThanOrEqual(width - 8);
@@ -58,6 +59,8 @@ for (const width of [320, 360, 390, 412, 480]) {
     await expect(page.getByLabel('Report through date', {exact:true})).toHaveValue('2026-11-03');
     await context.getByRole('button', {name: 'Reset report date to today'}).click();
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('savings-expence-v1')!).data.settings.liveDate)).toBe(true);
+    await expect(context.locator('.range-mini')).toBeHidden();
+    await context.locator('summary').filter({hasText: 'Plan range'}).click();
     await context.locator('.range-mini').click();
     await expect(page.getByRole('heading', {name:'Choose a view range'})).toBeVisible();
     await page.getByLabel('Quick preset').selectOption('Full plan');

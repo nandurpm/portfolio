@@ -4599,3 +4599,22 @@ html[data-platform="android"] body:has(.app-shell) { position: fixed; inset: 0; 
   html[data-platform="android"] .checklist-group > summary { padding-inline: 8px; }
   html[data-platform="android"] .checklist-card { padding-inline: 12px; min-width: 0; }
 }
+
+/* One month selector; the distinct plan horizon stays available on demand. */
+html[data-platform="android"] .dashboard-range-options { grid-column: 1 / -1; min-width: 0; }
+html[data-platform="android"] .dashboard-range-options > summary { cursor: pointer; color: var(--muted); font-size: .75rem; padding: 6px 2px; }
+html[data-platform="android"] .dashboard-range-options .range-mini { width: 100%; margin-top: 6px; }
+html[data-platform="android"] .dashboard-context .month-controls > .icon-button { grid-row: 1; }
+html[data-platform="android"] .dashboard-context .report-cutoff-control { grid-column: 2; }
+html[data-platform="android"] .dashboard-context-summary { justify-content: space-between; }
+
+html[data-platform="android"] .dashboard-compact-title { font-size: .95rem; margin: 4px 2px 8px; line-height: 1.2; }
+
+html[data-platform="android"] .dashboard-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+html[data-platform="android"] .dashboard-title-row h1 { flex: 1; margin: 0; }
+html[data-platform="android"] .dashboard-title-row .dashboard-status { font-size: .6875rem; }
+html[data-platform="android"] .dashboard-title-row .help-term { margin: 0; }
+html[data-platform="android"] .dashboard-title-row .help-term summary { padding: 0; min-height: 32px; min-width: 32px; font-size: 0; display: grid; place-items: center; }
+html[data-platform="android"] .dashboard-title-row .help-term summary > span { font-size: 0; }
+html[data-platform="android"] .dashboard-title-row .help-term summary > span::after { content: 'i'; font: bold 14px Georgia, serif; }
+html[data-platform="android"] .dashboard-context .month-controls { grid-template-columns: minmax(0,.9fr) minmax(0,1.3fr) 44px; }

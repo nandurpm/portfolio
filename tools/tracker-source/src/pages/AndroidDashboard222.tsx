@@ -30,7 +30,7 @@ import {
   savingsOverview,
 } from '../domain/calculate';
 import { addMonths, clampMonth, monthsBetween, monthLabel, monthEnd, today, displayDate } from '../domain/dates';
-import { Section, PageHead, Stat, Badge, ProgressBar } from '../components/UI';
+import { Section, Stat, Badge, ProgressBar } from '../components/UI';
 
 import { RangeControl } from '../components/RangeControl';
 import { MobileRecentActivity } from '../components/MobileRecentActivity';
@@ -89,7 +89,10 @@ export function MonthControls() {
       >
         <RotateCcw size={17} />
       </button>
-      <RangeControl kind="view" compact />
+      <details className="dashboard-range-options">
+        <summary>Plan range</summary>
+        <RangeControl kind="view" compact />
+      </details>
     </div>
   );
 }
@@ -257,21 +260,14 @@ export default function Dashboard({
   ] as const;
   return (
     <div className="dashboard-page" data-android-design="2.2.2">
-      <PageHead
-        eyebrow="PRIVATE FINANCE WORKSPACE"
-        title="Monthly snapshot"
-        description=""
-      />
+      <div className="dashboard-title-row">
+        <h1 className="dashboard-compact-title">Monthly snapshot</h1>
+        <span className={`dashboard-status ${status}`}>
+          <span className={`status-dot ${status}`} />{date > today() ? 'Forecast' : 'Live'}
+        </span>
+        <HelpTerm term="report through" />
+      </div>
       <section className="dashboard-context" aria-label="Dashboard view controls">
-        <div className="dashboard-context-summary">
-          <span className="dashboard-context-overline">Reporting view</span>
-          <HelpTerm term="report through" />
-          <strong>{monthLabel(m, true)}</strong>
-          <span className={`dashboard-status ${status}`}>
-            <span className={`status-dot ${status}`} />
-            {date > today() ? 'Forecast' : 'Live'} · {status} month
-          </span>
-        </div>
         <MonthControls />
       </section>
       <section className="dashboard-hero" aria-labelledby="dashboard-balance-title">

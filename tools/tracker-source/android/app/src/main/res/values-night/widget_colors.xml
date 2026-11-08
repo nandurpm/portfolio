@@ -5,4 +5,8 @@
     <color name="widget_muted">#C5C0D8</color>
     <color name="widget_button">#40365D</color>
     <color name="widget_border">#504568</color>
+    <color name="widget_income">#67E8C5</color>
+    <color name="widget_expense">#FFCA8A</color>
+    <color name="widget_accent">#C2B2FF</color>
+    <color name="widget_surface_end">#2B2545</color>
 </resources>
