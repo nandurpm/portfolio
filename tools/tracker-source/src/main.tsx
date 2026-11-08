@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import './inter-woff2.css';
 import { installMobile } from './mobile';
 import './styles.css';
+import './dashboard-controls.css';
 import { WEB_APP } from './web-mode';
 void installMobile()
   .then(async () => {
