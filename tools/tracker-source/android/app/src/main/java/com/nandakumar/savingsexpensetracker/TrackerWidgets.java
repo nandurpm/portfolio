@@ -72,7 +72,7 @@ final class TrackerWidgets {
  static RemoteViews views(Context context,WidgetStore store,int id,boolean summary,int width,int height,long now) {
   float fontScale=context.getResources().getConfiguration().fontScale;
   boolean wide=summary && width>=340 && fontScale<=1.3f;
-  boolean stackedActions=fontScale>1.3f && width<250;
+  boolean stackedActions=fontScale>1f && width<250;
   RemoteViews views=new RemoteViews(context.getPackageName(),summary?(wide?R.layout.tracker_widget_summary_wide:stackedActions?R.layout.tracker_widget_summary_accessible:R.layout.tracker_widget_summary):(stackedActions?R.layout.tracker_widget_quick_accessible:R.layout.tracker_widget_quick));
   views.setOnClickPendingIntent(R.id.widget_expense,open(context,"EXPENSE"));
   views.setOnClickPendingIntent(R.id.widget_income,open(context,"INCOME"));
