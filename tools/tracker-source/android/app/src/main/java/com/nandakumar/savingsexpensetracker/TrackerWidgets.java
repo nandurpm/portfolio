@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.os.Handler;
 import android.os.Looper;
 import org.json.JSONObject;
@@ -25,6 +26,20 @@ final class TrackerWidgets {
   view.measure(View.MeasureSpec.makeMeasureSpec(Math.max(1,Math.round(width*density)),View.MeasureSpec.EXACTLY),
    View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
   return view.getMeasuredHeight()/density;
+ }
+ private static boolean completeAmountsFit(Context c,RemoteViews views,int width) {
+  float density=c.getResources().getDisplayMetrics().density;
+  View view=views.apply(c,new FrameLayout(c));
+  int pixels=Math.max(1,Math.round(width*density));
+  view.measure(View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY),
+   View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
+  view.layout(0,0,pixels,view.getMeasuredHeight());
+  for(int id:new int[]{R.id.widget_income_value,R.id.widget_expenses_value,R.id.widget_savings_value}) {
+   TextView value=view.findViewById(id);
+   if(value.getLayout()==null || value.getLayout().getLineCount()!=1 || value.getLayout().getEllipsisCount(0)>0 ||
+    value.getPaint().measureText(value.getText().toString())>value.getWidth()-value.getCompoundPaddingLeft()-value.getCompoundPaddingRight()+0.5f) return false;
+  }
+  return true;
  }
  static String month(long now) { return new SimpleDateFormat("yyyy-MM",Locale.US).format(new Date(now)); }
  static PendingIntent open(Context context,String action) {
@@ -57,7 +72,8 @@ final class TrackerWidgets {
  static RemoteViews views(Context context,WidgetStore store,int id,boolean summary,int width,int height,long now) {
   float fontScale=context.getResources().getConfiguration().fontScale;
   boolean wide=summary && width>=340 && fontScale<=1.3f;
-  RemoteViews views=new RemoteViews(context.getPackageName(),summary?(wide?R.layout.tracker_widget_summary_wide:R.layout.tracker_widget_summary):R.layout.tracker_widget_quick);
+  boolean stackedActions=fontScale>1f && width<250;
+  RemoteViews views=new RemoteViews(context.getPackageName(),summary?(wide?R.layout.tracker_widget_summary_wide:stackedActions?R.layout.tracker_widget_summary_accessible:R.layout.tracker_widget_summary):(stackedActions?R.layout.tracker_widget_quick_accessible:R.layout.tracker_widget_quick));
   views.setOnClickPendingIntent(R.id.widget_expense,open(context,"EXPENSE"));
   views.setOnClickPendingIntent(R.id.widget_income,open(context,"INCOME"));
   if(!summary) {
@@ -75,6 +91,7 @@ final class TrackerWidgets {
     views.setTextViewText(R.id.widget_expense,"Expense");views.setTextViewText(R.id.widget_income,"Income");
     views.setContentDescription(R.id.widget_expense,"Add expense in the app");views.setContentDescription(R.id.widget_income,"Add income in the app");
    }
+   if(measuredHeight(context,views,width)>height) views.setViewVisibility(R.id.widget_quick_status,View.GONE);
    return views;
   }
   views.setOnClickPendingIntent(R.id.widget_refresh,open(context,"REFRESH"));
@@ -99,7 +116,7 @@ final class TrackerWidgets {
   else if(snapshot.optBoolean("offline")) status="Offline · Cached on this device";
   else if(snapshot.optBoolean("syncPending")) status="On this device · Sync pending";
   else if("empty".equals(snapshot.optString("status"))) status="No net income or expenses this month.";
-  else status="This month through today · Income minus expenses";
+  else status=width<250?"Through today":"This month through today · Income minus expenses";
   String updated=valid?"Updated "+new SimpleDateFormat("dd MMM, HH:mm",Locale.forLanguageTag("en-IN")).format(new Date(snapshot.optLong("updatedAt"))):"Not refreshed";
   views.setTextViewText(R.id.widget_updated,updated);
   views.setContentDescription(R.id.widget_updated,updated);
@@ -111,7 +128,7 @@ final class TrackerWidgets {
   }
   views.setTextViewText(R.id.widget_status,status);
   views.setViewVisibility(R.id.widget_entries,View.GONE);
-  boolean room=width>=170 && measuredHeight(context,views,width)<=height;
+  boolean room=width>=170 && measuredHeight(context,views,width)<=height && completeAmountsFit(context,views,width);
   views.setViewVisibility(R.id.widget_totals,room?View.VISIBLE:View.GONE);
   if(!room && valid) views.setTextViewText(R.id.widget_status,"Enlarge widget or open app.");
   if(!room && measuredHeight(context,views,width)>height) {

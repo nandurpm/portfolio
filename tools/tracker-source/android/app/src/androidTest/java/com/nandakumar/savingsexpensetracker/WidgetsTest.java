@@ -124,10 +124,32 @@ public class WidgetsTest {
     try { save(themed,view,"summary-"+width+"-"+scale+"-"+(dark?"dark":"light")); }
     catch(Exception e) { throw new AssertionError(e); }
     checkBounds(view);
+    assertEquals("Normal monthly totals must remain visible",View.VISIBLE,view.findViewById(R.id.widget_totals).getVisibility());
+    for(int valueId:new int[]{R.id.widget_income_value,R.id.widget_expenses_value,R.id.widget_savings_value}) {
+     TextView value=view.findViewById(valueId);
+     assertEquals("Financial values must not split across lines",1,value.getLineCount());
+     assertEquals("Financial values must not be truncated",0,value.getLayout().getEllipsisCount(0));
+     assertTrue("Complete amount must fit",value.getPaint().measureText(value.getText().toString())<=value.getWidth()+0.5f);
+    }
     assertEquals("₹18,000.15",((TextView)view.findViewById(R.id.widget_income_value)).getText().toString());
     assertTrue(view.findViewById(R.id.widget_refresh).hasOnClickListeners());
    });
   }
+ }
+ @Test public void oversizedAmountsRequireEnlargingInsteadOfShowingPartialCurrency() throws Exception {
+  WidgetStore store=cache();long now=System.currentTimeMillis(),epoch=store.begin();
+  assertTrue(store.write(epoch,1,"local","ready",snapshot(now)));store.hidden(1,false);
+  InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+   View minimum=TrackerWidgets.views(context(),store,1,true,180,250,now).apply(context(),new FrameLayout(context()));
+   assertEquals("Ordinary totals must fit the minimum summary size",View.VISIBLE,minimum.findViewById(R.id.widget_totals).getVisibility());
+  });
+  JSONObject large=snapshot(now).put("income","₹9,99,99,99,99,99,99,99,999.99");
+  assertTrue(store.write(epoch,2,"local","ready",large));
+  InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+   View view=TrackerWidgets.views(context(),store,1,true,180,650,now).apply(context(),new FrameLayout(context()));
+   assertEquals(View.GONE,view.findViewById(R.id.widget_totals).getVisibility());
+   assertTrue(((TextView)view.findViewById(R.id.widget_status)).getText().toString().contains("Enlarge"));
+  });
  }
  @Test public void hiddenStaleMissingAndNewMonthStatesNeverInventZeros() throws Exception {
   // A fixed mid-month fixture keeps this stale-cache test valid on the first of a month too.
@@ -154,6 +176,14 @@ public class WidgetsTest {
     try { save(themed,view,"quick-180-"+scale); } catch(Exception e) { throw new AssertionError(e); }
     checkBounds(view);assertTrue(view.findViewById(R.id.widget_expense).getHeight()>=48*density);
     assertTrue(view.findViewById(R.id.widget_income).getHeight()>=48*density);
+    for(int actionId:new int[]{R.id.widget_expense,R.id.widget_income}) {
+     TextView action=view.findViewById(actionId);
+     String label=action.getText().toString();
+     for(int line=0;line<action.getLineCount()-1;line++) {
+      int end=action.getLayout().getLineEnd(line);
+      assertTrue("Action words must not split at large fonts: "+label,end==0 || end>=label.length() || Character.isWhitespace(label.charAt(end-1)) || Character.isWhitespace(label.charAt(end)));
+     }
+    }
    });
   }
  }
