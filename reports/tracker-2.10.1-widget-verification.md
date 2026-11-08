@@ -85,6 +85,12 @@ Published on 8 November 2026 at 09:49 India time.
 | Windows EXE | `573d8b056754ce298d52f29fdac339f2872d9bf7065506c2f295a56eff84adcf` |
 | Source ZIP | `f9a9af6e890690b85370977f013a5082ea76dae7539186ed466fa3e7e5eaa3fc` |
 
-The immediate Telegram release trigger still lacks GitHub secret `TRACKER_BOT_CRON_SECRET`; the release workflow reported its existing scheduled fallback. Telegram delivery was not confirmed. No signing credential was changed or exposed.
+### Follow-up: scheduled Telegram release delivery verified
+
+Read-only production checks on 8 November 2026 confirmed that `savings-bot-software-updates` is active on `*/5 * * * *`. Its last 24 hours contained 288 successful SQL scheduler executions and no SQL failures; scheduler success alone does not prove HTTP delivery.
+
+The private delivery ledger contains one completed `software-release:tracker-v2.10.1` marker at **09:50:07 IST** (`2026-11-08 04:20:07.424+00`) and no pending reservation for that release. The active deployed bot is version 17 and imports the pinned source commit `081445d7cfafa1b181a91de880c3fc92cb0d6b55`. Its index file has the same Git blob (`49361e1b17e940535d91f90a4ac00b4221626bf9`) as the current repository. That code writes the completed marker only after Telegram returns `ok: true` for the release message. This verifies recorded Telegram API acceptance, not phone notification visibility or whether the message was read.
+
+The optional immediate GitHub release hook still lacks `TRACKER_BOT_CRON_SECRET`; the connected GitHub tools cannot manage repository secrets. Automatic release notification delivery is supported by the verified five-minute fallback. No notification was resent during this check. All database queries were read-only and selected notification/scheduler metadata, without retrieving credentials, chat IDs or financial records. No signing credential was changed or exposed.
 
 Install the new APK over the existing app. Do not uninstall or clear financial data to troubleshoot the old installer screenshot. Add widgets by long-pressing the Android home screen, choosing Widgets, then Savings and Expense Tracker.
