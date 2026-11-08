@@ -117,10 +117,13 @@ public class WidgetsTest {
    Context themed=context().createConfigurationContext(config);
    int height=scale>1.3f?650:410;
    InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
-    View view=TrackerWidgets.views(themed,store,1,true,width,height,now).apply(themed,new FrameLayout(themed));
+    FrameLayout host=new FrameLayout(themed);
+    View view=TrackerWidgets.views(themed,store,1,true,width,height,now).apply(themed,host);host.addView(view);
     float density=themed.getResources().getDisplayMetrics().density;
     int w=Math.round(width*density),h=Math.round(height*density);
-    view.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));view.layout(0,0,w,h);
+    host.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));host.layout(0,0,w,h);
+    assertTrue("Widget card must stay within its host",view.getHeight()<=h);
+    if(scale==1f && width==480) assertTrue("Wide card must not paint unused host space",view.getHeight()<h);
     try { save(themed,view,"summary-"+width+"-"+scale+"-"+(dark?"dark":"light")); }
     catch(Exception e) { throw new AssertionError(e); }
     try { checkBounds(view); } catch(AssertionError error) { throw new AssertionError("Summary width="+width+" fontScale="+scale+" dark="+dark+": "+error.getMessage(),error); }
