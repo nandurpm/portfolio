@@ -123,7 +123,7 @@ public class WidgetsTest {
     view.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));view.layout(0,0,w,h);
     try { save(themed,view,"summary-"+width+"-"+scale+"-"+(dark?"dark":"light")); }
     catch(Exception e) { throw new AssertionError(e); }
-    checkBounds(view);
+    try { checkBounds(view); } catch(AssertionError error) { throw new AssertionError("Summary width="+width+" fontScale="+scale+" dark="+dark+": "+error.getMessage(),error); }
     assertEquals("Normal monthly totals must remain visible",View.VISIBLE,view.findViewById(R.id.widget_totals).getVisibility());
     for(int valueId:new int[]{R.id.widget_income_value,R.id.widget_expenses_value,R.id.widget_savings_value}) {
      TextView value=view.findViewById(valueId);
@@ -208,7 +208,7 @@ public class WidgetsTest {
    for(int i=0;i<group.getChildCount();i++) {
     View child=group.getChildAt(i);if(child.getVisibility()!=View.VISIBLE)continue;
     assertTrue("Widget child extends past bottom: "+(child.getId()==View.NO_ID?child.getClass().getSimpleName():group.getResources().getResourceEntryName(child.getId()))+" bottom="+child.getBottom()+" height="+group.getHeight(),child.getBottom()<=group.getHeight());
-    assertTrue("Widget child extends past right: "+child.getId(),child.getRight()<=group.getWidth());
+    assertTrue("Widget child extends past right: "+(child.getId()==View.NO_ID?child.getClass().getSimpleName():group.getResources().getResourceEntryName(child.getId()))+" right="+child.getRight()+" width="+group.getWidth(),child.getRight()<=group.getWidth());
     checkBounds(child);
    }
   }
