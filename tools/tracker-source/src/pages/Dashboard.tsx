@@ -201,6 +201,7 @@ export default function Dashboard({
 }: {
   navigate: (page: string) => void;
   addEntry: (kind: 'Income' | 'Expense') => void;
+  onTransfer?: () => void;
 }) {
   const p = usePlan(),
     s = p.settings,
