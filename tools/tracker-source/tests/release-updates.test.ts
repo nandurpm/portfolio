@@ -22,7 +22,8 @@ const makeRelease = (version: string, options: Record<string, unknown> = {}) => 
       browser_download_url: 'https://github.com/nandurpm/portfolio/releases/download/tracker-v' + version + '/Savings-and-Expense-Tracker-' + version + '.apk',
       digest: 'sha256:' + 'a'.repeat(64), size: 10000000, state: 'uploaded' },
     { name: 'Savings-and-Expense-Tracker-Setup-' + version + '.exe',
-      browser_download_url: 'https://github.com/nandurpm/portfolio/releases/download/tracker-v' + version + '/Savings-and-Expense-Tracker-Setup-' + version + '.exe' },
+      browser_download_url: 'https://github.com/nandurpm/portfolio/releases/download/tracker-v' + version + '/Savings-and-Expense-Tracker-Setup-' + version + '.exe',
+      size: 116000000, state: 'uploaded' },
   ],
   ...options,
 });
@@ -69,6 +70,30 @@ describe('native Tracker releases', () => {
     expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.3')).toBe(true);
     expect(isTrustedTrackerUrl('https://github.com.evil.example/nandurpm/portfolio/releases/tag/tracker-v2.2.3')).toBe(false);
     expect(isTrustedTrackerUrl('http://github.com/nandurpm/portfolio/releases/tag/tracker-v2.2.3')).toBe(false);
+    expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.3/Savings-and-Expense-Tracker-2.2.3.apk')).toBe(true);
+    expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.3/Savings-and-Expense-Tracker-Setup-2.2.3.exe')).toBe(true);
+    expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.3/Savings-and-Expense-Tracker-2.2.4.apk')).toBe(false);
+    expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.3/Savings-and-Expense-Tracker-Setup-2.2.4.exe')).toBe(false);
+    expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.3/Savings-and-Expense-Tracker-Setup-2.2.3.apk')).toBe(false);
+    expect(isTrustedTrackerUrl('https://github.com/nandurpm/portfolio/releases/download/tracker-v2.2.3/Savings-and-Expense-Tracker-2.2.3.exe')).toBe(false);
+  });
+
+  it('does not offer unfinished Windows installers or hide the previous valid release', () => {
+    const ready = makeRelease('2.10.4');
+    const newer = makeRelease('2.10.5');
+    for (const invalid of [
+      { state: 'new' }, { state: undefined }, { size: 0 },
+      { size: -1 }, { size: undefined }, { size: Number.NaN }, { size: 0.5 },
+    ]) {
+      const broken = { ...newer, assets: [
+        newer.assets[0],
+        { ...newer.assets[1], ...invalid },
+      ] };
+      expect(latestTrackerUpdate([broken], '2.10.3', 'windows')).toBeNull();
+      expect(latestTrackerUpdate([broken, ready], '2.10.3', 'windows')?.version).toBe('2.10.4');
+    }
+    // Windows' external installer does not require the Android-specific digest.
+    expect(latestTrackerUpdate([ready], '2.10.3', 'windows')?.version).toBe('2.10.4');
   });
 
   it('fetches the release list and reports API failures for manual checks', async () => {
