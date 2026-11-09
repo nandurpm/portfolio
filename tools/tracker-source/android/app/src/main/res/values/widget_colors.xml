@@ -9,4 +9,5 @@
     <color name="widget_expense">#99520C</color>
     <color name="widget_accent">#5941B8</color>
     <color name="widget_surface_end">#EFEBFF</color>
+    <color name="widget_metric_surface">#F0EDFC</color>
 </resources>
