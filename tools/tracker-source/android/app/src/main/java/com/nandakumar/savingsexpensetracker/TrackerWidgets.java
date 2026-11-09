@@ -135,11 +135,8 @@ final class TrackerWidgets {
    views.setTextViewText(R.id.widget_status,locked?"Unlock device":"signed_out".equals(state)?"Sign in in app":"locked".equals(state)?"Unlock in app":"attention".equals(state)?"Review in app":!valid?"Open app to load":"Enlarge widget");
    views.setTextViewText(R.id.widget_updated,valid?new SimpleDateFormat("dd MMM HH:mm",Locale.forLanguageTag("en-IN")).format(new Date(snapshot.optLong("updatedAt"))):"Not refreshed");
   }
-  // Quick entry appears only when the summary has room; the dedicated widget is always available.
-  if(room) {
-   views.setViewVisibility(R.id.widget_entries,View.VISIBLE);
-   if(measuredHeight(context,views,width)>height) views.setViewVisibility(R.id.widget_entries,View.GONE);
-  }
+  // Summary only shows totals and privacy; use the dedicated Quick Entry
+  // widget for transaction shortcuts instead of duplicating its controls.
   return views;
  }
 }

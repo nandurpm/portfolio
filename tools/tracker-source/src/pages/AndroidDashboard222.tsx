@@ -90,7 +90,7 @@ export function MonthControls() {
         <RotateCcw size={17} />
       </button>
       <details className="dashboard-range-options">
-        <summary>Plan range</summary>
+        <summary>View range</summary>
         <RangeControl kind="view" compact />
       </details>
     </div>

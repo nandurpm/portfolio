@@ -128,6 +128,7 @@ public class WidgetsTest {
     catch(Exception e) { throw new AssertionError(e); }
     try { checkBounds(view); } catch(AssertionError error) { throw new AssertionError("Summary width="+width+" fontScale="+scale+" dark="+dark+": "+error.getMessage(),error); }
     assertEquals("Normal monthly totals must remain visible",View.VISIBLE,view.findViewById(R.id.widget_totals).getVisibility());
+    assertEquals("Summary must not duplicate Quick Entry actions",View.GONE,view.findViewById(R.id.widget_entries).getVisibility());
     for(int valueId:new int[]{R.id.widget_income_value,R.id.widget_expenses_value,R.id.widget_savings_value}) {
      TextView value=view.findViewById(valueId);
      assertEquals("Financial values must not split across lines",1,value.getLineCount());
