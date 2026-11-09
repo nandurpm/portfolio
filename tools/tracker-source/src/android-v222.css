@@ -4749,3 +4749,44 @@ html[data-platform="android"] .dashboard-context .month-controls { grid-template
   html[data-platform="android"] .android-monthly-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
   html[data-platform="android"] .android-monthly-kpis > :last-child { grid-column: 1 / -1; }
 }
+
+
+/* Fold secondary tools without hiding money-entry and navigation functions. */
+@media (max-width: 600px) {
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings) {
+    margin: 4px 0 10px;
+    padding: 0 10px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings) > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    font-size: .81rem;
+    font-weight: 650;
+    color: var(--accent-ink);
+    list-style: inside;
+  }
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings)[open] {
+    padding-bottom: 10px;
+  }
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings)[open] > :last-child {
+    margin-bottom: 0;
+  }
+  html[data-platform="android"] .android-budget-adjustments .budget-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-block: 4px 6px;
+  }
+  html[data-platform="android"] .android-budget-settings .panel,
+  html[data-platform="android"] .android-account-settings .panel {
+    box-shadow: none;
+    padding: 10px;
+  }
+  html[data-platform="android"] #account-transaction-form { scroll-margin-top: 12px; }
+}
