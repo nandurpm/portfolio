@@ -4359,6 +4359,10 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px color-mix(in s
   font-weight: 700;
   white-space: nowrap;
 }
+.dashboard-deep-dive-toggle::before { content: 'Show details'; }
+.dashboard-deep-dive[open] .dashboard-deep-dive-toggle::before { content: 'Hide details'; }
+.dashboard-deep-dive-toggle { font-size: 0; }
+.dashboard-deep-dive-toggle::before { font-size: .75rem; }
 .dashboard-deep-dive-body {
   padding: 0 20px 20px;
   border-top: 1px solid var(--border);
