@@ -229,12 +229,26 @@ export default function Budget() {
         description="Set your defaults once. Make one-off changes only where life changes."
         action={<RangeControl />}
       />
+      {phone ? (
+        <details className="android-budget-settings">
+          <summary>Income and opening savings settings</summary>
       <Section
         title="Income & opening savings"
         caption="Edit a value and leave the field to save. Your plan updates instantly."
       >
         <IncomeSettings />
       </Section>
+
+        </details>
+      ) : (
+      <Section
+        title="Income & opening savings"
+        caption="Edit a value and leave the field to save. Your plan updates instantly."
+      >
+        <IncomeSettings />
+      </Section>
+
+      )}
       <section className="budget-snapshot" aria-labelledby="budget-snapshot-title">
         <div className="budget-snapshot-head">
           <div>
@@ -256,6 +270,9 @@ export default function Budget() {
             </article>;
           })}
         </div>
+        {phone ? (
+          <details className="android-budget-adjustments">
+            <summary>Advanced budget adjustments</summary>
         <div className="budget-quick-actions">
           <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all categories'}</span>
           <button className="button small secondary" onClick={() => quickAdjust(-10)}>−10%</button>
@@ -263,6 +280,18 @@ export default function Budget() {
           <button className="button small secondary" onClick={() => quickAdjust(5)}>+5%</button>
           <button className="button small secondary" onClick={() => quickAdjust(10)}>+10%</button>
         </div>
+
+          </details>
+        ) : (
+        <div className="budget-quick-actions">
+          <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all categories'}</span>
+          <button className="button small secondary" onClick={() => quickAdjust(-10)}>−10%</button>
+          <button className="button small secondary" onClick={() => quickAdjust(-5)}>−5%</button>
+          <button className="button small secondary" onClick={() => quickAdjust(5)}>+5%</button>
+          <button className="button small secondary" onClick={() => quickAdjust(10)}>+10%</button>
+        </div>
+
+        )}
       </section>
       <Section
         title="Your categories"
