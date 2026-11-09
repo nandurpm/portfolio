@@ -4,7 +4,7 @@ import { FinancialPosition } from "../components/FinancialPosition";
 import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Plus, Search, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import {
   ledgerTransactionLocked,
@@ -58,7 +58,7 @@ const transactionKinds: { value: LedgerKind; label: string }[] = [
   { value: "investment-withdrawal", label: "Withdraw investment" },
 ];
 
-export default function Accounts() {
+export default function Accounts({ initialTransfer = false }: { initialTransfer?: boolean }) {
   const plan = usePlan(),
     { toast, confirm } = useUi();
   const env = useEnvelope();
@@ -212,11 +212,11 @@ export default function Accounts() {
     }
   };
   const [showAccount, setShowAccount] = useState(false),
-    [showTransaction, setShowTransaction] = useState(false);
+    [showTransaction, setShowTransaction] = useState(initialTransfer);
   const [name, setName] = useState(""),
     [accountKind, setAccountKind] = useState<AccountKind>("bank");
   const [opening, setOpening] = useState("0"),
-    [kind, setKind] = useState<LedgerKind>("expense");
+    [kind, setKind] = useState<LedgerKind>(initialTransfer ? "transfer" : "expense");
   const [amount, setAmount] = useState(""),
     [source, setSource] = useState(""),
     [destination, setDestination] = useState("");
@@ -313,7 +313,13 @@ export default function Accounts() {
     ["expense", "shopping", "credit-card-purchase"].includes(kind) ||
     Number(fee) > 0 ||
     (kind === "principal-repayment" && Number(interest) > 0);
+  const transactionSubmitLock = useRef(false);
+  const [transactionSubmitting, setTransactionSubmitting] = useState(false);
   const addTransaction = async () => {
+    if (transactionSubmitLock.current) return;
+    transactionSubmitLock.current = true;
+    setTransactionSubmitting(true);
+    try {
     const value = Number(amount);
     if (
       !date ||
@@ -424,6 +430,10 @@ export default function Accounts() {
       setShowTransaction(false);
     } catch (error) {
       toast(userError(error), true);
+    }
+    } finally {
+      transactionSubmitLock.current = false;
+      setTransactionSubmitting(false);
     }
   };
   return (
@@ -899,8 +909,8 @@ export default function Accounts() {
             >
               Cancel
             </button>
-            <button className="button" onClick={addTransaction}>
-              Save transaction
+            <button className="button" disabled={transactionSubmitting} onClick={addTransaction}>
+              {transactionSubmitting ? "Saving…" : "Save transaction"}
             </button>
           </div>
         </Section>
