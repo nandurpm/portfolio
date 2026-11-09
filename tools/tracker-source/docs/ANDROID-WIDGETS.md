@@ -2,7 +2,7 @@
 
 ## Use
 
-Long-press the Android home screen, select Widgets, then Savings and Expense Tracker. Add Quick Entry or Monthly Summary. Launcher wording varies. Both resize horizontally and vertically; a wide summary adds quick-entry buttons when space permits. The app also explains setup under Settings.
+Long-press the Android home screen, select Widgets, then Savings and Expense Tracker. Add Quick Entry or Monthly Summary. Launcher wording varies. Both resize horizontally and vertically. Quick Entry supplies transaction shortcuts; Monthly Summary focuses on totals, Refresh and Show/Hide without repeating those shortcuts. The app also explains setup under Settings.
 
 Quick Entry opens the existing Income or Expense form. Review the fields and tap its existing save button. Widget intents contain an allowlisted action, no amount, account, credential or transaction payload. An authentication/linked-plan/recovery gate defers navigation until the app can safely open the form. Local-only plans retain the app's existing offline access. This release introduces no separate app-lock system; existing plan locking and Android's device/app access controls still apply.
 
