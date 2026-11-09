@@ -83,7 +83,8 @@ test('Secondary totals and advanced budget/account settings are opt-in on Androi
 test('Rapid duplicate Save clicks produce at most one synthetic ledger posting', async ({page}) => {
   await openAndroid(page);
   await page.evaluate(async () => {
-    const {store} = await import('/src/store.ts');
+    const modulePath = '/src/store.ts';
+    const {store} = await import(modulePath) as typeof import('../../src/store');
     store.change('Synthetic test accounts', d => {
       d.accounts = [
         {id:'synthetic-a',name:'Synthetic A',kind:'bank',openingBalance:500,active:true,note:''},
@@ -104,7 +105,8 @@ test('Rapid duplicate Save clicks produce at most one synthetic ledger posting',
     button.click();
   });
   await expect.poll(() => page.evaluate(async () => {
-    const {store} = await import('/src/store.ts');
+    const modulePath = '/src/store.ts';
+    const {store} = await import(modulePath) as typeof import('../../src/store');
     return store.get().data.ledgerTransactions?.filter(row => row.kind==='transfer' && row.amount===50).length ?? 0;
   })).toBe(1);
 });
