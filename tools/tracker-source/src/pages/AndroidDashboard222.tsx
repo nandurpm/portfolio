@@ -294,9 +294,9 @@ export default function Dashboard({
         </div>
       </section>
       <div className="stats-grid dashboard-kpis android-monthly-kpis" aria-label="Monthly financial summary">
-        <Stat label="Income received" value={act.income} tone="green" icon={<ArrowDownLeft />} />
-        <Stat label="Total expenses" value={act.expenses} tone="orange" icon={<ArrowUpRight />} />
-        <Stat label="Saved this month" value={savings.month} tone={savings.month < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
+        <Stat label="Income received" value={act.income} caption="Recorded this month" tone="green" icon={<ArrowDownLeft />} />
+        <Stat label="Total expenses" value={act.expenses} caption="Recorded this month" tone="orange" icon={<ArrowUpRight />} />
+        <Stat label="Saved this month" value={savings.month} caption="Income less expenses" tone={savings.month < 0 ? 'orange' : 'violet'} icon={<TrendingUp />} />
       </div>
       <section className="android-budget-overview" aria-labelledby="android-budget-title">
         <header>
