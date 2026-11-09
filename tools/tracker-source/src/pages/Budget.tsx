@@ -262,10 +262,10 @@ export default function Budget() {
           {cats.filter((c) => c.active && c.role === 'regular').slice(0, 8).map((c) => {
             const planned = fullAmount(p, c, budgetMonth);
             const actual = actualCategory(p, c, budgetMonth, reportDate(p));
-            const percentUsed = planned > 0 ? Math.min(100, Math.round((actual / planned) * 100)) : 0;
+            const percentUsed = planned > 0 ? Math.round((actual / planned) * 100) : actual > 0 ? 100 : 0;
             return <article className="budget-progress-card" key={c.id}>
-              <div className="budget-progress-title"><span className={`category-dot ${c.group.toLowerCase()}`} /><strong>{c.name}</strong><span>{percentUsed}%</span></div>
-              <div className={`budget-progress-track ${actual > planned && c.group !== 'Income' ? 'over' : ''}`}><span style={{ width: `${Math.max(0, percentUsed)}%` }} /></div>
+              <div className="budget-progress-title"><span className={`category-dot ${c.group.toLowerCase()}`} /><strong>{c.name}</strong><span>{planned > 0 ? `${percentUsed}%` : actual > 0 ? 'Unbudgeted' : '—'}</span></div>
+              <div className={`budget-progress-track ${actual > planned && c.group !== 'Income' ? 'over' : ''}`}><span style={{ width: `${Math.min(100, Math.max(0, percentUsed))}%` }} /></div>
               <div className="budget-progress-meta"><span>{money(actual)} used</span><span>of {money(planned)}</span></div>
             </article>;
           })}
