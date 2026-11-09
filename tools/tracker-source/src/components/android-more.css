@@ -1,10 +1,10 @@
 /* Scoped to the native Android More view. No financial or shared screen styles. */
 html[data-platform="android"] .android-more {
-  --more-bg: #efebff;
-  --more-card: #ffffffd9;
-  --more-text: #19132f;
-  --more-muted: #5c536f;
-  --more-border: #d8cff3;
+  --more-bg: var(--bg);
+  --more-card: var(--surface);
+  --more-text: var(--text);
+  --more-muted: var(--muted);
+  --more-border: var(--border);
   position: fixed;
   inset: 0 0 calc(var(--phone-nav-height, 66px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)));
   z-index: 42;
@@ -12,42 +12,34 @@ html[data-platform="android"] .android-more {
   flex-direction: column;
   min-height: 0;
   color: var(--more-text);
-  background: radial-gradient(ellipse at top right, #dfd6ff 0, transparent 65%), var(--more-bg);
+  background: radial-gradient(ellipse at top right, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%), var(--more-bg);
   text-align: left;
-}
-html[data-platform="android"][data-theme="dark"] .android-more {
-  --more-bg: #181426;
-  --more-card: #272137;
-  --more-text: #f4efff;
-  --more-muted: #c4bbd7;
-  --more-border: #4a3d65;
-  background: radial-gradient(ellipse at top right, #382952 0, transparent 65%), var(--more-bg);
 }
 .android-more .android-more-header {
   flex: none;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: calc(12px + var(--safe-top, env(safe-area-inset-top, 0px))) max(12px, env(safe-area-inset-right, 0px)) 16px max(12px, env(safe-area-inset-left, 0px));
+  padding: calc(10px + var(--safe-top, env(safe-area-inset-top, 0px))) max(12px, env(safe-area-inset-right, 0px)) 12px max(12px, env(safe-area-inset-left, 0px));
   border-radius: 0 0 24px 24px;
-  background: linear-gradient(120deg, #6e4eae, #30225f 65%, #7545be);
+  background: linear-gradient(115deg, var(--sidebar-a), color-mix(in srgb, var(--sidebar-b) 78%, var(--sidebar-a)));
   color: white;
   box-shadow: 0 6px 20px #37236b1a;
 }
 .android-more-header > div { flex: 1; min-width: 0; }
-.android-more .android-more-header h1 { margin: 0; font-size: 1.75rem; line-height: 1.2; color: white; }
+.android-more .android-more-header h1 { margin: 0; font-size: 1.4rem; line-height: 1.2; color: white; }
 .android-more .android-more-header p { margin: 4px 0 0; font-size: .875rem; color: #f3edff; }
 .android-more-header button { display: grid; place-items: center; flex: none; width: 44px; min-height: 44px; padding: 10px; border: 0; border-radius: 50%; color: white; background: transparent; }
 .android-more-header button svg { width: 24px; height: 24px; }
-.android-more-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px max(12px, env(safe-area-inset-right, 0px)) 16px max(12px, env(safe-area-inset-left, 0px)); }
-.android-more-groups { display: grid; gap: 20px; max-width: 900px; margin: 0 auto; }
+.android-more-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 10px max(12px, env(safe-area-inset-right, 0px)) 16px max(12px, env(safe-area-inset-left, 0px)); }
+.android-more-groups { display: grid; gap: 14px; max-width: 900px; margin: 0 auto; }
 .android-more .android-more-groups h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 1rem; line-height: 1.4; color: var(--more-text); }
 .android-more-groups h2 svg { flex: none; color: #7752b8; }
-.android-more-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.android-more .android-more-card { min-width: 0; min-height: 88px; display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--more-border); border-radius: 18px; background: var(--more-card); color: var(--more-text); text-align: left; box-shadow: 0 5px 13px #35225c0b; transition: transform .15s ease, box-shadow .15s ease; }
+.android-more-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.android-more .android-more-card { min-width: 0; min-height: 72px; display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--more-border); border-radius: 14px; background: var(--more-card); color: var(--more-text); text-align: left; box-shadow: 0 5px 13px #35225c0b; transition: transform .15s ease, box-shadow .15s ease; }
 .android-more-card:active { transform: scale(.975); box-shadow: none; }
-.android-more .android-more-icon { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px; }
-.android-more-icon svg { width: 25px; height: 25px; stroke-width: 1.9; }
+.android-more .android-more-icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 11px; }
+.android-more-icon svg { width: 21px; height: 21px; stroke-width: 1.9; }
 .android-more-icon.purple { background: linear-gradient(140deg, #f0dfff, #d2b9fa); color: #6d26b8; }
 .android-more-icon.blue { background: linear-gradient(140deg, #e6f0ff, #bbd7ff); color: #0755a2; }
 .android-more-icon.mint { background: linear-gradient(140deg, #dff5ef, #b5e6dd); color: #087b66; }
@@ -55,9 +47,9 @@ html[data-platform="android"][data-theme="dark"] .android-more {
 .android-more-icon.coral { background: linear-gradient(140deg, #ffe8dd, #ffcdbb); color: #a53a06; }
 .android-more-copy { min-width: 0; flex: 1; }
 .android-more-copy strong { display: block; font-size: .875rem; line-height: 1.35; overflow-wrap: anywhere; }
-.android-more-copy small { display: block; margin-top: 5px; font-size: .75rem; line-height: 1.45; color: var(--more-muted); }
+.android-more-copy small { display: block; margin-top: 3px; font-size: .75rem; line-height: 1.45; color: var(--more-muted); }
 .android-more-chevron { flex: none; }
-.android-more .android-more-history { display: flex; max-width: 900px; margin: 22px auto 0; padding: 8px; border-radius: 18px; background: color-mix(in srgb, var(--more-border) 65%, var(--more-bg)); }
+.android-more .android-more-history { display: flex; max-width: 900px; margin: 14px auto 0; padding: 8px; border-radius: 18px; background: color-mix(in srgb, var(--more-border) 65%, var(--more-bg)); }
 .android-more-history button { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 8px; border: 0; background: transparent; border-radius: 10px; color: var(--more-text); font-weight: 650; }
 .android-more-history button + button { border-left: 1px solid var(--more-border); }
 .android-more-history button:disabled { color: var(--more-muted); opacity: .5; cursor: default; }
