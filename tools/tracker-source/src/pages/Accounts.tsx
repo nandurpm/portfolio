@@ -139,6 +139,8 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
     setShowAccount(true);
   };
   const startTransaction = (r?: LedgerTransaction) => {
+    transactionSubmitLock.current = false;
+    setTransactionSubmitting(false);
     if (r && ledgerTransactionLocked(plan, r))
       return toast(
         "This posting is protected by reconciliation or reversal. Use Reverse transaction to retain its history.",
@@ -328,6 +330,7 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
     if (transactionSubmitLock.current) return;
     transactionSubmitLock.current = true;
     setTransactionSubmitting(true);
+    let committed = false;
     try {
     const value = Number(amount);
     if (
@@ -434,6 +437,7 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
         else d.ledgerTransactions.push(item);
         validateLedger(d.accounts, d.ledgerTransactions);
       });
+      committed = true;
       setAmount("");
       setDescription("");
       setShowTransaction(false);
@@ -441,8 +445,12 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
       toast(userError(error), true);
     }
     } finally {
-      transactionSubmitLock.current = false;
-      setTransactionSubmitting(false);
+      // Keep the lock after a successful save until this form is closed;
+      // consecutive taps within one React event batch must not post twice.
+      if (!committed) {
+        transactionSubmitLock.current = false;
+        setTransactionSubmitting(false);
+      }
     }
   };
   return (
