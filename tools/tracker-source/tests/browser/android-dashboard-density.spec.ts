@@ -26,7 +26,15 @@ for (const width of [320, 360, 390, 412, 480]) {
       }, { theme, scale });
       const bounds = await context.boundingBox();
       expect(bounds!.width).toBeGreaterThanOrEqual(width - 18);
-      expect(bounds!.height).toBeLessThan(scale === 1 ? 215 : 330);
+      expect(bounds!.height).toBeLessThan(scale === 1 ? 140 : 330);
+      const reportingPositions = await Promise.all([
+        context.locator('.review-month-control').boundingBox(),
+        context.locator('.report-cutoff-control').boundingBox(),
+        context.locator('.month-controls > .icon-button').boundingBox(),
+      ]);
+      expect(reportingPositions.every(Boolean)).toBe(true);
+      expect(Math.max(...reportingPositions.map(box => box!.y)) -
+        Math.min(...reportingPositions.map(box => box!.y))).toBeLessThan(5);
       // Nested activity cards should not accumulate panel + group gutters.
       const activityCard = await page.locator('.monthly-activity .checklist-card').first().boundingBox();
       expect(activityCard!.x).toBeGreaterThanOrEqual(6);
@@ -60,7 +68,7 @@ for (const width of [320, 360, 390, 412, 480]) {
     await context.getByRole('button', {name: 'Reset report date to today'}).click();
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('savings-expence-v1')!).data.settings.liveDate)).toBe(true);
     await expect(context.locator('.range-mini')).toBeHidden();
-    await context.locator('summary').filter({hasText: 'Plan range'}).click();
+    await context.locator('summary').filter({hasText: 'View range'}).click();
     await context.locator('.range-mini').click();
     await expect(page.getByRole('heading', {name:'Choose a view range'})).toBeVisible();
     await page.getByLabel('Quick preset').selectOption('Full plan');
