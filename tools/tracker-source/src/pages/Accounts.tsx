@@ -1,10 +1,11 @@
 import { userError } from '../domain/user-error';
 import { nextBillDueMonth, offScheduleBillLinks } from '../domain/bill-schedule';
 import { FinancialPosition } from "../components/FinancialPosition";
+import { usePhone } from "../components/usePhone";
 import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Search, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import {
   ledgerTransactionLocked,
@@ -62,6 +63,7 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
   const plan = usePlan(),
     { toast, confirm } = useUi();
   const env = useEnvelope();
+  const phone = usePhone();
   const [showHistory, setShowHistory] = useState(false);
   const [accountNote, setAccountNote] = useState(""),
     [accountActive, setAccountActive] = useState(true);
@@ -315,6 +317,13 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
     (kind === "principal-repayment" && Number(interest) > 0);
   const transactionSubmitLock = useRef(false);
   const [transactionSubmitting, setTransactionSubmitting] = useState(false);
+  useEffect(() => {
+    if (!initialTransfer) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById('account-transaction-form')?.scrollIntoView({block: 'start'});
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [initialTransfer]);
   const addTransaction = async () => {
     if (transactionSubmitLock.current) return;
     transactionSubmitLock.current = true;
@@ -472,6 +481,9 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
         </div>
       )}
       <FinancialPosition />
+      {phone ? (
+        <details className="android-account-settings">
+          <summary>Opening balances &amp; history</summary>
       <Section
         title="Opening balance source"
         caption="Use one total. Account openings are amounts at the plan start, not today’s balances."
@@ -506,6 +518,45 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
           View account change history
         </button>
       </Section>
+
+        </details>
+      ) : (
+      <Section
+        title="Opening balance source"
+        caption="Use one total. Account openings are amounts at the plan start, not today’s balances."
+      >
+        <p>
+          Current opening savings: {money(plan.settings.opening)} · Sum of named
+          liquid openings: {money(openingAccountTotal(plan))}.
+        </p>
+        <button
+          className="button secondary"
+          onClick={async () => {
+            const total = openingAccountTotal(plan);
+            if (
+              await confirm(
+                "Use named account opening balances?",
+                `Opening savings will become ${money(total)}. For example, a bank opening of ₹1,000 plus a separate wallet opening of ₹250 totals ₹1,250. Account opening edits will update the Dashboard automatically. No income or expenses will be created.`,
+                false,
+                "Use account openings",
+              )
+            )
+              store.change("Use named accounts for opening savings", (d) => {
+                d.settings.openingFromAccounts = true;
+              });
+          }}
+        >
+          Use account openings as total savings
+        </button>
+        <button
+          className="button secondary"
+          onClick={() => setShowHistory(!showHistory)}
+        >
+          View account change history
+        </button>
+      </Section>
+
+      )}
       {showHistory && (
         <Section
           title="Account change history"
@@ -687,6 +738,7 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
         </Section>
       )}
       {showTransaction && (
+        <div id="account-transaction-form">
         <Section
           title="Record a transaction"
           caption="Transfers and principal movements affect balances but not income or spending. For Repay loan, Amount is principal only; enter interest and fees separately."
@@ -914,6 +966,7 @@ export default function Accounts({ initialTransfer = false }: { initialTransfer?
             </button>
           </div>
         </Section>
+        </div>
       )}
       <Section
         title="Your accounts"
