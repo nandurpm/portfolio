@@ -44,8 +44,10 @@ export function isTrustedTrackerUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     if (parsed.origin !== 'https://github.com' || parsed.username || parsed.password || parsed.search || parsed.hash) return false;
-    return /^\/nandurpm\/portfolio\/releases\/tag\/tracker-v\d+\.\d+\.\d+$/.test(parsed.pathname) ||
-      /^\/nandurpm\/portfolio\/releases\/download\/tracker-v(\d+\.\d+\.\d+)\/Savings-and-Expense-Tracker-(?:Setup-)?\d+\.\d+\.\d+\.(?:apk|exe)$/.test(parsed.pathname);
+    if (/^\/nandurpm\/portfolio\/releases\/tag\/tracker-v\d+\.\d+\.\d+$/.test(parsed.pathname)) return true;
+    const download = /^\/nandurpm\/portfolio\/releases\/download\/tracker-v(\d+\.\d+\.\d+)\/Savings-and-Expense-Tracker-(Setup-)?(\d+\.\d+\.\d+)\.(apk|exe)$/.exec(parsed.pathname);
+    return !!download && download[1] === download[3] &&
+      (download[2] === 'Setup-' ? download[4] === 'exe' : download[4] === 'apk');
   } catch {
     return false;
   }
@@ -79,8 +81,11 @@ export function latestTrackerUpdate(
     // Older releases without a digest remain available for manual browser downloads.
     const hash = typeof asset.digest === 'string' && /^sha256:([a-f0-9]{64})$/i.test(asset.digest)
       ? asset.digest.slice('sha256:'.length).toLowerCase() : undefined;
-    if (platform === 'android' && (!hash || asset.state !== 'uploaded' ||
-        typeof asset.size !== 'number' || asset.size < 1 || asset.size > 200 * 1024 * 1024)) continue;
+    // Both platforms must reference an uploaded, nonempty GitHub asset. Windows
+    // opens its installer externally, so it does not require an APK SHA-256 digest.
+    if (asset.state !== 'uploaded' || typeof asset.size !== 'number' ||
+        !Number.isSafeInteger(asset.size) || asset.size < 1) continue;
+    if (platform === 'android' && (!hash || asset.size > 200 * 1024 * 1024)) continue;
     candidates.push({
       tag: release.tag_name,
       version: releaseVersion,
