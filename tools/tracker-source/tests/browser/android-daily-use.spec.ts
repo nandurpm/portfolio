@@ -90,6 +90,9 @@ test('Rapid duplicate Save clicks produce at most one synthetic ledger posting',
         {id:'synthetic-a',name:'Synthetic A',kind:'bank',openingBalance:500,active:true,note:''},
         {id:'synthetic-b',name:'Synthetic B',kind:'bank',openingBalance:0,active:true,note:''},
       ];
+      // The ledger model requires accounts and transactions to be enabled together.
+      // This isolated browser scenario has no real postings.
+      d.ledgerTransactions = [];
     });
   });
   await page.getByRole('button', {name:'Transfer money'}).click();
