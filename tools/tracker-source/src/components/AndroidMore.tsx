@@ -1,23 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Search, Calculator, BriefcaseBusiness, TrendingUp, FileChartColumn, ArrowLeftRight, ShieldCheck, Coins, Settings, CloudUpload, ChevronRight, Undo2, Redo2 } from 'lucide-react';
+import { ArrowLeft, Search, Calculator, BriefcaseBusiness, TrendingUp, FileChartColumn, Layers, ArrowLeftRight, ShieldCheck, Coins, Wallet, ChartNoAxesColumn, Settings, CloudUpload, Target, ChevronRight, Undo2, Redo2 } from 'lucide-react';
 import { registerDialog, isTopDialog } from '../navigation';
 import './android-more.css';
 
 export const moreGroups = [
-  { title: 'Planning & Loans', icon: Calculator, cards: [
-    { title: 'Loans & EMI', description: 'Payments, due dates and loan balances', page: 'loan', icon: Calculator, tone: 'purple' },
-    { title: 'Salary & PF', description: 'Income and provident fund', page: 'employment', icon: BriefcaseBusiness, tone: 'blue' },
-    { title: 'Forecast', description: 'Monthly savings projections', page: 'forecast', icon: TrendingUp, tone: 'mint' },
+  { title: '', icon: Layers, cards: [
+    { title: 'Loans & EMI', description: 'Manage loans, installments and closure', page: 'loan', icon: Calculator, tone: 'purple' },
+    { title: 'Salary & PF', description: 'Salary, provident fund and increments', page: 'employment', icon: BriefcaseBusiness, tone: 'blue' },
+    { title: 'Forecast', description: 'Savings forecast and financial planning', page: 'forecast', icon: TrendingUp, tone: 'mint' },
+    { title: 'Reports', description: 'Reports, export and import', page: 'reports', icon: FileChartColumn, tone: 'peach' },
   ] },
-  { title: 'Reports & Money', icon: FileChartColumn, cards: [
-    { title: 'Reports', description: 'Charts, exports and imports', page: 'reports', icon: FileChartColumn, tone: 'peach' },
-    { title: 'Reconciliation', description: 'Bank and cash checks', page: 'balances', section: 'Balance reconciliation', icon: ArrowLeftRight, tone: 'mint' },
-    { title: 'Provisions & Reserves', description: 'Upcoming bills and reserved cash', page: 'balances', section: 'Bills and provision balances', icon: ShieldCheck, tone: 'peach' },
-    { title: 'Financial Position', description: 'Assets, liabilities and net worth', page: 'accounts', section: 'Your money at a glance', icon: Coins, tone: 'coral' },
+  { title: 'Accounts & Money Flow', icon: Layers, cards: [
+    { title: 'Reconciliation', description: 'Bank and cash reconciliation', page: 'balances', section: 'Balance reconciliation', icon: ArrowLeftRight, tone: 'mint' },
+    { title: 'Transfers & Activity', description: 'Account transfers and transaction activity', page: 'accounts', section: 'Recent account activity', icon: ArrowLeftRight, tone: 'purple' },
   ] },
-  { title: 'Settings & Data', icon: Settings, cards: [
-    { title: 'Settings', description: 'Theme and app preferences', page: 'settings', icon: Settings, tone: 'blue' },
-    { title: 'Backup & Sync', description: 'Cloud account and data backup', page: 'settings', section: 'Account & cloud sync', icon: CloudUpload, tone: 'blue' },
+  { title: 'Planning & Financial Position', icon: Target, cards: [
+    { title: 'Provisions & Reserves', description: 'Reserved funds and planned provisions', page: 'balances', section: 'Bills and provision balances', icon: ShieldCheck, tone: 'peach' },
+    { title: 'Financial Position', description: 'Net worth, assets and liabilities', page: 'accounts', section: 'Your money at a glance', icon: Coins, tone: 'coral' },
+  ] },
+  { title: 'Balances & Overview', icon: Wallet, cards: [
+    { title: 'Balances & Provisions', description: 'Your balances and reserved funds', page: 'balances', icon: Wallet, tone: 'purple' },
+    { title: 'Forecast (Month-by-Month)', description: 'Explore your monthly financial plan', page: 'forecast', section: 'Full-month forecast', icon: ChartNoAxesColumn, tone: 'mint' },
+  ] },
+  { title: 'App & Data', icon: Settings, cards: [
+    { title: 'Settings', description: 'Appearance, preferences and security', page: 'settings', icon: Settings, tone: 'blue' },
+    { title: 'Backup & Sync', description: 'Backup, restore and account sync', page: 'settings', section: 'Account & cloud sync', icon: CloudUpload, tone: 'blue' },
   ] },
 ];
 
@@ -58,7 +65,7 @@ export function AndroidMore({ onClose, navigate, canUndo, canRedo, undo, redo }:
     <section className="android-more" aria-labelledby="android-more-title">
       <header className="android-more-header">
         <button ref={back} type="button" aria-label="Back from More" onClick={onClose}><ArrowLeft aria-hidden="true" /></button>
-        <div><h1 id="android-more-title">More</h1><p>Tools and settings</p></div>
+        <div><h1 id="android-more-title">More</h1><p>All screens &amp; tools</p></div>
         <button type="button" aria-label="Search screens and tools" aria-expanded={search} aria-controls="android-more-search" onClick={() => { setSearch(!search); setQuery(''); }}><Search aria-hidden="true" /></button>
       </header>
       <div className="android-more-content">

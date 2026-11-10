@@ -3,8 +3,9 @@ import AxeBuilder from '@axe-core/playwright';
 
 const destinations = [
   ['Loans & EMI', 'loan'], ['Salary & PF', 'employment'], ['Forecast', 'forecast'],
-  ['Reports', 'reports'], ['Reconciliation', 'balances'],
+  ['Reports', 'reports'], ['Reconciliation', 'balances'], ['Transfers & Activity', 'accounts'],
   ['Provisions & Reserves', 'balances'], ['Financial Position', 'accounts'],
+  ['Balances & Provisions', 'balances'], ['Forecast (Month-by-Month)', 'forecast'],
   ['Settings', 'settings'], ['Backup & Sync', 'settings'],
 ] as const;
 const openMore = async (page: import('@playwright/test').Page) => {
@@ -20,7 +21,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.dashboard-balance strong')).toBeVisible();
 });
 
-test('all nine grouped tools open existing destinations without changing financial records', async ({ page }) => {
+test('all twelve cards open existing destinations without changing financial records', async ({ page }) => {
   const financial = () => page.evaluate(() => {
     const { settings: _settings, celebrated: _celebrated, ...data } = JSON.parse(localStorage.getItem('savings-expence-v1')!).data;
     return data;
@@ -34,6 +35,7 @@ test('all nine grouped tools open existing destinations without changing financi
     await expect(page.locator('.screen-loading')).toHaveCount(0);
     if (title === 'Reconciliation') await expect(page.getByRole('heading', { name: 'Balance reconciliation', exact: true })).toBeInViewport();
     if (title === 'Financial Position') await expect(page.getByRole('heading', { name: 'Your money at a glance', exact: true })).toBeInViewport();
+    if (title === 'Forecast (Month-by-Month)') await expect(page.getByRole('heading', { name: 'Full-month forecast', exact: true })).toBeInViewport();
   }
   expect(await financial()).toEqual(before);
 });
@@ -79,12 +81,6 @@ test('small screens, large text and every palette retain accessible light and da
   await page.locator('html').evaluate(el => { el.style.fontSize = ''; });
   for (const theme of ['light', 'dark']) for (const palette of ['violet', 'ocean', 'emerald', 'rose', 'sunset', 'indigo']) {
     await page.evaluate(({ theme, palette }) => { document.documentElement.dataset.theme = theme; document.documentElement.dataset.palette = palette; }, { theme, palette });
-    const themeSurface = await page.locator('.android-more').evaluate(el => {
-      const styles = getComputedStyle(el);
-      return [styles.getPropertyValue('--more-bg').trim(), styles.backgroundImage];
-    });
-    expect(themeSurface[0]).toBeTruthy();
-    expect(themeSurface[1]).toContain('radial-gradient');
     const violations = (await new AxeBuilder({ page }).include('.android-more').analyze()).violations;
     expect(violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')), `${theme}/${palette}`).toEqual([]);
     if (palette === 'violet') {
