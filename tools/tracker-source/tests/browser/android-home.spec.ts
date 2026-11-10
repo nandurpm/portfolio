@@ -34,7 +34,7 @@ for (const width of [360, 393, 768]) {
       for (const name of ['Home', 'Transactions', 'Accounts', 'Budget'])
         await expect(nav.getByRole('button', { name, exact: true })).toBeVisible();
       await nav.getByRole('button', { name: 'More screens', exact: true }).click();
-      await expect(page.locator('.android-more').getByRole('button', { name: /^Reports / })).toBeVisible();
+      await expect(page.locator('.android-more-card').filter({ has: page.getByText('Reports', { exact: true }) })).toBeVisible();
     }
   });
 }
