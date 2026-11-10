@@ -35,13 +35,11 @@ for (const width of [320, 360, 390, 412, 480]) {
       expect(reportingPositions.every(Boolean)).toBe(true);
       expect(Math.max(...reportingPositions.map(box => box!.y)) -
         Math.min(...reportingPositions.map(box => box!.y))).toBeLessThan(5);
-      // The new task-first Home keeps recent activity accessible without opening charts.
-      // Detailed monthly checklists now mount lazily behind Full dashboard analysis.
-      await expect(page.locator('.mobile-recent')).toBeVisible();
-      await expect(page.locator('.dashboard-deep-dive-body')).toHaveCount(0);
-      const activityCard = await page.locator('.mobile-recent').boundingBox();
-      expect(activityCard!.x).toBeGreaterThanOrEqual(0);
-      expect(activityCard!.x + activityCard!.width).toBeLessThanOrEqual(width + 1);
+      // Nested activity cards should not accumulate panel + group gutters.
+      const activityCard = await page.locator('.monthly-activity .checklist-card').first().boundingBox();
+      expect(activityCard!.x).toBeGreaterThanOrEqual(6);
+      expect(activityCard!.x).toBeLessThanOrEqual(18);
+      expect(activityCard!.x + activityCard!.width).toBeGreaterThanOrEqual(width - 18);
       const hero = await page.locator('.dashboard-hero').boundingBox();
       expect(hero!.y).toBeLessThan(scale === 1 ? 400 : 540);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);

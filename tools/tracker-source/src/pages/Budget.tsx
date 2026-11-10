@@ -229,26 +229,12 @@ export default function Budget() {
         description="Set your defaults once. Make one-off changes only where life changes."
         action={<RangeControl />}
       />
-      {phone ? (
-        <details className="android-budget-settings">
-          <summary>Income and opening savings settings</summary>
       <Section
         title="Income & opening savings"
         caption="Edit a value and leave the field to save. Your plan updates instantly."
       >
         <IncomeSettings />
       </Section>
-
-        </details>
-      ) : (
-      <Section
-        title="Income & opening savings"
-        caption="Edit a value and leave the field to save. Your plan updates instantly."
-      >
-        <IncomeSettings />
-      </Section>
-
-      )}
       <section className="budget-snapshot" aria-labelledby="budget-snapshot-title">
         <div className="budget-snapshot-head">
           <div>
@@ -262,17 +248,14 @@ export default function Budget() {
           {cats.filter((c) => c.active && c.role === 'regular').slice(0, 8).map((c) => {
             const planned = fullAmount(p, c, budgetMonth);
             const actual = actualCategory(p, c, budgetMonth, reportDate(p));
-            const percentUsed = planned > 0 ? Math.round((actual / planned) * 100) : actual > 0 ? 100 : 0;
+            const percentUsed = planned > 0 ? Math.min(100, Math.round((actual / planned) * 100)) : 0;
             return <article className="budget-progress-card" key={c.id}>
-              <div className="budget-progress-title"><span className={`category-dot ${c.group.toLowerCase()}`} /><strong>{c.name}</strong><span>{planned > 0 ? `${percentUsed}%` : actual > 0 ? 'Unbudgeted' : '—'}</span></div>
-              <div className={`budget-progress-track ${actual > planned && c.group !== 'Income' ? 'over' : ''}`}><span style={{ width: `${Math.min(100, Math.max(0, percentUsed))}%` }} /></div>
+              <div className="budget-progress-title"><span className={`category-dot ${c.group.toLowerCase()}`} /><strong>{c.name}</strong><span>{percentUsed}%</span></div>
+              <div className={`budget-progress-track ${actual > planned && c.group !== 'Income' ? 'over' : ''}`}><span style={{ width: `${Math.max(0, percentUsed)}%` }} /></div>
               <div className="budget-progress-meta"><span>{money(actual)} used</span><span>of {money(planned)}</span></div>
             </article>;
           })}
         </div>
-        {phone ? (
-          <details className="android-budget-adjustments">
-            <summary>Advanced budget adjustments</summary>
         <div className="budget-quick-actions">
           <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all categories'}</span>
           <button className="button small secondary" onClick={() => quickAdjust(-10)}>−10%</button>
@@ -280,18 +263,6 @@ export default function Budget() {
           <button className="button small secondary" onClick={() => quickAdjust(5)}>+5%</button>
           <button className="button small secondary" onClick={() => quickAdjust(10)}>+10%</button>
         </div>
-
-          </details>
-        ) : (
-        <div className="budget-quick-actions">
-          <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all categories'}</span>
-          <button className="button small secondary" onClick={() => quickAdjust(-10)}>−10%</button>
-          <button className="button small secondary" onClick={() => quickAdjust(-5)}>−5%</button>
-          <button className="button small secondary" onClick={() => quickAdjust(5)}>+5%</button>
-          <button className="button small secondary" onClick={() => quickAdjust(10)}>+10%</button>
-        </div>
-
-        )}
       </section>
       <Section
         title="Your categories"

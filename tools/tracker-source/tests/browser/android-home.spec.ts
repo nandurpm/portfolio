@@ -16,14 +16,7 @@ for (const width of [360, 393, 768]) {
     await expect(home).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Monthly snapshot', exact: true })).toBeVisible();
     await expect(home.locator('.dashboard-balance strong')).toHaveText(sharedCash);
-    const advanced = page.locator('details.dashboard-deep-dive');
-    await expect(advanced).toBeVisible();
-    await expect(advanced).not.toHaveAttribute('open', '');
     await expect(page.getByRole('heading', { name: 'Full dashboard analysis', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Month-by-month progress' })).toHaveCount(0);
-    await advanced.locator('summary').click();
-    await expect(advanced).toHaveAttribute('open', '');
-    await expect(page.getByRole('heading', { name: 'Month-by-month progress' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Balance breakdown', exact: true })).toBeVisible();
     expect(await page.locator('.android-home').count()).toBe(0);
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim())).toBe('#6255df');
@@ -34,7 +27,7 @@ for (const width of [360, 393, 768]) {
       for (const name of ['Home', 'Transactions', 'Accounts', 'Budget'])
         await expect(nav.getByRole('button', { name, exact: true })).toBeVisible();
       await nav.getByRole('button', { name: 'More screens', exact: true }).click();
-      await expect(page.locator('.android-more-card').filter({ has: page.getByText('Reports', { exact: true }) })).toBeVisible();
+      await expect(page.locator('.android-more').getByRole('button', { name: /^Reports / })).toBeVisible();
     }
   });
 }

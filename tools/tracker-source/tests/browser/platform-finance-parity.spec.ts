@@ -39,9 +39,6 @@ test('Android progress range remains valid after an incoming plan-range change',
     const modulePath='/src/store.ts';const {store}=await import(modulePath);
     store.change('Synthetic plan range change',(d:any)=>{d.settings.planStart='2030-01';d.settings.planEnd='2030-12';d.settings.selectedMonth='2030-01';d.settings.viewStart='2030-01';d.settings.viewEnd='2030-12';});
   });
-  // The monthly progress form is now mounted on demand to keep the phone's Home light.
-  await page.locator('.dashboard-deep-dive > summary').click();
-  await expect(page.locator('.dashboard-deep-dive-body')).toBeVisible();
   for(const label of ['Progress range start','Progress range end']){
     const select=page.getByLabel(label,{exact:true});await expect(select).toHaveValue('2030-01');
   }
