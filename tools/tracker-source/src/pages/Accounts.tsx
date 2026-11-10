@@ -1,10 +1,11 @@
 import { userError } from '../domain/user-error';
 import { nextBillDueMonth, offScheduleBillLinks } from '../domain/bill-schedule';
 import { FinancialPosition } from "../components/FinancialPosition";
+import { usePhone } from "../components/usePhone";
 import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Search, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import {
   ledgerTransactionLocked,
@@ -58,10 +59,11 @@ const transactionKinds: { value: LedgerKind; label: string }[] = [
   { value: "investment-withdrawal", label: "Withdraw investment" },
 ];
 
-export default function Accounts() {
+export default function Accounts({ initialTransfer = false }: { initialTransfer?: boolean }) {
   const plan = usePlan(),
     { toast, confirm } = useUi();
   const env = useEnvelope();
+  const phone = usePhone();
   const [showHistory, setShowHistory] = useState(false);
   const [accountNote, setAccountNote] = useState(""),
     [accountActive, setAccountActive] = useState(true);
@@ -137,6 +139,8 @@ export default function Accounts() {
     setShowAccount(true);
   };
   const startTransaction = (r?: LedgerTransaction) => {
+    transactionSubmitLock.current = false;
+    setTransactionSubmitting(false);
     if (r && ledgerTransactionLocked(plan, r))
       return toast(
         "This posting is protected by reconciliation or reversal. Use Reverse transaction to retain its history.",
@@ -212,11 +216,11 @@ export default function Accounts() {
     }
   };
   const [showAccount, setShowAccount] = useState(false),
-    [showTransaction, setShowTransaction] = useState(false);
+    [showTransaction, setShowTransaction] = useState(initialTransfer);
   const [name, setName] = useState(""),
     [accountKind, setAccountKind] = useState<AccountKind>("bank");
   const [opening, setOpening] = useState("0"),
-    [kind, setKind] = useState<LedgerKind>("expense");
+    [kind, setKind] = useState<LedgerKind>(initialTransfer ? "transfer" : "expense");
   const [amount, setAmount] = useState(""),
     [source, setSource] = useState(""),
     [destination, setDestination] = useState("");
@@ -313,7 +317,21 @@ export default function Accounts() {
     ["expense", "shopping", "credit-card-purchase"].includes(kind) ||
     Number(fee) > 0 ||
     (kind === "principal-repayment" && Number(interest) > 0);
+  const transactionSubmitLock = useRef(false);
+  const [transactionSubmitting, setTransactionSubmitting] = useState(false);
+  useEffect(() => {
+    if (!initialTransfer) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById('account-transaction-form')?.scrollIntoView({block: 'start'});
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [initialTransfer]);
   const addTransaction = async () => {
+    if (transactionSubmitLock.current) return;
+    transactionSubmitLock.current = true;
+    setTransactionSubmitting(true);
+    let committed = false;
+    try {
     const value = Number(amount);
     if (
       !date ||
@@ -419,11 +437,20 @@ export default function Accounts() {
         else d.ledgerTransactions.push(item);
         validateLedger(d.accounts, d.ledgerTransactions);
       });
+      committed = true;
       setAmount("");
       setDescription("");
       setShowTransaction(false);
     } catch (error) {
       toast(userError(error), true);
+    }
+    } finally {
+      // Keep the lock after a successful save until this form is closed;
+      // consecutive taps within one React event batch must not post twice.
+      if (!committed) {
+        transactionSubmitLock.current = false;
+        setTransactionSubmitting(false);
+      }
     }
   };
   return (
@@ -462,6 +489,9 @@ export default function Accounts() {
         </div>
       )}
       <FinancialPosition />
+      {phone ? (
+        <details className="android-account-settings">
+          <summary>Opening balances &amp; history</summary>
       <Section
         title="Opening balance source"
         caption="Use one total. Account openings are amounts at the plan start, not today’s balances."
@@ -496,6 +526,45 @@ export default function Accounts() {
           View account change history
         </button>
       </Section>
+
+        </details>
+      ) : (
+      <Section
+        title="Opening balance source"
+        caption="Use one total. Account openings are amounts at the plan start, not today’s balances."
+      >
+        <p>
+          Current opening savings: {money(plan.settings.opening)} · Sum of named
+          liquid openings: {money(openingAccountTotal(plan))}.
+        </p>
+        <button
+          className="button secondary"
+          onClick={async () => {
+            const total = openingAccountTotal(plan);
+            if (
+              await confirm(
+                "Use named account opening balances?",
+                `Opening savings will become ${money(total)}. For example, a bank opening of ₹1,000 plus a separate wallet opening of ₹250 totals ₹1,250. Account opening edits will update the Dashboard automatically. No income or expenses will be created.`,
+                false,
+                "Use account openings",
+              )
+            )
+              store.change("Use named accounts for opening savings", (d) => {
+                d.settings.openingFromAccounts = true;
+              });
+          }}
+        >
+          Use account openings as total savings
+        </button>
+        <button
+          className="button secondary"
+          onClick={() => setShowHistory(!showHistory)}
+        >
+          View account change history
+        </button>
+      </Section>
+
+      )}
       {showHistory && (
         <Section
           title="Account change history"
@@ -677,6 +746,7 @@ export default function Accounts() {
         </Section>
       )}
       {showTransaction && (
+        <div id="account-transaction-form">
         <Section
           title="Record a transaction"
           caption="Transfers and principal movements affect balances but not income or spending. For Repay loan, Amount is principal only; enter interest and fees separately."
@@ -899,11 +969,12 @@ export default function Accounts() {
             >
               Cancel
             </button>
-            <button className="button" onClick={addTransaction}>
-              Save transaction
+            <button className="button" disabled={transactionSubmitting} onClick={addTransaction}>
+              {transactionSubmitting ? "Saving…" : "Save transaction"}
             </button>
           </div>
         </Section>
+        </div>
       )}
       <Section
         title="Your accounts"

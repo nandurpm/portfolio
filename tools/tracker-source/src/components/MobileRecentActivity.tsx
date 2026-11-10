@@ -45,7 +45,9 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
         date: row.date,
         title: row.description || row.kind.replaceAll('-', ' '),
         detail: [source, destination].filter(Boolean).join(' → ') || 'Account transaction',
-        amount,
+        // Principal and internal movements have no income/expense flow, but
+        // their real transaction amount still belongs in recent activity.
+        amount: amount || row.amount,
         kind: amount > 0 ? 'income' : amount < 0 ? 'expense' : 'movement',
         destination: 'accounts',
       };
@@ -82,7 +84,7 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
                     <small>{row.detail} · {displayDate(row.date, plan.settings.dateFormat)}</small>
                   </span>
                   <strong className={`mobile-recent-amount ${row.kind}`}>
-                    {row.kind === 'movement' ? 'Transfer' : money(row.amount)}
+                    {money(row.amount)}
                   </strong>
                 </button>
               </li>

@@ -4705,3 +4705,88 @@ html[data-platform="android"] .dashboard-context .month-controls { grid-template
     display: none;
   }
 }
+
+
+/* 2.10.6 — task-first Android Home. Native-only; no shared financial CSS. */
+@media (max-width: 600px) {
+  html[data-platform="android"] .dashboard-page { display: flex; flex-direction: column; gap: 8px; }
+  html[data-platform="android"] .dashboard-title-row,
+  html[data-platform="android"] .dashboard-context,
+  html[data-platform="android"] .dashboard-hero,
+  html[data-platform="android"] .dashboard-kpis,
+  html[data-platform="android"] .android-budget-overview,
+  html[data-platform="android"] .mobile-recent,
+  html[data-platform="android"] .dashboard-deep-dive { margin-block: 0; }
+  html[data-platform="android"] .dashboard-hero { padding: 14px 12px; gap: 10px; border-radius: 18px; }
+  html[data-platform="android"] .dashboard-balance { align-items: center; gap: 10px; }
+  html[data-platform="android"] .dashboard-balance strong { font-size: clamp(1.65rem, 7vw, 2.35rem); line-height: 1.2; }
+  html[data-platform="android"] .dashboard-hero-icon { width: 36px; height: 36px; border-radius: 11px; }
+  html[data-platform="android"] .dashboard-overline { font-size: .72rem; }
+  html[data-platform="android"] .dashboard-balance h2 { font-size: .82rem; margin-block: 2px; }
+  html[data-platform="android"] .dashboard-balance p { font-size: .72rem; margin: 4px 0 0; }
+  html[data-platform="android"] .dashboard-balance-meta { margin-top: 3px; }
+  html[data-platform="android"] .dashboard-hero-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 2px; }
+  html[data-platform="android"] .dashboard-hero-actions .expense-action { grid-column: 1 / -1; min-height: 48px; background: #fff; color: #312466; border-color: transparent; font-weight: 750; }
+  html[data-platform="android"] .dashboard-hero-actions :is(.income-action, .secondary) { min-height: 44px; }
+  html[data-platform="android"] .android-monthly-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  html[data-platform="android"] .android-monthly-kpis .stat-card { min-width: 0; padding: 10px 7px; border-radius: 13px; }
+  html[data-platform="android"] .android-monthly-kpis .stat-card > strong { font-size: clamp(.88rem, 3.3vw, 1.15rem); line-height: 1.25; overflow-wrap: anywhere; }
+  html[data-platform="android"] .android-monthly-kpis .stat-top { gap: 4px; }
+  html[data-platform="android"] .android-monthly-kpis .stat-top span { font-size: .69rem; line-height: 1.25; }
+  html[data-platform="android"] .android-monthly-kpis .stat-caption { display: none; }
+  html[data-platform="android"] .android-budget-overview { padding: 12px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); color: var(--text); }
+  html[data-platform="android"] .android-budget-overview header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; font-size: .82rem; }
+  html[data-platform="android"] .android-budget-overview header > span { color: var(--muted); }
+  html[data-platform="android"] .android-budget-values { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 12px; margin: 8px 0; color: var(--muted); font-size: .76rem; }
+  html[data-platform="android"] .android-budget-values strong { color: var(--text); margin-inline-start: 3px; font-size: .87rem; }
+  html[data-platform="android"] .android-budget-track { height: 7px; overflow: hidden; border-radius: 99px; background: var(--ring-track); }
+  html[data-platform="android"] .android-budget-track > span { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+  html[data-platform="android"] .android-budget-track > span.over { background: var(--red); }
+  html[data-platform="android"] .dashboard-secondary-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html[data-platform="android"] .dashboard-deep-dive-body { display: grid; gap: 12px; }
+}
+@media (max-width: 355px) {
+  html[data-platform="android"] .android-monthly-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  html[data-platform="android"] .android-monthly-kpis > :last-child { grid-column: 1 / -1; }
+}
+
+
+/* Fold secondary tools without hiding money-entry and navigation functions. */
+@media (max-width: 600px) {
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings) {
+    margin: 4px 0 10px;
+    padding: 0 10px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings) > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    font-size: .81rem;
+    font-weight: 650;
+    color: var(--accent-ink);
+    list-style: inside;
+  }
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings)[open] {
+    padding-bottom: 10px;
+  }
+  html[data-platform="android"] :is(.android-entry-overview, .android-budget-settings, .android-budget-adjustments, .android-account-settings)[open] > :last-child {
+    margin-bottom: 0;
+  }
+  html[data-platform="android"] .android-budget-adjustments .budget-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-block: 4px 6px;
+  }
+  html[data-platform="android"] .android-budget-settings .panel,
+  html[data-platform="android"] .android-account-settings .panel {
+    box-shadow: none;
+    padding: 10px;
+  }
+  html[data-platform="android"] #account-transaction-form { scroll-margin-top: 12px; }
+}

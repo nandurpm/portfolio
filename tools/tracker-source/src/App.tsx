@@ -132,6 +132,7 @@ export function Shell() {
     [shortcutHelp, setShortcutHelp] = useState(false),
     [quickAdd, setQuickAdd] = useState(false),
     [entryKind, setEntryKind] = useState<"Income" | "Expense">("Expense"),
+    [accountTransfer, setAccountTransfer] = useState(false),
     [collapsed, setCollapsed] = useState(false),
     [loading, setLoading] = useState(true),
     [tick, setTick] = useState(0);
@@ -141,6 +142,7 @@ export function Shell() {
   const [navigationSection, setNavigationSection] = useState<string | undefined>();
   const [widgetEntry, setWidgetEntry] = useState<{ kind: 'Income' | 'Expense'; sequence: number }>();
   const navigate = (next: string, section?: string) => {
+    setAccountTransfer(false);
     preloadPage(next);
     setPage(next);
     setMore(false);
@@ -628,6 +630,7 @@ export function Shell() {
                     {page === "dashboard" ? (
                       <Home
                         navigate={navigate}
+                        onTransfer={() => { navigate("accounts"); setAccountTransfer(true); }}
                         addEntry={(kind) => {
                           setEntryKind(kind);
                           setPage("entries");
@@ -636,7 +639,7 @@ export function Shell() {
                     ) : page === "entries" ? (
                       <Entries initialKind={entryKind} widgetEntry={widgetEntry} />
                     ) : page === "accounts" ? (
-                      <Accounts />
+                      <Accounts initialTransfer={accountTransfer} />
                     ) : page === "employment" ? (
                       <Employment />
                     ) : page === "budget" ? (
