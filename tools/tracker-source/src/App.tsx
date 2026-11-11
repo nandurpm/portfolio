@@ -94,6 +94,12 @@ const pages = [
   { id: "reports", name: "Reports & Export/Import", icon: FileDown },
   { id: "settings", name: "Settings", icon: SettingsIcon },
 ];
+const navigationGroups = [
+  { label: "RECORD", ids: ["entries", "accounts"] },
+  { label: "PLAN", ids: ["budget", "loan", "employment", "balances"] },
+  { label: "REVIEW", ids: ["dashboard", "forecast", "reports"] },
+  { label: "WORKSPACE", ids: ["settings"] },
+];
 class Boundary extends Component<{ children: ReactNode }, { error: string }> {
   override state = { error: "" };
   static getDerivedStateFromError(e: Error) {
@@ -437,22 +443,28 @@ export function Shell() {
           </div>
           <div className="sidebar-label">YOUR WORKSPACE</div>
           <nav aria-label="Main navigation">
-            {pages.map((x) => (
-              <button
-                key={x.id}
-                className={page === x.id ? "active" : ""}
-                aria-current={page === x.id ? "page" : undefined}
-                onPointerEnter={() => preloadPage(x.id)}
-                onFocus={() => preloadPage(x.id)}
-                onClick={() => {
-                  navigate(x.id);
-                }}
-                title={x.name}
-              >
-                <x.icon size={20} />
-                <span>{x.name}</span>
-                {page === x.id && <span className="nav-dot" />}
-              </button>
+            {navigationGroups.map((group) => (
+              <div className="nav-group" key={group.label}>
+                <span className="nav-group-label">{group.label}</span>
+                {group.ids.map((id) => {
+                  const x = pages.find((item) => item.id === id)!;
+                  return (
+                    <button
+                      key={x.id}
+                      className={page === x.id ? "active" : ""}
+                      aria-current={page === x.id ? "page" : undefined}
+                      onPointerEnter={() => preloadPage(x.id)}
+                      onFocus={() => preloadPage(x.id)}
+                      onClick={() => navigate(x.id)}
+                      title={x.name}
+                    >
+                      <x.icon size={20} />
+                      <span>{x.name}</span>
+                      {page === x.id && <span className="nav-dot" />}
+                    </button>
+                  );
+                })}
+              </div>
             ))}
           </nav>
           <div className="sidebar-bottom">
@@ -523,14 +535,15 @@ export function Shell() {
               <fieldset disabled={recovery} className="edit-controls">
                 <RangeControl compact />
               </fieldset>
-              {(!WEB_APP || status !== "Saved locally") && (
-                <span
-                  className={`save-indicator ${status === "Save failed" ? "failed" : ""}`}
-                >
-                  <Check size={14} />
-                  {status}
-                </span>
-              )}
+              <span
+                className={`save-indicator ${status === "Save failed" ? "failed" : ""}`}
+                role="status"
+                aria-live="polite"
+                title={status === "Saved locally" ? "Your latest change is saved on this device." : undefined}
+              >
+                <Check size={14} />
+                {status === "Saved locally" ? "Saved" : status}
+              </span>
               <button
                 className="icon-button"
                 aria-label="Undo"

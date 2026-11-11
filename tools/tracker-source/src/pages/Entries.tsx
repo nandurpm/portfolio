@@ -71,6 +71,7 @@ export default function Entries({
     [sort, setSort] = useState('date-desc'),
     [selection, setSelection] = useState<Set<string>>(new Set()),
     [bulk, setBulk] = useState(false),
+    [advancedOpen, setAdvancedOpen] = useState(false),
     [bulkValues, setBulkValues] = useState({
       categoryId: '',
       date: '',
@@ -409,7 +410,7 @@ export default function Entries({
           <div>
             <span className="section-kicker">CASH-FLOW LOG</span>
             <h2 id="entries-overview-title">Your money, one clean timeline</h2>
-            <p>{archive ? 'Reviewing entries outside the current plan window.' : 'Record actual money movement and keep the plan honest.'}</p>
+            <p>{archive ? 'Reviewing entries outside the current plan window.' : 'Record actual money movement and keep the plan honest. The totals below cover the full plan window, including future-dated entries.'}</p>
           </div>
           <Badge tone={entrySummary.net >= 0 ? 'income' : 'debt'}>{entrySummary.count.toLocaleString('en-IN')} total entries</Badge>
         </div>
@@ -506,30 +507,6 @@ export default function Entries({
               onChange={(e) => setDraft({ ...draft, amount: e.target.value })}
             />
           </Field>
-          {activeProvision && (
-            <Field
-              label="Bill due month (optional)"
-              hint="For an early bill payment, select its liability month to avoid a second forecast charge."
-            >
-              <input
-                aria-label="New bill due month"
-                type="month"
-                value={billDueMonth}
-                onChange={(e) => setBillDueMonth(e.target.value)}
-              />
-            </Field>
-          )}
-          <Field label="Payment">
-            <select
-              value={draft.payment}
-              aria-label="New transaction payment"
-              onChange={(e) => setDraft({ ...draft, payment: e.target.value })}
-            >
-              {payments.map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </Field>
           <button
             className="button add-button"
             type="submit"
@@ -538,15 +515,53 @@ export default function Entries({
             <Plus size={19} />
             Add
           </button>
-          <Field label="Account"><select aria-label="New transaction account" value={draft.accountId} onChange={e=>setDraft({...draft,accountId:e.target.value})}><option value="">Unallocated cash</option>{p.accounts?.filter(a=>['bank','cash','wallet'].includes(a.kind)).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></Field>
-          <Field label="Notes (optional)">
-            <input
-              aria-label="New transaction notes"
-              value={draft.notes}
-              placeholder="Anything to remember"
-              onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
-            />
-          </Field>
+          <details
+            className="quick-add-advanced"
+            open={advancedOpen}
+            onToggle={(e) => setAdvancedOpen(e.currentTarget.open)}
+          >
+            <summary>More details <span>Payment method, account, notes, and bill matching</span></summary>
+            <div className="quick-add-advanced-fields">
+              {activeProvision && (
+                <Field
+                  label="Bill due month (optional)"
+                  hint="For an early bill payment, select its liability month to avoid a second forecast charge."
+                >
+                  <input
+                    aria-label="New bill due month"
+                    type="month"
+                    value={billDueMonth}
+                    onChange={(e) => setBillDueMonth(e.target.value)}
+                  />
+                </Field>
+              )}
+              <Field label="Payment">
+                <select
+                  value={draft.payment}
+                  aria-label="New transaction payment"
+                  onChange={(e) => setDraft({ ...draft, payment: e.target.value })}
+                >
+                  {payments.map((x) => (
+                    <option key={x}>{x}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Account">
+                <select aria-label="New transaction account" value={draft.accountId} onChange={e=>setDraft({...draft,accountId:e.target.value})}>
+                  <option value="">Unallocated cash</option>
+                  {p.accounts?.filter(a=>['bank','cash','wallet'].includes(a.kind)).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </Field>
+              <Field label="Notes (optional)">
+                <input
+                  aria-label="New transaction notes"
+                  value={draft.notes}
+                  placeholder="Anything to remember"
+                  onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
+                />
+              </Field>
+            </div>
+          </details>
         </form>
       </Section>
       {archive && <ArchivedPayments />}

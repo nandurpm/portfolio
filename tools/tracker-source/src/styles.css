@@ -318,6 +318,20 @@ code {
   flex-direction: column;
   gap: 6px;
 }
+.nav-group {
+  display: grid;
+  gap: 3px;
+}
+.nav-group + .nav-group {
+  margin-top: 10px;
+}
+.nav-group-label {
+  padding: 5px 14px 2px;
+  color: #ffffff6b;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
 .sidebar nav button {
   display: flex;
   align-items: center;
@@ -482,6 +496,24 @@ code {
 }
 .save-indicator.failed {
   color: var(--red);
+}
+.advanced-settings {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.advanced-settings > summary {
+  cursor: pointer;
+  color: var(--accent-ink);
+  font-weight: 650;
+}
+.advanced-settings > summary span {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+.advanced-settings[open] > summary {
+  margin-bottom: 14px;
 }
 .range-mini {
   display: flex;
@@ -1449,6 +1481,29 @@ code {
 }
 .quick-add .field:last-child {
   grid-column: 1/-1;
+}
+.quick-add-advanced {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.quick-add-advanced summary {
+  cursor: pointer;
+  color: var(--accent-ink);
+  font-size: 0.8rem;
+  font-weight: 650;
+  list-style-position: inside;
+}
+.quick-add-advanced summary span {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 5px;
+}
+.quick-add-advanced-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+  margin-top: 12px;
 }
 .add-button {
   height: 40px;
@@ -2564,6 +2619,9 @@ html[data-animations="false"] *::after {
   }
   .quick-add {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .quick-add-advanced-fields {
+    grid-template-columns: 1fr;
   }
   .quick-add .field:last-child {
     grid-column: 1/-1;

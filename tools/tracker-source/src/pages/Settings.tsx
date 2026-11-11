@@ -130,7 +130,9 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
             </div>
           </div>
         </div>
-        <div className="theme-presets">
+        <details className="advanced-settings">
+          <summary>Advanced appearance <span>Presets, motion, sound, and haptics</span></summary>
+          <div className="theme-presets">
           <div className="theme-presets-heading">
             <div>
               <h3>Preset moods</h3>
@@ -269,6 +271,7 @@ export default function Settings({ navigate }: { navigate: (page: string) => voi
             </Field>
           </div>
         </div>
+        </details>
         <Field label="Display date format">
           <select
             value={s.dateFormat}
