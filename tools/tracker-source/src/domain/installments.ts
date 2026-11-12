@@ -70,6 +70,12 @@ export function addInstallmentLoan(p: Plan, input: Omit<InstallmentLoan, 'id' | 
   return loan;
 }
 
+/** Return the sole linked receipt for safe in-place editing; multiple receipts require an explicit choice. */
+export function singleInstallmentReceipt<T extends { loanRowId?: string }>(entries: T[], rowId: string): T | undefined {
+  const receipts = entries.filter((entry) => entry.loanRowId === rowId);
+  return receipts.length === 1 ? receipts[0] : undefined;
+}
+
 export function saveInstallmentPayment(
   p: Plan,
   loanId: string,
