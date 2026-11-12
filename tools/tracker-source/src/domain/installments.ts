@@ -2,6 +2,15 @@ import type { Plan, InstallmentLoan } from './types';
 import { addMonths, monthDay, validDate } from './dates';
 import { round } from './calculate';
 import { isPaise } from './money-precision';
+import { liquidKinds } from './ledger';
+
+function validatePaymentAccount(p: Plan, accountId: string) {
+  if (accountId === '__unallocated') return undefined;
+  const account = p.accounts?.find((item) => item.id === accountId && item.active);
+  if (!account || !liquidKinds.includes(account.kind))
+    throw Error('Choose an active cash, bank or wallet account, or explicitly select Unallocated cash.');
+  return account.id;
+}
 
 export function addInstallmentLoan(p: Plan, input: Omit<InstallmentLoan, 'id' | 'rows'>) {
   const name = input.name.trim();
@@ -67,6 +76,7 @@ export function saveInstallmentPayment(
   rowId: string,
   date: string,
   amount: number,
+  accountId: string,
   method = 'Not specified',
   receiptId?: string,
 ) {
@@ -76,6 +86,7 @@ export function saveInstallmentPayment(
   if (!loan || !row || !category) throw Error('Loan installment was not found.');
   if (!validDate(date) || !Number.isFinite(amount) || amount <= 0)
     throw Error('Enter a valid payment date and amount.');
+  const selectedAccountId = validatePaymentAccount(p, accountId);
   const existing = receiptId
     ? p.entries.find((e) => e.id === receiptId && e.loanRowId === rowId)
     : undefined;
@@ -101,6 +112,7 @@ export function saveInstallmentPayment(
     payment: method,
     notes: `Financed amount ${loan.principal}; ${loan.tenure} installments of ${loan.monthlyEmi}. ${loan.note}`,
     loanRowId: rowId,
+    accountId: selectedAccountId,
     edited: true,
   });
 }
@@ -110,6 +122,7 @@ export function saveOriginalPayment(
   rowId: string,
   date: string,
   amount: number,
+  accountId: string,
   receiptId?: string,
 ) {
   const row = p.loan.rows.find((r) => r.id === rowId);
@@ -117,6 +130,7 @@ export function saveOriginalPayment(
   if (!row || !category || row.paidBeforeOpening) throw Error('Choose an editable installment.');
   if (!validDate(date) || !Number.isFinite(amount) || amount <= 0)
     throw Error('Enter a valid payment date and positive amount.');
+  const selectedAccountId = validatePaymentAccount(p, accountId);
   const receipts = p.entries.filter((e) => e.loanRowId === rowId);
   const existing = receipts.find((e) => e.id === receiptId);
   if (receiptId && !existing) throw Error('Receipt was not found.');
@@ -140,6 +154,7 @@ export function saveOriginalPayment(
     payment: existing?.payment ?? 'Bank',
     notes: existing?.notes ?? 'Linked to loan schedule',
     loanRowId: rowId,
+    accountId: selectedAccountId,
     edited: true,
   });
 }

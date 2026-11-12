@@ -28,13 +28,7 @@ describe("native upgrade synthetic financial contract", () => {
     });
     const phone = e.data.additionalLoans![0]!;
     e = commit(e, "October payment", (p) =>
-      saveInstallmentPayment(
-        p,
-        phone.id,
-        phone.rows[0]!.id,
-        "2026-10-20",
-        2000,
-      ),
+      saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, "2026-10-20", 2000, ),
     );
     expect(e.data.additionalLoans![0]!.rows[0]).toMatchObject({
       paid: true,
@@ -45,36 +39,18 @@ describe("native upgrade synthetic financial contract", () => {
     // December's liability belongs to November's cash plan when this setting is enabled.
     expect(planned(e.data, "2026-11").debt).toBe(2100);
     e = commit(e, "December paid in November", (p) =>
-      saveInstallmentPayment(
-        p,
-        phone.id,
-        phone.rows[1]!.id,
-        "2026-11-10",
-        2000,
-      ),
+      saveInstallmentPayment(p, phone.id, phone.rows[1]!.id, "2026-11-10", 2000, ),
     );
     expect(actual(e.data, "2026-11-01", "2026-11-30").debt).toBe(2000);
     expect(planned(e.data, "2026-11").debt).toBe(2100);
     e = commit(e, "January paid in December", (p) =>
-      saveInstallmentPayment(
-        p,
-        phone.id,
-        phone.rows[2]!.id,
-        "2026-12-10",
-        2000,
-      ),
+      saveInstallmentPayment(p, phone.id, phone.rows[2]!.id, "2026-12-10", 2000, ),
     );
     expect(actual(e.data, "2026-12-01", "2026-12-31").debt).toBe(2000);
     expect(e.data.entries).toHaveLength(3);
     expect(() =>
       commit(e, "Duplicate full installment", (p) =>
-        saveInstallmentPayment(
-          p,
-          phone.id,
-          phone.rows[1]!.id,
-          "2026-11-10",
-          2000,
-        ),
+        saveInstallmentPayment(p, phone.id, phone.rows[1]!.id, "2026-11-10", 2000, ),
       ),
     ).toThrow("exceed");
   });

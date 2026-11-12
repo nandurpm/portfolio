@@ -106,7 +106,7 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
     let e = financialFixture();
     e.data.settings.emiPreviousMonth = false;
     e = commit(e, 'Actual historical payment', (d) =>
-      saveOriginalPayment(d, 'row-0', '2026-10-20', 100),
+      saveOriginalPayment(d, 'row-0', '2026-10-20', 100, '__unallocated'),
     );
     expect(e.data.loan.rows[0]).toMatchObject({
       paid: true,
@@ -123,9 +123,9 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
   });
   it('Scenarios B/C: next-month liability paid Nov 10 exactly once', () => {
     let e = financialFixture();
-    e = commit(e, 'Opening installment', (d) => saveOriginalPayment(d, 'row-0', '2026-10-20', 100));
+    e = commit(e, 'Opening installment', (d) => saveOriginalPayment(d, 'row-0', '2026-10-20', 100, '__unallocated'));
     e = commit(e, 'December installment paid early', (d) => {
-      saveOriginalPayment(d, 'row-1', '2026-11-10', 100);
+      saveOriginalPayment(d, 'row-1', '2026-11-10', 100, '__unallocated');
       d.entries.push(
         record('income', '2026-11-10', 1000, 'salary'),
         record('bill-paid', '2026-11-12', 100, 'bill'),
@@ -151,13 +151,13 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
   it('partial receipts across months reduce the correct liability; editing/deleting/undo recalculate', () => {
     let e = financialFixture();
     e.data.settings.emiPreviousMonth = false;
-    e = commit(e, 'Part 1', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 40));
-    e = commit(e, 'Part 2', (d) => saveOriginalPayment(d, 'row-1', '2026-12-04', 60));
+    e = commit(e, 'Part 1', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 40, '__unallocated'));
+    e = commit(e, 'Part 2', (d) => saveOriginalPayment(d, 'row-1', '2026-12-04', 60, '__unallocated'));
     expect(e.data.loan.rows[1]).toMatchObject({ paid: true, paidAmount: 100 });
     expect(planned(e.data, '2026-11').debt).toBe(140);
     expect(planned(e.data, '2026-12').debt).toBe(60);
     const id = e.data.entries[0]!.id;
-    e = commit(e, 'Edit receipt', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 30, id));
+    e = commit(e, 'Edit receipt', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 30, '__unallocated', id));
     expect(e.data.loan.rows[1]).toMatchObject({ paid: false, paidAmount: 90 });
     e = commit(e, 'Delete receipt', (d) => {
       d.entries = d.entries.filter((x) => x.id !== id);
@@ -167,7 +167,7 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
   });
   it('late/post-plan receipt stays visible in lifetime ledger but outside current actual cash', () => {
     let e = financialFixture();
-    e = commit(e, 'Late receipt', (d) => saveOriginalPayment(d, 'row-1', '2027-03-10', 100));
+    e = commit(e, 'Late receipt', (d) => saveOriginalPayment(d, 'row-1', '2027-03-10', 100, '__unallocated'));
     expect(e.data.loan.rows[1]!.paidAmount).toBe(100);
     expect(archivedReceiptSummary(e.data)).toMatchObject({
       after: 100,
@@ -178,12 +178,12 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
   });
   it('rejects overpayment atomically while retaining distinct legitimate transfers', () => {
     let e = financialFixture();
-    e = commit(e, 'Transfer 1', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 50));
-    e = commit(e, 'Transfer 2', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 50));
+    e = commit(e, 'Transfer 1', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 50, '__unallocated'));
+    e = commit(e, 'Transfer 2', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 50, '__unallocated'));
     expect(e.data.entries).toHaveLength(2);
     const before = JSON.stringify(e);
     expect(() =>
-      commit(e, 'Overpay', (d) => saveOriginalPayment(d, 'row-1', '2026-11-11', 1)),
+      commit(e, 'Overpay', (d) => saveOriginalPayment(d, 'row-1', '2026-11-11', 1, '__unallocated')),
     ).toThrow();
     expect(JSON.stringify(e)).toBe(before);
   });
@@ -201,7 +201,7 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
       }).id;
     });
     e = commit(e, 'Historic receipt', (d) =>
-      saveInstallmentPayment(d, id, d.additionalLoans![0]!.rows[0]!.id, '2026-10-20', 100),
+      saveInstallmentPayment(d, id, d.additionalLoans![0]!.rows[0]!.id, '2026-10-20', 100, 'Not specified', '__unallocated'),
     );
     expect(e.data.additionalLoans![0]!.rows[0]!.paid).toBe(true);
     expect(actual(e.data, '2026-11-01', '2027-02-28').debt).toBe(0);

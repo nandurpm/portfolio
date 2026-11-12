@@ -58,8 +58,8 @@ describe('provision liability and export integrity', () => {
   });
   it('round-trips receipt IDs, archived payments and optional comparison records through XLSX metadata', async () => {
     let e = financialFixture();
-    e = commit(e, 'Historic receipt', (d) => saveOriginalPayment(d, 'row-0', '2026-10-20', 100));
-    e = commit(e, 'Part receipt', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 40));
+    e = commit(e, 'Historic receipt', (d) => saveOriginalPayment(d, 'row-0', '2026-10-20', 100, '__unallocated'));
+    e = commit(e, 'Part receipt', (d) => saveOriginalPayment(d, 'row-1', '2026-11-10', 40, '__unallocated'));
     e = commit(e, 'Comparison', (d) => {
       d.reconciliations = [
         {

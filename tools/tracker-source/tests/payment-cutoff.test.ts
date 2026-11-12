@@ -22,7 +22,7 @@ describe("loan payment report-date cutoff", () => {
         firstDueDate: "2026-12-05",
         note: "",
       });
-      saveInstallmentPayment(p, loan.id, loan.rows[0]!.id, "2026-11-15", 2000);
+      saveInstallmentPayment(p, loan.id, loan.rows[0]!.id, "2026-11-15", 2000, '__unallocated');
     });
     const p = e.data,
       loan = p.additionalLoans![0]!;
@@ -58,8 +58,8 @@ describe("loan payment report-date cutoff", () => {
       firstDueDate: "2026-12-05",
       note: "",
     });
-    saveInstallmentPayment(p, loan.id, loan.rows[0]!.id, "2026-10-20", 500);
-    saveInstallmentPayment(p, loan.id, loan.rows[0]!.id, "2026-11-15", 1500);
+    saveInstallmentPayment(p, loan.id, loan.rows[0]!.id, "2026-10-20", 500, '__unallocated');
+    saveInstallmentPayment(p, loan.id, loan.rows[0]!.id, "2026-11-15", 1500, '__unallocated');
     expect(loanSummary(paymentRows(p, loan.rows, "2026-11-01"))).toMatchObject({
       paid: 500,
       paidCount: 0,
