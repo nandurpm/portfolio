@@ -73,9 +73,9 @@ Review unsafe rendering, client-side trust assumptions, accidental secret exposu
 4. Distinguish confirmed defects from suspected risks.
 5. Make the smallest reliable fix for confirmed defects only.
 6. Add a regression test for every code fix.
-7. Run focused, safe tests. Safe project scripts are listed in tools/tracker-source/package.json. Never run commands that could contact production services.
-8. Review the complete diff. Ensure all changes are inside the strict allowlist.
-9. Leave changes uncommitted. The workflow independently validates and packages them.
+7. Do not execute shell commands. The model tool allowlist deliberately excludes shell execution while the Gemini API key is available. Add precise regression tests, but mark them NOT TESTED during the Gemini stage.
+8. Review the complete diff using read-only file tools. Ensure all changes are inside the strict allowlist.
+9. Leave changes uncommitted. A separate keyless validation job installs dependencies and runs npm checks; the existing full tracker-quality workflow also runs on the proposed branch.
 10. If no verified fix is justified, leave application code unchanged and generate the report only.
 
 ## Required audit report
