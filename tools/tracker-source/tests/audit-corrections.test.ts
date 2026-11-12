@@ -201,7 +201,7 @@ describe('BUG-005: independent receipt and cash ledgers', () => {
       }).id;
     });
     e = commit(e, 'Historic receipt', (d) =>
-      saveInstallmentPayment(d, id, d.additionalLoans![0]!.rows[0]!.id, '2026-10-20', 100, 'Not specified', '__unallocated'),
+      saveInstallmentPayment(d, id, d.additionalLoans![0]!.rows[0]!.id, '2026-10-20', 100, '__unallocated', 'Not specified'),
     );
     expect(e.data.additionalLoans![0]!.rows[0]!.paid).toBe(true);
     expect(actual(e.data, '2026-11-01', '2027-02-28').debt).toBe(0);
