@@ -592,8 +592,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${TELEGRAM_BOT_TOKEN}" || -z "${TELEGRAM_CHAT_ID}" ]]; then
-            echo "::warning::Telegram notification skipped: configure TRACKER_TELEGRAM_BOT_TOKEN and TRACKER_TELEGRAM_CHAT_ID as GitHub Actions secrets."
-            exit 0
+            echo "::error::Telegram alert verification failed: configure TRACKER_TELEGRAM_BOT_TOKEN and TRACKER_TELEGRAM_CHAT_ID as GitHub Actions secrets."
+            exit 1
           fi
           python3 - <<'PY'
           import json
