@@ -93,6 +93,8 @@ jobs:
           node-version-file: tools/tracker-source/.nvmrc
       - run: npm ci --ignore-scripts
       - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Test Supabase CLI log redaction
+        run: python3 "$GITHUB_WORKSPACE/.github/scripts/test_redact_supabase_cli_output.py"
       - name: Initialize disposable local stack (never link a cloud project)
         run: |
           mkdir -p "$TRACKER_LOCAL_SUPABASE_DIR"
@@ -103,7 +105,7 @@ jobs:
           # Permit only the exact disposable recovery callback in the local Auth stack.
           sed -i 's@^additional_redirect_urls = .*@additional_redirect_urls = ["http://127.0.0.1:4173/track/?recovery=1"]@' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
           grep -Fq 'additional_redirect_urls = ["http://127.0.0.1:4173/track/?recovery=1"]' "$TRACKER_LOCAL_SUPABASE_DIR/supabase/config.toml"
-          npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" start --exclude studio,imgproxy,realtime,storage-api,postgres-meta,edge-runtime,logflare,vector,supavisor
+          npx --yes supabase@2.122.0 --workdir "$TRACKER_LOCAL_SUPABASE_DIR" start --exclude studio,imgproxy,realtime,storage-api,postgres-meta,edge-runtime,logflare,vector,supavisor 2>&1 | python3 "$GITHUB_WORKSPACE/.github/scripts/redact_supabase_cli_output.py"
       - run: node --import tsx scripts/prepare-local-supabase.ts
       - run: npm run test:security
       - name: Exercise synthetic email password reset end to end
