@@ -44,6 +44,7 @@ export default function AdditionalLoans() {
   } | null>(null);
   const [paidDate, setPaidDate] = useState(today()),
     [paidAmount, setPaidAmount] = useState(''),
+    [accountId, setAccountId] = useState(''),
     [method, setMethod] = useState('Not specified');
   const loans = p.additionalLoans ?? [],
     loan = loans.find((l) => l.id === selected) ?? loans[0];
@@ -56,6 +57,7 @@ export default function AdditionalLoans() {
     const r = loan.rows.find((r) => r.id === rowId)!;
     setPayment({ loanId: loan.id, rowId });
     setReceiptId('');
+    setAccountId('');
     setPaidDate(today());
     setPaidAmount(String(Math.max(0, round(r.emi - (rows.find((x) => x.id === rowId)?.paidAmount ?? 0)))));
     setMethod('Not specified');
@@ -127,6 +129,7 @@ export default function AdditionalLoans() {
           paidDate,
           Number(paidAmount),
           method,
+          accountId,
           receiptId || undefined,
         ),
       );
@@ -441,7 +444,7 @@ export default function AdditionalLoans() {
               <button type="button" className="button secondary" onClick={() => setAdding(false)}>
                 Cancel
               </button>
-              <button className="button" type="submit">
+              <button className="button" type="submit" disabled={!accountId}>
                 Save loan
               </button>
             </div>
@@ -455,6 +458,7 @@ export default function AdditionalLoans() {
             receipts={p.entries.filter((e) => e.loanRowId === payment.rowId)}
             onEdit={(e) => {
               setReceiptId(e.id);
+              setAccountId(e.accountId ?? '__unallocated');
               setPaidDate(e.date);
               setPaidAmount(String(e.amount));
               setMethod(e.payment);
@@ -491,9 +495,17 @@ export default function AdditionalLoans() {
                 ))}
               </select>
             </Field>
+            <Field label="Paid from account">
+              <select required value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+                <option value="">Select an account</option>
+                {(p.accounts ?? []).filter((a) => a.active && ['cash', 'bank', 'wallet'].includes(a.kind)).map((a) => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+                <option value="__unallocated">Unallocated cash</option>
+              </select>
+            </Field>
             <p>
-              Enter the date money was actually paid, including early payments. This records a
-              payment; it does not transfer money.
+              Enter the date and account used for the actual payment. The amount is attributed to that account once; it is not posted as a second expense.
             </p>
             <div className="modal-actions">
               <button type="button" className="button secondary" onClick={() => setPayment(null)}>
