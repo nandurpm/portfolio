@@ -66,7 +66,10 @@ jobs:
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          gemini_model: ${{ vars.GEMINI_MODEL || 'gemini-3.8-flash' }}
+          # Keep an explicit repository-variable override, but default to the stable
+          # high-throughput model so a capacity spike on the flagship model does not
+          # block the weekly audit.
+          gemini_model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash-lite' }}
           gemini_cli_version: '0.68.0'
           gemini_debug: 'false'
           settings: |
