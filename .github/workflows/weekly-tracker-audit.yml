@@ -62,6 +62,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Run Gemini CLI audit and implement focused fixes
+        id: gemini
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
@@ -94,9 +95,7 @@ jobs:
             Base commit: ${{ github.sha }}
 
             Inspect the actual implementation. Identify reproducible defects, trace root causes,
-            implement only focused fixes within the permitted paths, add regression tests, and
-            run safe targeted tests. Do not commit, push, create branches, create pull requests,
-            implement only focused fixes within the permitted paths and add regression tests.
+            and implement only focused fixes within the permitted paths. Add regression tests.
             Shell execution is intentionally disabled while the API key is present; do not attempt
             to run commands. A separate keyless validation job will execute tests and builds.
             Do not commit, push, create branches, create pull requests,
@@ -108,12 +107,54 @@ jobs:
             Create the report at the exact required path, including findings, severity, root cause,
             changed files, verification results, unresolved items, and PASS/FAIL/BLOCKED/NOT TESTED.
             If no verified code fix is justified, create the report only and make no speculative edits.
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: 'true'
 
-      - name: Validate changed paths and package report and source patches
-        id: package
+      - name: Create a blocked report if Gemini fails before completing
+        id: fallback-report
+        if: always() && steps.gemini.outcome != 'success' && steps.context.outcome == 'success'
         shell: bash
         env:
           REPORT_PATH: ${{ steps.context.outputs.report_path }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$REPORT_PATH")"
+          cat > "$REPORT_PATH" <<EOF
+          # Weekly Gemini Tracker Audit — BLOCKED
+
+          - Audit date (Asia/Kolkata): ${{ steps.context.outputs.audit_date }}
+          - Base commit: $GITHUB_SHA
+          - Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          - Status: **BLOCKED — Gemini CLI did not complete**
+
+          ## Result
+
+          Gemini CLI did not complete the audit task. No findings, code fixes, or test results
+          can be claimed from this run. Inspect the Gemini action step logs for the exact error.
+
+          ## Verification
+
+          - Repository checkout: completed.
+          - Dependency installation: completed with lifecycle scripts disabled.
+          - Gemini audit: FAILED.
+          - Source patch packaging: intentionally disabled for a failed Gemini run.
+          - Production database and live user financial data: not accessed.
+
+          ## Next action
+
+          Correct the workflow or Gemini API/model configuration as indicated by the action logs,
+          then manually rerun the workflow. This report records the failed attempt only; it is not
+          a completed financial or software audit.
+          EOF
+          echo "Created a BLOCKED audit report at $REPORT_PATH"
+
+      - name: Validate changed paths and package report and source patches
+        id: package
+        if: always() && steps.context.outcome == 'success'
+        shell: bash
+        env:
+          REPORT_PATH: ${{ steps.context.outputs.report_path }}
+          GEMINI_SUCCEEDED: ${{ steps.gemini.outcome == 'success' }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -188,7 +229,11 @@ jobs:
           if untracked:
               subprocess.run(["git", "add", "-N", "--", *untracked], check=True)
 
-          source_paths = sorted(set(path for path in changed if path != report_path))
+          gemini_succeeded = os.environ.get("GEMINI_SUCCEEDED", "false").lower() == "true"
+          source_paths = (
+              sorted(set(path for path in changed if path != report_path))
+              if gemini_succeeded else []
+          )
           def make_patch(paths):
               if not paths:
                   return b""
@@ -227,7 +272,7 @@ jobs:
           retention-days: 30
 
       - name: Upload validated patch payload
-        if: steps.package.outcome == 'success'
+        if: steps.package.outcome == 'success' && steps.gemini.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: weekly-tracker-audit-patch-${{ github.run_id }}
@@ -236,7 +281,7 @@ jobs:
           retention-days: 7
 
       - name: Report when no code fix is justified
-        if: steps.package.outputs.has_source_changes == 'false'
+        if: steps.gemini.outcome == 'success' && steps.package.outputs.has_source_changes == 'false'
         shell: bash
         run: |
           {
