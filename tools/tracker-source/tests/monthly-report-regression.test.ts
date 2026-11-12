@@ -77,7 +77,7 @@ describe('phone EMI receipt verification', () => {
     expect(phone.rows[0]!.dueDate).toBe('2026-12-05');
     expect(phone.rows.reduce((sum, row) => sum + row.emi, 0)).toBe(36000);
     expect(loanSummary(paymentRows(p, phone.rows)).paid).toBe(0);
-    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-10-20', 2000);
+    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-10-20', 2000, '__unallocated');
     expect(loanSummary(paymentRows(p, phone.rows)).paid).toBe(2000);
     expect(p.entries[0]).toMatchObject({ amount: 2000, date: '2026-10-20' });
     expect(cumulative(p).actual.expenses).toBe(0);
