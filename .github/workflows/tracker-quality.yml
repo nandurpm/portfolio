@@ -147,3 +147,13 @@ jobs:
           cd android
           bash ./gradlew --no-daemon assembleDebug testDebugUnitTest assembleReleaseAndroidTest
 
+
+  audit-report-gate:
+    name: Weekly audit report evidence-gate regression tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Run report evidence-gate regression tests
+        run: python3 .github/scripts/test-weekly-audit-report.py

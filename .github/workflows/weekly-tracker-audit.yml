@@ -224,6 +224,22 @@ jobs:
           EOF
           echo "Created a BLOCKED audit report at $REPORT_PATH"
 
+      - name: Enforce evidence-based audit report statuses
+        if: always() && steps.context.outcome == 'success'
+        shell: bash
+        env:
+          REPORT_PATH: ${{ steps.context.outputs.report_path }}
+          AUDITED_SHA: ${{ github.sha }}
+          AUDIT_DATE: ${{ steps.context.outputs.audit_date }}
+          PRIMARY_MODEL: ${{ steps.context.outputs.selected_model }}
+          PRIMARY_RESULT: ${{ steps.gemini.outcome }}
+          FALLBACK_MODEL: gemini-3.6-flash
+          FALLBACK_RESULT: ${{ steps.gemini_fallback.outcome }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/test-weekly-audit-report.py
+          python3 .github/scripts/validate-weekly-audit-report.py "$REPORT_PATH"
+
       - name: Validate changed paths and package report and source patches
         id: package
         if: always() && steps.context.outcome == 'success'
