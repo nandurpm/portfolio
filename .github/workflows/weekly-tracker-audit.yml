@@ -25,6 +25,8 @@ jobs:
       has_source_changes: ${{ steps.package.outputs.has_source_changes }}
       report_path: ${{ steps.context.outputs.report_path }}
       audit_date: ${{ steps.context.outputs.audit_date }}
+      primary_succeeded: ${{ steps.gemini.outcome == 'success' }}
+      fallback_succeeded: ${{ steps.gemini_fallback.outcome == 'success' }}
     steps:
       - name: Checkout trusted default branch without persisting credentials
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -562,3 +564,77 @@ jobs:
             echo
             echo "A pull request has been created after the full quality suite passed."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  notify-telegram:
+    name: Notify Telegram with audit result
+    needs: [audit, validate-source-patch, publish-audit-branch, run-full-quality, create-pull-request]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Send weekly audit result to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TRACKER_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TRACKER_TELEGRAM_CHAT_ID }}
+          AUDIT_RESULT: ${{ needs.audit.result }}
+          PRIMARY_SUCCEEDED: ${{ needs.audit.outputs.primary_succeeded }}
+          FALLBACK_SUCCEEDED: ${{ needs.audit.outputs.fallback_succeeded }}
+          SOURCE_CHANGES: ${{ needs.audit.outputs.has_source_changes }}
+          REPORT_PATH: ${{ needs.audit.outputs.report_path }}
+          AUDIT_DATE: ${{ needs.audit.outputs.audit_date }}
+          VALIDATION_RESULT: ${{ needs.validate-source-patch.result }}
+          QUALITY_RESULT: ${{ needs.run-full-quality.result }}
+          PR_RESULT: ${{ needs.create-pull-request.result }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${TELEGRAM_BOT_TOKEN}" || -z "${TELEGRAM_CHAT_ID}" ]]; then
+            echo "::warning::Telegram notification skipped: configure TRACKER_TELEGRAM_BOT_TOKEN and TRACKER_TELEGRAM_CHAT_ID as GitHub Actions secrets."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          primary = os.environ.get("PRIMARY_SUCCEEDED") == "true"
+          fallback = os.environ.get("FALLBACK_SUCCEEDED") == "true"
+          if primary:
+              model = "gemini-3.5-flash-lite"
+          elif fallback:
+              model = "gemini-3.6-flash (fallback)"
+          else:
+              model = "primary and fallback failed"
+
+          text = "\n".join([
+              "Weekly Gemini Tracker Audit",
+              f"Date: {os.environ.get('AUDIT_DATE') or 'unknown'}",
+              f"Result: {os.environ.get('AUDIT_RESULT') or 'unknown'}",
+              f"Model: {model}",
+              f"Source changes: {os.environ.get('SOURCE_CHANGES') or 'none'}",
+              f"Validation: {os.environ.get('VALIDATION_RESULT') or 'skipped'}",
+              f"Full quality: {os.environ.get('QUALITY_RESULT') or 'skipped'}",
+              f"Pull request: {os.environ.get('PR_RESULT') or 'skipped'}",
+              f"Report: {os.environ.get('REPORT_PATH') or 'not generated'}",
+              os.environ["RUN_URL"],
+          ])
+          payload = json.dumps({
+              "chat_id": os.environ["TELEGRAM_CHAT_ID"],
+              "text": text,
+              "disable_web_page_preview": True,
+          }).encode()
+          request = urllib.request.Request(
+              "https://api.telegram.org/bot" + os.environ["TELEGRAM_BOT_TOKEN"] + "/sendMessage",
+              data=payload,
+              headers={"content-type": "application/json"},
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              result = json.load(response)
+          if not result.get("ok"):
+              raise SystemExit("Telegram rejected the weekly audit notification")
+          print("Telegram audit notification sent.")
+          PY
