@@ -173,6 +173,19 @@ Use only `PASS`, `FAIL`, `BLOCKED`, or `NOT TESTED` for the verification status 
 
 Avoid unsupported conclusions such as "fully verified", "all calculations pass", "stable", "secure", or "60fps" unless each statement is supported by direct evidence in this run.
 
+### Mandatory report evidence format and automated enforcement
+
+The workflow runs a separate report-normalization gate after Gemini completes. Treat its output as authoritative over unsupported model-generated labels.
+
+- Every audit-area row must include a status and evidence in the same row. To use PASS, include the exact 40-character audited commit SHA, the executed command or exact GitHub Actions run URL, and the observed successful result. Otherwise the workflow automatically changes that row to NOT TESTED.
+- Findings must never use PASS. Use only the five finding statuses defined above. The workflow normalizes invalid finding-level PASS labels to POTENTIAL unless a valid exact execution record supports RESOLVED.
+- Include a verification evidence register with exact commit SHA, command or workflow URL, result, and platform/scope. A test name or test file path is not execution evidence.
+- The workflow appends machine-recorded audit date, commit SHA, configured model, primary/fallback action outcomes, and evidence-gate results. Do not overwrite or contradict this metadata.
+- A successful model invocation means only that the agent completed its task; it does not mean the application audit passed.
+- A full Tracker quality workflow result is appended later by the separate keyless job. Do not predict its result in the Gemini-generated report.
+- Claims such as verified, correct, secure, or works correctly without current-run evidence are static-review observations only.
+
+
 ## Work procedure and testing limits
 
 1. Record the starting commit and application version.
