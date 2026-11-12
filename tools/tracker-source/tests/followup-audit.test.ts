@@ -28,7 +28,7 @@ describe('payment labels and per-loan planned days', () => {
     expect(plannedPaymentDate(p, phone.rows[0]!.dueDate, phone.id)).toBe('2026-11-05');
     expect(plannedPaymentDate(p, p.loan.rows[1]!.dueDate)).toBe('2026-11-10');
     expect(installmentTasks(p, '2026-11', '2026-11-04').find(x => x.category === 'Phone')).toMatchObject({ payDate: '2026-11-05', dueDate: '2026-12-05', paid: 0 });
-    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-11-03', 100);
+    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-11-03', 100, '__unallocated');
     const receipt = structuredClone(p.entries[0]!);
     correctInstallmentDates(p, phone.id, '2026-12-05', 'Confirmed synthetic', 9);
     expect(plannedPaymentDate(p, phone.rows[0]!.dueDate, phone.id)).toBe('2026-11-09');
@@ -45,7 +45,7 @@ describe('payment labels and per-loan planned days', () => {
       name: 'Phone', principal: 30000, monthlyEmi: 2000, tenure: 18,
       firstDueDate: '2026-12-05', note: '',
     });
-    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-12-02', 2000);
+    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-12-02', 2000, '__unallocated');
     p.settings.reportDate = '2026-11-15';
     expect(loanSummary(paymentRows(p, phone.rows)).paid).toBe(0);
     expect(actual(p, '2026-11-01', '2026-11-15').expenses).toBe(0);
@@ -74,7 +74,7 @@ describe('export parity and print presentation', () => {
       name: 'Phone', principal: 30000, monthlyEmi: 2000, tenure: 18,
       firstDueDate: '2026-12-05', note: '', plannedPayDay: 5,
     });
-    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-12-02', 2000);
+    saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-12-02', 2000, '__unallocated');
     const { default: ExcelJS } = await import('exceljs');
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load((await exportWorkbook(p)) as never);
