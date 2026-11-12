@@ -112,7 +112,7 @@ function fixture() {
     firstDueDate: '2026-12-05',
     note: 'First installment due 5-Dec-2026 paid early on 19-Oct-2026.',
   });
-  saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-10-19', 500, 'Not specified', '__unallocated');
+  saveInstallmentPayment(p, phone.id, phone.rows[0]!.id, '2026-10-19', 500, '__unallocated', 'Not specified');
   correctInstallmentDates(
     p,
     phone.id,
@@ -164,9 +164,9 @@ describe('advance EMI cash planning', () => {
   it('attributes EMI receipts to the selected account exactly once', () => {
     const { p } = fixture();
     const row = p.loan.rows[2]!;
-    saveOriginalPayment(p, row.id, '2026-11-10', 100, '__unallocated', 'bank');
+    saveOriginalPayment(p, row.id, '2026-11-10', 100, 'bank');
     expect(namedAccountBalances(p).bank).toBe(1900);
-    expect(() => saveOriginalPayment(p, p.loan.rows[3]!.id, '2026-11-10', 100, '__unallocated', '')).toThrow(/Choose an active/);
+    expect(() => saveOriginalPayment(p, p.loan.rows[3]!.id, '2026-11-10', 100, '')).toThrow(/Choose an active/);
   });
   it('does not duplicate partial payments made ahead of the planned cash month', () => {
     const { p } = fixture();
