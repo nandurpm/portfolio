@@ -76,8 +76,8 @@ export function saveInstallmentPayment(
   rowId: string,
   date: string,
   amount: number,
-  method = 'Not specified',
   accountId: string,
+  method = 'Not specified',
   receiptId?: string,
 ) {
   const loan = p.additionalLoans?.find((l) => l.id === loanId);
