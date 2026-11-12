@@ -195,7 +195,7 @@ jobs:
           - Repository checkout: completed.
           - Dependency installation: completed with lifecycle scripts disabled.
           - Primary Gemini attempt: FAILED.
-- Fallback Gemini attempt: FAILED.
+          - Fallback Gemini attempt: FAILED.
           - Source patch packaging: intentionally disabled for a failed Gemini run.
           - Production database and live user financial data: not accessed.
 
