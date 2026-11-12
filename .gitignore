@@ -27,3 +27,8 @@ Thumbs.db
 tools/tracker-source/dist-web/
 tools/tracker-source/test-results/
 tools/tracker-source/playwright-report/
+
+# Gemini CLI local settings, credentials, and action runtime output
+.gemini/
+gemini-artifacts/
+gha-creds-*.json
