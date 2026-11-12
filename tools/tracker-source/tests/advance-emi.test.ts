@@ -13,6 +13,7 @@ import {
   saveInstallmentPayment,
   correctInstallmentDates,
   saveOriginalPayment,
+  singleInstallmentReceipt,
 } from '../src/domain/installments';
 import { validatePlan } from '../src/domain/validation';
 import { namedAccountBalances } from '../src/domain/net-worth';
@@ -161,6 +162,15 @@ describe('advance EMI cash planning', () => {
     expect(defaultAmount(p, c, '2027-09')).toBe(500);
     expect(defaultAmount(p, c, '2027-10')).toBe(0);
     expect(() => validatePlan(p)).not.toThrow();
+  });
+  it('prefills the account from the sole linked EMI receipt when editing', () => {
+    const { p } = fixture();
+    const row = p.loan.rows[2]!;
+    saveOriginalPayment(p, row.id, '2026-11-10', 100, 'bank');
+    const receipt = singleInstallmentReceipt(p.entries, row.id);
+    expect(receipt).toMatchObject({ loanRowId: row.id, accountId: 'bank', amount: 100 });
+    expect(singleInstallmentReceipt(p.entries, 'missing-row')).toBeUndefined();
+    expect(singleInstallmentReceipt([...p.entries, { ...receipt!, id: 'second-receipt' }], row.id)).toBeUndefined();
   });
   it('attributes EMI receipts to the selected account exactly once', () => {
     const { p } = fixture();
