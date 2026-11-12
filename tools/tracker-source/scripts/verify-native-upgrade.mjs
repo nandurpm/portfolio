@@ -17,7 +17,7 @@ fixture.data.settings.tray = false;
 fixture.data.settings.autoStart = false;
 Object.keys(fixture.data.settings.reminders).forEach(k => { fixture.data.settings.reminders[k] = false; });
 fixture = commit(fixture, 'Synthetic paid December installment', p =>
-  saveOriginalPayment(p, 'row-1', '2026-11-10', 100));
+  saveOriginalPayment(p, 'row-1', '2026-11-10', 100, '__unallocated'));
 fixture = JSON.parse(JSON.stringify(fixture));
 await fs.writeFile(path.join(profile, 'plan.json'), JSON.stringify(fixture));
 const launches = [];
