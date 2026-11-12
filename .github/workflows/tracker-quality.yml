@@ -1,7 +1,7 @@
 name: Tracker quality (no deployment)
 on:
   pull_request:
-    paths: ['tools/tracker-source/**', '.github/workflows/tracker-quality.yml']
+    paths: ['tools/tracker-source/**', '.github/workflows/tracker-quality.yml', '.github/scripts/**']
   push:
     branches: ['fix/tracker-audit-*']
   # The weekly Gemini pipeline dispatches this full suite on its isolated fix branch.
