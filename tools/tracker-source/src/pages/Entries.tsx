@@ -224,6 +224,7 @@ export default function Entries({
     if (adding) return;
     setAdding(true);
     try {
+      if (!draft.accountId) throw Error('Choose an account or explicitly select Unallocated cash.');
       const n: Entry = {
         id: crypto.randomUUID(),
         ...draft,
