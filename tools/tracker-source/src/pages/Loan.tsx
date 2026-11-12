@@ -45,6 +45,7 @@ export default function Loan() {
     [payment, setPayment] = useState<LoanRow | null>(null),
     [paidDate, setPaidDate] = useState(''),
     [paidAmount, setPaidAmount] = useState(0),
+    [accountId, setAccountId] = useState(''),
     [outside, setOutside] = useState(false),
     [firstDue, setFirstDue] = useState(p.loan.firstDueDate);
   const effectiveRows = paymentRows(p, p.loan.rows);
@@ -136,6 +137,7 @@ export default function Loan() {
       return;
     }
     setReceiptId('');
+    setAccountId('');
     setPayment(p.loan.rows.find((row) => row.id === r.id)!);
     setPaidDate(inRange(today(), s.planStart, s.planEnd) ? today() : r.dueDate);
     setPaidAmount(Math.max(0, r.emi - (p.loan.rows.find((row) => row.id === r.id)?.paidAmount ?? 0)));
@@ -176,7 +178,7 @@ export default function Loan() {
       )
         return;
       store.change(`Pay EMI: ${payment.month}`, (d) =>
-        saveOriginalPayment(d, payment.id, paidDate, paidAmount, receiptId || undefined),
+        saveOriginalPayment(d, payment.id, paidDate, paidAmount, accountId, receiptId || undefined),
       );
       setPayment(null);
       toast('Payment saved in the schedule and Daily Entries.');
@@ -626,11 +628,11 @@ export default function Loan() {
                             className="text-button"
                             onClick={() => {
                               setPayment(p.loan.rows.find((row) => row.id === r.id)!);
-                              setReceiptId(
-                                p.entries.filter((e) => e.loanRowId === r.id).length === 1
-                                  ? p.entries.find((e) => e.loanRowId === r.id)!.id
-                                  : '',
-                              );
+                              const existingReceipt = p.entries.filter((e) => e.loanRowId === r.id).length === 1
+                                ? p.entries.find((e) => e.loanRowId === r.id)
+                                : undefined;
+                              setReceiptId(existingReceipt?.id ?? '');
+                              setAccountId(existingReceipt ? existingReceipt.accountId ?? '__unallocated' : '');
                               setPaidDate(r.paidDate);
                               setPaidAmount(r.paidAmount);
                             }}
@@ -658,6 +660,7 @@ export default function Loan() {
             receipts={p.entries.filter((e) => e.loanRowId === payment.id)}
             onEdit={(e) => {
               setReceiptId(e.id);
+              setAccountId(e.accountId ?? '__unallocated');
               setPaidDate(e.date);
               setPaidAmount(e.amount);
             }}
@@ -676,6 +679,15 @@ export default function Loan() {
               onChange={(e) => setPaidAmount(Number(e.target.value))}
             />
           </Field>
+          <Field label="Paid from account">
+            <select value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
+              <option value="">Select an account</option>
+              {(p.accounts ?? []).filter((a) => a.active && ['cash', 'bank', 'wallet'].includes(a.kind)).map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+              <option value="__unallocated">Unallocated cash</option>
+            </select>
+          </Field>
           <Field label="Actual payment date">
             <input type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
           </Field>
@@ -686,7 +698,7 @@ export default function Loan() {
             <button className="button secondary" onClick={() => setPayment(null)}>
               Cancel
             </button>
-            <button className="button" onClick={savePayment}>
+            <button className="button" onClick={savePayment} disabled={!accountId}>
               Save payment
             </button>
           </div>
