@@ -1,11 +1,12 @@
 # GitHub Actions workflows
 
-The repository maintains five active, purpose-specific workflows:
+The repository maintains six active, purpose-specific workflows:
 
 | Workflow | Purpose | Trigger |
 | --- | --- | --- |
 | `build-tracker.yml` | Build and commit the authenticated web application into `track/` | Changes to Tracker source on `main`, manual dispatch |
-| `tracker-quality.yml` | Run Tracker tests, synthetic browser, database, Supabase and native dependency checks | Tracker pull requests and audit branches |
+| `tracker-quality.yml` | Run Tracker tests, synthetic browser, database, Supabase and native dependency checks | Tracker pull requests, audit branches, manual dispatch |
+| `weekly-tracker-audit.yml` | Run a Gemini financial/technical audit, validate proposed fixes with the existing quality suite, and create a reviewable PR | Weekly Sunday 02:00 IST, manual dispatch |
 | `tracker-unified-release.yml` | Build and publish signed Android APK, Windows installer and source archive | Automatic when `main` receives a new Tracker version, manual dispatch, or `tracker-v*` tag |
 | `publish-content.yml` | Publish staged website blog and project content | Upload changes on `main`, manual dispatch |
 | `sync-public-projects.yml` | Refresh portfolio project metadata and static pages | Weekly Monday schedule, manual dispatch |
@@ -15,6 +16,7 @@ The repository maintains five active, purpose-specific workflows:
 - Do not delete `tracker-unified-release.yml`: its signing secrets and Android/Windows release jobs are required for in-place updates.
 - Do not delete `build-tracker.yml`: GitHub Pages serves the generated `track/` route, not raw source.
 - `tracker-quality.yml` uses disposable test records; it is separate from production release publication.
+- `weekly-tracker-audit.yml` uses `GEMINI_API_KEY` only in its read-only audit job. Gemini is restricted to file tools while the key is present; keyless jobs validate proposed changes and run the full quality suite before opening a PR. It never deploys, publishes a release, or changes production financial records.
 - `build-tracker.yml`, `publish-content.yml` and `sync-public-projects.yml` serialize writes to `main` with `portfolio-main-writer`.
 - The built-in **pages build and deployment** workflow is managed by GitHub Pages, not by a file in this directory.
 
