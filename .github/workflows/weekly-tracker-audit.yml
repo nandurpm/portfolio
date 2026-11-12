@@ -82,6 +82,9 @@ jobs:
                   "replace"
                 ]
               },
+              "advanced": {
+                "ignoreLocalEnv": true
+              },
               "telemetry": {
                 "enabled": false
               }
