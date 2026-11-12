@@ -116,6 +116,10 @@ jobs:
             If no verified code fix is justified, create the report only and make no speculative edits.
         env:
           GEMINI_CLI_TRUST_WORKSPACE: 'true'
+
+      - name: Create a blocked report if Gemini fails before completing
+        id: fallback-report
+        if: always() && steps.gemini.outcome != 'success' && steps.context.outcome == 'success'
         continue-on-error: true
 
       - name: Retry Gemini audit with fallback model
@@ -247,6 +251,7 @@ jobs:
 
           ## Result
 
+          Gemini CLI did not complete the audit task. No findings, code fixes, or test results
           Neither the primary nor fallback Gemini CLI attempt completed the audit task. No findings, code fixes, or test results
           can be claimed from this run. Inspect the Gemini action step logs for the exact error.
 
@@ -254,6 +259,7 @@ jobs:
 
           - Repository checkout: completed.
           - Dependency installation: completed with lifecycle scripts disabled.
+          - Gemini audit: FAILED.
           - Primary Gemini attempt: FAILED.
           - Fallback Gemini attempt: FAILED.
           - Source patch packaging: intentionally disabled for a failed Gemini run.
@@ -273,6 +279,7 @@ jobs:
         shell: bash
         env:
           REPORT_PATH: ${{ steps.context.outputs.report_path }}
+          GEMINI_SUCCEEDED: ${{ steps.gemini.outcome == 'success' }}
           GEMINI_SUCCEEDED: ${{ steps.gemini.outcome == 'success' || steps.gemini-fallback.outcome == 'success' }}
           GEMINI_SUCCEEDED: ${{ steps.gemini.outcome == 'success' || steps.gemini_fallback.outcome == 'success' }}
         run: |
@@ -392,6 +399,7 @@ jobs:
           retention-days: 30
 
       - name: Upload validated patch payload
+        if: steps.package.outcome == 'success' && steps.gemini.outcome == 'success'
         if: steps.package.outcome == 'success' && (steps.gemini.outcome == 'success' || steps.gemini-fallback.outcome == 'success')
         if: steps.package.outcome == 'success' && (steps.gemini.outcome == 'success' || steps.gemini_fallback.outcome == 'success')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -409,6 +417,7 @@ jobs:
           exit 1
 
       - name: Report when no code fix is justified
+        if: steps.gemini.outcome == 'success' && steps.package.outputs.has_source_changes == 'false'
         if: (steps.gemini.outcome == 'success' || steps.gemini-fallback.outcome == 'success') && steps.package.outputs.has_source_changes == 'false'
         if: (steps.gemini.outcome == 'success' || steps.gemini_fallback.outcome == 'success') && steps.package.outputs.has_source_changes == 'false'
         shell: bash
