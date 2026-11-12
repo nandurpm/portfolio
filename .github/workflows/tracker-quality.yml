@@ -4,6 +4,8 @@ on:
     paths: ['tools/tracker-source/**', '.github/workflows/tracker-quality.yml']
   push:
     branches: ['fix/tracker-audit-*']
+  # The weekly Gemini pipeline dispatches this full suite on its isolated fix branch.
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
