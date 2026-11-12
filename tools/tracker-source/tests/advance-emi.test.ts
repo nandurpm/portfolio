@@ -13,6 +13,7 @@ import {
   saveInstallmentPayment,
   correctInstallmentDates,
   saveOriginalPayment,
+  singleInstallmentReceipt,
 } from '../src/domain/installments';
 import { validatePlan } from '../src/domain/validation';
 import { namedAccountBalances } from '../src/domain/net-worth';
@@ -85,6 +86,7 @@ function fixture() {
   ];
   p.entries = [];
   p.accounts = [{id:'bank',name:'SBI',kind:'bank',openingBalance:2000,active:true,note:''}];
+  p.ledgerTransactions = [];
   p.overrides = { '2026-11|living': 4000 };
   p.additionalLoans = [];
   Object.assign(p.loan, {
@@ -161,6 +163,15 @@ describe('advance EMI cash planning', () => {
     expect(defaultAmount(p, c, '2027-10')).toBe(0);
     expect(() => validatePlan(p)).not.toThrow();
   });
+  it('prefills the account from the sole linked EMI receipt when editing', () => {
+    const { p } = fixture();
+    const row = p.loan.rows[2]!;
+    saveOriginalPayment(p, row.id, '2026-11-10', 100, 'bank');
+    const receipt = singleInstallmentReceipt(p.entries, row.id);
+    expect(receipt).toMatchObject({ loanRowId: row.id, accountId: 'bank', amount: 100 });
+    expect(singleInstallmentReceipt(p.entries, 'missing-row')).toBeUndefined();
+    expect(singleInstallmentReceipt([...p.entries, { ...receipt!, id: 'second-receipt' }], row.id)).toBeUndefined();
+  });
   it('attributes EMI receipts to the selected account exactly once', () => {
     const { p } = fixture();
     const row = p.loan.rows[2]!;
@@ -171,6 +182,18 @@ describe('advance EMI cash planning', () => {
   it('does not duplicate partial payments made ahead of the planned cash month', () => {
     const { p } = fixture();
     const row = p.loan.rows[2]!;
+    const categoryId = p.categories.find((c) => c.role === 'emi' && !c.loanId)!.id;
+    p.entries.push({
+      id: 'bank',
+      date: '2026-11-10',
+      amount: 100,
+      categoryId,
+      description: `EMI due ${row.dueDate}`,
+      payment: 'Bank',
+      notes: 'Linked to loan schedule',
+      loanRowId: row.id,
+      accountId: '__unallocated',
+    });
     saveOriginalPayment(p, row.id, '2026-11-10', 100, '__unallocated', 'bank');
     expect(planned(p, '2026-11').debt).toBe(1666.19);
     expect(planned(p, '2026-12').debt).toBe(1466.19);
