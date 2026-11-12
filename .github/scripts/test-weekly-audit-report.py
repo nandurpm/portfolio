@@ -70,7 +70,7 @@ class ReportGateTests(unittest.TestCase):
             "- No unaddressed defects requiring code changes.\n"
             "- No manual approvals required for source code changes since no changes were made.\n"
         )
-        self.assertIn("No confirmed defects were reproduced by executable tests", report)
+        self.assertIn("No confirmed application defects were established during static review", report)
         self.assertIn("runtime, device, and backend checks marked NOT TESTED remain outstanding", report)
 
     def test_machine_metadata_is_appended(self):

@@ -82,7 +82,7 @@ text = re.sub(
 )
 text = re.sub(
     r"(?im)^- No unaddressed defects requiring code changes\.$",
-    "- No confirmed defects were reproduced by executable tests in this Gemini stage; runtime verification remains NOT TESTED until independent CI results are attached.",
+    "- No confirmed application defects were established during static review; executable reproduction and regression tests were NOT TESTED in the Gemini stage.",
     text,
 )
 text = re.sub(
