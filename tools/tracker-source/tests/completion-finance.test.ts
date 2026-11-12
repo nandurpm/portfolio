@@ -14,7 +14,7 @@ describe('completion finance',()=>{
   const {p,l}=loanFixture();applyLenderSchedule(p,l.id,'2026-12-05,60,10\n2027-01-05,40,5');
   expect(l.rows.map(r=>r.emi)).toEqual([70,45]);expect(p.entries).toHaveLength(0);validatePlan(p);
   const before=netWorthSnapshot(p,'2026-12-06').planLoans;
-  saveInstallmentPayment(p,l.id,l.rows[0]!.id,'2026-12-05',70);
+  saveInstallmentPayment(p, l.id, l.rows[0]!.id, '2026-12-05', 70, '__unallocated');
   expect(netWorthSnapshot(p,'2026-12-06').planLoans).toBe(before-60);
  });
  it('rejects incomplete principal totals and inconsistent imported allocations',()=>{
