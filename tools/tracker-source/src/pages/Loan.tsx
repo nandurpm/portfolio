@@ -3,7 +3,7 @@ import { ArchivedPayments } from '../components/ArchivedPayments';
 import { HelpTerm } from '../components/HelpTerm';
 import { receiptScope } from '../domain/archive';
 import { plannedPaymentDate, possibleDuplicates } from '../domain/insights';
-import { saveOriginalPayment } from '../domain/installments';
+import { saveOriginalPayment, singleInstallmentReceipt } from '../domain/installments';
 import { PaymentReceipts } from '../components/PaymentReceipts';
 import { useMemo, useState } from 'react';
 import AdditionalLoans from '../components/AdditionalLoans';
@@ -497,12 +497,10 @@ export default function Loan() {
                   <button
                     className="button small secondary"
                     onClick={() => {
+                      const existingReceipt = singleInstallmentReceipt(p.entries, r.id);
                       setPayment(p.loan.rows.find((row) => row.id === r.id)!);
-                      setReceiptId(
-                        p.entries.filter((e) => e.loanRowId === r.id).length === 1
-                          ? p.entries.find((e) => e.loanRowId === r.id)!.id
-                          : '',
-                      );
+                      setReceiptId(existingReceipt?.id ?? '');
+                      setAccountId(existingReceipt ? existingReceipt.accountId ?? '__unallocated' : '');
                       setPaidDate(r.paidDate);
                       setPaidAmount(r.paidAmount);
                     }}
@@ -628,9 +626,7 @@ export default function Loan() {
                             className="text-button"
                             onClick={() => {
                               setPayment(p.loan.rows.find((row) => row.id === r.id)!);
-                              const existingReceipt = p.entries.filter((e) => e.loanRowId === r.id).length === 1
-                                ? p.entries.find((e) => e.loanRowId === r.id)
-                                : undefined;
+                              const existingReceipt = singleInstallmentReceipt(p.entries, r.id);
                               setReceiptId(existingReceipt?.id ?? '');
                               setAccountId(existingReceipt ? existingReceipt.accountId ?? '__unallocated' : '');
                               setPaidDate(r.paidDate);
