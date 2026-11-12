@@ -22,7 +22,7 @@ const phone = addInstallmentLoan(fixture.data, {
   firstDueDate: '2026-11-05',
   note: 'Synthetic fixture only',
 });
-saveInstallmentPayment(fixture.data, phone.id, phone.rows[0]!.id, '2026-10-20', 100);
+saveInstallmentPayment(fixture.data, phone.id, phone.rows[0]!.id, '2026-10-20', 100, '__unallocated');
 localStorage.setItem('savings-expence-v1', JSON.stringify(fixture));
 // Never contact Supabase or accept a real account session from this fixture.
 sync.start = async () => {};
