@@ -24,6 +24,7 @@ jobs:
     outputs:
       has_source_changes: ${{ steps.package.outputs.has_source_changes }}
       report_path: ${{ steps.context.outputs.report_path }}
+      audit_date: ${{ steps.context.outputs.audit_date }}
     steps:
       - name: Checkout trusted default branch without persisting credentials
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -297,7 +298,7 @@ jobs:
         id: commit
         shell: bash
         env:
-          AUDIT_DATE: ${{ steps.context.outputs.audit_date }}
+          AUDIT_DATE: ${{ needs.audit.outputs.audit_date }}
         run: |
           set -euo pipefail
           git apply --check tracker-audit-payload/source.patch
@@ -393,7 +394,7 @@ jobs:
           TARGET_BRANCH: ${{ needs.publish-audit-branch.outputs.branch }}
           REPORT_PATH: ${{ needs.audit.outputs.report_path }}
           QUALITY_RUN_URL: ${{ needs.run-full-quality.outputs.quality_run_url }}
-          AUDIT_DATE: ${{ needs.audit.outputs.report_path }}
+          AUDIT_DATE: ${{ needs.audit.outputs.audit_date }}
         shell: bash
         run: |
           set -euo pipefail
