@@ -81,12 +81,12 @@ text = re.sub(
     text,
 )
 text = re.sub(
-    r"(?im)^- No unaddressed defects requiring code changes\\.$",
+    r"(?im)^- No unaddressed defects requiring code changes\.$",
     "- No confirmed defects were reproduced by executable tests in this Gemini stage; runtime verification remains NOT TESTED until independent CI results are attached.",
     text,
 )
 text = re.sub(
-    r"(?im)^- No manual approvals required for source code changes since no changes were made\\.$",
+    r"(?im)^- No manual approvals required for source code changes since no changes were made\.$",
     "- No source changes were proposed in this run; runtime, device, and backend checks marked NOT TESTED remain outstanding.",
     text,
 )

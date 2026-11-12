@@ -65,10 +65,10 @@ class ReportGateTests(unittest.TestCase):
 
     def test_unsupported_no_defect_claim_is_qualified(self):
         report, _ = self.run_gate(
-            "# Audit\\n"
-            "## 7. Unresolved Issues & Manual Approvals\\n"
-            "- No unaddressed defects requiring code changes.\\n"
-            "- No manual approvals required for source code changes since no changes were made.\\n"
+            "# Audit\n"
+            "## 7. Unresolved Issues & Manual Approvals\n"
+            "- No unaddressed defects requiring code changes.\n"
+            "- No manual approvals required for source code changes since no changes were made.\n"
         )
         self.assertIn("No confirmed defects were reproduced by executable tests", report)
         self.assertIn("runtime, device, and backend checks marked NOT TESTED remain outstanding", report)
