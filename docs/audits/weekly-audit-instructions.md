@@ -144,6 +144,35 @@ Inspect all relevant screens for excessive whitespace, inconsistent spacing, poo
 
 Preserve the established design unless a measurable usability problem justifies a focused change. Do not remove existing functionality or perform a broad redesign.
 
+## Evidence grading and status rules
+
+Use evidence-based labels. Do not turn code reading into a test result.
+
+### Finding status
+- `CONFIRMED`: reproduced with a deterministic fixture, failing test, or directly observed failure.
+- `POTENTIAL`: plausible risk found by static inspection but not reproduced.
+- `RESOLVED`: a code change was made and the relevant independent regression test passed.
+- `NOT REPRODUCED`: an attempted reproduction did not demonstrate the reported behavior.
+- `DEFERRED`: a confirmed or potential issue requires a protected-path change, production access, device, credential, or manual decision.
+
+A finding must never be labelled `PASS`. Use the finding status above.
+
+### Audit-area status
+Use only `PASS`, `FAIL`, `BLOCKED`, or `NOT TESTED` for the verification status of each area.
+
+- `PASS` requires an executed, relevant test/build/device check with its exact command or workflow, commit SHA, and result. Static source inspection alone is never enough.
+- `FAIL` means an executed check failed or a defect was reproduced.
+- `BLOCKED` means the check was attempted but could not complete because of an external prerequisite or environment limitation.
+- `NOT TESTED` means no relevant executable verification was performed.
+- For static inspection, separately state `Static review: completed` and summarize what was inspected. Then state the runtime/test status independently.
+- When Gemini shell execution is disabled, financial calculations, persistence, RLS/security behavior, platform rendering, and build/runtime behavior must remain `NOT TESTED` unless an independently completed CI run on the exact audited commit supplies the evidence.
+- Do not label an area `PASS` because tests exist, code appears consistent, a previous release passed, or no issue was noticed.
+- A successful Gemini action means the agent completed its task; it does not mean the application audit passed.
+- A successful weekly audit workflow means orchestration completed; it does not mean every skipped job passed.
+- Production data not being accessed is a safety control, not a test pass. Report it as `NOT ACCESSED (by design)`.
+
+Avoid unsupported conclusions such as "fully verified", "all calculations pass", "stable", "secure", or "60fps" unless each statement is supported by direct evidence in this run.
+
 ## Work procedure and testing limits
 
 1. Record the starting commit and application version.
