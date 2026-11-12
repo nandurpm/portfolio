@@ -118,7 +118,7 @@ export default function Entries({
     if (!widgetEntry) return;
     setKind(widgetEntry.kind);
     // A new widget action starts a new draft, including when Entries is already open.
-    setDraft(previous => ({ ...previous, date: defaultDate, amount: '', description: '', notes: '' }));
+    setDraft(previous => ({ ...previous, accountId: '', date: defaultDate, amount: '', description: '', notes: '' }));
     setBillDueMonth('');
     setEditEntry(null);
     setBulk(false);
@@ -227,6 +227,7 @@ export default function Entries({
       const n: Entry = {
         id: crypto.randomUUID(),
         ...draft,
+        accountId: draft.accountId === '__unallocated' ? undefined : draft.accountId,
         ...(activeProvision && billDueMonth
           ? { provisionId: activeProvision.id, billDueMonth }
           : {}),
@@ -250,7 +251,7 @@ export default function Entries({
         d.entries.push(n);
       });
       triggerActionFeedback(kind === 'Expense' ? 'expense' : 'success');
-      setDraft((x) => ({ ...x, description: '', amount: '', notes: '' }));
+      setDraft((x) => ({ ...x, accountId: '', description: '', amount: '', notes: '' }));
       setBillDueMonth('');
       amountRef.current?.focus();
       try {
@@ -507,6 +508,20 @@ export default function Entries({
               onChange={(e) => setDraft({ ...draft, amount: e.target.value })}
             />
           </Field>
+          <Field label="Account" hint="Choose where income was received or where the expense was paid. Select Unallocated cash if you do not know the account.">
+            <select
+              aria-label="New transaction account"
+              value={draft.accountId}
+              required
+              onChange={(e) => setDraft({ ...draft, accountId: e.target.value })}
+            >
+              <option value="" disabled>Select an account</option>
+              <option value="__unallocated">Unallocated cash</option>
+              {p.accounts?.filter(a => a.active && ['bank', 'cash', 'wallet'].includes(a.kind)).map(a => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+          </Field>
           <button
             className="button add-button"
             type="submit"
@@ -544,12 +559,6 @@ export default function Entries({
                   {payments.map((x) => (
                     <option key={x}>{x}</option>
                   ))}
-                </select>
-              </Field>
-              <Field label="Account">
-                <select aria-label="New transaction account" value={draft.accountId} onChange={e=>setDraft({...draft,accountId:e.target.value})}>
-                  <option value="">Unallocated cash</option>
-                  {p.accounts?.filter(a=>['bank','cash','wallet'].includes(a.kind)).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
               </Field>
               <Field label="Notes (optional)">
