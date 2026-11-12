@@ -25,6 +25,7 @@ jobs:
       has_source_changes: ${{ steps.package.outputs.has_source_changes }}
       report_path: ${{ steps.context.outputs.report_path }}
       audit_date: ${{ steps.context.outputs.audit_date }}
+      selected_model: ${{ steps.context.outputs.selected_model }}
       primary_succeeded: ${{ steps.gemini.outcome == 'success' }}
       fallback_succeeded: ${{ steps.gemini_fallback.outcome == 'success' }}
     steps:
@@ -48,12 +49,16 @@ jobs:
       - name: Prepare audit date and report path
         id: context
         shell: bash
+        env:
+          PRIMARY_GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash-lite' }}
         run: |
           set -euo pipefail
           audit_date="$(TZ=Asia/Kolkata date +%F)"
           report_path="docs/audits/weekly-audit-$audit_date-run-$GITHUB_RUN_NUMBER.md"
+          selected_model="$PRIMARY_GEMINI_MODEL"
           echo "audit_date=$audit_date" >> "$GITHUB_OUTPUT"
           echo "report_path=$report_path" >> "$GITHUB_OUTPUT"
+          echo "selected_model=$selected_model" >> "$GITHUB_OUTPUT"
           {
             echo "## Weekly Gemini Tracker Audit"
             echo
@@ -102,6 +107,8 @@ jobs:
             Audit date (Asia/Kolkata): ${{ steps.context.outputs.audit_date }}
             Required report path: ${{ steps.context.outputs.report_path }}
             Base commit: ${{ github.sha }}
+            Configured primary model: ${{ steps.context.outputs.selected_model }}
+            Fallback model: gemini-3.6-flash if the primary attempt fails
 
             Inspect the actual implementation. Identify reproducible defects, trace root causes,
             and implement only focused fixes within the permitted paths. Add regression tests.
@@ -154,8 +161,11 @@ jobs:
             Audit date (Asia/Kolkata): ${{ steps.context.outputs.audit_date }}
             Required report path: ${{ steps.context.outputs.report_path }}
             Base commit: ${{ github.sha }}
+            Configured primary model: ${{ steps.context.outputs.selected_model }}
+            Fallback model: gemini-3.6-flash if the primary attempt fails
 
-            This is a fallback attempt after the primary Gemini model failed. Complete the same
+            This is a fallback attempt after the configured primary Gemini model failed.
+            The model used for this report is gemini-3.6-flash (fallback). Complete the same
             audit task without assuming that the primary attempt produced usable output.
             Inspect the actual implementation. Identify reproducible defects, trace root causes,
             and implement only focused fixes within the permitted paths. Add regression tests.
@@ -478,8 +488,15 @@ jobs:
           git push --set-upstream origin "$BRANCH"
 
   run-full-quality:
-    name: Run existing full Tracker quality suite on audit branch
-    needs: publish-audit-branch
+    name: Run existing full Tracker quality suite against audited code
+    needs: [audit, publish-audit-branch]
+    if: >-
+      always() &&
+      needs.audit.result == 'success' &&
+      (
+        needs.audit.outputs.has_source_changes == 'false' ||
+        needs.publish-audit-branch.result == 'success'
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 65
     permissions:
@@ -487,20 +504,36 @@ jobs:
       contents: read
     outputs:
       quality_run_url: ${{ steps.quality.outputs.run_url }}
+      quality_result: ${{ steps.quality.outputs.result }}
     steps:
-      - name: Dispatch and wait for tracker-quality.yml
+      - name: Dispatch and wait for tracker-quality.yml on the audited snapshot
         id: quality
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          TARGET_BRANCH: ${{ needs.publish-audit-branch.outputs.branch }}
+          TARGET_BRANCH: ${{ needs.audit.outputs.has_source_changes == 'true' && needs.publish-audit-branch.outputs.branch || 'main' }}
+          TARGET_COMMIT: ${{ needs.audit.outputs.has_source_changes == 'true' && needs.publish-audit-branch.outputs.head_sha || github.sha }}
+          REPORT_PATH: ${{ needs.audit.outputs.report_path }}
         run: |
           set -euo pipefail
+          dispatch_time="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [[ "$TARGET_BRANCH" == "main" ]]; then
+            current_main="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq '.sha')"
+            if [[ "$current_main" != "$TARGET_COMMIT" ]]; then
+              echo "::error::main advanced during the audit (audited $TARGET_COMMIT, current $current_main). Re-run the audit on latest main."
+              echo "result=BLOCKED" >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
+          fi
           gh workflow run tracker-quality.yml --ref "$TARGET_BRANCH" --repo "$GITHUB_REPOSITORY"
 
+          # Match the exact audited SHA and dispatch time; do not accidentally watch
+          # another user's concurrent manual quality run on main. ISO UTC timestamps
+          # sort lexicographically, avoiding parser/version differences in jq.
+          jq_filter="first(.[] | select(.headSha == \"$TARGET_COMMIT\" and .createdAt >= \"$dispatch_time\") | .databaseId) // empty"
           run_id=""
           for attempt in $(seq 1 30); do
-            run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tracker-quality.yml --branch "$TARGET_BRANCH" --event workflow_dispatch --limit 5 --json databaseId --jq '.[0].databaseId // empty')"
+            run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tracker-quality.yml --branch "$TARGET_BRANCH" --event workflow_dispatch --limit 20 --json databaseId,headSha,createdAt --jq "$jq_filter")"
             if [ -n "$run_id" ]; then
               break
             fi
@@ -509,20 +542,75 @@ jobs:
 
           if [ -z "$run_id" ]; then
             echo "The tracker-quality workflow run was not visible after dispatch." >&2
+            echo "result=BLOCKED" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
           echo "Dispatched tracker-quality run: $run_id"
+          set +e
           gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 15
+          watch_status=$?
+          set -e
           run_url="$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json url --jq '.url')"
           echo "run_url=$run_url" >> "$GITHUB_OUTPUT"
+          if [[ "$watch_status" -eq 0 ]]; then
+            quality_result="PASS"
+          else
+            quality_result="FAIL"
+          fi
+          echo "result=$quality_result" >> "$GITHUB_OUTPUT"
+
+          report_dir="$RUNNER_TEMP/audit-report-source"
+          mkdir -p "$report_dir"
+          if gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+              --name "weekly-tracker-audit-report-$GITHUB_RUN_ID" --dir "$report_dir"; then
+            report_file="$(find "$report_dir" -type f -name '*.md' -print -quit)"
+            if [[ -n "$report_file" ]]; then
+              cp "$report_file" "$RUNNER_TEMP/weekly-audit-final-report.md"
+              cat >> "$RUNNER_TEMP/weekly-audit-final-report.md" <<EOF
+
+          ---
+
+          ## Independent CI verification
+
+          - Quality workflow: `tracker-quality.yml`
+          - Target ref: `$TARGET_BRANCH`
+          - Target commit: `$TARGET_COMMIT`
+          - Result: **$quality_result**
+          - Workflow run: $run_url
+          - This result is from a separate keyless GitHub Actions run. It does not certify physical-device behavior or production service state.
+          EOF
+            else
+              echo "::warning::The original audit report artifact contained no Markdown file."
+            fi
+          else
+            echo "::warning::Could not download the original audit report artifact for CI annotation."
+          fi
+
           {
             echo "## Full Tracker quality suite"
             echo
-            echo "- Branch: $TARGET_BRANCH"
-            echo "- Result: **PASS**"
+            echo "- Target ref: $TARGET_BRANCH"
+            echo "- Target commit: $TARGET_COMMIT"
+            echo "- Result: **$quality_result**"
             echo "- Run: $run_url"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final audit report with independent CI result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: weekly-tracker-audit-final-report-${{ github.run_id }}
+          path: ${{ runner.temp }}/weekly-audit-final-report.md
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Fail pipeline when independent quality validation fails
+        if: steps.quality.outputs.result == 'FAIL'
+        shell: bash
+        run: |
+          echo "::error::The independent Tracker quality workflow failed."
+          exit 1
 
   create-pull-request:
     name: Open reviewable pull request
@@ -581,6 +669,8 @@ jobs:
           AUDIT_RESULT: ${{ needs.audit.result }}
           PRIMARY_SUCCEEDED: ${{ needs.audit.outputs.primary_succeeded }}
           FALLBACK_SUCCEEDED: ${{ needs.audit.outputs.fallback_succeeded }}
+          PRIMARY_MODEL: ${{ needs.audit.outputs.selected_model }}
+          FALLBACK_MODEL: gemini-3.6-flash
           SOURCE_CHANGES: ${{ needs.audit.outputs.has_source_changes }}
           REPORT_PATH: ${{ needs.audit.outputs.report_path }}
           AUDIT_DATE: ${{ needs.audit.outputs.audit_date }}
@@ -603,9 +693,9 @@ jobs:
           primary = os.environ.get("PRIMARY_SUCCEEDED") == "true"
           fallback = os.environ.get("FALLBACK_SUCCEEDED") == "true"
           if primary:
-              model = "gemini-3.5-flash-lite"
+              model = os.environ.get("PRIMARY_MODEL") or "configured primary model (name unavailable)"
           elif fallback:
-              model = "gemini-3.6-flash (fallback)"
+              model = (os.environ.get("FALLBACK_MODEL") or "fallback model") + " (fallback)"
           else:
               model = "primary and fallback failed"
 
