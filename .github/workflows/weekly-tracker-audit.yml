@@ -516,12 +516,21 @@ jobs:
           REPORT_PATH: ${{ needs.audit.outputs.report_path }}
         run: |
           set -euo pipefail
-          dispatch_epoch="$(date -u +%s)"
+          dispatch_time="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [[ "$TARGET_BRANCH" == "main" ]]; then
+            current_main="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq '.sha')"
+            if [[ "$current_main" != "$TARGET_COMMIT" ]]; then
+              echo "::error::main advanced during the audit (audited $TARGET_COMMIT, current $current_main). Re-run the audit on latest main."
+              echo "result=BLOCKED" >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
+          fi
           gh workflow run tracker-quality.yml --ref "$TARGET_BRANCH" --repo "$GITHUB_REPOSITORY"
 
           # Match the exact audited SHA and dispatch time; do not accidentally watch
-          # another user's concurrent manual quality run on main.
-          jq_filter="first(.[] | select(.headSha == \"$TARGET_COMMIT\" and (.createdAt | fromdateiso8601) >= $dispatch_epoch) | .databaseId) // empty"
+          # another user's concurrent manual quality run on main. ISO UTC timestamps
+          # sort lexicographically, avoiding parser/version differences in jq.
+          jq_filter="first(.[] | select(.headSha == \"$TARGET_COMMIT\" and .createdAt >= \"$dispatch_time\") | .databaseId) // empty"
           run_id=""
           for attempt in $(seq 1 30); do
             run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tracker-quality.yml --branch "$TARGET_BRANCH" --event workflow_dispatch --limit 20 --json databaseId,headSha,createdAt --jq "$jq_filter")"
