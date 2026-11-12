@@ -128,8 +128,8 @@ export default function AdditionalLoans() {
           payment.rowId,
           paidDate,
           Number(paidAmount),
-          method,
           accountId,
+          method,
           receiptId || undefined,
         ),
       );
