@@ -95,9 +95,7 @@ jobs:
             Base commit: ${{ github.sha }}
 
             Inspect the actual implementation. Identify reproducible defects, trace root causes,
-            implement only focused fixes within the permitted paths, add regression tests, and
-            run safe targeted tests. Do not commit, push, create branches, create pull requests,
-            implement only focused fixes within the permitted paths and add regression tests.
+            and implement only focused fixes within the permitted paths. Add regression tests.
             Shell execution is intentionally disabled while the API key is present; do not attempt
             to run commands. A separate keyless validation job will execute tests and builds.
             Do not commit, push, create branches, create pull requests,
