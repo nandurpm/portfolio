@@ -21,7 +21,16 @@ sha_pattern = re.compile(r"\b[0-9a-f]{40}\b", re.I)
 command_pattern = re.compile(r"(?:\bnpm\s+(?:run|test|ci)|\bnpx\b|\bpnpm\b|\byarn\b|\bgradlew\b|\bgh\s+run\b|github\.com/[^ \])]+/actions/runs/\d+)", re.I)
 success_pattern = re.compile(r"\b(?:passed|success|successful|exit\s+code\s+0)\b", re.I)
 def has_evidence(row: str) -> bool:
-    return bool(sha_pattern.search(row) and command_pattern.search(row) and success_pattern.search(row))
+    # A syntactically valid SHA is not enough: it must be the exact commit this
+    # workflow checked out. Missing or malformed workflow metadata fails closed.
+    expected = sha.lower()
+    recorded = {value.lower() for value in sha_pattern.findall(row)}
+    return bool(
+        re.fullmatch(r"[0-9a-f]{40}", sha, re.I)
+        and expected in recorded
+        and command_pattern.search(row)
+        and success_pattern.search(row)
+    )
 def bounds(lines, pattern):
     start = next((i + 1 for i, line in enumerate(lines) if re.match(pattern, line.strip(), re.I)), None)
     if start is None: return None
@@ -106,10 +115,10 @@ This gate checks report labels and provenance formatting; it does not test appli
 
 - Audit-area PASS labels downgraded to NOT TESTED for missing same-row evidence: {len(area_changes)}
 - Invalid finding-level PASS labels normalized: {len(finding_changes)}
-- An audit-area PASS is valid only when its row records an executed command or workflow URL, exact commit SHA, and successful result.
+- An audit-area PASS is valid only when its row records the exact audited commit SHA, an executed command or workflow URL, and a successful result.
 - A finding must use CONFIRMED, POTENTIAL, RESOLVED, NOT REPRODUCED, or DEFERRED; PASS is not a finding status.
 - Static inspection, test-file existence, a successful Gemini action, or a previous release are not runtime verification.
-- Prose claims without exact current-run evidence are static-review commentary, not a test/build/device PASS.
+- Prose claims without current-run evidence are static-review commentary, not a test/build/device PASS.
 - Production services and user data remain NOT ACCESSED unless separately authorized.
 """
 if "## Automated report evidence gate" not in text:

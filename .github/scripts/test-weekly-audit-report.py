@@ -10,12 +10,12 @@ from pathlib import Path
 SCRIPT = Path(__file__).with_name("validate-weekly-audit-report.py")
 
 class ReportGateTests(unittest.TestCase):
-    def run_gate(self, body):
+    def run_gate(self, body, audited_sha="a" * 40):
         with tempfile.TemporaryDirectory() as tmp:
             report = Path(tmp) / "report.md"
             report.write_text(body, encoding="utf-8")
             env = os.environ | {
-                "AUDITED_SHA": "a" * 40,
+                "AUDITED_SHA": audited_sha,
                 "AUDIT_DATE": "2026-11-12",
                 "PRIMARY_MODEL": "gemini-test-model",
                 "PRIMARY_RESULT": "success",
@@ -62,6 +62,35 @@ class ReportGateTests(unittest.TestCase):
             f"| Web | **PASS** | npm run check passed at {sha} |\n"
         )
         self.assertIn("| Web | **PASS** |", report)
+
+    def test_area_pass_with_mismatched_sha_is_downgraded(self):
+        wrong_sha = "b" * 40
+        report, _ = self.run_gate(
+            "## Audit Area Status Summary\n"
+            "| Audit Area | Status | Evidence |\n|---|---|---|\n"
+            f"| Web | **PASS** | npm run check passed at {wrong_sha} |\n"
+        )
+        self.assertIn("| Web | **NOT TESTED** |", report)
+
+    def test_area_pass_with_missing_audited_sha_is_downgraded(self):
+        recorded_sha = "a" * 40
+        report, _ = self.run_gate(
+            "## Audit Area Status Summary\n"
+            "| Audit Area | Status | Evidence |\n|---|---|---|\n"
+            f"| Web | **PASS** | npm run check passed at {recorded_sha} |\n",
+            audited_sha="",
+        )
+        self.assertIn("| Web | **NOT TESTED** |", report)
+
+    def test_area_pass_with_malformed_audited_sha_is_downgraded(self):
+        recorded_sha = "a" * 40
+        report, _ = self.run_gate(
+            "## Audit Area Status Summary\n"
+            "| Audit Area | Status | Evidence |\n|---|---|---|\n"
+            f"| Web | **PASS** | npm run check passed at {recorded_sha} |\n",
+            audited_sha="not-a-commit-sha",
+        )
+        self.assertIn("| Web | **NOT TESTED** |", report)
 
     def test_unsupported_no_defect_claim_is_qualified(self):
         report, _ = self.run_gate(
