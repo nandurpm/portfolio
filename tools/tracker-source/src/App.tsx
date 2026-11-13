@@ -15,6 +15,8 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useCallback,
+  useMemo,
   useState,
   useRef,
   type ReactNode,
@@ -146,24 +148,25 @@ export function Shell() {
   const androidMore = more && window.desktop?.platform === 'android';
   const [navigationSection, setNavigationSection] = useState<string | undefined>();
   const [widgetEntry, setWidgetEntry] = useState<{ kind: 'Income' | 'Expense'; sequence: number }>();
-  const navigate = (next: string, section?: string) => {
+  const navigate = useCallback((next: string, section?: string) => {
     preloadPage(next);
     setPage(next);
     setMore(false);
     setNavigationSection(section);
     document.querySelector(".main-scroll")?.scrollTo(0, 0);
     document.querySelector(".workspace")?.scrollTo(0, 0);
-  };
+  }, []);
+  const addEntry = useCallback((kind: 'Income' | 'Expense') => {
+    setEntryKind(kind);
+    setPage('entries');
+  }, []);
   useEffect(() => {
     if (loading) return;
     let cancelled = false;
     const timer = setTimeout(() => {
-      void (async () => {
-        for (const key of ['entries', 'accounts', 'budget'] as const) {
-          if (cancelled) break;
-          try { await pageLoaders[key](); } catch { /* Keep current screen usable offline. */ }
-        }
-      })();
+      if (!cancelled) void Promise.allSettled(
+        ['entries', 'accounts', 'budget'].map(key => pageLoaders[key as keyof typeof pageLoaders]()),
+      );
     }, 1000);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [loading]);
@@ -207,6 +210,19 @@ export function Shell() {
   const recovery = status === "Recovery needed";
   const current = pages.find((x) => x.id === page)!;
   const Home = window.desktop?.platform === 'android' ? AndroidDashboard : Dashboard;
+  // Reuse the selected element across parent menu/save-status renders. Refresh on
+  // plan edits, screen inputs and the minute clock (including live-date rollover).
+  const activeScreen = useMemo(() => (
+    page === 'dashboard' ? <Home navigate={navigate} addEntry={addEntry} /> :
+    page === 'entries' ? <Entries initialKind={entryKind} widgetEntry={widgetEntry} /> :
+    page === 'accounts' ? <Accounts /> :
+    page === 'employment' ? <Employment /> :
+    page === 'budget' ? <Budget /> :
+    page === 'loan' ? <Loan /> :
+    page === 'forecast' ? <Forecast /> :
+    page === 'balances' ? <Balances /> :
+    page === 'reports' ? <Reports /> : <Settings navigate={navigate} />
+  ), [Home, page, p, tick, entryKind, widgetEntry, navigate, addEntry]);
   useEffect(() => {
     document.title = `${current.name} · Tracker`;
   }, [current.name]);
@@ -638,33 +654,7 @@ export function Shell() {
                       </div>
                     }
                   >
-                    {page === "dashboard" ? (
-                      <Home
-                        navigate={navigate}
-                        addEntry={(kind) => {
-                          setEntryKind(kind);
-                          setPage("entries");
-                        }}
-                      />
-                    ) : page === "entries" ? (
-                      <Entries initialKind={entryKind} widgetEntry={widgetEntry} />
-                    ) : page === "accounts" ? (
-                      <Accounts />
-                    ) : page === "employment" ? (
-                      <Employment />
-                    ) : page === "budget" ? (
-                      <Budget />
-                    ) : page === "loan" ? (
-                      <Loan />
-                    ) : page === "forecast" ? (
-                      <Forecast />
-                    ) : page === "balances" ? (
-                      <Balances />
-                    ) : page === "reports" ? (
-                      <Reports />
-                    ) : (
-                      <Settings navigate={navigate} />
-                    )}
+                    {activeScreen}
                   </Suspense>
                 </motion.div>
             </fieldset>

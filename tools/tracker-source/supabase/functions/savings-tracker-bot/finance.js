@@ -568,9 +568,13 @@ function planned(p, m, date, mode = p.settings.mode) {
   return finish(t);
 }
 function actual(p, start, end, catId) {
-  const t = emptyTotals(), cats = new Map(p.categories.map((c) => [c.id, c]));
-  for (const e of p.entries) {
-    if (!inRange(e.date, p.settings.planStart, p.settings.planEnd) || e.date < start || e.date > end || catId && e.categoryId !== catId)
+  const entries = p.entries.filter((e) => inRange(e.date, p.settings.planStart, p.settings.planEnd));
+  return actualFromEntries(p, start, end, entries, new Map(p.categories.map((c) => [c.id, c])), catId);
+}
+function actualFromEntries(p, start, end, entries, cats, catId) {
+  const t = emptyTotals();
+  for (const e of entries) {
+    if (e.date < start || e.date > end || catId && e.categoryId !== catId)
       continue;
     const c = cats.get(e.categoryId);
     if (c && c.group !== "Asset")
@@ -627,13 +631,17 @@ function cumulative(p, date = reportDate(p)) {
     t.living += v.living;
     t.debt += v.debt;
   }
-  const plan = finish(t), a = actual(p, `${p.settings.planStart}-01`, date), ledger = ledgerPeriod(p, p.settings.planStart + "-01", date);
+  const plan = finish(t), a = actual(p, `${p.settings.planStart}-01`, date);
   return {
     plan,
     actual: a,
     expectedCash: round2(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
-    actualCash: round2(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + "-01", date) + ledgerCashEffect(p, p.settings.planStart + "-01", date) - ledger.income + ledger.expenses)
+    actualCash: recordedCash(p, date, a)
   };
+}
+function recordedCash(p, date, totals = actual(p, `${p.settings.planStart}-01`, date)) {
+  const ledger = ledgerPeriod(p, p.settings.planStart + "-01", date);
+  return round2(p.settings.opening + totals.savings + pfCashEffect(p, p.settings.planStart + "-01", date) + ledgerCashEffect(p, p.settings.planStart + "-01", date) - ledger.income + ledger.expenses);
 }
 
 // src/domain/balances.ts

@@ -2,6 +2,7 @@
 import { ledgerPeriod, reportCategories } from '../domain/ledger';
 import { archivedEntryCount } from '../domain/archive';
 import { FinancialPosition } from '../components/FinancialPosition';
+import { DeferredContent } from '../components/DeferredContent';
 import { WorkspaceOverview } from '../components/WorkspaceOverview';
 import { usePhone } from '../components/usePhone';
 import { CashAlerts, BudgetAlerts, MonthlyChecklist } from '../components/MoneyGuidance';
@@ -344,9 +345,9 @@ export default function Dashboard({
           </div>
           <span className="dashboard-pulse-caption">Hover the graphs for month-by-month detail</span>
         </div>
-        <Suspense fallback={<p className="muted" role="status">Loading dashboard charts…</p>}>
+        <DeferredContent><Suspense fallback={<p className="muted" role="status">Loading dashboard charts…</p>}>
           <SavingsCharts />
-        </Suspense>
+        </Suspense></DeferredContent>
       </section>
       <FinancialPosition onManage={()=>navigate('accounts')}/>
       {archivedCount > 0 && (
@@ -392,7 +393,7 @@ export default function Dashboard({
           </span>
         </div>
         <div className="dashboard-deep-dive-body">
-      <Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense>
+      <DeferredContent><Suspense fallback={<p className="muted" role="status">Loading comparison charts…</p>}><ComparisonCharts /></Suspense></DeferredContent>
       <Section
         title={`${monthLabel(m, true)}, side by side`}
         caption={
@@ -506,7 +507,7 @@ export default function Dashboard({
           })}
         </div>
       </Section>
-      <Suspense fallback={<p className="muted" role="status">Loading savings charts…</p>}><SavingsCharts all /></Suspense>
+      <DeferredContent><Suspense fallback={<p className="muted" role="status">Loading savings charts…</p>}><SavingsCharts all /></Suspense></DeferredContent>
       <Section
         title="Every category, accounted for"
         caption="Income progress is measured by receipts; expense progress is measured by spending. Remaining budgets are not savings."

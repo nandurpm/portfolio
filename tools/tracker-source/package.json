@@ -20,6 +20,7 @@
     "audit": "npm audit",
     "check": "npm run lint && npm test && npm run test:dependencies && npm run check:bot-finance && npm run test:bot && npm run typecheck:quality && npm run build && npm run check:bundle && node scripts/build-bot-finance.mjs --check",
     "test:browser": "playwright test",
+    "benchmark:progress": "node --import tsx scripts/benchmark-progress.ts",
     "test:security": "node --import tsx scripts/test-security.ts",
     "verify:deployment": "node scripts/verify-deployment.mjs",
     "test:database": "node --import tsx scripts/test-database.ts",
