@@ -4,7 +4,7 @@ import { HelpTerm } from '../components/HelpTerm';
 import { store, usePlan } from '../store';
 import { reconciliationResult, provisionResult } from '../domain/balances';
 import { money, reportDate } from '../domain/calculate';
-import { addMonths, today } from '../domain/dates';
+import { addMonths, today, validDate } from '../domain/dates';
 import { PageHead, Section, Field, useUi } from '../components/UI';
 import type { Reconciliation, Provision } from '../domain/types';
 export default function Balances() {
@@ -44,12 +44,15 @@ export default function Balances() {
     enabled: true,
   });
   const [edit, setEdit] = useState('');
-  const preview = reconciliationResult(p, {
+  const validInterval = validDate(comparison.fromDate) && validDate(comparison.throughDate) &&
+    comparison.fromDate <= comparison.throughDate;
+  const preview = validInterval ? reconciliationResult(p, {
     ...comparison,
     statementBalance: Number(statement),
-  });
+  }) : null;
   const saveReconciliation = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validInterval) return;
     try {
       store.change('Save balance reconciliation', (d) => {
         const item = { ...comparison, id: editComparison || crypto.randomUUID(), statementBalance: Number(statement) };
@@ -159,7 +162,7 @@ export default function Balances() {
               />
             </Field>
           </div>
-          <p>
+          {preview ? <p>
             Recorded balance: <strong>{money(preview.calculated)}</strong> · {preview.count}{' '}
             entries.{' '}
             {statement !== '' && (
@@ -167,8 +170,8 @@ export default function Balances() {
                 Difference: <strong>{money(preview.difference)}</strong> (statement minus recorded).
               </>
             )}
-          </p>
-          <button className="button" type="submit">
+          </p> : <p role="status">Choose a valid date range to preview the recorded balance.</p>}
+          <button className="button" type="submit" disabled={!validInterval}>
             {editComparison ? 'Update comparison' : 'Save comparison'}
           </button>
           {editComparison && <button type="button" className="button secondary" onClick={()=>{setEditComparison('');setStatement('');}}>Cancel comparison edit</button>}

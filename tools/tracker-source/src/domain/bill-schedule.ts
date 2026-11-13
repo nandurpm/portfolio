@@ -20,7 +20,8 @@ export function assertEditedBillLinks(before: Plan, after: Plan) {
         row.amount === old.amount && row.date === old.date && row.kind === old.kind &&
         row.expenseCategoryId === old.expenseCategoryId && row.categoryId === old.categoryId) continue;
     // A refund/reversal must retain the original link, including an unchanged legacy link.
-    const origin = row.originalTransactionId && oldRows.get(row.originalTransactionId);
+    const originId = row.kind === 'reversal' ? row.reversalOfId : row.originalTransactionId;
+    const origin = originId && oldRows.get(originId);
     if (origin && ['refund', 'reversal'].includes(row.kind) &&
         row.provisionId === origin.provisionId && row.billDueMonth === origin.billDueMonth) continue;
     const provision = after.provisions?.find(item => item.id === row.provisionId);
