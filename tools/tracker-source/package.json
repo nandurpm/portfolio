@@ -1,7 +1,7 @@
 {
   "name": "savings-and-expense-tracker",
   "productName": "Savings and Expense Tracker",
-  "version": "2.10.9",
+  "version": "2.10.10",
   "trackerReleasePlatforms": ["android", "windows"],
   "description": "Offline personal savings, expenses and loan planning",
   "author": "Nandakumar",
