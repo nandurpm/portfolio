@@ -42,6 +42,10 @@ Read-only HTTP checks returned 200 and security headers. The served manifest rep
 
 The PR quality workflow built a synthetic Windows fixture only; the actual Inno Setup installer was built exclusively by the publishing workflow and the current release platform list is Android-only. Added an isolated Windows runner job to the existing read-only quality workflow, reusing `npm run dist:win` and the Inno compiler path from the existing release job. It verifies installer existence/size and records its SHA-256. It does not install, launch, sign or publish the application. The build result must be checked in CI before marking it PASS.
 
+### F6 — RESOLVED — Medium — Web/Windows snapshot labels run into amounts
+
+Manual inspection of CI screenshots confirmed unseparated Loan snapshot text such as `Next due05-Nov-2026`. The Loan, Payroll and Cash-flow snapshot components render on all platforms, but their grid/card/header styles existed only in the dynamically loaded Android stylesheet. Added scoped shared CSS to `src/styles.css`, retaining the existing theme tokens and native Android presentation. Labels and amounts occupy separate grid rows; the metric columns collapse on narrow screens. `tests/browser/snapshot-metric-layout.spec.ts` checks all three screens in Web and Windows shell simulations at 360/1366px, including measured label/value separation and horizontal overflow. These are browser shell tests, not Windows installation tests.
+
 ## D. Fixes implemented
 
 | Defect | Modified files | Correction | Regression |
@@ -49,6 +53,7 @@ The PR quality workflow built a synthetic Windows fixture only; the actual Inno 
 | F1 legacy bill reversal rejected | `src/domain/bill-schedule.ts` | Resolve reversal origin using `reversalOfId`; retain refund semantics | `tests/manual-audit-20261113.test.ts`: legacy reversal, cash/expense restoration, unchanged original and rejection of new/edited invalid bills |
 | F2 invalid-date render crash | `src/pages/Balances.tsx` | Validate interval before preview; disable/guard submission; retain form and layout | `tests/reconciliation-preview.test.tsx`: empty start/end, impossible date, reversed interval and valid same-day recovery; browser interaction case in `tests/browser/reconciliation-date-edit.spec.ts` |
 | F5 actual Windows build missing from PR checks | `.github/workflows/tracker-quality.yml` | Add non-publishing actual installer build on Windows using existing packaging command | CI job `Build actual Windows installer (no release)` checks expected output and hashes it; runtime installation remains untested |
+| F6 missing shared snapshot styles | `src/styles.css` | Scoped responsive metric cards and heading spacing for Web/Windows; retain Android stylesheet | `tests/browser/snapshot-metric-layout.spec.ts`: four viewport/platform cases spanning three screens |
 
 Independent financial cases additionally exercise paise transfers/reversals across December/January, zero/negative rejection, duplicate IDs and positive/negative decimal half ties. Existing suites cover income/expense, EMI allocation, archive/report cutoffs, PF, import/export, persistence, conflict merges, refunds and seeded transfer invariants. Passing these finite cases is not proof of complete financial correctness.
 

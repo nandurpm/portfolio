@@ -4172,3 +4172,54 @@ html:not([data-platform="android"])[data-theme="dark"] .mobile-quick-add { color
 .tracker-update-download progress { display: block; width: 100%; height: 12px; accent-color: var(--accent); }
 .update-release-copy .update-error { color: var(--red); font-weight: 650; overflow-wrap: anywhere; }
 .update-release-copy [role="status"] { line-height: 1.5; }
+
+/* These shared snapshot components also render on web and Windows. Keep the
+   established Android stylesheet in control of its native presentation. */
+html:not([data-platform="android"]) :is(.loan-command-strip, .employment-snapshot, .entries-overview) {
+  margin: 0 0 18px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+html:not([data-platform="android"]) .loan-command-heading { display: grid; gap: 6px; }
+html:not([data-platform="android"]) :is(.employment-snapshot-head, .entries-overview-heading) {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px;
+}
+html:not([data-platform="android"]) :is(.loan-command-heading, .employment-snapshot-head, .entries-overview-heading) h2 {
+  margin: 4px 0; font-size: 1.12rem;
+}
+html:not([data-platform="android"]) :is(.loan-command-heading, .employment-snapshot-head, .entries-overview-heading) p {
+  margin: 0; color: var(--muted); line-height: 1.5;
+}
+html:not([data-platform="android"]) :is(.loan-command-metrics, .employment-metric-grid, .entries-overview-grid) {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;
+}
+html:not([data-platform="android"]) .loan-command-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+html:not([data-platform="android"]) :is(.loan-command-metrics, .employment-metric-grid, .entries-overview-grid) > div {
+  display: grid; min-width: 0; gap: 4px; padding: 12px; border: 1px solid var(--border); border-radius: 12px;
+}
+html:not([data-platform="android"]) :is(.loan-command-metrics, .employment-metric-grid, .entries-overview-grid) :is(span, small) {
+  color: var(--muted); font-size: 12px;
+}
+html:not([data-platform="android"]) :is(.loan-command-metrics, .employment-metric-grid, .entries-overview-grid) strong {
+  font-size: 16px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+html:not([data-platform="android"]) :is(.loan-command-progress, .employment-progress) {
+  height: 8px; margin: 14px 0; overflow: hidden; border-radius: 99px; background: var(--border);
+}
+html:not([data-platform="android"]) :is(.loan-command-progress, .employment-progress) > span {
+  display: block; height: 100%; border-radius: inherit; background: var(--accent);
+}
+html:not([data-platform="android"]) .employment-progress > span { background: var(--green); }
+html:not([data-platform="android"]) .employment-status-pill {
+  flex: 0 0 auto; padding: 6px 10px; border: 1px solid var(--border); border-radius: 99px; color: var(--green); font-size: 12px;
+}
+@media (max-width: 900px) {
+  html:not([data-platform="android"]) :is(.employment-metric-grid, .entries-overview-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  html:not([data-platform="android"]) :is(.employment-snapshot-head, .entries-overview-heading) { flex-direction: column; gap: 8px; }
+  html:not([data-platform="android"]) .loan-command-metrics { grid-template-columns: 1fr; }
+}
