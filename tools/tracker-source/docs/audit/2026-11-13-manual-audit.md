@@ -34,9 +34,13 @@ Clear the reconciliation start date with combined payment methods selected. Rend
 
 The checked-in policy/RPC snapshot is historical, not an authoritative inspection of today's deployed database. Existing documentation reports prior leaked-password-protection and mixed-client validation concerns. Their current production status is POTENTIAL/unverified. Do not alter production policies from this snapshot. Safely review live metadata with authorized access, reproduce policies and guards in a disposable stack, run cross-user/RPC/concurrency tests, then propose separately reviewed migrations if needed. No production data or schema was changed.
 
-### F4 — POTENTIAL — Low — deployment/source provenance difference
+### F4 — NOT REPRODUCED — Low — suspected deployed asset mismatch
 
-Read-only HTTP checks returned 200 and security headers. The served manifest reports version 2.10.8, web/sign-in mode, source `1295b005a026da242bf923ecb80c3ea03d803d3c`, whereas audit main is `a495733e437a734ecb50821b4c269c79071915f4`. This difference alone is not a broken deployment: later main commits include CI changes. No claim of production byte parity is made; asset verification against an approved release artifact remains necessary. No deployment was performed.
+Read-only HTTP checks returned 200 and security headers. The served manifest reports version 2.10.8, web/sign-in mode, source `1295b005a026da242bf923ecb80c3ea03d803d3c`, whereas audit main is `a495733e437a734ecb50821b4c269c79071915f4`. The verifier subsequently confirmed all 51 served files match `track/build.json` committed in the audited repository. This verifies deployed bytes against that artifact, not equivalence with the current source or full application behavior. No deployment was performed.
+
+### F5 — RESOLVED — Medium — Windows verification coverage gap
+
+The PR quality workflow built a synthetic Windows fixture only; the actual Inno Setup installer was built exclusively by the publishing workflow and the current release platform list is Android-only. Added an isolated Windows runner job to the existing read-only quality workflow, reusing `npm run dist:win` and the Inno compiler path from the existing release job. It verifies installer existence/size and records its SHA-256. It does not install, launch, sign or publish the application. The build result must be checked in CI before marking it PASS.
 
 ## D. Fixes implemented
 
@@ -44,6 +48,7 @@ Read-only HTTP checks returned 200 and security headers. The served manifest rep
 |---|---|---|---|
 | F1 legacy bill reversal rejected | `src/domain/bill-schedule.ts` | Resolve reversal origin using `reversalOfId`; retain refund semantics | `tests/manual-audit-20261113.test.ts`: legacy reversal, cash/expense restoration, unchanged original and rejection of new/edited invalid bills |
 | F2 invalid-date render crash | `src/pages/Balances.tsx` | Validate interval before preview; disable/guard submission; retain form and layout | `tests/reconciliation-preview.test.tsx`: empty start/end, impossible date, reversed interval and valid same-day recovery; browser interaction case in `tests/browser/reconciliation-date-edit.spec.ts` |
+| F5 actual Windows build missing from PR checks | `.github/workflows/tracker-quality.yml` | Add non-publishing actual installer build on Windows using existing packaging command | CI job `Build actual Windows installer (no release)` checks expected output and hashes it; runtime installation remains untested |
 
 Independent financial cases additionally exercise paise transfers/reversals across December/January, zero/negative rejection, duplicate IDs and positive/negative decimal half ties. Existing suites cover income/expense, EMI allocation, archive/report cutoffs, PF, import/export, persistence, conflict merges, refunds and seeded transfer invariants. Passing these finite cases is not proof of complete financial correctness.
 
@@ -74,6 +79,7 @@ Run from `tools/tracker-source` unless stated otherwise:
 | `git diff --check` | PASS |
 | `curl -I --max-time 20 https://nandakumarm.dpdns.org/track/` | PASS: HTTP 200, CSP/HSTS/frame/content-type/referrer protections observed; no signed-in interaction |
 | `curl -fsS --max-time 20 https://nandakumarm.dpdns.org/track/build.json -o /tmp/tracker-live-build.json` | PASS: manifest readable; provenance limitation in F4 |
+| `node scripts/verify-deployment.mjs https://nandakumarm.dpdns.org/track/ 1295b005a026da242bf923ecb80c3ea03d803d3c ../../track/build.json` | PASS: all 51 deployed files match the committed manifest |
 
 Device status: Android emulator NOT TESTED; Android physical device NOT TESTED; Windows physical/VM application NOT TESTED. Browser emulation would not establish native correctness even if CI passes. Zod annotation/deprecation warnings were nonfatal; no dependency changes were made merely to silence them.
 
