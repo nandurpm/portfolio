@@ -183,11 +183,15 @@ export function planned(p: Plan, m: string, date?: string, mode = p.settings.mod
   return finish(t);
 }
 export function actual(p: Plan, start: string, end: string, catId?: string): Totals {
-  const t = emptyTotals(),
-    cats = new Map(p.categories.map((c) => [c.id, c]));
-  for (const e of p.entries) {
+  const entries = p.entries.filter(e => inRange(e.date, p.settings.planStart, p.settings.planEnd));
+  return actualFromEntries(p, start, end, entries, new Map(p.categories.map(c => [c.id, c])), catId);
+}
+/** Reuse a range-validated index inside one report invocation. Entries retain
+ * source order so legacy fractional-paise aggregate rounding stays identical. */
+function actualFromEntries(p: Plan, start: string, end: string, entries: Plan['entries'], cats: Map<string, Category>, catId?: string): Totals {
+  const t = emptyTotals();
+  for (const e of entries) {
     if (
-      !inRange(e.date, p.settings.planStart, p.settings.planEnd) ||
       e.date < start ||
       e.date > end ||
       (catId && e.categoryId !== catId)
@@ -289,22 +293,29 @@ export function cumulative(p: Plan, date = reportDate(p)) {
     t.debt += v.debt;
   }
   const plan = finish(t),
-    a = actual(p, `${p.settings.planStart}-01`, date),
-    ledger = ledgerPeriod(p, p.settings.planStart + '-01', date);
+    a = actual(p, `${p.settings.planStart}-01`, date);
   return {
     plan,
     actual: a,
     expectedCash: round(p.settings.opening + plan.savings + pfCashEffect(p, `${p.settings.planStart}-01`, date)),
-    actualCash: round(p.settings.opening + a.savings + pfCashEffect(p, p.settings.planStart + '-01', date) + ledgerCashEffect(p, p.settings.planStart + '-01', date) - ledger.income + ledger.expenses),
+    actualCash: recordedCash(p, date, a),
   };
+}
+/** Cash does not depend on a budget forecast. Keep the same aggregate rounding
+ * and posting formula used by cumulative(), including legacy fractional paise. */
+function recordedCash(p: Plan, date: string, totals = actual(p, `${p.settings.planStart}-01`, date)) {
+  const ledger = ledgerPeriod(p, p.settings.planStart + '-01', date);
+  return round(p.settings.opening + totals.savings + pfCashEffect(p, p.settings.planStart + '-01', date) + ledgerCashEffect(p, p.settings.planStart + '-01', date) - ledger.income + ledger.expenses);
 }
 export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
   let pc = p.settings.opening,
     ac = p.settings.opening;
   const cats = new Map(p.categories.map((c) => [c.id, c]));
   const buckets = new Map<string, { t: Totals; count: number }>();
+  const entries: Plan['entries'] = [];
   for (const e of p.entries) {
     if (e.date > date || !inRange(e.date, p.settings.planStart, p.settings.planEnd)) continue;
+    entries.push(e);
     const c = cats.get(e.categoryId);
     if (!c || c.group === 'Asset') continue;
     const m = e.date.slice(0, 7),
@@ -320,11 +331,14 @@ export function progress(p: Plan, date = reportDate(p)): ProgressRow[] {
       t = planned(p, m),
       bucket = buckets.get(m),
       ledger = ledgerPeriod(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)),
-      a = bucket || ledger.count ? actual(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m)) : null;
+      a = bucket || ledger.count ? actualFromEntries(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m), entries, cats) : null;
     // Match the PF cash ledger used by recorded cash, without treating PF as savings.
     pc = round(pc + t.savings + (future ? 0 : pfCashEffect(p, m + '-01', date < monthEnd(m) ? date : monthEnd(m))));
     // Future rows expose no recorded cash; avoid repeating the same historical scan for each one.
-    if (!future) ac = cumulative(p, date < monthEnd(m) ? date : monthEnd(m)).actualCash;
+    if (!future) {
+      const cutoff = date < monthEnd(m) ? date : monthEnd(m);
+      ac = recordedCash(p, cutoff, actualFromEntries(p, p.settings.planStart + '-01', cutoff, entries, cats));
+    }
     return {
       month: m,
       plan: t,

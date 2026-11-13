@@ -5,14 +5,20 @@ import { installMobile } from './mobile';
 import './styles.css';
 import './dashboard-controls.css';
 import { WEB_APP } from './web-mode';
-void installMobile()
-  .then(async () => {
-    if (Capacitor.getPlatform() === 'android') await import('./android-v222.css');
-    if (Capacitor.isNativePlatform()) {
-      const { installGoogleCallbacks } = await import('./cloud/google');
-      await installGoogleCallbacks();
-    }
-    const { default: App } = await import('./App');
+// Bridge installation still precedes callback setup; render only after all
+// prerequisites succeed. Fetch independent UI/CSS modules concurrently.
+const nativeReady = installMobile().then(async () => {
+  if (Capacitor.isNativePlatform()) {
+    const { installGoogleCallbacks } = await import('./cloud/google');
+    await installGoogleCallbacks();
+  }
+});
+void Promise.all([
+  nativeReady,
+  import('./App'),
+  Capacitor.getPlatform() === 'android' ? import('./android-v222.css') : Promise.resolve(),
+])
+  .then(([, { default: App }]) => {
     ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
   })
   .catch((error: unknown) => {
