@@ -5,7 +5,7 @@ import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
 import { useMemo, useRef, useState } from "react";
-import { Plus, Search, ArrowUpDown, SlidersHorizontal } from "lucide-react";
+import { Plus, Search, ArrowUpDown, SlidersHorizontal, ArrowLeftRight } from "lucide-react";
 import {
   ledgerTransactionLocked,
   openingAccountTotal,
@@ -136,7 +136,7 @@ export default function Accounts() {
     setAccountKind(a?.kind ?? "bank");
     setShowAccount(true);
   };
-  const startTransaction = (r?: LedgerTransaction) => {
+  const startTransaction = (r?: LedgerTransaction, initialKind?: LedgerKind) => {
     transactionSubmitLock.current = false;
     setTransactionSubmitting(false);
     if (r && ledgerTransactionLocked(plan, r))
@@ -145,7 +145,7 @@ export default function Accounts() {
         true,
       );
     setEditTransaction(r?.id ?? "");
-    setKind(r?.kind ?? "expense");
+    setKind(initialKind ?? r?.kind ?? "expense");
     setDate(r?.date ?? today());
     setAmount(r ? String(r.amount) : "");
     setSource(r?.sourceAccountId ?? "");
@@ -459,6 +459,14 @@ export default function Accounts() {
               onClick={() => startTransaction()}
             >
               <Plus size={18} /> Transaction
+            </button>
+            <button
+              className="button secondary"
+              disabled={accounts.length < 2}
+              onClick={() => startTransaction(undefined, "transfer")}
+              title={accounts.length < 2 ? "Create at least two accounts to transfer money" : undefined}
+            >
+              <ArrowLeftRight size={18} /> Transfer
             </button>
           </div>
         }
