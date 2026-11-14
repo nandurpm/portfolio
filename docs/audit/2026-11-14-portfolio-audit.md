@@ -49,3 +49,9 @@ No Nu validator, Lighthouse score/performance measurements, physical mobile test
 ## Release record
 
 Website publication only. See the associated PR for exact fix commits, CI run, merge and deployment evidence. This report is checked in before deployment; PR/release notes and the final response carry observed production results. No new APK/EXE release is necessary for these portfolio changes.
+
+### Executed CI evidence before publication
+
+[Run 43566190304](https://github.com/nandurpm/portfolio/actions/runs/43566190304), commit `7f0d173bf5bff6d9e6159a7550cb147d6ac17f72`: **PASS**. Eight static groups and the 37-file local reference audit passed. Eight browser groups passed, including 72 page/theme/viewport combinations with no horizontal overflow or CSP violations, system/saved/denied-storage theme cases, both project collections' sort/search, blog pagination, nested 404, résumé/alias navigation and no-JS content. Axe found no serious/critical WCAG A/AA violations across seven primary pages **in both themes**; this is automated scoped evidence, not complete accessibility certification. Screenshots and full axe JSON are in the run's `portfolio-browser-evidence` artifact.
+
+The first browser run failed because its assertion did not wait for the asynchronous OS theme event. The test now waits for the observed theme change; no application exception was suppressed. CI results on subsequent PR commits remain authoritative. A final wording-only adjustment names the legacy download as the project index (JSON), preserving the download action.
