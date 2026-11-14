@@ -47,7 +47,7 @@ const server=http.createServer((req,res)=>{
   await page.addInitScript(()=>{window.cspErrors=[];document.addEventListener('securitypolicyviolation',e=>window.cspErrors.push(`${e.violatedDirective}: ${e.blockedURI}`))});
   await page.goto(`${base}/projects.html`);
   assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
-  await page.emulateMedia({colorScheme:'dark'});assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+  await page.emulateMedia({colorScheme:'dark'});await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
   await page.locator('.theme-toggle').click();await page.emulateMedia({colorScheme:'light'});await page.emulateMedia({colorScheme:'dark'});
   assert.equal(await page.locator('html').getAttribute('data-theme'),'light');pass('system theme follows OS until explicit saved choice');
   const total=await page.locator('#projectsGrid article, #moreProjectsGrid article').count();
