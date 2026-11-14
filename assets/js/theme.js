@@ -7,9 +7,11 @@
   const root = document.documentElement;
   let storedTheme;
   try { storedTheme = localStorage.getItem("portfolio-series-theme"); } catch { /* Storage is optional. */ }
+  const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+  let hasPreference = storedTheme === 'light' || storedTheme === 'dark';
   const initialTheme = storedTheme === "light" || storedTheme === "dark"
     ? storedTheme
-    : "dark";
+    : (systemTheme.matches ? "dark" : "light");
 
   /**
    * Independence Day is intentionally evaluated against the user's local date.
@@ -103,11 +105,18 @@
     if (!button) return;
 
     button.addEventListener("click", () => {
+      hasPreference = true;
       const nextTheme = root.getAttribute("data-theme") === "light" ? "dark" : "light";
       root.setAttribute("data-theme", nextTheme);
       try { localStorage.setItem("portfolio-series-theme", nextTheme); } catch { /* Keep the in-memory preference. */ }
       updateButton();
     });
+  });
+
+  systemTheme.addEventListener('change', () => {
+    if (hasPreference) return;
+    root.setAttribute('data-theme', systemTheme.matches ? 'dark' : 'light');
+    updateButton();
   });
 
   // Expose the pure date utility for lightweight browser smoke tests without

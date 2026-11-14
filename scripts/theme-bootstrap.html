@@ -1,9 +1,11 @@
 <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
 </script>

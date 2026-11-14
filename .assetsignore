@@ -20,3 +20,6 @@ admin/vendor/README.md
 admin/vendor/*LICENSE.txt
 CNAME
 scripts/theme-bootstrap.html
+
+CONTENT_PUBLISHING.md
+reports

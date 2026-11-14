@@ -2,60 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script data-theme-bootstrap>
-document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script>
   <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Track income, expenses, savings, budgets, and EMI schedules on Windows and Android. Developed by Nandakumar M with optional account synchronization.">
+  <meta name="description" content="Track income, expenses, savings, budgets, and EMI schedules on the web, Windows, and Android. Developed by Nandakumar M with optional account synchronization.">
   <meta name="author" content="Nandakumar M">
-  <title>Expense and Savings Tracker | Nandakumar M</title>
+  <title>Savings and Expense Tracker | Nandakumar M</title>
 
   <!-- PAGE_METADATA_START -->
   <link rel="canonical" href="https://nandakumarm.dpdns.org/savings-tracker.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Expense and Savings Tracker | Nandakumar M">
-  <meta property="og:description" content="Track income, expenses, savings, budgets, and EMI schedules on Windows and Android. Developed by Nandakumar M with optional account synchronization.">
+  <meta property="og:title" content="Savings and Expense Tracker | Nandakumar M">
+  <meta property="og:description" content="Track income, expenses, savings, budgets, and EMI schedules on the web, Windows, and Android. Developed by Nandakumar M with optional account synchronization.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/savings-tracker.html">
   <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Expense and Savings Tracker | Nandakumar M">
-  <meta name="twitter:description" content="Track income, expenses, savings, budgets, and EMI schedules on Windows and Android. Developed by Nandakumar M with optional account synchronization.">
+  <meta name="twitter:title" content="Savings and Expense Tracker | Nandakumar M">
+  <meta name="twitter:description" content="Track income, expenses, savings, budgets, and EMI schedules on the web, Windows, and Android. Developed by Nandakumar M with optional account synchronization.">
   <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
   <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=3d02ea5ead00">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <div class="site-shell">
-    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 
     <main tabindex="-1" id="main">
       <article class="project-article">
         <header class="article-header">
-          <p class="eyebrow">Windows · Android · Personal finance</p>
-          <h1>Expense and Savings Tracker</h1>
+          <p class="eyebrow">Web · Windows · Android · Personal finance</p>
+          <h1>Savings and Expense Tracker</h1>
         </header>
         <div class="article-content">
-          <p>Expense and Savings Tracker is a Windows and Android application developed by <strong>Nandakumar M</strong> for recording everyday income and expenses, planning monthly budgets, tracking savings, and reviewing loan and EMI schedules.</p>
-          <p>Keep your plan on your device, or choose account sign-in and cloud synchronization to use the same plan across your devices.</p>
-          <p><a class="btn primary" href="savings-tracker-privacy.html">Read the privacy policy</a> <a class="btn" href="mailto:contact@nandakumarm.dpdns.org">Contact app support</a></p>
+          <p>Savings and Expense Tracker is a web, Windows, and Android application developed by <strong>Nandakumar M</strong> for recording everyday income and expenses, planning monthly budgets, tracking savings, and reviewing loan and EMI schedules.</p>
+          <p>Use the browser app with sign-in, or install the Windows or Android app for local tracking with optional account synchronization.</p>
+          <p><a class="btn primary" href="/track/">Open web tracker</a> <a class="btn" href="https://github.com/nandurpm/portfolio/releases/latest" target="_blank" rel="noopener noreferrer">Download Android / Windows</a></p>
+          <p><a class="btn primary" href="/savings-tracker-privacy.html">Read the privacy policy</a> <a class="btn" href="mailto:contact@nandakumarm.dpdns.org">Contact app support</a></p>
           <h2>Your day-to-day finances, in one plan</h2>
           <ul>
             <li>Record and edit dated income and expense entries by category.</li>
@@ -64,19 +67,19 @@ try {
             <li>Create local backups and export reports to Excel, CSV, or PDF.</li>
           </ul>
           <h2>Use it locally or across devices</h2>
-          <p>Local tracking works without an account. When you choose to sign in and enable synchronization, the app stores your plan in Supabase under your account. The app asks how to link a device and presents conflicting edits for review.</p>
+          <p>In the installed Windows and Android apps, local tracking works without an account. The browser app requires sign-in. When you choose to sign in and enable synchronization, the app stores your plan in Supabase under your account. The app asks how to link a device and presents conflicting edits for review.</p>
           <h2>Why Google sign-in?</h2>
           <p>Google sign-in identifies your account so you can access your synchronized plan. The app requests basic profile and email information; it does not request access to Gmail messages, Google Drive files, contacts, or bank accounts. Google handles your Google password.</p>
-          <p>This website introduces the installed application. It does not provide a browser version of the tracker or ask you to enter financial records here.</p>
+          <p>The <a href="/track/">browser tracker</a> is available on this website. It requires sign-in before displaying the financial workspace. Protect your browser profile and exported backups, especially on shared devices.</p>
           <h2 id="tracker-support">Privacy and support</h2>
-          <p>Read the <a href="savings-tracker-privacy.html">Expense and Savings Tracker Privacy Policy</a> for information about account data, optional cloud sync, local backups, and deletion requests.</p>
+          <p>Read the <a href="/savings-tracker-privacy.html">Savings and Expense Tracker Privacy Policy</a> for information about account data, optional cloud sync, local backups, and deletion requests.</p>
           <p>Developer: Nandakumar M<br>Support: <a href="mailto:contact@nandakumarm.dpdns.org">contact@nandakumarm.dpdns.org</a></p>
         </div>
       </article>
-    <nav aria-label="Tracker information"><a class="text-link" href="savings-tracker.html">Expense and Savings Tracker →</a></nav></main>
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="savings-tracker-privacy.html">Privacy policy</a></nav></footer>
+    <nav aria-label="Tracker information"><a class="text-link" href="/track/">Open web tracker →</a></nav></main>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="/savings-tracker-privacy.html">Privacy policy</a></nav></footer>
   </div>
-  <script src="assets/js/theme.js?v=navigation-20261023"></script>
-  <script src="assets/js/main.js?v=navigation-20261023"></script>
+  <script src="/assets/js/theme.js?v=8d4f57631ae3"></script>
+  <script src="/assets/js/main.js?v=1e744259ec62"></script>
 </body>
 </html>

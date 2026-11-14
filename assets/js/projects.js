@@ -11,14 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
   [...new Set(groups.flat().map((card) => card.dataset.category))].filter(Boolean).sort().forEach((value) => {
     if (!existing.has(value)) category.add(new Option(value, value));
   });
-  const empty = grids.map((grid) => {
+  const empty = (() => {
     const message = document.createElement('p');
     message.className = 'empty-state';
     message.textContent = 'No projects match this search.';
     message.hidden = true;
-    grid.after(message);
+    grids[1].after(message);
     return message;
-  });
+  })();
   function render(reorder = false) {
     const query = search.value.trim().toLowerCase();
     let count = 0;
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
           Boolean(query && !card.dataset.search.includes(query));
         if (!card.hidden) visible++;
       });
-      if (reorder && index === 1) {
+      if (reorder) {
         [...cards].sort((a, b) => {
           if (sort.value === 'name') return a.dataset.name.localeCompare(b.dataset.name);
           if (sort.value === 'stars') return Number(b.dataset.stars) - Number(a.dataset.stars) || b.dataset.updated.localeCompare(a.dataset.updated);
@@ -37,9 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }).forEach((card) => grids[index].append(card));
       }
       count += visible;
-      empty[index].hidden = visible > 0;
+
     });
-    results.textContent = `${count} public project${count === 1 ? '' : 's'}`;
+    empty.hidden = count > 0;
+    results.textContent = `${count} matching project${count === 1 ? '' : 's'} across featured and additional repositories`;
   }
   search.addEventListener('input', () => render());
   category.addEventListener('change', () => render());

@@ -5,8 +5,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { dateText } from './site-assets.mjs';
 import { SITE_URL, normalizePage } from './site-pages.mjs';
 
 const ROOT = process.cwd();
@@ -55,7 +55,7 @@ function externalAttributes(url = '') {
 
 function formatDate(value) {
   if (!value) return 'Recently updated';
-  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+  return dateText(value);
 }
 
 function dateMarkup(value) {
@@ -63,7 +63,7 @@ function dateMarkup(value) {
   return `<time datetime="${escapeHtml(value.slice(0, 10))}">${escapeHtml(formatDate(value))}</time>`;
 }
 function starMarkup(count) {
-  return Number(count) > 0 ? `<span class="star-badge" role="img" aria-label="${Number(count)} GitHub stars">★ ${Number(count)}</span>` : '';
+  return Number(count) > 0 ? `<span class="star-badge" role="img" aria-label="${Number(count)} GitHub star${Number(count) === 1 ? '' : 's'}">★ ${Number(count)}</span>` : '';
 }
 function arrow(url) { return /^https?:\/\//i.test(url) ? '↗' : '→'; }
 
@@ -92,12 +92,12 @@ function projectCard(project) {
 function repositoryCard(repository) {
   const tags = [...new Set([repository.language, ...(repository.topics || [])].filter(Boolean))].slice(0, 4)
     .map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join('');
-  const description = repository.description || repository.readmeSummary || 'Open-source project and development notes.';
+  const description = repository.description || repository.readmeSummary || '';
   const searchText = [repository.title, repository.name, repository.category, description, repository.language, ...(repository.topics || [])].join(' ').toLowerCase();
   return `          <article class="repository-card" data-reveal="up" data-category="${escapeHtml(repository.category)}" data-search="${escapeHtml(searchText)}" data-name="${escapeHtml(repository.title)}" data-stars="${Number(repository.stars || 0)}" data-updated="${escapeHtml(repository.updatedAt || '')}">
             <div class="repository-card-top"><span class="repo-icon" aria-hidden="true">⌁</span><span>${escapeHtml(repository.category)}</span></div>
             <h3>${escapeHtml(repository.title)}</h3>
-            <p>${escapeHtml(description)}</p>
+            ${description ? `<p>${escapeHtml(description)}</p>` : ''}
             <div class="card-meta">${tags}</div>
             <div class="repository-footer"><span class="project-facts">${starMarkup(repository.stars)}${dateMarkup(repository.updatedAt)}</span><span class="card-actions"><a href="${escapeHtml(repository.github)}" target="_blank" rel="noopener noreferrer">Repository ↗</a>${repository.demo ? `<a href="${escapeHtml(repository.demo)}" target="_blank" rel="noopener noreferrer">Demo ↗</a>` : ''}</span></div>
           </article>`;
@@ -107,7 +107,7 @@ function blogCard(post, heading = 'h3') {
   const url = escapeHtml(post.url);
   const searchText = [post.title, post.excerpt, post.category, ...(post.tags || [])].join(' ').toLowerCase();
   return `          <article class="blog-card" data-reveal="up" id="post-${escapeHtml(post.slug)}" data-category="${escapeHtml(post.category)}" data-search="${escapeHtml(searchText)}">
-            <img src="${escapeHtml(post.thumbnail || post.image)}" alt="${escapeHtml(post.title)}" width="${post.imageWidth || 800}" height="${post.imageHeight || 450}" loading="lazy" decoding="async">
+            <img src="${escapeHtml(post.thumbnail || post.image)}" alt="" width="${post.imageWidth || 800}" height="${post.imageHeight || 450}" loading="lazy" decoding="async">
             <div class="card-body">
               <div class="card-meta"><span class="pill">${escapeHtml(post.category)}</span><span class="pill">${escapeHtml(post.readTime)}</span></div>
               <${heading}><a class="blog-card-link" href="${url}">${escapeHtml(post.title)}</a></${heading}>
@@ -131,15 +131,11 @@ function renderSitemap(projects, posts) {
     .map((url) => url.split('#')[0].split('?')[0]);
   const paths = [...new Set([...topLevelPages, ...indexedContent, ...listPublishedHtml('works'), ...listPublishedHtml('blog')])]
     .filter((relativePath) => !/^(?:resume|works|diploma-notes)\.html$/.test(relativePath))
-    .filter((relativePath) => !fs.readFileSync(path.join(ROOT, relativePath || 'index.html'), 'utf8').includes('noindex'));
-  const postDates = new Map(posts.map((post) => [post.url, post.date]));
+    .filter((relativePath) => !fs.readFileSync(path.join(ROOT, relativePath || 'index.html'), 'utf8').match(/<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*\bnoindex\b/i));
+  // Omit lastmod rather than use publication dates or incomplete git history.
   const urls = paths.map((relativePath) => {
     const loc = relativePath ? `${siteUrl}/${relativePath}` : `${siteUrl}/`;
-    let lastModified = postDates.get(relativePath);
-    if (!lastModified) {
-      try { lastModified = execFileSync('git', ['log', '-1', '--format=%cs', '--', relativePath || 'index.html'], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { /* No invented modification date. */ }
-    }
-    return `  <url><loc>${escapeHtml(loc)}</loc>${lastModified ? `<lastmod>${escapeHtml(lastModified)}</lastmod>` : ''}</url>`;
+    return `  <url><loc>${escapeHtml(loc)}</loc></url>`;
   });
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
 }
@@ -151,7 +147,7 @@ const projects = readJson('assets/data/works.json')
     const repository = repositoryByName.get(project.repository);
     return {
       ...project,
-      language: repository?.language || project.language,
+      language: project.language || repository?.language,
       stars: repository?.stars ?? project.stars,
       updated: repository?.updatedAt || project.updated,
       demo: project.demo || repository?.demo || ''
@@ -165,7 +161,10 @@ const moreRepositories = repositories.filter((repository) => !featuredNames.has(
 replaceBlock('projects.html', 'PROJECTS_START', 'PROJECTS_END', projects.map(projectCard).join('\n'));
 replaceBlock('projects.html', 'MORE_PROJECTS_START', 'MORE_PROJECTS_END', moreRepositories.map(repositoryCard).join('\n'));
 const projectsPage = path.join(ROOT, 'projects.html');
-fs.writeFileSync(projectsPage, fs.readFileSync(projectsPage, 'utf8').replace(/(<p[^>]*id="projectResults"[^>]*>)\d+ public projects(<\/p>)/, `$1${projects.length + moreRepositories.length} public projects$2`));
+fs.writeFileSync(projectsPage, fs.readFileSync(projectsPage, 'utf8')
+  .replace(/(<p[^>]*id="projectResults"[^>]*>)[^<]*(<\/p>)/, `$1${projects.length + moreRepositories.length} public projects across both collections$2`)
+  .replace(/\d+ additional repositories<\/p>/, `${moreRepositories.length} additional repositories</p>`)
+  .replace(/<span class="catalog-count">\d+ projects<\/span>/, `<span class="catalog-count">${projects.length} projects</span>`));
 replaceBlock('index.html', 'FEATURED_PROJECTS_START', 'FEATURED_PROJECTS_END', projects.slice(0, 4).map(projectCard).join('\n'));
 replaceBlock('blog.html', 'BLOG_POSTS_START', 'BLOG_POSTS_END', posts.map((post) => blogCard(post, 'h2')).join('\n'));
 replaceBlock('index.html', 'RECENT_POSTS_START', 'RECENT_POSTS_END', posts.slice(0, 3).map((post) => blogCard(post)).join('\n'));
@@ -175,6 +174,10 @@ renderSitemap(projects, posts);
 // and the early theme bootstrap consistent with future publishing runs.
 const publicPages = [...fs.readdirSync(ROOT).filter((name) => name.endsWith('.html')),
   ...listPublishedHtml('blog'), ...listPublishedHtml('works')];
+for (const [alias, target] of Object.entries({ about: 'about.html', projects: 'projects.html', blog: 'blog.html', home: 'index.html' })) {
+  fs.mkdirSync(path.join(ROOT, alias), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, alias, 'index.html'), normalizePage(`<meta http-equiv="refresh" content="0; url=/${target}">`, `${alias}/index.html`));
+}
 const hashes = new Set();
 for (const relativePath of publicPages) {
   const file = path.join(ROOT, relativePath);
@@ -182,6 +185,8 @@ for (const relativePath of publicPages) {
   const html = normalizePage(fs.readFileSync(file, 'utf8'), relativePath, post);
   fs.writeFileSync(file, html);
   for (const match of html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
+    // JSON-LD is an inert HTML data block, not executable JavaScript.
+    if (/\btype="application\/ld\+json"/i.test(match[0])) continue;
     hashes.add(`'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`);
   }
 }

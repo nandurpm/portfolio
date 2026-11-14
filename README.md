@@ -116,9 +116,9 @@ MIT — see [`LICENSE`](LICENSE).
 
 ## Audit regression checks
 
-After `npm ci --ignore-scripts` in `tools/tracker-source`, run `node tools/test-portfolio.cjs` from the repository root. It uses the pinned Playwright dependency and `/usr/bin/chromium` (or `CHROMIUM_PATH`). The checks cover mobile layouts, no-JavaScript content, failed reveal loading, denied theme storage, static filtering and pagination, malicious editor HTML, and locally applied CSP/cache rules. They do not prove Cloudflare deployment behavior. See `docs/AUDIT_RESOLUTION.md` for findings and outstanding hosting checks.
+Run `node --test tools/test-portfolio-audit.mjs` and `python tools/audit_links.py` from the repository root. For browser checks, run `npm ci --ignore-scripts` and `npx playwright install --with-deps chromium` in `tools/tracker-source`, then `node tools/test-portfolio-browser.cjs` from the root. This reuses pinned tooling without modifying or building the tracker application. `CHROMIUM_PATH` can select a local browser. The older `tools/test-portfolio.cjs` is retained as historical coverage and has stale count/style expectations; use the new suite for this revision. See `docs/audit/2026-11-14-portfolio-audit.md` for exact results and limits.
 
-`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. Commit `_headers` and `sitemap.xml` together with generated pages. Self-hosted Inter and JetBrains Mono use swap display, with stable system fallback stacks. Bebas Neue is self-hosted with its OFL license and supplies the cinematic hero lettering. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.
+`node scripts/render-static-content.mjs` also normalizes published page metadata and shared styles and regenerates CSP script hashes in `_headers`. The renderer exports the readable CSS sources into `assets/css/portfolio.css` and adds content-derived CSS/JS query versions consistently across public pages. Commit every changed public HTML file, alias directory, `_headers`, `sitemap.xml`, and the CSS export together. `lastmod` is omitted rather than inferred from incomplete git history or publication dates. Self-hosted Inter and JetBrains Mono use swap display, with stable system fallback stacks. Bebas Neue is self-hosted with its OFL license and supplies the cinematic hero lettering. `CNAME` is retained for compatibility; the renderer uses the site URL in `scripts/site-pages.mjs`.
 
 ## Custom domain (CNAME-ready)
 
@@ -135,10 +135,14 @@ node tools/audit-browser.cjs
 npm --prefix tools/site-audit run minify
 ```
 
-Minification exports copies to ignored `.cache/minified-assets/`; it does not overwrite editable sources. The `Static portfolio audit` workflow runs Nu HTML validation, all specified viewport widths and both themes, axe accessibility checks, interaction checks and comparable before/after mobile Lighthouse audits. Results and screenshots are uploaded as an Actions artifact. It does not deploy the branch.
+Minification exports copies to ignored `.cache/minified-assets/`; it does not overwrite editable sources. The `Portfolio regression checks` workflow runs static tests, local reference checks, Chromium interaction tests, six viewport widths in both themes, and axe checks. Screenshots and axe reports are uploaded as an Actions artifact. It does not run Nu validation or Lighthouse and does not deploy the branch.
 
 ## Completing the engineering drafts
 
 Replace the explicitly marked TODOs in `index.html`, `works/electrical-case-studies.html` and `templates/electrical-case-study-template.html`. Verify tools and years of experience; fill in each case study’s problem, personal contribution, outcome and lesson; use permitted evidence. The hidden social-proof section must stay hidden until its contents are verified. Add a real LinkedIn URL to the shared footer and `Person.sameAs` in `scripts/site-pages.mjs` only when available. No LinkedIn profile, employer detail, credential or outcome is inferred by this audit.
 
 The unfinished experience strip and engineering draft case studies remain in the source but are hidden from public pages until their details are verified. Remove `hidden` only after replacing the TODO text with owner-confirmed information.
+
+## Public routes and missing pages
+
+Canonical public routes retain `.html`. Workers disables automatic HTML URL rewriting, uses `_redirects` for 301 aliases, and serves `404.html` for missing routes. Small alias directory documents provide fallback navigation on GitHub Pages, which does not process `_redirects` or `_headers`. The 404 uses root asset and navigation URLs so unknown nested paths work. Neither robots directives nor the assets ignore file authenticates the public editor; configure hosting access separately when required.

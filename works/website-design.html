@@ -6,17 +6,19 @@ FILE PURPOSE: Static HTML page for the published portfolio project represented b
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script data-theme-bootstrap>
-document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script>
   <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="robots" content="noindex, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CNC Process Checklist - Engineering Design Project">
@@ -39,22 +41,22 @@ try {
   <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
   <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="../favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="stylesheet" href="../assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=3d02ea5ead00">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="site-shell">
-    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="../projects.html" class="active" aria-current="page">Projects</a><a href="../blog.html">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html" class="active" aria-current="page">Projects</a><a href="/blog.html">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 
     <main id="main-content" tabindex="-1">
       <section class="section-grid" style="padding: 80px 0;">
         <div style="max-width: 800px;">
-          <p class="eyebrow"><a href="../projects.html">← Back to Projects</a></p>
+          <p class="eyebrow"><a href="/projects.html">← Back to Projects</a></p>
           <h1>CNC Process Checklist</h1>
           <div style="display: flex; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
             <span class="badge">Manufacturing</span>
@@ -62,7 +64,7 @@ try {
             <span class="badge">Process Control</span>
             <span class="badge">Quality</span>
           </div>
-          <img src="../assets/images/works/project-5.png" alt="CNC Process Checklist" style="width: 100%; border-radius: 8px; margin: 40px 0;" width="600" height="450" decoding="async" loading="lazy">
+          <img src="/assets/images/works/project-5.png" alt="CNC Process Checklist" style="width: 100%; border-radius: 8px; margin: 40px 0;" width="600" height="450" decoding="async" loading="lazy">
 
           <h2>Overview</h2>
           <p>A structured checklist concept for CNC setup, quality verification, tool condition review, and production handover. This project consolidates best practices from production floor experience into a reproducible quality framework.</p>
@@ -77,14 +79,14 @@ try {
           </ul>
 
           <h2>Implementation Benefits</h2>
-          <p>Reduces setup time, improves first-pass yield, and provides clear documentation for quality audits. The checklist is production-tested and incorporates lessons from both successful runs and past issues.</p>
+          <p>This archived checklist concept organizes setup and quality checks. Measured setup-time, yield improvements, and production validation are not documented here.</p>
 
           <h2>Continuous Improvement</h2>
-          <p>Each production cycle updates the checklist with field experience. Built for manufacturing environments where reliability and consistency directly impact cost and delivery.</p>
+          <p>The concept is intended for manufacturing review; it is not a certified operating procedure. Validate any checklist against the actual equipment and approved procedures before use.</p>
 
           <div style="margin-top: 40px; display: flex; gap: 20px;">
             <a class="btn primary" href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-            <a class="btn ghost" href="../assets/data/works.json" download>Download Data</a>
+            <a class="btn ghost" href="/assets/data/works.json" download>Download project index (JSON)</a>
           </div>
         </div>
       </section>
@@ -93,9 +95,9 @@ try {
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
   </div>
 
-  <script src="../assets/js/theme.js?v=navigation-20261023"></script>
-  <script src="../assets/js/main.js?v=navigation-20261023"></script>
-  <script src="../assets/js/reveal.js?v=navigation-20261023"></script>
+  <script src="/assets/js/theme.js?v=8d4f57631ae3"></script>
+  <script src="/assets/js/main.js?v=1e744259ec62"></script>
+  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body>
 </html>
 

@@ -1,3 +1,5 @@
+> Historical report. Current routing, generated styles, crawler directives, and verification are documented in [the 14 November follow-up](audit/2026-11-14-portfolio-audit.md). Older statements about linked styles, editor robots exclusions, workflow coverage, and project-specific social images are superseded.
+
 # Portfolio audit verification and fixes
 
 Verified against the local checkout on 20 October 2026. Changes are prepared locally; no production deployment, Git push, or Cloudflare account changes were made.

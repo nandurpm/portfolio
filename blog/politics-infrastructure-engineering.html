@@ -5,17 +5,19 @@ FILE PURPOSE: Static HTML page for the published blog article represented by the
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script><meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="A neutral look at how public policy, infrastructure planning, maintenance, funding, and engineering execution affect everyday life.">
   <meta name="author" content="Nandakumar M"><title>Politics, Infrastructure &amp; Engineering | Nandakumar M</title>
@@ -26,30 +28,30 @@ try {
   <meta property="og:title" content="Politics, Infrastructure &amp; Engineering | Nandakumar M">
   <meta property="og:description" content="A neutral look at how public policy, infrastructure planning, maintenance, funding, and engineering execution affect everyday life.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/blog/politics-infrastructure-engineering.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-4.webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
+  <meta property="og:image:alt" content="Politics, Infrastructure, and Everyday Engineering">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Politics, Infrastructure &amp; Engineering | Nandakumar M">
   <meta name="twitter:description" content="A neutral look at how public policy, infrastructure planning, maintenance, funding, and engineering execution affect everyday life.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
-  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Politics, Infrastructure, and Everyday Engineering","description":"Thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life.","datePublished":"2026-03-18","image":["https://nandakumarm.dpdns.org/assets/images/og-card.png"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/politics-infrastructure-engineering.html"}</script>
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-4.webp">
+  <meta name="twitter:image:alt" content="Politics, Infrastructure, and Everyday Engineering">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Politics, Infrastructure, and Everyday Engineering","description":"Thoughts on how public decisions, infrastructure planning, and engineering execution meet in daily life.","datePublished":"2026-03-18","image":["https://nandakumarm.dpdns.org/assets/images/blog/blog-4.webp"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/politics-infrastructure-engineering.html"}</script>
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="../favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="stylesheet" href="../assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=3d02ea5ead00">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="site-shell">
-<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="../projects.html">Projects</a><a href="../blog.html" class="active" aria-current="page">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html" class="active" aria-current="page">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 <main id="main-content" tabindex="-1"><article class="blog-article">
-<header class="article-header"><p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p><h1>Politics, Infrastructure, and Everyday Engineering</h1><div class="article-meta"><time datetime="2026-03-18">18 Mar 2026</time><span>7 min read</span><span>Politics</span></div><img src="../assets/images/blog/blog-4.webp" alt="Public infrastructure planning and engineering" class="article-image" width="601" height="401" decoding="async" loading="lazy"></header>
+<header class="article-header"><p class="eyebrow"><a href="/blog.html">← Back to Blog</a></p><h1>Politics, Infrastructure, and Everyday Engineering</h1><div class="article-meta"><time datetime="2026-03-18">18 Mar 2026</time><span>7 min read</span><span>Politics</span></div><img src="/assets/images/blog/blog-4.webp" alt="Public infrastructure planning and engineering" class="article-image" width="601" height="401" decoding="async" loading="lazy"></header>
 <div class="article-content">
 <p>Infrastructure is where public decisions become physical reality. Roads, railways, power networks, water systems, public buildings, communication systems, and waste facilities are not created by engineering alone. They depend on policy, budgets, land, procurement, regulation, public priorities, and long-term maintenance.</p>
 <p>This is why infrastructure discussions cannot be reduced to either politics or technology. Political decisions determine what receives funding and attention. Engineering determines what is feasible, safe, maintainable, and effective. Weakness in either side produces poor outcomes.</p>
@@ -75,8 +77,8 @@ try {
 <p>Engineers should provide evidence, identify risks, document assumptions, and resist pressure to present uncertainty as certainty. They should also recognise that technical optimisation is not the only public objective. Accessibility, affordability, environmental impact, and social priorities are legitimate design inputs.</p>
 <p>Everyday infrastructure works best when public policy sets clear goals, engineering converts those goals into reliable systems, procurement protects quality, and maintenance preserves the investment. The debate should not be about choosing politics or engineering. It should be about making both more accountable to real outcomes.</p>
 </div>
-<footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
+<footer class="article-footer"><a class="btn ghost" href="/blog.html">← Back to all posts</a></footer>
 </article></main>
 <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
-</div><script src="../assets/js/theme.js?v=navigation-20261023"></script><script src="../assets/js/main.js?v=navigation-20261023"></script>  <script src="../assets/js/reveal.js?v=navigation-20261023"></script>
+</div><script src="/assets/js/theme.js?v=8d4f57631ae3"></script><script src="/assets/js/main.js?v=1e744259ec62"></script>  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body></html>
