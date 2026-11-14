@@ -56,6 +56,11 @@ for(const theme of ['light','dark'])test(`Android design surfaces and forms at p
    await nav.getByRole('button',{name:destination,exact:true}).click();
    await expect(page.locator('.screen-loading')).toHaveCount(0);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+   if(destination==='Activity'){
+    await expect(page.getByRole('button',{name:'Add',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Add expense',exact:true})).toHaveCount(0);
+    await expect(page.locator('.android-activity > [role="status"]')).toHaveText('1 record');
+   }
    await page.screenshot({path:`test-results/android-audit-${destination}-${theme}-${width}.png`});
   }
  }

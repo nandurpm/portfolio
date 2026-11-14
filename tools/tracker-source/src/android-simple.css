@@ -660,3 +660,22 @@ html[data-platform="android"] .android-home .mobile-balance small.mobile-balance
 html[data-platform="android"] .mobile-balance-date > svg { flex:0 0 15px; }
 html[data-platform="android"] .mobile-balance-date > span { min-width:0; }
 html[data-platform="android"] .android-home .mobile-summary { margin-block:10px 16px; }
+
+/* A single labelled Add action and the same bottom-nav controls on phones and tablets. */
+html[data-platform="android"] .mobile-quick-add {
+  display:inline-flex; position:fixed; right:max(16px,env(safe-area-inset-right,0px));
+  bottom:calc(var(--phone-nav-height,68px) + var(--safe-bottom,0px) + 12px);
+  z-index:41; align-items:center; justify-content:center; gap:6px;
+  padding:11px 18px; border:2px solid var(--mobile-card); border-radius:999px;
+  color:#fff; background:var(--accent-deep); box-shadow:var(--mobile-shadow); font-weight:650;
+}
+html[data-platform="android"] .phone-nav button {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  border:0; padding:6px 4px; font-size:.75rem;
+}
+html[data-platform="android"] .android-activity .mobile-history-tools {
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;
+}
+html[data-platform="android"] .android-activity .mobile-history-tools .button {
+  flex:1 1 140px; min-width:0; font-size:.8125rem;
+}

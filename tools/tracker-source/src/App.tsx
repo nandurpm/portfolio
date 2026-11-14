@@ -226,7 +226,7 @@ export function Shell() {
   const activeScreen = useMemo(() => (
     page === 'dashboard' ? <Home navigate={navigate} addEntry={addEntry} openAdd={openAdd} /> :
     page === 'entries' ? <Entries initialKind={entryKind} widgetEntry={widgetEntry} /> :
-    page === 'activity' ? <Activity navigate={navigate} addEntry={addEntry} /> :
+    page === 'activity' ? <Activity navigate={navigate} /> :
     page === 'accounts' ? <Accounts action={accountAction} onActionHandled={accountActionDone} navigate={navigate} /> :
     page === 'employment' ? <Employment /> :
     page === 'budget' ? <Budget /> :

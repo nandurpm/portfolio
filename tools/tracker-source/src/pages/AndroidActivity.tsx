@@ -14,10 +14,8 @@ import { Modal, Empty } from "../components/UI";
 
 export default function AndroidActivity({
   navigate,
-  addEntry,
 }: {
   navigate: (page: string, section?: string) => void;
-  addEntry: (kind: "Income" | "Expense") => void;
 }) {
   const p = usePlan();
   const [search, setSearch] = useState(""),
@@ -81,7 +79,7 @@ export default function AndroidActivity({
   );
   return (
     <div className="android-activity">
-      <h1>Activity</h1>
+      <h1 className="sr-only">Activity</h1>
       <p className="muted">Daily entries and account movements, together.</p>
       <div className="mobile-search-row">
         <label>
@@ -107,7 +105,7 @@ export default function AndroidActivity({
         </button>
       </div>
       <p role="status">
-        {shown.length} records
+        {shown.length} {shown.length === 1 ? "record" : "records"}
         {from || to || account || type !== "all" ? " · Filters applied" : ""}
       </p>
       {from && to && from > to && (
@@ -193,12 +191,6 @@ export default function AndroidActivity({
           onClick={() => navigate("accounts", "Recent account activity")}
         >
           Manage account activity
-        </button>
-        <button
-          className="button secondary"
-          onClick={() => addEntry("Expense")}
-        >
-          Add expense
         </button>
       </div>
       {filters && (

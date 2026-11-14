@@ -9,6 +9,8 @@
 
 - Match Android system navigation-band color and icon contrast to the actual light/dark bottom navigation instead of the legacy sidebar.
 
+- Remove the duplicate Activity title/Add-expense control, retain history links, correct singular record counts, and keep the global Add action and bottom-navigation styling consistent on larger Android screens.
+
 ## Financial correctness
 - Use the existing half-away-from-zero paise rounding rule for both bulk and quick budget percentage changes (₹1 plus 0.5% becomes ₹1.01).
 - Accept valid high-value two-decimal amounts without rejecting them because binary multiplication by 100 leaves a tiny residual. Retain positive-amount, precision, account-type and upper-limit validation.
