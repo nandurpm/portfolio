@@ -60,3 +60,12 @@ test('build sources do not leak via static Workers assets', () => {
  assert.match(read('wrangler.jsonc'),/"not_found_handling": "404-page"/);
  assert.doesNotMatch(read('_redirects'),/ 200/);
 });
+
+test('CSP hashes executable inline code but not structured data', () => {
+ const policy=read('_headers').split('\n').find(line=>line.includes('Content-Security-Policy:'));
+ const hashes=new Set([...policy.matchAll(/'sha256-([^']+)'/g)].map(m=>m[1]));
+ for(const page of pages) for(const match of read(page).matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
+  const hash=createHash('sha256').update(match[1]).digest('base64');
+  assert.equal(hashes.has(hash),!/type="application\/ld\+json"/i.test(match[0]),page);
+ }
+});

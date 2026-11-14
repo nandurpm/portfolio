@@ -185,6 +185,8 @@ for (const relativePath of publicPages) {
   const html = normalizePage(fs.readFileSync(file, 'utf8'), relativePath, post);
   fs.writeFileSync(file, html);
   for (const match of html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
+    // JSON-LD is an inert HTML data block, not executable JavaScript.
+    if (/\btype="application\/ld\+json"/i.test(match[0])) continue;
     hashes.add(`'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`);
   }
 }

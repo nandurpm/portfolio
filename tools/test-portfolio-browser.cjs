@@ -82,13 +82,14 @@ const server=http.createServer((req,res)=>{
    if([390,1100,1280].includes(width)&&['/','/about.html'].includes(route))await page.screenshot({path:path.join(root,`.cache/portfolio-audit/${route==='/'?'home':'about'}-${mode}-${width}.png`),fullPage:true});
   }
   pass('72 page/theme/viewport combinations without horizontal overflow or CSP violations');
-  for(const route of ['/','/about.html','/projects.html','/blog.html','/contact.html','/savings-tracker.html','/savings-tracker-privacy.html']) {
+  for(const mode of ['light','dark']) for(const route of ['/','/about.html','/projects.html','/blog.html','/contact.html','/savings-tracker.html','/savings-tracker-privacy.html']) {
+   await page.evaluate(mode=>localStorage.setItem('portfolio-series-theme',mode),mode);
    await page.goto(base+route);const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
    const serious=result.violations.filter(v=>['serious','critical'].includes(v.impact));
-   fs.writeFileSync(path.join(root,`.cache/portfolio-audit/axe-${route==='/'?'home':route.slice(1)}.json`),JSON.stringify(result,null,2));
+   fs.writeFileSync(path.join(root,`.cache/portfolio-audit/axe-${mode}-${route==='/'?'home':route.slice(1)}.json`),JSON.stringify(result,null,2));
    assert.deepEqual(serious.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[],`${route}: serious accessibility violations`);
   }
-  pass('axe WCAG checks: no serious/critical violations on seven primary pages');
+  pass('axe WCAG checks: no serious/critical violations on seven primary pages in both themes');
   const nojs=await browser.newContext({javaScriptEnabled:false,colorScheme:'light',viewport:{width:360,height:800}});const plain=await nojs.newPage();
   await plain.goto(`${base}/projects.html`);assert.equal(await plain.locator('article').count()>=total,true);assert.equal(await plain.locator('html').evaluate(n=>getComputedStyle(n).getPropertyValue('--bg').trim()),'#f6f3ef');
   const denied=await browser.newContext({colorScheme:'light'});await denied.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage denied')}}));const dp=await denied.newPage();await dp.goto(base);assert.equal(await dp.locator('html').getAttribute('data-theme'),'light');await dp.locator('.theme-toggle').click();assert.equal(await dp.locator('html').getAttribute('data-theme'),'dark');
