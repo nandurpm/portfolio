@@ -1,25 +1,27 @@
-# Android-first Savings and Expense Tracker audit — 14 November 2026
+# Android-first Savings and Expense Tracker audit — 2.10.15
 
 ## A. Audit information
 
-- Baseline: `b84d6713c96680ce950d4ca7d52b7e417b201ba3` (latest verified main at start; source version 2.10.14).
-- Branch: `audit/android-complete-20261114`; release prepared as 2.10.15.
-- Initial tree clean, no open PRs. Preserved 2.10.14 bounded recovery reads, notification behavior, and updater retry/backoff changes.
-- Scope: Android first; shared domain calculations, backup/import, synchronization/authentication configuration, Windows and Web build compatibility. No production records or schema changes. Signing identity, application ID `com.nandakumar.savingsexpensetracker`, and backup format retained.
-- Architecture: React/TypeScript renderer packaged locally through Capacitor 8; Android system WebView, native Java file/session/update/widget bridge. Android min API 34 (Android 14), target/compile API 36. Windows is Electron with a distinct installer and preload bridge; Web has a separate sign-in gate. A web build alone is not native validation.
+- **Audit/report date:** 14 November 2026, 14:40 IST. APK published **14 November 2026, 14:36:32 IST**.
+- **Verified baseline main:** `b84d6713c96680ce950d4ca7d52b7e417b201ba3` (2.10.14); initial tree clean, no open PRs. Preserved its recovery, notification and background-update hardening.
+- **Audit branch:** [audit/android-complete-20261114](https://github.com/nandurpm/portfolio/tree/audit/android-complete-20261114).
+- **Tested fix head:** `7151689c709a7bd540ee36cd391a017be83fcfc5`. **Released merge:** `6c80d4fc8451f12892351e4ceda4d8978d7b5413`. Their Git trees were verified identical before release.
+- **Published application version:** **2.10.15**, Android versionCode **21015**, app ID `com.nandakumar.savingsexpensetracker` unchanged; production signing certificate matches 2.10.14.
+- **Architecture:** locally bundled React/TypeScript renderer through Capacitor 8 and Android system WebView; Java file/session/update/widget bridge. Android min API 34 (Android 14), compile/target API 36. Windows uses a separate Electron installer/preload bridge; Web uses a separate sign-in gate. No schema, production-data or signing-identity change.
+- **Scope:** Android first, with shared financial/data/security regression checks and Web/Windows compatibility. Finite evidence is reported by verification level; this is not a certification of every plan, production backend setting, OEM or device.
 
-## B. Platform / area coverage
+## B. Platform audit
 
-| Area | Review | Verification available before PR | Outstanding / final evidence |
+| Area | Review result | Build/test result | Outstanding issues |
 | --- | --- | --- | --- |
-| Android | Manifest/permissions, Capacitor/insets, native bridge/session/recovery/update configuration; Home, Activity, Accounts, More and existing secondary screens | Native renderer build and Capacitor sync attempted; financial/UI regressions added | Signed APK, certificate continuity, install/upgrade, Android 16 instrumentation and screenshots must be verified by CI before release |
-| Windows | Separate Electron packaging and shared domain/presentation boundaries preserved | Native renderer/Electron build attempted; no claim of Windows runtime here | CI installer build/release; physical Windows use not tested |
-| Web | Separate auth gate and domain parity retained | Production web build, provenance and bundle checks | CI browser tests, disposable auth/security tests; no live production user sign-in |
-| Financial calculations | Income/expense, paise validation, transfer principal and fees, reversals, budgets, reporting dates, net worth, installments and PF through existing suites plus independent cases | Baseline 290 tests PASS; fixed suite 313 tests PASS | Finite synthetic evidence, not proof for every financial plan |
-| Data integrity / backend | Backup normalization/history, offline/cloud revision/conflict code and auth/storage configuration reviewed; no migrations | JSON backup round-trip plus existing import/history/conflict regressions | Disposable DB/RLS and Supabase CI; production configuration is not certified |
-| UI / themes | Android-only hierarchy/colors/touch targets, four navigation areas, More grouping, activity semantics, lazy analysis | Source review and regression specs | Chromium simulation/screenshot/axe checks and native emulator evidence separately identified |
+| Android | Home/Activity/Accounts/More, secondary tools, insets, bridge, persistence, permissions and updater reviewed; confirmed fixes below | **PASS** signed APK build, app/version/ZIP/signature/16 KB alignment checks, certificate continuity, Android 16 install and in-place upgrade/private-marker preservation; native unit task + **9 instrumentation tests**; 27 widget screenshots | Physical devices/OEM keyboards, API 34/35 runtime and manual unknown-source installer UI **NOT TESTED** |
+| Windows | Separate Electron configuration retained; shared money fixes included | **PASS** actual Windows x64 installer build and matching 2.10.15 asset; shared browser/domain parity and Electron dependency smoke | Full installed Windows GUI/update runtime on a physical PC **NOT TESTED** |
+| Website | Separate signed-in Web workspace and financial parity retained | **PASS** production build, trusted manifest/bundle verification and browser regression | Production Supabase sign-in/settings **NOT TESTED**; web build is not proof of native behavior |
+| Financial calculations | Income/expense, balances, paise, transfers/fees/reversals, budgets, reports, installments, salary/PF and reconciliation covered through reviewed code and synthetic suites | **313 unit tests**, including new independent rounding/high-value/date/duplicate/backup cases; 92 browser tests include cross-platform financial parity | Finite test cases; no production records used and no proof for arbitrarily extreme aggregates/plans |
+| Backend/security/data | Offline revision/idempotency/conflict and backup validation; Android credential/update/permission configuration reviewed | **45 PostgreSQL checks PASS**; disposable Supabase authentication, two-user isolation, anonymous/direct-write denial, concurrency, stale-revision and password-reset checks **PASS**; npm audit **0 vulnerabilities** | Production RLS/guard parity/provider settings and real Google OAuth not verified; no standalone biometric/PIN lock added |
+| UI/UX/themes | Four navigation areas retained, less duplicate UI, compact Home/Activity, all 14 More tools and light/dark support | **92 Chromium tests PASS**, including Android 320–768px, large text, keyboard/focus/modal/transfer/backup/navigation and scoped axe checks; final screenshots inspected | Browser Android simulation is distinct from the Android 16 emulator and physical-device evidence; subjective visual preference remains reviewable |
 
-## C–D. Confirmed findings and fixes
+## C. Findings (RESOLVED unless explicitly deferred below)
 
 | ID / severity | Evidence and reproduction | Root cause | Fix / files / regression |
 | --- | --- | --- | --- |
@@ -41,29 +43,88 @@
 - No new confirmed authentication/RLS flaw established by source review alone. Production Supabase policies/settings, real-account recovery and sync, credential rotation, personal-device lock behavior and real-device keyboard/performance need authorized environment/device evidence. Never certify them from synthetic tests.
 - No broad deletion of legacy CSS: it has an established cascade and existing platform-specific overrides. Changes are scoped and verified against screenshots; a complete CSS rewrite would add regression risk.
 
-## E. Verification commands and results
+## D. Fix implementation and regression map
 
-Working directory `tools/tracker-source`. Local runtime Node 24.22.1 / npm 11.9.0; repository .nvmrc specifies Node 24.19.0. CI uses the pinned toolchain.
+| Fix | Modified application files | Regression evidence |
+| --- | --- | --- |
+| F1 | `domain/budget-adjustment.ts`, `pages/Budget.tsx` | `tests/android-complete-audit.test.ts`: seven explicit expected-value rounding/boundary cases |
+| F2 | `domain/ledger.ts`; generated bot `finance.js` | High-value paise, invalid/duplicate/same-account rejection, transfer/fee/date/reversal/backup cases; existing conservation suites |
+| F3 | `pages/AndroidDashboard222.tsx`, `pages/AndroidHome.tsx` | `tests/browser/android-complete-audit.spec.ts`: one recent list, unique IDs, preserved amounts |
+| F4 | `domain/activity.ts`, `components/MobileRecentActivity.tsx`, `pages/AndroidActivity.tsx` | Immutable supported PF projection; browser validates neutral PF display, ₹500→₹475 cash with savings unchanged, and PF destination |
+| F5 | `components/AndroidMore.tsx` | Existing destination tests plus 14-shortcut/group-count/import-anchor and unchanged-data checks |
+| F6 | `pages/AndroidActivity.tsx` | Existing account/transfer/activity flows and responsive matrix; no unmeasured speedup claim |
+| F7 / F9 | `pages/AndroidHome.tsx`, `pages/AndroidActivity.tsx`, `App.tsx`, `android-simple.css` | Light/dark, 320–768px, large-text/forms, accessibility, single Add and count checks; screenshots inspected |
+| F8 | `App.tsx`, `native-ui.ts` | Four native API unit cases; Android emulator verification levels recorded separately |
 
-- Baseline `npm run check`: PASS, 49 files / 290 unit tests, lint, dependency compatibility, bot, typecheck, web build and bundle/provenance.
-- New `npx vitest run tests/android-complete-audit.test.ts`: PASS (initial 17 cases; extended with backup round-trip and supported PF projection cases).
-- Fixed `npm run check`: PASS, 51 files / 313 tests; the first run correctly detected stale generated bot finance after ledger changes, then passed after `node scripts/build-bot-finance.mjs` regenerated it.
-- `npm run build:release`: PASS (renderer + Electron main/preload, not a local Windows installer).
-- `npm audit --json`: PASS, zero vulnerabilities at audit time.
-- `npx cap sync android`: PASS.
-- `bash android/gradlew -p android --no-daemon assembleDebug`: BLOCKED locally: Gradle distribution download failed with `java.net.SocketException: Network is unreachable` for services.gradle.org. This is not a native build PASS.
-- `git diff --check`: PASS.
-- Local Chromium previously cannot launch due the workspace's socket sandbox; browser simulation is run in GitHub Actions rather than reported as local/device success.
+Version-only manifest/lock changes and release notes accompany the fixes. No new dependencies.
 
-CI is expected to execute existing `.github/workflows/tracker-quality.yml`: full checks/browser regression, disposable PostgreSQL, local disposable Supabase RLS/auth/reset, native dependency/unit checks and real Windows installer build. The release workflow independently builds web/native financial parity, signed APK, certificate comparison against the previous published APK, Android 16 emulator install/upgrade with a private marker, native unit/instrumentation/widget checks, checksums, Windows installer and public release assets. Record actual run outcomes; configuration alone is not PASS.
+## E. Verification
 
-## F. GitHub / release status
+### Reproducible commands and outcomes
 
-Prepared for PR and 2.10.15 publication under the user's explicit fix-and-release instruction. No direct main edits. No bot update notifications requested. The PR and release notes are the final source for exact commits, run links and published asset URLs after checks finish. A version bump does not itself mean an APK has been released.
+Local runtime: Node 24.22.1 / npm 11.9.0; CI uses `.nvmrc` Node 24.19.0. Commands run in `tools/tracker-source` except the versioned audit verifier below.
 
-## G. Remaining risks / limits
+| Command / check | Result |
+| --- | --- |
+| Baseline `npm run check` | **PASS**, 49 files / 290 tests |
+| Final `npm run check` | **PASS**, 51 files / **313 tests**, lint, dependency compatibility, bot finance/source parity, bot tests, quality types, web build and bundle/provenance |
+| `node scripts/build-bot-finance.mjs` followed by `npm run check:bot-finance` | **PASS**; generated shared source refreshed; no Supabase function deployment |
+| `npm run build:release` | **PASS**, native renderer and Electron main/preload; not itself an installer |
+| `npm audit --json` / CI `npm audit` | **PASS**, zero vulnerabilities at audit time |
+| `npx cap sync android` | **PASS** |
+| Local `bash android/gradlew -p android --no-daemon assembleDebug` | **BLOCKED**, Gradle download: `java.net.SocketException: Network is unreachable` for services.gradle.org; not counted as PASS |
+| CI `npm run test:browser` | **PASS**, **92/92**, final head `7151689c709a7bd540ee36cd391a017be83fcfc5` |
+| CI `npm run test:database` | **PASS**, **45 checks**, PostgreSQL 17.12, two synthetic identities, real concurrent sessions; copied policies/RPC plus proposed guard; production untouched |
+| CI `npm run test:security` and local password-reset script | **PASS**, real disposable local Supabase HTTP/Auth stack; Google/provider production flows separate |
+| CI `npm run test:dependencies` | **PASS**, including actual Electron/native packaging compatibility; no user records/keys used for PR smoke |
+| CI `bash ./gradlew --no-daemon assembleDebug testDebugUnitTest assembleReleaseAndroidTest` | **PASS**, actual Android project compilation/unit tests/instrumentation APK assembly |
+| CI `npm run dist:win` | **PASS**, real Windows installer, not physical-PC GUI testing |
+| Release `npm run android:release` | **PASS**, production-signed 2.10.15 APK, existing authorized identity |
+| `apksigner verify --verbose --print-certs`, API 34–36 signature check, `zipalign -c -P 16 4`, `aapt dump badging` | **PASS**; matching app ID, version and previous APK certificate |
+| `adb install` prior APK then `adb install -r` current APK; `am start -W` | **PASS** on isolated Android 16 emulator; app launch OK, private marker survived upgrade |
+| `bash gradlew :app:testReleaseUnitTest :app:connectedReleaseAndroidTest` | **PASS**; connected XML confirms **9 tests / 0 failures / 0 errors**, including native window clearance and widget behavior; repeat rendering/separate-process checks also PASS |
+| `git diff --check` | **PASS** |
+| Download public APK and `SHA256SUMS.txt` using `curl -fLsS` | **PASS**; actual downloaded APK is **9,830,746 bytes** and SHA-256 matches both checksum file and GitHub asset digest |
+| `python docs/audit/verify-android-2.10.15.py /path/to/Savings-and-Expense-Tracker-2.10.15.apk` | **PASS** against the downloaded APK: ZIP CRC, clean release manifest, version/source commit, **57 bundled file checksums**, no mismatches |
+| `latestTrackerUpdate` with actual published release JSON and installed `2.10.14` | **PASS**: Android and Windows both select 2.10.15; confirms metadata-based detection, not manual device installer interaction |
 
-Physical Android devices and OEM WebView/keyboard variants are not available locally. Android 14/15 behavior is not proven by an Android 16 emulator. Compilation, browser simulation, widgets and a private-file upgrade marker each cover specific behaviors; none prove every financial workflow or every installed user's data migration. Production cloud access is not exercised or modified. Native build failures, if any, must be reported as blocked/failed, not hidden. The report is updated with actual evidence before final handoff.
+### CI and native evidence
+
+- [Final quality run 43577852896](https://github.com/nandurpm/portfolio/actions/runs/43577852896): **all six jobs PASS**. Browser screenshots retained in `tracker-synthetic-browser-results`.
+- [Release run 43578373501](https://github.com/nandurpm/portfolio/actions/runs/43578373501): **all five jobs PASS**, including publish.
+- Native artifact: `tracker-android-tests-6c80d4fc8451f12892351e4ceda4d8978d7b5413`. Connected report lists one SystemBarClearance test and eight Widgets tests. Evidence contains **27 synthetic widget screenshots plus one installation screenshot**. A marker surviving upgrade does not establish every user's financial-record migration.
+- Downloaded APK manifest: version 2.10.15, mode `release`, dirty `false`, source commit `6c80d4fc8451f12892351e4ceda4d8978d7b5413`; financial logic SHA-256 `d0fc75b6f91d6fcb06dd0a79bfa797b59c90ea29db01e6ffd1493678a8b093ce`, data-model SHA-256 `9e05f646c1a6a7ae8e51c12263b8231016938bcfaa81445c07c3a7ec5b6c2852`.
+
+Earlier test failures are retained transparently: an unsupported Asset-entry fixture was correctly rejected, so the speculative classification change was removed and replaced with a supported PF contribution; a later assertion compared rendered block text to textContent rather than the amount, and was corrected to compare the savings amount directly. No validation, feature or assertion requirement was weakened. The corrected final run passes all tests.
+
+Verification levels: **static review PASS within described scope; automated domain/browser/disposable-backend tests PASS; production builds PASS; Android 16 emulator PASS within described tests; physical device NOT TESTED**. Local Chromium/Gradle environment limits were handled through CI, not represented as local execution. No Nu/Lighthouse score, universal financial correctness, real production RLS certification or end-to-end Google OAuth claim.
+
+## F. GitHub and release status
+
+- [Fix PR #143](https://github.com/nandurpm/portfolio/pull/143): **MERGED**, under the user's explicit fix-and-release instruction.
+- [Audit branch](https://github.com/nandurpm/portfolio/tree/audit/android-complete-20261114), [tested fix commit](https://github.com/nandurpm/portfolio/commit/7151689c709a7bd540ee36cd391a017be83fcfc5), [released merge commit](https://github.com/nandurpm/portfolio/commit/6c80d4fc8451f12892351e4ceda4d8978d7b5413). Baseline was verified unchanged before merge; no unrelated work reset or discarded.
+- [Release tracker-v2.10.15](https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.10.15): **PUBLISHED**, not a draft/prerelease. Existing application ID and signing identity retained. App versionCode 21015 is newer than 21014.
+- [Change log](../../tools/tracker-source/CHANGELOG-2.10.15.md). The report-evidence follow-up changes documentation/screenshots only; it does not alter the released application payload.
+
+| Published asset | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [Savings-and-Expense-Tracker-2.10.15-Source.zip](https://github.com/nandurpm/portfolio/releases/download/tracker-v2.10.15/Savings-and-Expense-Tracker-2.10.15-Source.zip) | 1,234,531 | `7cd15c7baabf04dc6ab3637fe26c980cb2c80e993c80c839e7bbb9ce9d25f134` |
+| [Savings-and-Expense-Tracker-2.10.15.apk](https://github.com/nandurpm/portfolio/releases/download/tracker-v2.10.15/Savings-and-Expense-Tracker-2.10.15.apk) | 9,830,746 | `b8dd61988720ef8979f994de15fcbff579214beaf3232a875009f1cc3566c45e` |
+| [Savings-and-Expense-Tracker-Setup-2.10.15.exe](https://github.com/nandurpm/portfolio/releases/download/tracker-v2.10.15/Savings-and-Expense-Tracker-Setup-2.10.15.exe) | 116,280,581 | `3354123880dd6f684fc3a0060b6fb97b08dc20da67b9c3524b567b9ede19c717` |
+
+The release also contains `SHA256SUMS.txt` and the change log. Update over the existing APK rather than uninstalling to retain app-private data; Android still requires the normal installer permission/confirmation. No OTA path or signing replacement introduced. No owner software-update notification was requested or dispatched by this run.
+
+## G. Outstanding risks and limits
+
+- **NOT TESTED:** physical Android phones/tablets, OEM WebView/keyboard variations, API 34/35 runtime, real user cold-start speed, and manual unknown-source installer UI. API 36 compilation/signature checks/emulation do not prove those behaviors.
+- **NOT TESTED:** a fully installed Windows GUI/update on a physical PC. Installer build and shared renderer tests are separate evidence.
+- **DEFERRED:** production Supabase RLS/guard/provider/auth settings and real Google OAuth need authorized production configuration review. The proposed optional-field guard remains unapplied. No destructive migration or production record change occurred.
+- **POTENTIAL:** compressed workbook imports retain existing 10 MB input bounds, but decompression resource exhaustion was not stress-tested. No crash/security exploit is claimed from source suspicion alone.
+- **LIMITATION:** no separate biometric/PIN app lock was established in reviewed source; local plans/exports are not claimed to be end-to-end encrypted. Device lock, app sandbox and careful backup handling remain relevant. A new lock needs a recovery/lockout design.
+- **LIMITATION:** finite deterministic/randomized/synthetic tests cannot prove every plan, all rounding aggregates, lender-specific irregular schedules or production records. Existing schedule rules/settings were preserved; no missing financial rule or transaction was invented.
+- **DEFERRED:** wholesale legacy CSS removal and unrelated redesign. Confirmed duplicate UI was removed while useful destinations, supported accounting, data models, backups and user palette settings remain.
+
+No known failing applicable check remains on the published release. This statement is scoped to the executed checks above, not a claim of universal correctness or security.
 
 ## Detailed review boundaries
 
@@ -74,6 +135,24 @@ Physical Android devices and OEM WebView/keyboard variants are not available loc
 - **Updates:** fixed official repository/tag/version asset URLs, uploaded nonempty asset/digest requirements, size bound, native APK verification and preserved production signing. Release CI compares certificate to the prior APK and tests install-over-existing rather than replacing identity. Offline notification/update retry logic from 2.10.14 remains. An in-app update still requires Android's installer permission/confirmation.
 - **Platform gaps:** API 34/35 and OEM devices require separate testing; API 36 emulator coverage does not cover them automatically. Supabase fixtures establish disposable-stack behavior only, not production RLS parity or provider settings. Proposed optional-field guard SQL is not applied by this audit.
 
-### Initial CI run (before fixture correction)
 
-Run [43576027864](https://github.com/nandurpm/portfolio/actions/runs/43576027864): database PASS (45 PostgreSQL 17.12 checks with two synthetic identities and concurrent sessions); local Supabase PASS (password login, two-user isolation, anonymous/direct-write denial, idempotency, stale revisions, concurrent writers, logout and email-reset flow); native compile/unit checks PASS; Windows installer PASS; evidence-gate regressions PASS. Browser run: 91 passed / 1 failed. The failing new fixture attempted an unsupported Asset daily entry, correctly rejected by PF validation. It is replaced with a supported PF contribution; the unnecessary classification change was removed. Final results must come from the corrected-head run.
+## Android design system and screen hierarchy
+
+| Area | Retained / improved hierarchy |
+| --- | --- |
+| Home | Cash balance (not net worth), reporting date, selected-month summary, one Add flow, recent activity, expandable full analysis |
+| Activity | Search and filter sheet; daily/account/PF activity; two compact history-management links; one global Add action |
+| Accounts | Existing creation/edit/archive/types/openings/liabilities/investments/FD/cards, transfer sheet, activity, reconciliation and position |
+| More | Main tools; Money management; App & Data. All 14 existing shortcuts retained, including forecasts, reports, budgets, loans/EMI, Salary/PF, reserves, settings, backup/restore, import/export, cloud and help |
+
+Android uses existing scoped mobile tokens: soft lavender/light and navy/dark backgrounds, white/dark cards, indigo cash hierarchy, semantic green income, coral expense, purple movement; labels distinguish meaning beyond color. Buttons/inputs remain at least 48px and bottom-nav targets at least 56px. Existing palettes, font scaling, focus styles and native inset ownership remain. No extra bitmap/animation dependency or unrelated redesign. Screenshot amounts are synthetic fixtures.
+
+### Verified browser screenshots
+
+| Home · light | Home · dark |
+| --- | --- |
+| ![Android Home, light theme, synthetic data](images/android-2.10.15-home-light.png) | ![Android Home, dark theme, synthetic data](images/android-2.10.15-home-dark.png) |
+
+| Activity | More |
+| --- | --- |
+| ![Android Activity, synthetic data](images/android-2.10.15-activity-light.png) | ![Android More, synthetic data](images/android-2.10.15-more-light.png) |
