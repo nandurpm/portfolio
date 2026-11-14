@@ -27,6 +27,9 @@ for (const theme of ['light', 'dark']) test(`rich Android surfaces preserve reco
   const values=await page.locator('.mobile-summary .stat-card > strong').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().top));
   expect(Math.max(...values)-Math.min(...values)).toBeLessThan(2);
   const check=async(selector:string,name:string)=>{
+    // Modal starts at opacity 0 even when reduced motion disables transforms.
+    // Measure the fully presented surface, not transient fade compositing.
+    await expect(page.locator(selector)).toHaveCSS('opacity','1');
     const violations=(await new AxeBuilder({page}).include(selector).analyze()).violations;
     expect(violations.filter(v=>['serious','critical'].includes(v.impact??'')),name).toEqual([]);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
