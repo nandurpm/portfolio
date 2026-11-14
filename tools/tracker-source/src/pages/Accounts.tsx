@@ -59,13 +59,13 @@ const transactionKinds: { value: LedgerKind; label: string }[] = [
   { value: "investment-withdrawal", label: "Withdraw investment" },
 ];
 
-function TransactionPanel({ children, title, onClose, android }: { children: ReactNode; title: string; onClose: () => void; android: boolean }) {
-  const caption = 'Transfers and principal movements affect balances but not income or spending. For Repay loan, Amount is principal only; enter interest and fees separately.';
+function TransactionPanel({ children, title, onClose, android, caption = 'Transfers and principal movements affect balances but not income or spending. For Repay loan, Amount is principal only; enter interest and fees separately.' }: { children: ReactNode; title: string; onClose: () => void; android: boolean; caption?: string }) {
   return android ? <Modal title={title} onClose={onClose}><p className="muted">{caption}</p>{children}</Modal> : <Section title={title} caption={caption}>{children}</Section>;
 }
 
 export default function Accounts({ action, navigate, onActionHandled }: { onActionHandled?: () => void; navigate?: (page: string, section?: string) => void; action?: { kind: 'transfer'; sequence: number } }) {
   const android = window.desktop?.platform === 'android';
+  const [advancedType, setAdvancedType] = useState(false);
   const [accountFilters, setAccountFilters] = useState(false);
   const plan = usePlan(),
     { toast, confirm } = useUi();
@@ -152,6 +152,7 @@ export default function Accounts({ action, navigate, onActionHandled }: { onActi
         "This posting is protected by reconciliation or reversal. Use Reverse transaction to retain its history.",
         true,
       );
+    setAdvancedType(false);
     setEditTransaction(r?.id ?? "");
     setKind(initialKind ?? r?.kind ?? "expense");
     setDate(r?.date ?? today());
@@ -605,7 +606,7 @@ export default function Accounts({ action, navigate, onActionHandled }: { onActi
         </Section>
       )}
       {showAccount && (
-        <Section
+        <TransactionPanel android={android} onClose={() => setShowAccount(false)}
           title={editAccount ? "Edit account" : "Add an account"}
           caption="Enter card/loan outstanding as a positive amount; it is stored as debt. Liquid openings allocate total opening savings. FDs and investments show recorded cost, not market value."
         >
@@ -709,13 +710,13 @@ export default function Accounts({ action, navigate, onActionHandled }: { onActi
               Save account
             </button>
           </div>
-        </Section>
+        </TransactionPanel>
       )}
       {showTransaction && (
         <TransactionPanel title={android && kind === 'transfer' ? 'Transfer between accounts' : 'Record a transaction'} android={android} onClose={() => setShowTransaction(false)}>
 
           <div className="form-grid three">
-            {!(android && kind === "transfer") && <Field label="Type">
+            {(!(android && kind === "transfer") || advancedType) && <Field label="Type">
               <select aria-label="Type"
                 value={kind}
                 onChange={(e) => {
@@ -925,6 +926,7 @@ export default function Accounts({ action, navigate, onActionHandled }: { onActi
               />
             </Field>
           </div>
+          {android && kind === "transfer" && !advancedType && <details><summary>Advanced options</summary><button type="button" className="button secondary" onClick={() => setAdvancedType(true)}>Change transaction type</button></details>}
           <div className="modal-actions">
             <button
               className="button secondary"

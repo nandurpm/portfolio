@@ -54,6 +54,7 @@ import { ReleaseUpdate } from "./components/ReleaseUpdate";
 import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } from "./celebrations";
 import { themePresets } from "./theme-presets";
+import { AndroidHelp } from './components/AndroidHelp';
 import { AndroidQuickActions } from './components/AndroidQuickActions';
 import { AndroidMore } from './components/AndroidMore';
 import { ShortcutHelp } from "./components/ShortcutHelp";
@@ -800,7 +801,8 @@ export function Shell() {
             </div>
           </Modal>
         )}
-        {shortcutHelp && <ShortcutHelp onClose={() => setShortcutHelp(false)} />}
+        {shortcutHelp && android && <AndroidHelp onClose={() => setShortcutHelp(false)} />}
+        {shortcutHelp && !android && <ShortcutHelp onClose={() => setShortcutHelp(false)} />}
         <AnimatePresence>
           {loading && (
             <motion.div
