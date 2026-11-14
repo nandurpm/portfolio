@@ -3,10 +3,10 @@ import AxeBuilder from '@axe-core/playwright';
 
 const destinations = [
   ['Loans & EMI', 'loan'], ['Salary & PF', 'employment'], ['Forecast', 'forecast'],
-  ['Reports', 'reports'], ['Reconciliation', 'balances'], ['Transfers & Activity', 'accounts'],
+  ['Reports', 'reports'], ['Reconciliation', 'balances'],
   ['Provisions & Reserves', 'balances'], ['Financial Position', 'accounts'],
-  ['Balances & Provisions', 'balances'], ['Forecast (Month-by-Month)', 'forecast'],
-  ['Settings', 'settings'], ['Backup & Sync', 'settings'],
+  ['Balances & Provisions', 'balances'],
+  ['Settings', 'settings'], ['Backup and Restore', 'reports'], ['Import and Export', 'reports'], ['Cloud Sync', 'settings'], ['Budgets', 'budget'],
 ] as const;
 const openMore = async (page: import('@playwright/test').Page) => {
   await page.getByRole('navigation', { name: 'Phone navigation' }).getByRole('button', { name: 'More screens' }).click();
@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.dashboard-balance strong')).toBeVisible();
 });
 
-test('all twelve cards open existing destinations without changing financial records', async ({ page }) => {
+test('all feature cards open existing destinations without changing financial records', async ({ page }) => {
   const financial = () => page.evaluate(() => {
     const { settings: _settings, celebrated: _celebrated, ...data } = JSON.parse(localStorage.getItem('savings-expence-v1')!).data;
     return data;

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const width of [360, 393, 768]) {
-  test(`Android restores 2.2.2 presentation at ${width}px without changing shared amounts`, async ({ page }) => {
+  test(`Android compact Home preserves full analysis at ${width}px without changing shared amounts`, async ({ page }) => {
     await page.setViewportSize({ width, height: 873 });
     await page.route('https://*.supabase.co/**', r => r.abort());
     await page.route('https://api.github.com/**', r => r.abort());
@@ -12,19 +12,20 @@ for (const width of [360, 393, 768]) {
     // The desktop stylesheet must not acquire Android's frozen presentation.
     expect(await page.locator('[data-android-design]').count()).toBe(0);
     await page.goto('/tests/browser/harness.html?android=1');
-    const home = page.locator('[data-android-design="2.2.2"]');
+    const home = page.locator('.android-home');
     await expect(home).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Monthly snapshot', exact: true })).toBeVisible();
-    await expect(home.locator('.dashboard-balance strong')).toHaveText(sharedCash);
+
+    await expect(home.locator('.mobile-balance strong')).toHaveText(sharedCash);
+    await page.locator('.mobile-analysis > summary').click();
     await expect(page.getByRole('heading', { name: 'Full dashboard analysis', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Balance breakdown', exact: true })).toBeVisible();
-    expect(await page.locator('.android-home').count()).toBe(0);
+    expect(await page.locator('.android-home').count()).toBe(1);
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim())).toBe('#6255df');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
     await page.screenshot({ path: `test-results/android-restored-222-${width}.png`, fullPage: true });
     if (width < 761) {
       const nav = page.getByRole('navigation', { name: 'Phone navigation' });
-      for (const name of ['Home', 'Transactions', 'Accounts', 'Budget'])
+      for (const name of ['Home', 'Activity', 'Accounts'])
         await expect(nav.getByRole('button', { name, exact: true })).toBeVisible();
       await nav.getByRole('button', { name: 'More screens', exact: true }).click();
       await expect(page.locator('.android-more').getByRole('button', { name: /^Reports / })).toBeVisible();
@@ -37,13 +38,13 @@ test('restored Android controls retain contrast across all palettes and themes',
   await page.route('https://*.supabase.co/**', r => r.abort());
   await page.route('https://api.github.com/**', r => r.abort());
   await page.goto('/tests/browser/harness.html?android=1');
-  await expect(page.locator('[data-android-design="2.2.2"]')).toBeVisible();
+  await expect(page.locator('.android-home')).toBeVisible();
   for (const theme of ['light', 'dark']) for (const palette of ['violet', 'ocean', 'emerald', 'rose', 'sunset', 'indigo']) {
     await page.evaluate(({ theme, palette }) => {
       document.documentElement.dataset.theme = theme;
       document.documentElement.dataset.palette = palette;
     }, { theme, palette });
-    const violations = (await new AxeBuilder({ page }).include('.dashboard-hero').analyze()).violations;
+    const violations = (await new AxeBuilder({ page }).include('.android-home').analyze()).violations;
     expect(violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')), `${theme} / ${palette}`).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
   }
@@ -54,7 +55,7 @@ test('Android Settings Lavender selection changes the actual UI from green to vi
   await page.route('https://*.supabase.co/**', r => r.abort());
   await page.route('https://api.github.com/**', r => r.abort());
   await page.goto('/tests/browser/harness.html?android=1');
-  await expect(page.locator('[data-android-design="2.2.2"]')).toBeVisible();
+  await expect(page.locator('.android-home')).toBeVisible();
 
   const nav = page.getByRole('navigation', { name: 'Phone navigation' });
   await nav.getByRole('button', { name: 'More screens' }).click();
@@ -87,7 +88,8 @@ test('Android Settings Lavender selection changes the actual UI from green to vi
   expect(lavender.theme).toBe('light');
   expect(lavender.accentDeep).toBe('#4838ac');
   expect(lavender.sidebar).toBe('#33306b');
-  expect(lavender.navGradient).not.toBe(emerald.navGradient);
+  expect(lavender.navGradient).toBe('none');
+  expect(emerald.navGradient).toBe('none');
   expect(lavender.quickAdd).not.toBe(emerald.quickAdd);
   await page.screenshot({ path: 'test-results/android-lavender-light.png', fullPage: false });
 
@@ -105,7 +107,7 @@ test('Android theme tokens follow all six palettes in light and dark mode', asyn
   await page.route('https://*.supabase.co/**', r => r.abort());
   await page.route('https://api.github.com/**', r => r.abort());
   await page.goto('/tests/browser/harness.html?android=1');
-  await expect(page.locator('[data-android-design="2.2.2"]')).toBeVisible();
+  await expect(page.locator('.android-home')).toBeVisible();
   const expected: Record<string, { light: string; dark: string; sidebar: string }> = {
     violet: { light: '#6255df', dark: '#a99cfb', sidebar: '#33306b' },
     ocean: { light: '#176b93', dark: '#6dc2f2', sidebar: '#163850' },

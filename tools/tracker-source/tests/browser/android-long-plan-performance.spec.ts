@@ -9,7 +9,7 @@ test('Android long-plan tabs stay responsive and charts load near the viewport',
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/tests/browser/harness.html?android=1');
   await expect(page.locator('.dashboard-balance strong')).toBeVisible();
-  await expect(page.locator('.dashboard-analytics [data-deferred-content]')).toHaveAttribute('data-deferred-content', 'waiting');
+  await expect(page.locator('.dashboard-analytics')).toHaveCount(0);
   await page.evaluate(async () => {
     const storePath = '/src/store.ts', datesPath = '/src/domain/dates.ts';
     const { store } = await import(storePath);
@@ -29,16 +29,17 @@ test('Android long-plan tabs stay responsive and charts load near the viewport',
   const before = await fingerprint();
   const nav = page.getByRole('navigation', { name: 'Phone navigation' });
   const timings: { tab: string; ms: number }[] = [];
-  for (const tab of ['Accounts', 'Transactions', 'Home', 'Accounts', 'Home']) {
+  for (const tab of ['Accounts', 'Activity', 'Home', 'Accounts', 'Home']) {
     const start = Date.now();
     await nav.getByRole('button', { name: tab, exact: true }).click();
-    await expect(page.locator('.main-scroll')).toHaveAttribute('data-page', tab === 'Home' ? 'dashboard' : tab === 'Accounts' ? 'accounts' : 'entries');
+    await expect(page.locator('.main-scroll')).toHaveAttribute('data-page', tab === 'Home' ? 'dashboard' : tab === 'Accounts' ? 'accounts' : 'activity');
     await expect(page.locator('.screen-loading')).toHaveCount(0);
     await expect(page.locator('.main-scroll h1')).toHaveCount(1);
     const ms = Date.now() - start;
     timings.push({ tab, ms });
     expect(ms, `${tab} synthetic long-plan navigation`).toBeLessThan(2500);
   }
+  await page.locator('.mobile-analysis > summary').click();
   const charts = page.locator('.dashboard-analytics [data-deferred-content]');
   await charts.scrollIntoViewIfNeeded();
   await expect(charts).toHaveAttribute('data-deferred-content', 'ready');

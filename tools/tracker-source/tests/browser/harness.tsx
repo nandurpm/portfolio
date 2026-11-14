@@ -50,6 +50,7 @@ void store.load().then(async () => {
     if (platform === 'android') {
       document.documentElement.dataset.platform = 'android';
       await import('../../src/android-v222.css');
+      await import('../../src/android-simple.css');
     }
   }
   return (

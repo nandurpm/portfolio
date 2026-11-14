@@ -5,6 +5,7 @@ import './android-more.css';
 
 export const moreGroups = [
   { title: '', icon: Layers, cards: [
+    { title: 'Budgets', description: 'Plan spending and savings', page: 'budget', icon: Wallet, tone: 'mint' },
     { title: 'Loans & EMI', description: 'Manage loans, installments and closure', page: 'loan', icon: Calculator, tone: 'purple' },
     { title: 'Salary & PF', description: 'Salary, provident fund and increments', page: 'employment', icon: BriefcaseBusiness, tone: 'blue' },
     { title: 'Forecast', description: 'Savings forecast and financial planning', page: 'forecast', icon: TrendingUp, tone: 'mint' },
@@ -12,7 +13,6 @@ export const moreGroups = [
   ] },
   { title: 'Accounts & Money Flow', icon: Layers, cards: [
     { title: 'Reconciliation', description: 'Bank and cash reconciliation', page: 'balances', section: 'Balance reconciliation', icon: ArrowLeftRight, tone: 'mint' },
-    { title: 'Transfers & Activity', description: 'Account transfers and transaction activity', page: 'accounts', section: 'Recent account activity', icon: ArrowLeftRight, tone: 'purple' },
   ] },
   { title: 'Planning & Financial Position', icon: Target, cards: [
     { title: 'Provisions & Reserves', description: 'Reserved funds and planned provisions', page: 'balances', section: 'Bills and provision balances', icon: ShieldCheck, tone: 'peach' },
@@ -20,11 +20,13 @@ export const moreGroups = [
   ] },
   { title: 'Balances & Overview', icon: Wallet, cards: [
     { title: 'Balances & Provisions', description: 'Your balances and reserved funds', page: 'balances', icon: Wallet, tone: 'purple' },
-    { title: 'Forecast (Month-by-Month)', description: 'Explore your monthly financial plan', page: 'forecast', section: 'Full-month forecast', icon: ChartNoAxesColumn, tone: 'mint' },
   ] },
   { title: 'App & Data', icon: Settings, cards: [
     { title: 'Settings', description: 'Appearance, preferences and security', page: 'settings', icon: Settings, tone: 'blue' },
-    { title: 'Backup & Sync', description: 'Backup, restore and account sync', page: 'settings', section: 'Account & cloud sync', icon: CloudUpload, tone: 'blue' },
+    { title: 'Backup and Restore', description: 'Export and recover a full backup', page: 'reports', section: 'Complete backup & restore', icon: CloudUpload, tone: 'blue' },
+    { title: 'Import and Export', description: 'Excel plans and report exports', page: 'reports', icon: FileChartColumn, tone: 'purple' },
+    { title: 'Cloud Sync', description: 'Account and synchronization status', page: 'settings', section: 'Account & cloud sync', icon: CloudUpload, tone: 'blue' },
+    { title: 'Help and Support', description: 'App guidance and keyboard shortcuts', page: 'help', icon: ShieldCheck, tone: 'blue' },
   ] },
 ];
 

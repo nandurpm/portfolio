@@ -10,6 +10,16 @@ for (const native of [false, true]) {
 
     const activity = page.locator('.mobile-recent');
     const actions = activity.getByRole('group', { name: 'Activity history' });
+    if (native) {
+      await actions.getByRole('button', { name: 'View all' }).click();
+      await expect(page.getByRole('heading', { name: 'Activity', exact: true })).toBeVisible();
+      await page.getByRole('button', { name: 'Manage account activity', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Accounts & transactions' })).toBeVisible();
+      await page.getByRole('navigation', { name: 'Phone navigation' }).getByRole('button', { name: 'Activity', exact: true }).click();
+      await page.getByRole('button', { name: 'Manage daily entries', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Small entries. Clearer money.' })).toBeVisible();
+      return;
+    }
     const daily = actions.getByRole('button', { name: 'Daily entries', exact: true });
     const accounts = actions.getByRole('button', { name: 'Account activity', exact: true });
     await expect(daily).toBeVisible();
