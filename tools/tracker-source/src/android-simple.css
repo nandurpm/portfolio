@@ -365,3 +365,235 @@ html[data-platform="android"] .mobile-analysis > summary { display: list-item; v
   flex-wrap: nowrap;
   gap: 8px;
 }
+
+/* Rich Android surfaces: static depth, semantic color and a restrained indigo gradient. */
+html[data-platform="android"] {
+  --mobile-bg: #f1effb;
+  --mobile-line: #dedaf0;
+  --mobile-mint: #e8f6ef;
+  --mobile-coral: #fff0ed;
+  --mobile-lavender: #f0eaff;
+  --mobile-income: #176046;
+  --mobile-expense: #993848;
+  --mobile-movement: #583b91;
+  --mobile-shadow: 0 8px 24px #2924540c, 0 2px 5px #29245405;
+}
+html[data-platform="android"][data-theme="dark"] {
+  --mobile-bg: #12172b;
+  --mobile-card: #20263e;
+  --mobile-line: #465071;
+  --mobile-mint: #193b33;
+  --mobile-coral: #402a35;
+  --mobile-lavender: #322b50;
+  --mobile-income: #a4e6c7;
+  --mobile-expense: #ffc0ca;
+  --mobile-movement: #dfceff;
+  --mobile-shadow: 0 10px 28px #070c1e40, 0 2px 5px #070c1e20;
+}
+html[data-platform="android"] .topbar {
+  box-shadow: 0 4px 18px #29245408;
+  border-bottom-color: var(--mobile-line);
+}
+html[data-platform="android"] .phone-title { font-weight: 800; letter-spacing: -.035em; }
+html[data-platform="android"] .phone-settings {
+  border-radius: 16px;
+  background: var(--mobile-lavender);
+  color: var(--mobile-movement);
+}
+html[data-platform="android"] .android-home > .muted {
+  font-size: .8rem;
+  font-weight: 650;
+  letter-spacing: .025em;
+  margin: 4px 0 12px;
+}
+html[data-platform="android"] .android-home .mobile-balance {
+  position: relative;
+  isolation: isolate;
+  border-radius: 26px;
+  background: linear-gradient(125deg, #1d2a59 0%, #33366d 55%, #514184 100%);
+  border: 1px solid #ffffff26;
+  box-shadow: 0 14px 30px #29245424, inset 0 1px #ffffff1f;
+  gap: 12px;
+}
+html[data-platform="android"] .mobile-balance > span {
+  font-size: .85rem;
+  font-weight: 650;
+  letter-spacing: .025em;
+  color: #e5e8ff;
+}
+html[data-platform="android"] .mobile-balance > strong {
+  font-size: clamp(2.1rem, 8.5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.15;
+}
+html[data-platform="android"] .mobile-balance p { font-size: .8rem; line-height: 1.6; }
+html[data-platform="android"] .mobile-balance small {
+  padding: 8px 10px;
+  border: 1px solid #ffffff29;
+  border-radius: 12px;
+  background: #ffffff0d;
+  color: #f0f1ff;
+  font-size: .75rem;
+}
+html[data-platform="android"] .android-home .mobile-summary { gap: 10px; margin-block: 18px; }
+html[data-platform="android"] .android-home .mobile-summary .stat-card {
+  border-radius: 21px;
+  box-shadow: var(--mobile-shadow);
+  padding: 13px 10px;
+  border-color: color-mix(in srgb, var(--mobile-line) 70%, transparent);
+}
+html[data-platform="android"] .android-home .mobile-summary .stat-card.green { background: var(--mobile-mint); }
+html[data-platform="android"] .android-home .mobile-summary .stat-card.orange { background: var(--mobile-coral); }
+html[data-platform="android"] .android-home .mobile-summary .stat-card.violet { background: var(--mobile-lavender); }
+html[data-platform="android"] .android-home .mobile-summary .stat-card .stat-top > span {
+  color: var(--mobile-ink);
+  font-size: .8rem;
+  font-weight: 700;
+}
+html[data-platform="android"] .android-home .mobile-summary .stat-card .stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: var(--mobile-card);
+  box-shadow: 0 2px 6px #20285208;
+}
+html[data-platform="android"] .android-home .mobile-summary .stat-card.green :is(.stat-icon, strong) { color: var(--mobile-income); }
+html[data-platform="android"] .android-home .mobile-summary .stat-card.orange :is(.stat-icon, strong) { color: var(--mobile-expense); }
+html[data-platform="android"] .android-home .mobile-summary .stat-card.violet :is(.stat-icon, strong) { color: var(--mobile-movement); }
+html[data-platform="android"] .android-home .mobile-summary .stat-caption { color: var(--mobile-muted); line-height: 1.5; }
+html[data-platform="android"] .android-home .button.android-add:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button) {
+  background: linear-gradient(110deg, #247b59, #24694f);
+  box-shadow: 0 7px 16px #17604626, inset 0 1px #ffffff29;
+  border-radius: 19px;
+  font-weight: 750;
+  gap: 10px;
+}
+html[data-platform="android"] .android-home .android-add > svg {
+  padding: 4px;
+  box-sizing: content-box;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff20;
+}
+html[data-platform="android"] .android-home :is(.mobile-recent, .mobile-analysis) {
+  border-radius: 22px;
+  border: 1px solid var(--mobile-line);
+  background: var(--mobile-card);
+  box-shadow: var(--mobile-shadow);
+}
+html[data-platform="android"] .mobile-recent h2 { font-size: 1.1rem; letter-spacing: -.025em; }
+html[data-platform="android"] .mobile-recent .mobile-recent-icon { border-radius: 14px; }
+html[data-platform="android"] .mobile-recent .mobile-recent-icon.income { background: var(--mobile-mint); color: var(--mobile-income); }
+html[data-platform="android"] .mobile-recent .mobile-recent-icon.expense { background: var(--mobile-coral); color: var(--mobile-expense); }
+html[data-platform="android"] .mobile-recent .mobile-recent-icon.movement { background: var(--mobile-lavender); color: var(--mobile-movement); }
+html[data-platform="android"] .unified-activity {
+  border-radius: 22px;
+  box-shadow: var(--mobile-shadow);
+}
+html[data-platform="android"] .unified-activity button { padding: 16px 12px; gap: 12px; }
+html[data-platform="android"] .unified-activity button > svg {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border-radius: 14px;
+}
+html[data-platform="android"] .unified-activity .income { background: var(--mobile-mint); color: var(--mobile-income); }
+html[data-platform="android"] .unified-activity .expense { background: var(--mobile-coral); color: var(--mobile-expense); }
+html[data-platform="android"] .unified-activity .movement { background: var(--mobile-lavender); color: var(--mobile-movement); }
+html[data-platform="android"] .android-activity .mobile-search-row > label {
+  border: 1px solid var(--mobile-line);
+  border-radius: 15px;
+  background: var(--mobile-card);
+  padding-inline: 12px;
+  box-shadow: var(--mobile-shadow);
+}
+html[data-platform="android"] .mobile-search-row input { background: transparent; border: 0; }
+html[data-platform="android"] .accounts-page .account-card {
+  padding: 18px;
+  border-radius: 23px;
+  border: 1px solid var(--mobile-line);
+  border-top: 4px solid var(--mobile-movement);
+  background: var(--mobile-card);
+  box-shadow: var(--mobile-shadow);
+}
+html[data-platform="android"] .accounts-page .account-card:nth-child(3n + 2) { border-top-color: var(--mobile-income); }
+html[data-platform="android"] .accounts-page .account-card:nth-child(3n) { border-top-color: var(--mobile-expense); }
+html[data-platform="android"] .account-card > span:first-child {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 5px 9px;
+  border-radius: 9px;
+  background: var(--mobile-lavender);
+  color: var(--mobile-movement);
+  font-size: .7rem;
+  font-weight: 700;
+}
+html[data-platform="android"] .account-card > h3 { margin: 12px 0 6px; font-size: 1.1rem; font-weight: 750; }
+html[data-platform="android"] .account-card > strong { font-size: 1.6rem; letter-spacing: -.035em; }
+html[data-platform="android"] .modal {
+  border: 1px solid var(--mobile-line);
+  border-top: 4px solid var(--mobile-movement);
+  box-shadow: 0 -14px 48px #111b3d33;
+  border-radius: 27px 27px 0 0;
+}
+html[data-platform="android"] .modal-title h2 { font-weight: 800; letter-spacing: -.03em; }
+html[data-platform="android"] .modal :is(input, select, textarea) {
+  background: var(--mobile-bg);
+  border-color: var(--mobile-line);
+  border-radius: 13px;
+  color: var(--mobile-ink);
+}
+html[data-platform="android"] .modal :is(input, textarea)::placeholder { color: var(--mobile-muted); opacity: 1; }
+html[data-platform="android"] .android-action-list { gap: 8px; }
+html[data-platform="android"] .android-action-list button {
+  border: 1px solid var(--mobile-line);
+  border-radius: 18px;
+  padding: 12px;
+  background: var(--mobile-card);
+  box-shadow: 0 2px 7px #29245405;
+}
+html[data-platform="android"] .android-action-list button > svg:first-child {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  padding: 12px;
+  border-radius: 15px;
+  color: var(--mobile-movement);
+  background: var(--mobile-lavender);
+}
+html[data-platform="android"] .android-action-list [data-action="income"] > svg:first-child { color: var(--mobile-income); background: var(--mobile-mint); }
+html[data-platform="android"] .android-action-list [data-action="expense"] > svg:first-child { color: var(--mobile-expense); background: var(--mobile-coral); }
+html[data-platform="android"] .android-action-list button > svg:last-child { flex-shrink: 0; width: 18px; color: var(--mobile-muted); }
+html[data-platform="android"] .android-more .android-more-header {
+  background: linear-gradient(125deg, #1d2a59, #514184);
+  border-radius: 0 0 25px 25px;
+  box-shadow: 0 7px 20px #2924541a;
+}
+html[data-platform="android"] .android-more .android-more-grid {
+  border-radius: 22px;
+  box-shadow: var(--mobile-shadow);
+}
+html[data-platform="android"] .android-more .android-more-icon { width: 42px; height: 42px; border-radius: 14px; }
+html[data-platform="android"] .android-more .android-more-icon:is(.purple, .blue) { background: var(--mobile-lavender); color: var(--mobile-movement); }
+html[data-platform="android"] .android-more .android-more-icon.mint { background: var(--mobile-mint); color: var(--mobile-income); }
+html[data-platform="android"] .android-more .android-more-icon:is(.peach, .coral) { background: var(--mobile-coral); color: var(--mobile-expense); }
+html[data-platform="android"] .phone-nav {
+  border-radius: 23px 23px 0 0;
+  box-shadow: 0 -5px 22px #29245410;
+  padding-top: 6px;
+}
+html[data-platform="android"] .phone-nav button { position: relative; border-radius: 17px; }
+html[data-platform="android"] .phone-nav button[aria-current="page"] { font-weight: 750; }
+html[data-platform="android"] .phone-nav button[aria-current="page"]::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: calc(50% - 10px);
+  width: 20px;
+  height: 3px;
+  border-radius: 99px;
+  background: currentColor;
+}
+html[data-platform="android"] .phone-nav button[aria-current="page"] svg { stroke-width: 2.5; }

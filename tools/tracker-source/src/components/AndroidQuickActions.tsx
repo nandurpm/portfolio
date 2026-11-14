@@ -50,7 +50,7 @@ export function AndroidQuickActions({
     <Modal title="Quick actions" onClose={onClose}>
       <div className="android-action-list">
         {actions.map((item) => (
-          <button type="button" key={item.id} onClick={() => action(item.id)}>
+          <button type="button" data-action={item.id} key={item.id} onClick={() => action(item.id)}>
             <item.icon aria-hidden="true" />
             <span>
               <strong>{item.title}</strong>
