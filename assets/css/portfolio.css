@@ -217,7 +217,15 @@ color-scheme:dark;
 color-scheme:light; --bg:#f6f3ef; --bg-soft:#ebe7e2; --surface:#fff;
 --surface-strong:#eee9e4; --text:#252229; --heading:#17151a;
 --muted:#625c66; --border:#241c2926; --brand:#ae1430; --brand-2:#ce1c39;
---accent:#92402b; --accent-rgb:174 20 48;
+--accent:#92402b; --accent-rgb:174 20 48; --ink-rgb:36 28 41; --danger:#9b1c31;
+}
+@media (prefers-color-scheme: light) {
+:root:not([data-theme]) {
+color-scheme:light; --bg:#f6f3ef; --bg-soft:#ebe7e2; --surface:#fff;
+--surface-strong:#eee9e4; --text:#252229; --heading:#17151a;
+--muted:#625c66; --border:#241c2926; --brand:#ae1430; --brand-2:#ce1c39;
+--accent:#92402b; --accent-rgb:174 20 48; --ink-rgb:36 28 41; --danger:#9b1c31;
+}
 }
 
 * {

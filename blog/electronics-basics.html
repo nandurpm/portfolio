@@ -5,17 +5,19 @@ FILE PURPOSE: Static HTML page for the published blog article represented by the
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script><meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="A practical review of electronics fundamentals: voltage, current, grounding, signal paths, measurement, protection, connectors, and testing habits.">
   <meta name="author" content="Nandakumar M"><title>Electronics Basics That Still Matter | Nandakumar M</title>
@@ -26,30 +28,30 @@ try {
   <meta property="og:title" content="Electronics Basics That Still Matter | Nandakumar M">
   <meta property="og:description" content="A practical review of electronics fundamentals: voltage, current, grounding, signal paths, measurement, protection, connectors, and testing habits.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/blog/electronics-basics.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-6.webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
+  <meta property="og:image:alt" content="Electronics Basics That Still Matter">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Electronics Basics That Still Matter | Nandakumar M">
   <meta name="twitter:description" content="A practical review of electronics fundamentals: voltage, current, grounding, signal paths, measurement, protection, connectors, and testing habits.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
-  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Electronics Basics That Still Matter","description":"A reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere.","datePublished":"2026-02-08","image":["https://nandakumarm.dpdns.org/assets/images/og-card.png"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/electronics-basics.html"}</script>
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-6.webp">
+  <meta name="twitter:image:alt" content="Electronics Basics That Still Matter">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Electronics Basics That Still Matter","description":"A reminder that fundamentals like voltage, grounding, signal paths, and measurement habits remain important everywhere.","datePublished":"2026-02-08","image":["https://nandakumarm.dpdns.org/assets/images/blog/blog-6.webp"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/electronics-basics.html"}</script>
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="../favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="stylesheet" href="../assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=10b0e84b260f">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="site-shell">
-<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="../projects.html">Projects</a><a href="../blog.html" class="active" aria-current="page">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html" class="active" aria-current="page">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 <main id="main-content" tabindex="-1"><article class="blog-article">
-<header class="article-header"><p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p><h1>Electronics Basics That Still Matter</h1><div class="article-meta"><time datetime="2026-02-08">8 Feb 2026</time><span>8 min read</span><span>Engineering</span></div><img src="../assets/images/blog/blog-6.webp" alt="Electronics measurement and circuit fundamentals" class="article-image" width="600" height="394" decoding="async" loading="lazy"></header>
+<header class="article-header"><p class="eyebrow"><a href="/blog.html">← Back to Blog</a></p><h1>Electronics Basics That Still Matter</h1><div class="article-meta"><time datetime="2026-02-08">8 Feb 2026</time><span>8 min read</span><span>Engineering</span></div><img src="/assets/images/blog/blog-6.webp" alt="Electronics measurement and circuit fundamentals" class="article-image" width="600" height="394" decoding="async" loading="lazy"></header>
 <div class="article-content">
 <p>Electronics tools and controllers change quickly, but the behaviour of voltage, current, resistance, grounding, signal paths, heat, and measurement does not become outdated. Many difficult faults can be traced to a basic condition that was overlooked because attention moved too quickly toward software or component replacement.</p>
 <p>A disciplined troubleshooting process begins with fundamentals. Before changing code, replacing a board, or assuming a complex fault, confirm that power, reference, wiring, interfaces, and operating conditions are correct.</p>
@@ -80,8 +82,8 @@ try {
 <p>Record measured values, test points, conditions, and corrections. A note saying “connection fixed” is less useful than identifying the terminal, observed resistance or voltage drop, corrective action, and verification result. Good records turn one repair into knowledge that can prevent repetition.</p>
 <p>Advanced electronics becomes easier when the basics are controlled. Power, reference, signal direction, load behaviour, connection quality, and measurement discipline remain the foundation whether the system uses a simple relay or a networked controller.</p>
 </div>
-<footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
+<footer class="article-footer"><a class="btn ghost" href="/blog.html">← Back to all posts</a></footer>
 </article></main>
 <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
-</div><script src="../assets/js/theme.js?v=navigation-20261023"></script><script src="../assets/js/main.js?v=navigation-20261023"></script>  <script src="../assets/js/reveal.js?v=navigation-20261023"></script>
+</div><script src="/assets/js/theme.js?v=8d4f57631ae3"></script><script src="/assets/js/main.js?v=1e744259ec62"></script>  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body></html>

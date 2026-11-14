@@ -1,19 +1,26 @@
 /* Shared public-page chrome, accessibility and metadata. No runtime build required. */
 import fs from 'node:fs';
 import path from 'node:path';
+import { normalizeAssetUrls, dateText } from './site-assets.mjs';
 export const SITE_URL = 'https://nandakumarm.dpdns.org';
 const bootstrap = fs.readFileSync(new URL('./theme-bootstrap.html', import.meta.url), 'utf8').trim();
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const decode = (value) => value.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&lt;', '<').replaceAll('&gt;', '>');
-const dateText = (value) => new Intl.DateTimeFormat('en-GB', { day:'numeric', month:'short', year:'numeric', timeZone:'UTC' }).format(new Date(value));
 
 export function normalizePage(source, relativePath, post) {
+  // Redirect documents deliberately have no application chrome or executable JS.
+  const redirect = source.match(/<meta\s+http-equiv="refresh"\s+content="[^;]*;\s*url=([^"]+)"/i)?.[1];
+  if (redirect) {
+    const target = new URL(redirect, `${SITE_URL}/${relativePath}`);
+    if (target.origin !== SITE_URL) throw new Error(`External redirect in ${relativePath}`);
+    return `<!DOCTYPE html>\n<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${escape(target.pathname + target.hash)}"><link rel="canonical" href="${escape(target.href)}"><meta name="description" content="This page has moved. Continue to the current page."><title>Page moved — Nandakumar M</title></head><body><main><h1>Page moved</h1><p><a href="${escape(target.pathname + target.hash)}">Continue to the current page</a></p>${relativePath === 'resume.html' ? '<p><a href="/assets/files/resume.pdf" download>Download résumé (PDF)</a></p>' : ''}</main></body></html>\n`;
+  }
   const prefix = path.posix.dirname(relativePath) === '.' ? '' : '../';
   const title = decode(source.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || 'Nandakumar M');
   const description = decode(source.match(/<meta name="description" content="([^"]*)"/i)?.[1] || title);
   const canonical = `${SITE_URL}/${relativePath === 'index.html' ? '' : relativePath}`;
-  const image = `${SITE_URL}/assets/images/og-card.png`;
-  const imageAlt = 'Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series';
+  const image = post?.image ? new URL(post.image, `${SITE_URL}/`).href : `${SITE_URL}/assets/images/og-card.png`;
+  const imageAlt = post ? post.title : 'Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series';
   let html = source.replace(/\s*<!-- PAGE_METADATA_START -->[\s\S]*?<!-- PAGE_METADATA_END -->/g, '')
     .replace(/\s*<meta name="keywords"[^>]*>/gi, '')
     .replace(/\s*<link rel="preload" as="image"[^>]*>/g, '')
@@ -24,11 +31,9 @@ export function normalizePage(source, relativePath, post) {
     .replace(/\s*<script data-theme-bootstrap>[\s\S]*?<\/script>/g, '')
     .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: dark\)")/g, '$1#07070a$2')
     .replace(/(<meta name="theme-color" content=")[^"]+(" media="\(prefers-color-scheme: light\)")/g, '$1#f6f3ef$2');
-  html = html.replace(/(<script src="(?:\.\.\/)?assets\/js\/theme\.js)(?:\?[^"]*)?"/g, '$1?v=navigation-20261023"');
-  html = html.replace(/(<script src="(?:\.\.\/)?assets\/js\/main\.js)(?:\?[^\"]*)?"/g, '$1?v=navigation-20261023"');
-  html = html.replace(/(<script src="(?:\.\.\/)?assets\/js\/reveal\.js)(?:\?[^\"]*)?"/g, '$1?v=navigation-20261023"');
   html = html.replace(/(href|src)="\/assets\//g, `$1="${prefix}assets/`);
-  html = html.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n  ${bootstrap}`);
+  html = html.replace(/(<meta name="theme-color"[^>]+media="\(prefers-color-scheme: light\)"[^>]*>)/, `$1\n  ${bootstrap}`);
+  if (!html.includes('data-theme-bootstrap')) html = html.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n  ${bootstrap}`);
   html = html.replace(/<html(?:\s+lang="[^"]*")?>/i, '<html lang="en">');
   // Keep preload and the image candidate list identical; desktop billboard occupies most of the viewport.
   html = html.replace(/assets\/images\/profile(?:-(?:480|768))?\.webp/g, (url) => url.replace(/profile(?:-(480|768))?\.webp/, (_, width) => `profile-hq-${width || 1673}.webp`));
@@ -88,7 +93,8 @@ export function normalizePage(source, relativePath, post) {
   html = html.replace(/\s*<link[^>]+(?:rel="icon"|rel="apple-touch-icon"|rel="manifest")[^>]*>/g, '');
   const icons = `  <link rel="icon" href="${prefix}favicon.ico" sizes="any">\n  <link rel="icon" type="image/png" sizes="32x32" href="${prefix}assets/images/favicon-32.png">\n  <link rel="apple-touch-icon" sizes="180x180" href="${prefix}assets/images/apple-touch-icon.png">\n  <link rel="manifest" href="${prefix}manifest.webmanifest">`;
   const heroPreload = relativePath === 'index.html' ? '\n  <link rel="preload" as="image" href="assets/images/profile-hq-1200.webp" imagesrcset="assets/images/profile-hq-480.webp 480w, assets/images/profile-hq-768.webp 768w, assets/images/profile-hq-1200.webp 1200w, assets/images/profile-hq-1673.webp 1673w" imagesizes="(max-width: 760px) 100vw, (max-width: 1680px) 85vw, 1400px" fetchpriority="high">' : '';
-  const links = ['portfolio'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css?v=${relativePath === 'about.html' ? 'about-intro-20261023' : 'about-portrait-20261023'}">`).join('\n');
+  const links = ['portfolio'].map((name) => `  <link rel="stylesheet" href="${prefix}assets/css/${name}.css?v=build">`).join('\n');
   html = html.replace(/\s*<link rel="stylesheet" href="assets\/css\/about\.css">/g, '');
-  return html.replace('</head>', `${metadata}${icons}${heroPreload}\n${links}\n</head>`).replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n');
+  if (relativePath === '404.html') metadata = '';
+  return normalizeAssetUrls(html.replace('</head>', `${metadata}${icons}${heroPreload}\n${links}\n</head>`).replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n'), relativePath);
 }

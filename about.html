@@ -6,17 +6,19 @@ FILE PURPOSE: About page covering the professional profile, current work, techni
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script data-theme-bootstrap>
-document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script>
   <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="About Nandakumar M, an Electrical and Electronics Design Engineer who builds software, web tools, technical content, and practical engineering systems.">
   <meta name="author" content="Nandakumar M">
@@ -39,23 +41,23 @@ try {
   <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Nandakumar M","jobTitle":"Electrical and Electronics Design Engineer","address":{"@type":"PostalAddress","addressLocality":"Chennai"},"url":"https://nandakumarm.dpdns.org/","sameAs":["https://github.com/nandurpm"],"knowsAbout":["Electrical design","Escalator systems","Technical documentation","Web development"]}</script>
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="assets/css/portfolio.css?v=about-intro-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=10b0e84b260f">
 </head>
 <body class="series-about">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="site-shell">
-    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html" class="active" aria-current="page">About</a><a href="contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html">Articles</a><a href="/about.html" class="active" aria-current="page">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 
     <main id="main-content" tabindex="-1">
       <section class="section page-hero glass" data-reveal="up">
         <div class="page-hero-content">
           <nav class="breadcrumb small-note" aria-label="Breadcrumb">
-            <a href="index.html">Home</a> <span>/</span> <span aria-current="page">About</span>
+            <a href="/index.html">Home</a> <span>/</span> <span aria-current="page">About</span>
           </nav>
           <p class="eyebrow">About Me</p>
           <h1>Electrical design, software, and practical engineering work.</h1>
@@ -65,7 +67,7 @@ try {
 
       <section class="section hero-profile-section" data-reveal="up">
         <div class="profile-image-wrapper">
-          <img src="assets/images/about-photo-hq-1536.webp" alt="Nandakumar M seated beside a temple pond" width="1536" height="1024" srcset="assets/images/about-photo-hq-480.webp 480w, assets/images/about-photo-hq-768.webp 768w, assets/images/about-photo-hq-1152.webp 1152w, assets/images/about-photo-hq-1536.webp 1536w" sizes="(max-width: 900px) 100vw, (max-width: 1680px) 75vw, 1250px" decoding="async" loading="lazy">
+          <img src="/assets/images/about-photo-hq-1536.webp" alt="Nandakumar M seated beside a temple pond" width="1536" height="1024" srcset="/assets/images/about-photo-hq-480.webp 480w, /assets/images/about-photo-hq-768.webp 768w, /assets/images/about-photo-hq-1152.webp 1152w, /assets/images/about-photo-hq-1536.webp 1536w" sizes="(max-width: 900px) 100vw, (max-width: 1680px) 75vw, 1250px" decoding="async" loading="lazy">
         </div>
         <div class="profile-info">
           <p class="subtitle">Who I Am</p>
@@ -91,8 +93,8 @@ try {
             </div>
           </div>
           <div class="button-row">
-            <a class="btn primary" href="projects.html">View My Work</a>
-            <a class="btn ghost" href="contact.html">Get In Touch</a>
+            <a class="btn primary" href="/projects.html">View My Work</a>
+            <a class="btn ghost" href="/contact.html">Get In Touch</a>
           </div>
         </div>
       </section>
@@ -165,7 +167,7 @@ try {
         <div class="feature-grid">
           <article class="feature-card">
             <h3>POLY PMNA</h3>
-            <p>Your Kerala diploma learning platform for lessons, revision pages, quizzes, tools, and study support across supported curriculum revisions.</p>
+            <p>A Kerala diploma learning platform for lessons, revision pages, quizzes, tools, and study support across supported curriculum revisions.</p>
           </article>
           <article class="feature-card">
             <h3>Engineering Utilities</h3>
@@ -240,7 +242,7 @@ try {
         <div class="section-heading">
           <div>
             <p class="eyebrow">Experience</p>
-            <h2 id="resume">Professional background</h2>
+            <h2 id="resume">Professional background</h2><a class="btn" href="/assets/files/resume.pdf" download>Download résumé (PDF)</a>
           </div>
         </div>
         <div class="timeline" data-stagger>
@@ -306,7 +308,7 @@ try {
       <section class="section content-grid" data-reveal="up">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Impact</p>
+            <p class="eyebrow">Working principles</p>
             <h2>What this work is aiming at</h2>
           </div>
         </div>
@@ -324,11 +326,11 @@ try {
             <span>Clear documentation</span>
           </div>
           <div class="stat-card">
-            <strong>Fast</strong>
+            <strong>Efficient</strong>
             <span>Less wasted effort</span>
           </div>
           <div class="stat-card">
-            <strong>Maintained</strong>
+            <strong>Maintainable</strong>
             <span>Designed to last</span>
           </div>
         </div>
@@ -355,9 +357,9 @@ try {
         </div>
         <p>Whether you have a project in mind, want to discuss engineering challenges, or just want to connect, I'd love to hear from you.</p>
         <div class="button-row">
-          <a class="btn primary" href="contact.html">Contact Me</a>
-          <a class="btn ghost" href="projects.html">View Projects</a>
-          <a class="btn ghost" href="blog.html">Read Articles</a>
+          <a class="btn primary" href="/contact.html">Contact Me</a>
+          <a class="btn ghost" href="/projects.html">View Projects</a>
+          <a class="btn ghost" href="/blog.html">Read Articles</a>
         </div>
       </section>
     </main>
@@ -365,8 +367,8 @@ try {
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
   </div>
 
-  <script src="assets/js/theme.js?v=navigation-20261023"></script>
-  <script src="assets/js/main.js?v=navigation-20261023"></script>
-  <script src="assets/js/reveal.js?v=navigation-20261023"></script>
+  <script src="/assets/js/theme.js?v=8d4f57631ae3"></script>
+  <script src="/assets/js/main.js?v=1e744259ec62"></script>
+  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body>
 </html>

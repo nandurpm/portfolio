@@ -4,17 +4,19 @@
 <head>
 <meta name="robots" content="noindex, follow">
   <meta charset="UTF-8">
-  <script data-theme-bootstrap>
-document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script>
   <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Draft electrical engineering case studies: wiring logic, design reviews and panel documentation. Details are awaiting verification.">
   <meta name="author" content="Nandakumar M">
@@ -36,24 +38,24 @@ try {
   <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
   <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="../favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="stylesheet" href="../assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=10b0e84b260f">
 </head>
 <body class="contact-page">
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="site-shell">
-    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="../projects.html" class="active" aria-current="page">Projects</a><a href="../blog.html">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html" class="active" aria-current="page">Projects</a><a href="/blog.html">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 
-    <main id="main-content" tabindex="-1"><section class="page-hero"><p class="eyebrow">Draft case studies</p><h1>Electrical &amp; Engineering Work</h1><p>TODO: replace with real details. These outlines are not claims of completed work.</p></section><section class="section article-content" id="control-wiring"><h2>Escalator control wiring logic</h2><p class="draft-note">TODO: replace with real details — remove confidential information and obtain permission before adding evidence.</p><h3>Problem</h3><p>TODO: replace with real details — context, requirement and constraints.</p><h3>What I did</h3><p>TODO: replace with real details — personal contribution and tools actually used.</p><h3>Result</h3><p>TODO: replace with real details — verified outcome, without invented metrics.</p><h3>What I learned</h3><p>TODO: replace with real details — lesson and next improvement.</p></section><section class="section article-content" id="design-review"><h2>Design review checklist</h2><p class="draft-note">TODO: replace with real details — remove confidential information and obtain permission before adding evidence.</p><h3>Problem</h3><p>TODO: replace with real details — context, requirement and constraints.</p><h3>What I did</h3><p>TODO: replace with real details — personal contribution and tools actually used.</p><h3>Result</h3><p>TODO: replace with real details — verified outcome, without invented metrics.</p><h3>What I learned</h3><p>TODO: replace with real details — lesson and next improvement.</p></section><section class="section article-content" id="panel-layout"><h2>Panel layout documentation</h2><p class="draft-note">TODO: replace with real details — remove confidential information and obtain permission before adding evidence.</p><h3>Problem</h3><p>TODO: replace with real details — context, requirement and constraints.</p><h3>What I did</h3><p>TODO: replace with real details — personal contribution and tools actually used.</p><h3>Result</h3><p>TODO: replace with real details — verified outcome, without invented metrics.</p><h3>What I learned</h3><p>TODO: replace with real details — lesson and next improvement.</p></section><p><a class="btn ghost" href="../projects.html">All projects →</a></p></main>
+    <main id="main-content" tabindex="-1"><section class="page-hero"><p class="eyebrow">Draft case studies</p><h1>Electrical &amp; Engineering Work</h1><p>TODO: replace with real details. These outlines are not claims of completed work.</p></section><section class="section article-content" id="control-wiring"><h2>Escalator control wiring logic</h2><p class="draft-note">TODO: replace with real details — remove confidential information and obtain permission before adding evidence.</p><h3>Problem</h3><p>TODO: replace with real details — context, requirement and constraints.</p><h3>What I did</h3><p>TODO: replace with real details — personal contribution and tools actually used.</p><h3>Result</h3><p>TODO: replace with real details — verified outcome, without invented metrics.</p><h3>What I learned</h3><p>TODO: replace with real details — lesson and next improvement.</p></section><section class="section article-content" id="design-review"><h2>Design review checklist</h2><p class="draft-note">TODO: replace with real details — remove confidential information and obtain permission before adding evidence.</p><h3>Problem</h3><p>TODO: replace with real details — context, requirement and constraints.</p><h3>What I did</h3><p>TODO: replace with real details — personal contribution and tools actually used.</p><h3>Result</h3><p>TODO: replace with real details — verified outcome, without invented metrics.</p><h3>What I learned</h3><p>TODO: replace with real details — lesson and next improvement.</p></section><section class="section article-content" id="panel-layout"><h2>Panel layout documentation</h2><p class="draft-note">TODO: replace with real details — remove confidential information and obtain permission before adding evidence.</p><h3>Problem</h3><p>TODO: replace with real details — context, requirement and constraints.</p><h3>What I did</h3><p>TODO: replace with real details — personal contribution and tools actually used.</p><h3>Result</h3><p>TODO: replace with real details — verified outcome, without invented metrics.</p><h3>What I learned</h3><p>TODO: replace with real details — lesson and next improvement.</p></section><p><a class="btn ghost" href="/projects.html">All projects →</a></p></main>
 
     <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
   </div>
-  <script src="../assets/js/theme.js?v=navigation-20261023"></script>
-  <script src="../assets/js/main.js?v=navigation-20261023"></script>
-  <script src="../assets/js/reveal.js?v=navigation-20261023"></script>
+  <script src="/assets/js/theme.js?v=8d4f57631ae3"></script>
+  <script src="/assets/js/main.js?v=1e744259ec62"></script>
+  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body>
 </html>

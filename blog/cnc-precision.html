@@ -6,17 +6,19 @@ FILE PURPOSE: Static HTML page for the published blog article represented by the
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script data-theme-bootstrap>
-document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script>
   <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Lessons from CNC work about precision, process control, measurement, traceability, and disciplined engineering decisions.">
   <meta name="author" content="Nandakumar M">
@@ -28,30 +30,30 @@ try {
   <meta property="og:title" content="What CNC Operations Taught Me About Precision | Nandakumar M">
   <meta property="og:description" content="Lessons from CNC work about precision, process control, measurement, traceability, and disciplined engineering decisions.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/blog/cnc-precision.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-3.webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
+  <meta property="og:image:alt" content="What CNC Operations Taught Me About Precision">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="What CNC Operations Taught Me About Precision | Nandakumar M">
   <meta name="twitter:description" content="Lessons from CNC work about precision, process control, measurement, traceability, and disciplined engineering decisions.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
-  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What CNC Operations Taught Me About Precision","description":"Lessons from production work that continue to influence how I approach drawings, inspection, and process discipline.","datePublished":"2026-05-12","image":["https://nandakumarm.dpdns.org/assets/images/og-card.png"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/cnc-precision.html"}</script>
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-3.webp">
+  <meta name="twitter:image:alt" content="What CNC Operations Taught Me About Precision">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What CNC Operations Taught Me About Precision","description":"Lessons from production work that continue to influence how I approach drawings, inspection, and process discipline.","datePublished":"2026-05-12","image":["https://nandakumarm.dpdns.org/assets/images/blog/blog-3.webp"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/cnc-precision.html"}</script>
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="../favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="stylesheet" href="../assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=10b0e84b260f">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
 <div class="site-shell">
-<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="../projects.html">Projects</a><a href="../blog.html" class="active" aria-current="page">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html" class="active" aria-current="page">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 <main id="main-content" tabindex="-1"><article class="blog-article">
-<header class="article-header"><p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p><h1>What CNC Operations Taught Me About Precision</h1><div class="article-meta"><time datetime="2026-05-12">12 May 2026</time><span>7 min read</span><span>Engineering</span></div><img src="../assets/images/blog/blog-3.webp" alt="Precision manufacturing tools and process controls" class="article-image" width="601" height="401" decoding="async" loading="lazy"></header>
+<header class="article-header"><p class="eyebrow"><a href="/blog.html">← Back to Blog</a></p><h1>What CNC Operations Taught Me About Precision</h1><div class="article-meta"><time datetime="2026-05-12">12 May 2026</time><span>7 min read</span><span>Engineering</span></div><img src="/assets/images/blog/blog-3.webp" alt="Precision manufacturing tools and process controls" class="article-image" width="601" height="401" decoding="async" loading="lazy"></header>
 <div class="article-content">
 <p>Precision is often described as a property of a machine or drawing, but real precision is a property of the complete process. A capable machine cannot produce consistent parts when the setup, tool condition, measurement method, material control, and operator decisions are unstable. CNC work made that relationship very clear to me.</p>
 <p>The most important lesson was that small deviations usually have a cause. They are not random events to be ignored until a dimension crosses the rejection limit. A trend in size, surface finish, burr formation, cycle behaviour, or tool sound can be an early warning that the process is moving away from control.</p>
@@ -77,9 +79,9 @@ try {
 <p>The habits learned around CNC work transfer directly to engineering design: verify the source information, control revisions, use measurable acceptance criteria, check interfaces, record changes, and investigate trends before they become failures. Precision is not produced by being careful once. It is produced by a process that makes the correct action normal and the incorrect action difficult.</p>
 <p>That is the practical meaning of quality control: not merely separating good parts from bad parts, but building a process that repeatedly produces the intended result and provides early warning when conditions begin to change.</p>
 </div>
-<footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
+<footer class="article-footer"><a class="btn ghost" href="/blog.html">← Back to all posts</a></footer>
 </article></main>
 <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
-</div><script src="../assets/js/theme.js?v=navigation-20261023"></script><script src="../assets/js/main.js?v=navigation-20261023"></script>
-  <script src="../assets/js/reveal.js?v=navigation-20261023"></script>
+</div><script src="/assets/js/theme.js?v=8d4f57631ae3"></script><script src="/assets/js/main.js?v=1e744259ec62"></script>
+  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body></html>

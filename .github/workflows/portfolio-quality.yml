@@ -1,0 +1,52 @@
+name: Portfolio regression checks
+on:
+  pull_request:
+    paths:
+      - '*.html'
+      - 'about/**'
+      - 'projects/**'
+      - 'home/**'
+      - 'blog/**'
+      - 'works/**'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'tools/test-portfolio*'
+      - 'tools/audit_links.py'
+      - '_headers'
+      - '_redirects'
+      - '.assetsignore'
+      - 'wrangler.jsonc'
+      - '.github/workflows/portfolio-quality.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portfolio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tools/tracker-source/package-lock.json
+      - name: Static regression and local links
+        run: |
+          node --test tools/test-portfolio-audit.mjs
+          python tools/audit_links.py
+          git diff --exit-code
+      - name: Install pinned browser tooling only
+        working-directory: tools/tracker-source
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        working-directory: tools/tracker-source
+        run: npx playwright install --with-deps chromium
+      - name: Browser, accessibility and responsive regression
+        run: node tools/test-portfolio-browser.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: portfolio-browser-evidence
+          path: .cache/portfolio-audit
+          if-no-files-found: ignore

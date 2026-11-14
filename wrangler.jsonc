@@ -8,9 +8,8 @@
     "enabled": true
   },
   "assets": {
-    "directory": "."
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+    "directory": ".",
+    "html_handling": "none",
+    "not_found_handling": "404-page"
+  }
 }

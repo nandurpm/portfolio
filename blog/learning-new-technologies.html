@@ -5,17 +5,19 @@ FILE PURPOSE: Static HTML page for the published blog article represented by the
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
   <script data-theme-bootstrap>
 document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script><meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="A practical method for learning new technologies while balancing work, fundamentals, projects, documentation, and long-term career goals.">
   <meta name="author" content="Nandakumar M"><title>Personal Notes on Learning New Technologies | Nandakumar M</title>
@@ -26,30 +28,30 @@ try {
   <meta property="og:title" content="Personal Notes on Learning New Technologies | Nandakumar M">
   <meta property="og:description" content="A practical method for learning new technologies while balancing work, fundamentals, projects, documentation, and long-term career goals.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/blog/learning-new-technologies.html">
-  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
+  <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-5.webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
+  <meta property="og:image:alt" content="Personal Notes on Learning New Technologies">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Personal Notes on Learning New Technologies | Nandakumar M">
   <meta name="twitter:description" content="A practical method for learning new technologies while balancing work, fundamentals, projects, documentation, and long-term career goals.">
-  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
-  <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Personal Notes on Learning New Technologies","description":"How I keep learning practical tools while balancing work, curiosity, and long-term professional goals.","datePublished":"2026-02-25","image":["https://nandakumarm.dpdns.org/assets/images/og-card.png"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/learning-new-technologies.html"}</script>
+  <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/blog/blog-5.webp">
+  <meta name="twitter:image:alt" content="Personal Notes on Learning New Technologies">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Personal Notes on Learning New Technologies","description":"How I keep learning practical tools while balancing work, curiosity, and long-term professional goals.","datePublished":"2026-02-25","image":["https://nandakumarm.dpdns.org/assets/images/blog/blog-5.webp"],"author":{"@type":"Person","name":"Nandakumar M","url":"https://nandakumarm.dpdns.org/"},"mainEntityOfPage":"https://nandakumarm.dpdns.org/blog/learning-new-technologies.html"}</script>
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="../favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="stylesheet" href="../assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=10b0e84b260f">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="site-shell">
-<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="../projects.html">Projects</a><a href="../blog.html" class="active" aria-current="page">Articles</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+<header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html" class="active" aria-current="page">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 <main id="main-content" tabindex="-1"><article class="blog-article">
-<header class="article-header"><p class="eyebrow"><a href="../blog.html">← Back to Blog</a></p><h1>Personal Notes on Learning New Technologies</h1><div class="article-meta"><time datetime="2026-02-25">25 Feb 2026</time><span>7 min read</span><span>Personal Writings</span></div><img src="../assets/images/blog/blog-5.webp" alt="Learning technology through practical projects" class="article-image" width="600" height="391" decoding="async" loading="lazy"></header>
+<header class="article-header"><p class="eyebrow"><a href="/blog.html">← Back to Blog</a></p><h1>Personal Notes on Learning New Technologies</h1><div class="article-meta"><time datetime="2026-02-25">25 Feb 2026</time><span>7 min read</span><span>Personal Writings</span></div><img src="/assets/images/blog/blog-5.webp" alt="Learning technology through practical projects" class="article-image" width="600" height="391" decoding="async" loading="lazy"></header>
 <div class="article-content">
 <p>Learning new technology is easy to start and difficult to sustain. Tutorials, tools, frameworks, and AI-generated examples can create the feeling of rapid progress, but real capability appears only when the learner can solve a problem without depending on the exact demonstration they copied.</p>
 <p>I try to learn with a practical output in mind. Instead of saying “I want to learn JavaScript,” I define a result such as “I want to build a searchable project list,” “I want to automate a repeated Excel task,” or “I want to read sensor values and display them clearly.” The output gives direction and reveals which knowledge is actually missing.</p>
@@ -77,8 +79,8 @@ try {
 <p>Knowledge that is not used will fade. That is not failure. A documented project makes relearning faster because the reasoning and working example remain available. The goal is not to memorise every command. The goal is to understand the structure well enough to recover quickly and continue.</p>
 <p>Long-term learning is less about motivation and more about system design: choose useful problems, keep the scope controlled, practise fundamentals, verify outputs, document lessons, and repeat. Small completed cycles create more professional growth than occasional bursts of ambitious but unfinished study.</p>
 </div>
-<footer class="article-footer"><a class="btn ghost" href="../blog.html">← Back to all posts</a></footer>
+<footer class="article-footer"><a class="btn ghost" href="/blog.html">← Back to all posts</a></footer>
 </article></main>
 <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></footer>
-</div><script src="../assets/js/theme.js?v=navigation-20261023"></script><script src="../assets/js/main.js?v=navigation-20261023"></script>  <script src="../assets/js/reveal.js?v=navigation-20261023"></script>
+</div><script src="/assets/js/theme.js?v=8d4f57631ae3"></script><script src="/assets/js/main.js?v=1e744259ec62"></script>  <script src="/assets/js/reveal.js?v=4cb78e62a9d8"></script>
 </body></html>

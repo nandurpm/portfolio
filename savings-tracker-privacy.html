@@ -2,59 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script data-theme-bootstrap>
-document.documentElement.classList.add('js');
-try {
-  const theme = localStorage.getItem('portfolio-series-theme');
-  document.documentElement.dataset.theme = theme === 'light' || theme === 'dark' ? theme : 'dark';
-} catch {
-  document.documentElement.dataset.theme = 'dark';
-}
-</script>
   <meta name="theme-color" content="#07070a" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f3ef" media="(prefers-color-scheme: light)">
+  <script data-theme-bootstrap>
+document.documentElement.classList.add('js');
+let theme;
+try { theme = localStorage.getItem('portfolio-series-theme'); } catch { /* Storage is optional. */ }
+if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.documentElement.dataset.theme = theme;
+document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+  meta.removeAttribute('media');
+  meta.content = theme === 'light' ? '#f6f3ef' : '#07070a';
+});
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="How Expense and Savings Tracker handles local financial records, Google sign-in, optional Supabase synchronization, backups, and deletion requests.">
+  <meta name="description" content="How Savings and Expense Tracker handles local financial records, Google sign-in, optional Supabase synchronization, backups, and deletion requests.">
   <meta name="author" content="Nandakumar M">
-  <title>Expense and Savings Tracker — Privacy Policy | Nandakumar M</title>
+  <title>Savings and Expense Tracker — Privacy Policy | Nandakumar M</title>
 
   <!-- PAGE_METADATA_START -->
   <link rel="canonical" href="https://nandakumarm.dpdns.org/savings-tracker-privacy.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Expense and Savings Tracker — Privacy Policy | Nandakumar M">
-  <meta property="og:description" content="How Expense and Savings Tracker handles local financial records, Google sign-in, optional Supabase synchronization, backups, and deletion requests.">
+  <meta property="og:title" content="Savings and Expense Tracker — Privacy Policy | Nandakumar M">
+  <meta property="og:description" content="How Savings and Expense Tracker handles local financial records, Google sign-in, optional Supabase synchronization, backups, and deletion requests.">
   <meta property="og:url" content="https://nandakumarm.dpdns.org/savings-tracker-privacy.html">
   <meta property="og:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Expense and Savings Tracker — Privacy Policy | Nandakumar M">
-  <meta name="twitter:description" content="How Expense and Savings Tracker handles local financial records, Google sign-in, optional Supabase synchronization, backups, and deletion requests.">
+  <meta name="twitter:title" content="Savings and Expense Tracker — Privacy Policy | Nandakumar M">
+  <meta name="twitter:description" content="How Savings and Expense Tracker handles local financial records, Google sign-in, optional Supabase synchronization, backups, and deletion requests.">
   <meta name="twitter:image" content="https://nandakumarm.dpdns.org/assets/images/og-card.png">
   <meta name="twitter:image:alt" content="Nandakumar M — Electrical Design Engineer, Chennai — The Engineering Series">
   <!-- PAGE_METADATA_END -->
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="assets/css/portfolio.css?v=about-portrait-20261023">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/css/portfolio.css?v=10b0e84b260f">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <div class="site-shell">
-    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="projects.html">Projects</a><a href="blog.html">Articles</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
+    <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">NM</span><span><strong>Nandakumar M</strong><small>Electrical Design · Practical Software</small></span></a><button class="nav-toggle" aria-controls="main-navigation" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button><nav class="site-nav" id="main-navigation" aria-label="Main navigation"><a href="/">Home</a><a href="/projects.html">Projects</a><a href="/blog.html">Articles</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav><button class="theme-toggle" type="button" aria-label="Toggle dark and light theme"><span class="theme-icon" aria-hidden="true"></span></button></header>
 
     <main tabindex="-1" id="main">
       <article class="project-article">
         <header class="article-header">
-          <p class="eyebrow">Expense and Savings Tracker</p>
+          <p class="eyebrow">Savings and Expense Tracker</p>
           <h1>Privacy policy</h1>
         </header>
         <div class="article-content">
-          <p><strong>Effective date: 17 October 2026</strong></p>
-          <p>This policy explains how <strong>Expense and Savings Tracker</strong>, developed and operated by <strong>Nandakumar M</strong>, handles information in its Windows and Android applications. It covers local tracking, optional account sign-in, and cloud synchronization.</p>
+          <p><strong>Effective date: 14 November 2026</strong></p>
+          <p>This policy explains how <strong>Savings and Expense Tracker</strong>, developed and operated by <strong>Nandakumar M</strong>, handles information in its browser, Windows, and Android applications. It covers local tracking, sign-in, and cloud synchronization.</p>
           <h2>1. Information the app handles</h2>
           <ul>
             <li><strong>Financial records you enter:</strong> income, expenses, dates, categories, notes, budgets, savings settings, and loan or EMI details.</li>
@@ -67,7 +69,8 @@ try {
           <p>Records are used to display your transactions, calculate budgets and forecasts, generate reports, and restore backups. Account and Google user information are used to authenticate you and associate your synchronized plan with the correct account. Session information supports secure sign-in; revision information supports synchronization and conflict review.</p>
           <p>The app does not include advertising or behavioral analytics integrations. Google user data and financial records are not sold or used for advertising.</p>
           <h2 id="data-and-sync">3. Where information is stored and shared</h2>
-          <p><strong>Local use:</strong> your plan is stored in the app's local files on your device. An account is not required for local tracking. Local backups and exported reports remain in the locations you select or the app's backup storage.</p>
+          <p><strong>Installed apps:</strong> your plan is stored locally on your device. An account is not required for local tracking in Windows or Android. Local backups and exported reports remain in the locations you select or the app's backup storage.</p>
+          <p><strong>Browser app:</strong> sign-in is required to open the financial workspace. Plans, preferences, and recovery snapshots can be stored in browser local storage; browser authentication tokens use session storage. Clearing site data can remove these local copies. Export a backup before clearing storage, and sign out when using a shared device.</p>
           <p><strong>Optional cloud sync:</strong> after you sign in and choose to link and synchronize a plan, its financial records and relevant plan settings are sent to Supabase for storage and synchronization across your signed-in devices. Google sign-in itself does not upload your financial plan to Google.</p>
           <p><strong>Service providers:</strong> Google processes Google authentication, and Supabase processes account authentication and synchronized records. These services may process technical information such as IP addresses, request times, and service logs to operate and secure their services. The website host also processes normal website requests. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a> and <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase's Privacy Policy</a>.</p>
           <p>The developer and service providers may need to access relevant information to provide requested support, administer the service, investigate security issues, or comply with applicable legal requirements. Exported files are shared only when you choose to send or store them elsewhere.</p>
@@ -75,11 +78,11 @@ try {
           <p>The app uses Google account information only for the sign-in and account features described in this policy. It does not transfer Google user data to advertising platforms, data brokers, or AI training services. Its use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements where applicable.</p>
           <h2>5. Your choices and deletion</h2>
           <ul>
-            <li>Use local tracking without signing in or enabling cloud sync.</li>
+            <li>Use the installed Windows or Android apps for local tracking without signing in or enabling cloud sync. Browser access requires sign-in.</li>
             <li>Edit or delete individual records in the app. When sync is enabled, these changes are synchronized to your account.</li>
             <li>Export a backup before removing data or changing devices.</li>
             <li>Sign out in the app, and remove its connection from your <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener noreferrer">Google Account connections</a> to revoke Google access. Signing out or revoking access does not itself delete a cloud plan.</li>
-            <li>Request deletion of your app account and cloud plan by emailing <a href="mailto:contact@nandakumarm.dpdns.org?subject=Tracker%20account%20and%20data%20deletion">contact@nandakumarm.dpdns.org</a> from the registered email address. Identify that the request concerns Expense and Savings Tracker. Ownership may need to be verified; never send passwords or sign-in codes.</li>
+            <li>Request deletion of your app account and cloud plan by emailing <a href="mailto:contact@nandakumarm.dpdns.org?subject=Tracker%20account%20and%20data%20deletion">contact@nandakumarm.dpdns.org</a> from the registered email address. Identify that the request concerns Savings and Expense Tracker. Ownership may need to be verified; never send passwords or sign-in codes.</li>
           </ul>
           <h2>6. Retention and backups</h2>
           <p>Local records remain until you remove or replace them or clear the app's local data. Uninstall behavior depends on the platform; exported files and separate backups may remain after uninstalling. You control copies you have exported.</p>
@@ -88,13 +91,13 @@ try {
           <p>Online authentication and synchronization use HTTPS. Cloud access is associated with your signed-in account. Local files and exports can contain sensitive financial details: protect your device and backups, and share exports only with people you intend. No storage or transmission method can guarantee absolute security.</p>
           <h2>8. Changes and contact</h2>
           <p>Updates to this policy will be published on this page with a revised effective date. Contact Nandakumar M at <a href="mailto:contact@nandakumarm.dpdns.org">contact@nandakumarm.dpdns.org</a> for app privacy questions, support, or deletion requests.</p>
-          <p><a href="savings-tracker.html">Back to Expense and Savings Tracker</a></p>
+          <p><a href="/savings-tracker.html">Back to Savings and Expense Tracker</a></p>
         </div>
       </article>
-    <nav aria-label="Tracker information"><a class="text-link" href="savings-tracker.html">Expense and Savings Tracker →</a></nav></main>
-    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="savings-tracker-privacy.html">Privacy policy</a></nav></footer>
+    <nav aria-label="Tracker information"><a class="text-link" href="/savings-tracker.html">Savings and Expense Tracker →</a></nav></main>
+    <footer class="site-footer"><p>&copy; <span data-year>2026</span> Nandakumar M.</p><nav aria-label="Footer"><a href="mailto:contact@nandakumarm.dpdns.org">Email Nandakumar</a><a href="https://github.com/nandurpm" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="/savings-tracker-privacy.html">Privacy policy</a></nav></footer>
   </div>
-  <script src="assets/js/theme.js?v=navigation-20261023"></script>
-  <script src="assets/js/main.js?v=navigation-20261023"></script>
+  <script src="/assets/js/theme.js?v=8d4f57631ae3"></script>
+  <script src="/assets/js/main.js?v=1e744259ec62"></script>
 </body>
 </html>

@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const query = search.value.trim().toLowerCase();
     const filtered = cards.filter((card) => (category.value === 'all' || card.dataset.category === category.value) &&
       (!query || card.dataset.search.includes(query)));
+    const results = document.getElementById('blogResults');
+    if (results) results.textContent = `${filtered.length} article${filtered.length === 1 ? '' : 's'} found`;
     const pages = Math.max(1, Math.ceil(filtered.length / perPage));
     page = Math.min(page, pages);
     const visible = new Set(filtered.slice((page - 1) * perPage, page * perPage));

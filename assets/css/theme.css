@@ -1,5 +1,5 @@
 /* Cinematic palette restored from the requested Portfolio_series direction.
-   Dark is the default; the header toggle offers an optional crimson light mode. */
+   System preference is the default; the header toggle saves an explicit choice. */
 :root {
   color-scheme:dark;
   --bg:#07070a; --bg-soft:#0e0e13; --surface:#111116; --surface-strong:#1b1b22;
@@ -27,5 +27,15 @@
   color-scheme:light; --bg:#f6f3ef; --bg-soft:#ebe7e2; --surface:#fff;
   --surface-strong:#eee9e4; --text:#252229; --heading:#17151a;
   --muted:#625c66; --border:#241c2926; --brand:#ae1430; --brand-2:#ce1c39;
-  --accent:#92402b; --accent-rgb:174 20 48;
+  --accent:#92402b; --accent-rgb:174 20 48; --ink-rgb:36 28 41; --danger:#9b1c31;
+}
+
+/* No-JavaScript visitors still receive their system's light palette. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme:light; --bg:#f6f3ef; --bg-soft:#ebe7e2; --surface:#fff;
+    --surface-strong:#eee9e4; --text:#252229; --heading:#17151a;
+    --muted:#625c66; --border:#241c2926; --brand:#ae1430; --brand-2:#ce1c39;
+    --accent:#92402b; --accent-rgb:174 20 48; --ink-rgb:36 28 41; --danger:#9b1c31;
+  }
 }
