@@ -76,9 +76,9 @@ export function AndroidMore({ onClose, navigate, canUndo, canRedo, undo, redo }:
           {groups.map((group, index) => <section key={group.title} aria-label={group.title || 'Main tools'}>
             {group.title && <h2><group.icon size={22} aria-hidden="true" />{group.title}</h2>}
             <div className={`android-more-grid ${index === 0 && !group.title ? 'primary' : ''}`}>
-              {group.cards.map(card => <button type="button" className="android-more-card" aria-labelledby={`more-title-${card.title.replace(/\W/g, '')} more-description-${card.title.replace(/\W/g, '')}`} key={card.title} onClick={() => navigate(card.page, 'section' in card ? card.section : undefined)}>
+              {group.cards.map(card => <button type="button" className="android-more-card" key={card.title} onClick={() => navigate(card.page, 'section' in card ? card.section : undefined)}>
                 <span className={`android-more-icon ${card.tone}`}><card.icon aria-hidden="true" /></span>
-                <span className="android-more-copy"><strong id={`more-title-${card.title.replace(/\W/g, '')}`}>{card.title}</strong><small id={`more-description-${card.title.replace(/\W/g, '')}`}>{card.description}</small></span>
+                <span className="android-more-copy"><strong>{card.title}</strong>{' '}<small>{card.description}</small></span>
                 <ChevronRight className="android-more-chevron" size={18} aria-hidden="true" />
               </button>)}
             </div>
