@@ -597,3 +597,14 @@ html[data-platform="android"] .phone-nav button[aria-current="page"]::before {
   background: currentColor;
 }
 html[data-platform="android"] .phone-nav button[aria-current="page"] svg { stroke-width: 2.5; }
+html[data-platform="android"] .mobile-recent .mobile-recent-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+}
+html[data-platform="android"] .mobile-recent-amount.income { color: var(--mobile-income); }
+html[data-platform="android"] .mobile-recent-amount.expense { color: var(--mobile-expense); }
+html[data-platform="android"] .mobile-recent-amount.movement { color: var(--mobile-movement); text-transform: capitalize; }
