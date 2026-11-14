@@ -54,12 +54,14 @@ import { ReleaseUpdate } from "./components/ReleaseUpdate";
 import { UiProvider, useUi, Modal } from "./components/UI";
 import { playMilestoneSound, triggerMilestoneHaptic, triggerActionFeedback } from "./celebrations";
 import { themePresets } from "./theme-presets";
+import { AndroidQuickActions } from './components/AndroidQuickActions';
 import { AndroidMore } from './components/AndroidMore';
 import { ShortcutHelp } from "./components/ShortcutHelp";
 import { startAndroidWidgets } from './widgets/android-widgets';
 const pageLoaders = {
+  activity: cachedLoader(() => import("./pages/AndroidActivity")),
   dashboard: cachedLoader(() => import("./pages/Dashboard")),
-  androidDashboard: cachedLoader(() => import("./pages/AndroidDashboard222")),
+  androidDashboard: cachedLoader(() => import("./pages/AndroidHome")),
   accounts: cachedLoader(() => import("./pages/Accounts")),
   employment: cachedLoader(() => import("./pages/Employment")),
   entries: cachedLoader(() => import("./pages/Entries")),
@@ -80,7 +82,9 @@ const Dashboard = lazy(pageLoaders.dashboard), AndroidDashboard = lazy(pageLoade
   Entries = lazy(pageLoaders.entries), Budget = lazy(pageLoaders.budget), Loan = lazy(pageLoaders.loan),
   Forecast = lazy(pageLoaders.forecast), Reports = lazy(pageLoaders.reports),
   Balances = lazy(pageLoaders.balances), Settings = lazy(pageLoaders.settings);
+const Activity = lazy(pageLoaders.activity);
 const pages = [
+  { id: "activity", name: "Activity", icon: ReceiptText },
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
   { id: "entries", name: "Daily Entries", icon: ReceiptText },
   { id: "accounts", name: "Accounts & transactions", icon: CircleDollarSign },
@@ -145,10 +149,13 @@ export function Shell() {
     [tick, setTick] = useState(0);
   const pageRef = useRef(page);
   pageRef.current = page;
-  const androidMore = more && window.desktop?.platform === 'android';
+  const android = window.desktop?.platform === 'android';
+  const androidMore = more && android;
+  const [accountAction, setAccountAction] = useState<{ kind: 'transfer'; sequence: number }>();
   const [navigationSection, setNavigationSection] = useState<string | undefined>();
   const [widgetEntry, setWidgetEntry] = useState<{ kind: 'Income' | 'Expense'; sequence: number }>();
   const navigate = useCallback((next: string, section?: string) => {
+    if (next === "help") { setShortcutHelp(true); setMore(false); return; }
     preloadPage(next);
     setPage(next);
     setMore(false);
@@ -156,6 +163,9 @@ export function Shell() {
     document.querySelector(".main-scroll")?.scrollTo(0, 0);
     document.querySelector(".workspace")?.scrollTo(0, 0);
   }, []);
+  const openAdd = useCallback(() => setQuickAdd(true), []);
+  const accountActionDone = useCallback(() => setAccountAction(undefined), []);
+  const transfer = () => { setAccountAction(previous => ({ kind: 'transfer', sequence: (previous?.sequence ?? 0) + 1 })); navigate('accounts'); setQuickAdd(false); };
   const addEntry = useCallback((kind: 'Income' | 'Expense') => {
     setEntryKind(kind);
     setPage('entries');
@@ -213,16 +223,17 @@ export function Shell() {
   // Reuse the selected element across parent menu/save-status renders. Refresh on
   // plan edits, screen inputs and the minute clock (including live-date rollover).
   const activeScreen = useMemo(() => (
-    page === 'dashboard' ? <Home navigate={navigate} addEntry={addEntry} /> :
+    page === 'dashboard' ? <Home navigate={navigate} addEntry={addEntry} openAdd={openAdd} /> :
     page === 'entries' ? <Entries initialKind={entryKind} widgetEntry={widgetEntry} /> :
-    page === 'accounts' ? <Accounts /> :
+    page === 'activity' ? <Activity navigate={navigate} addEntry={addEntry} /> :
+    page === 'accounts' ? <Accounts action={accountAction} onActionHandled={accountActionDone} navigate={navigate} /> :
     page === 'employment' ? <Employment /> :
     page === 'budget' ? <Budget /> :
     page === 'loan' ? <Loan /> :
     page === 'forecast' ? <Forecast /> :
     page === 'balances' ? <Balances /> :
     page === 'reports' ? <Reports /> : <Settings navigate={navigate} />
-  ), [Home, page, p, tick, entryKind, widgetEntry, navigate, addEntry]);
+  ), [Home, page, p, tick, entryKind, widgetEntry, navigate, addEntry, openAdd, accountAction, accountActionDone]);
   useEffect(() => {
     document.title = `${current.name} · Tracker`;
   }, [current.name]);
@@ -468,7 +479,7 @@ export function Shell() {
                     <button
                       key={x.id}
                       className={page === x.id ? "active" : ""}
-                      aria-current={page === x.id ? "page" : undefined}
+                      aria-current={!androidMore && page === x.id ? "page" : undefined}
                       onPointerEnter={() => preloadPage(x.id)}
                       onFocus={() => preloadPage(x.id)}
                       onClick={() => navigate(x.id)}
@@ -521,7 +532,8 @@ export function Shell() {
               {
                 (
                   {
-                    dashboard: "Home",
+                    dashboard: android ? "Savings Tracker" : "Home",
+                    activity: "Activity",
                     entries: "Entries",
                     accounts: "Accounts",
                     budget: "Budget",
@@ -681,13 +693,13 @@ export function Shell() {
         <nav className="phone-nav" aria-label="Phone navigation">
           {[
             { id: "dashboard", name: "Home", icon: LayoutDashboard },
-            { id: "entries", name: "Transactions", icon: ReceiptText },
+            { id: android ? "activity" : "entries", name: android ? "Activity" : "Transactions", icon: ReceiptText },
             { id: "accounts", name: "Accounts", icon: CircleDollarSign },
-            { id: "budget", name: "Budget", icon: WalletCards },
+            ...(!android ? [{ id: "budget", name: "Budget", icon: WalletCards }] : []),
           ].map((x) => (
             <button
               key={x.id}
-              aria-current={page === x.id ? "page" : undefined}
+              aria-current={!androidMore && page === x.id ? "page" : undefined}
               onPointerEnter={() => preloadPage(x.id)}
               onFocus={() => preloadPage(x.id)}
               onClick={() => navigate(x.id)}
@@ -700,7 +712,7 @@ export function Shell() {
             aria-label="More screens"
             aria-expanded={more}
             aria-current={
-              ["loan", "employment", "forecast", "balances", "reports", "settings"].includes(page)
+              (androidMore || ["budget", "loan", "employment", "forecast", "balances", "reports", "settings"].includes(page))
                 ? "page"
                 : undefined
             }
@@ -710,8 +722,9 @@ export function Shell() {
             <span>More</span>
           </button>
         </nav>
-        {page !== "dashboard" && !androidMore && <button type="button" className="mobile-quick-add" aria-label="Add income or expense" aria-expanded={quickAdd} onClick={() => setQuickAdd(true)}><Plus size={20} aria-hidden="true" /> Add</button>}
-        {quickAdd && (
+        {page !== "dashboard" && !androidMore && <button type="button" className="mobile-quick-add" aria-label={android ? "Add" : "Add income or expense"} aria-expanded={quickAdd} onClick={() => setQuickAdd(true)}><Plus size={20} aria-hidden="true" /> Add</button>}
+        {quickAdd && android && <AndroidQuickActions onClose={() => setQuickAdd(false)} action={action => { setQuickAdd(false); if (action === "expense" || action === "income") { addEntry(action === "income" ? "Income" : "Expense"); } else if (action === "transfer") transfer(); else navigate(action === "loan" ? "loan" : "reports", action === "loan" ? undefined : "Complete backup & restore"); }} />}
+        {quickAdd && !android && (
           <Modal title="Add a transaction" onClose={() => setQuickAdd(false)}>
             <div className="phone-menu">
               <button className="button" onClick={() => { setEntryKind("Expense"); navigate("entries"); setQuickAdd(false); }}>Add expense</button>

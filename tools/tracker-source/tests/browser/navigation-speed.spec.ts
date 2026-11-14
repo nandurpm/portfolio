@@ -13,7 +13,13 @@ for (const android of [false, true]) test(`animated tab switching keeps records 
   const before=await records();const timings=[];
   for(const [id,desktop,phone] of [['accounts','Accounts & transactions','Accounts'],['budget','Budget & Plan','Budget'],['entries','Daily Entries','Transactions'],['dashboard','Dashboard','Home']]){
     const start=Date.now();
-    await page.getByRole('navigation',{name:android?'Phone navigation':'Main navigation'}).getByRole('button',{name:android?phone:desktop,exact:true}).click();
+    if (android && id === 'budget') {
+      await page.getByRole('button', {name:'More screens'}).click();
+      await page.locator('.android-more-card').filter({has:page.getByText('Budgets',{exact:true})}).click();
+    } else if (android && id === 'entries') {
+      await page.getByRole('navigation',{name:'Phone navigation'}).getByRole('button',{name:'Activity',exact:true}).click();
+      await page.getByRole('button',{name:'Manage daily entries',exact:true}).click();
+    } else await page.getByRole('navigation',{name:android?'Phone navigation':'Main navigation'}).getByRole('button',{name:android?phone:desktop,exact:true}).click();
     await expect(page.locator('.main-scroll')).toHaveAttribute('data-page',id!);
     await expect(page.locator('.screen-loading')).toHaveCount(0);
     await expect(page.locator('.main-scroll h1')).toHaveCount(1);

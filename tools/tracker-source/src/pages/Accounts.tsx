@@ -4,7 +4,7 @@ import { FinancialPosition } from "../components/FinancialPosition";
 import { monthEnd, today } from "../domain/dates";
 import { money, reportDate } from "../domain/calculate";
 import { namedAccountBalances, netWorthSnapshot } from "../domain/net-worth";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Plus, Search, ArrowUpDown, SlidersHorizontal, ArrowLeftRight } from "lucide-react";
 import {
   ledgerTransactionLocked,
@@ -22,6 +22,7 @@ import type {
 } from "../domain/types";
 import { store, useEnvelope, usePlan } from "../store";
 import {
+  Modal,
   Empty,
   Field,
   Money,
@@ -58,7 +59,14 @@ const transactionKinds: { value: LedgerKind; label: string }[] = [
   { value: "investment-withdrawal", label: "Withdraw investment" },
 ];
 
-export default function Accounts() {
+function TransactionPanel({ children, title, onClose, android }: { children: ReactNode; title: string; onClose: () => void; android: boolean }) {
+  const caption = 'Transfers and principal movements affect balances but not income or spending. For Repay loan, Amount is principal only; enter interest and fees separately.';
+  return android ? <Modal title={title} onClose={onClose}><p className="muted">{caption}</p>{children}</Modal> : <Section title={title} caption={caption}>{children}</Section>;
+}
+
+export default function Accounts({ action, navigate, onActionHandled }: { onActionHandled?: () => void; navigate?: (page: string, section?: string) => void; action?: { kind: 'transfer'; sequence: number } }) {
+  const android = window.desktop?.platform === 'android';
+  const [accountFilters, setAccountFilters] = useState(false);
   const plan = usePlan(),
     { toast, confirm } = useUi();
   const env = useEnvelope();
@@ -166,6 +174,7 @@ export default function Accounts() {
     setOriginal(r?.originalTransactionId ?? "");
     setShowTransaction(true);
   };
+  useEffect(() => { if (action) { startTransaction(undefined, action.kind); onActionHandled?.(); } }, [action, onActionHandled]);
   const remove = async (id: string, account: boolean) => {
     const posting = rows.find((r) => r.id === id);
     if (!account && posting && ledgerTransactionLocked(plan, posting))
@@ -450,6 +459,7 @@ export default function Accounts() {
         description="See your account balances and record income, spending or transfers."
         action={
           <div className="page-actions">
+            {android && <button type="button" className="button secondary" onClick={() => navigate?.("balances", "Balance reconciliation")}>Reconcile</button>}
             <button className="button secondary" onClick={() => startAccount()}>
               <Plus size={18} /> Account
             </button>
@@ -487,6 +497,7 @@ export default function Accounts() {
       )}
       <FinancialPosition />
       <Section
+        className="mobile-account-openings"
         title="Opening balance source"
         caption="Use one total. Account openings are amounts at the plan start, not today’s balances."
       >
@@ -701,12 +712,10 @@ export default function Accounts() {
         </Section>
       )}
       {showTransaction && (
-        <Section
-          title="Record a transaction"
-          caption="Transfers and principal movements affect balances but not income or spending. For Repay loan, Amount is principal only; enter interest and fees separately."
-        >
+        <TransactionPanel title={android && kind === 'transfer' ? 'Transfer between accounts' : 'Record a transaction'} android={android} onClose={() => setShowTransaction(false)}>
+
           <div className="form-grid three">
-            <Field label="Type">
+            {!(android && kind === "transfer") && <Field label="Type">
               <select aria-label="Type"
                 value={kind}
                 onChange={(e) => {
@@ -726,7 +735,7 @@ export default function Accounts() {
                     </option>
                   ))}
               </select>
-            </Field>
+            </Field>}
             <Field label="Date">
               <input aria-label="Date"
                 type="date"
@@ -749,7 +758,7 @@ export default function Accounts() {
             <Field label="From account">
               <select aria-label="From account"
                 value={source}
-                onChange={(e) => setSource(e.target.value)}
+                onChange={(e) => { setSource(e.target.value); if (android && kind === "transfer" && e.target.value === destination) setDestination(""); }}
               >
                 <option value="">Not applicable</option>
                 {accounts
@@ -757,7 +766,7 @@ export default function Accounts() {
                     (a) => a.active || a.id === source || a.id === destination,
                   )
                   .map((a) => (
-                    <option key={a.id} value={a.id}>
+                    <option key={a.id} value={a.id} disabled={android && kind === "transfer" && a.id === destination}>
                       {a.name}
                     </option>
                   ))}
@@ -774,7 +783,7 @@ export default function Accounts() {
                     (a) => a.active || a.id === source || a.id === destination,
                   )
                   .map((a) => (
-                    <option key={a.id} value={a.id}>
+                    <option key={a.id} value={a.id} disabled={android && kind === "transfer" && a.id === source}>
                       {a.name}
                     </option>
                   ))}
@@ -924,20 +933,25 @@ export default function Accounts() {
               Cancel
             </button>
             <button className="button" disabled={transactionSubmitting} onClick={addTransaction}>
-              {transactionSubmitting ? "Saving…" : "Save transaction"}
+              {transactionSubmitting ? "Saving…" : android && kind === "transfer" ? "Save transfer" : "Save transaction"}
             </button>
           </div>
-        </Section>
+        </TransactionPanel>
       )}
       <Section
+        className="mobile-accounts-list"
         title="Your accounts"
         caption="Named balances through the report date. Unassigned Entries are shown separately as unallocated cash."
       >
-        <div className="ledger-toolbar" aria-label="Account filters">
+        {android ? <><button type="button" className="button secondary" onClick={() => setAccountFilters(true)}><SlidersHorizontal aria-hidden="true" />Filter and sort accounts</button>{accountFilters && <Modal title="Account filters" onClose={() => setAccountFilters(false)}><div className="ledger-toolbar" aria-label="Account filters">
           <label className="toolbar-search"><Search size={16} /><span className="sr-only">Search accounts</span><input value={accountQuery} onChange={(e) => setAccountQuery(e.target.value)} placeholder="Search accounts" /></label>
           <label className="toolbar-select"><ArrowUpDown size={15} /><span className="sr-only">Sort accounts</span><select value={accountSort} onChange={(e) => setAccountSort(e.target.value)}><option value="balance-desc">Highest balance</option><option value="balance-asc">Lowest balance</option><option value="name">Name A–Z</option></select></label>
           <span className="toolbar-count">{visibleAccounts.length} account{visibleAccounts.length === 1 ? '' : 's'}</span>
-        </div>
+        </div><button type="button" className="button" onClick={() => setAccountFilters(false)}>Show accounts</button></Modal>}</> : (<div className="ledger-toolbar" aria-label="Account filters">
+          <label className="toolbar-search"><Search size={16} /><span className="sr-only">Search accounts</span><input value={accountQuery} onChange={(e) => setAccountQuery(e.target.value)} placeholder="Search accounts" /></label>
+          <label className="toolbar-select"><ArrowUpDown size={15} /><span className="sr-only">Sort accounts</span><select value={accountSort} onChange={(e) => setAccountSort(e.target.value)}><option value="balance-desc">Highest balance</option><option value="balance-asc">Lowest balance</option><option value="name">Name A–Z</option></select></label>
+          <span className="toolbar-count">{visibleAccounts.length} account{visibleAccounts.length === 1 ? '' : 's'}</span>
+        </div>)}
         {!accounts.length ? (
           <Empty
             title="No shared accounts yet"
@@ -950,6 +964,7 @@ export default function Accounts() {
           />
         ) : (
           <div className="account-card-grid">
+            {!visibleAccounts.length && <Empty title="No matching accounts" detail="Change the account search to see your saved accounts." />}
             {visibleAccounts.map((a) => (
                 <article className="account-card" key={a.id}>
                   <span>

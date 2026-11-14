@@ -14,9 +14,10 @@ type Activity = {
   amount: number;
   kind: 'income' | 'expense' | 'movement';
   destination: 'entries' | 'accounts';
+  movementLabel?: string;
 };
 
-export function MobileRecentActivity({ navigate, native = false, through }: { navigate: (page: string) => void; native?: boolean; through?: string }) {
+export function MobileRecentActivity({ navigate, native = false, through, allActivity = false }: { navigate: (page: string) => void; native?: boolean; through?: string; allActivity?: boolean }) {
   const phone = usePhone();
   const plan = usePlan();
   const rows = useMemo(() => {
@@ -46,7 +47,8 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
         title: row.description || row.kind.replaceAll('-', ' '),
         detail: [source, destination].filter(Boolean).join(' → ') || 'Account transaction',
         amount,
-        kind: amount > 0 ? 'income' : amount < 0 ? 'expense' : 'movement',
+        kind: allActivity && !['income','expense','shopping','credit-card-purchase','refund'].includes(row.kind) ? 'movement' : amount > 0 ? 'income' : amount < 0 ? 'expense' : 'movement',
+        movementLabel: row.kind.replaceAll('-', ' '),
         destination: 'accounts',
       };
     });
@@ -54,7 +56,7 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
       .filter(row => !through || (row.date <= through && row.date >= plan.settings.planStart + '-01' && row.date <= plan.settings.planEnd + '-31'))
       .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
       .slice(0, 5);
-  }, [plan, through]);
+  }, [plan, through, allActivity]);
 
   if (!phone && !native) return null;
   return (
@@ -65,8 +67,8 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
           <h2 id="mobile-recent-title">Latest money movements</h2>
         </div>
         <div className="mobile-recent-links" role="group" aria-label="Activity history">
-          <button className="text-button" onClick={() => navigate('entries')}>Daily entries</button>
-          <button className="text-button" onClick={() => navigate('accounts')}>Account activity</button>
+          {allActivity ? <button className="text-button" onClick={() => navigate('activity')}>View all</button> : <><button className="text-button" onClick={() => navigate('entries')}>Daily entries</button>
+          <button className="text-button" onClick={() => navigate('accounts')}>Account activity</button></>}
         </div>
       </header>
       {rows.length ? (
@@ -82,7 +84,7 @@ export function MobileRecentActivity({ navigate, native = false, through }: { na
                     <small>{row.detail} · {displayDate(row.date, plan.settings.dateFormat)}</small>
                   </span>
                   <strong className={`mobile-recent-amount ${row.kind}`}>
-                    {row.kind === 'movement' ? 'Transfer' : money(row.amount)}
+                    {row.kind === 'movement' ? (allActivity ? row.movementLabel || 'Movement' : 'Transfer') : money(row.amount)}
                   </strong>
                 </button>
               </li>

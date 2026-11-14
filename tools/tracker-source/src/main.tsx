@@ -16,7 +16,7 @@ const nativeReady = installMobile().then(async () => {
 void Promise.all([
   nativeReady,
   import('./App'),
-  Capacitor.getPlatform() === 'android' ? import('./android-v222.css') : Promise.resolve(),
+  Capacitor.getPlatform() === 'android' ? import('./android-v222.css').then(() => import('./android-simple.css')) : Promise.resolve(),
 ])
   .then(([, { default: App }]) => {
     ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
