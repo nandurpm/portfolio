@@ -77,7 +77,7 @@ export function MobileRecentActivity({ navigate, native = false, through, allAct
             const Icon = row.kind === 'income' ? ArrowDownLeft : row.kind === 'expense' ? ArrowUpRight : ArrowLeftRight;
             return (
               <li key={row.id}>
-                <button onClick={() => navigate(row.destination)} aria-label={`Open ${row.title}`}>
+                <button onClick={() => navigate(row.destination)} aria-label={allActivity ? undefined : `Open ${row.title}`}>
                   <span className={`mobile-recent-icon ${row.kind}`}><Icon size={18} /></span>
                   <span className="mobile-recent-copy">
                     <strong>{row.title}</strong>
