@@ -4,7 +4,7 @@
 - Refine Home with a clearer cash-balance hierarchy, direct account access, a compact monthly heading, readable date context, and consistent light/dark surfaces.
 - Keep the four-area navigation and all existing tools. Consolidate More's fragmented groups and make Import/Export open the actual import section.
 - Show one recent-activity list when full Home analysis is expanded; eliminate duplicate activity heading IDs.
-- Show Asset-category entries as neutral movements instead of expenses in recent activity.
+- Include existing PF contributions/claims as neutral movements in Android Home and Activity, with access to the existing PF screen. PF does not become income/expense.
 - Resolve Activity account names with one indexed lookup per account rather than repeatedly searching all accounts for each record.
 
 ## Financial correctness

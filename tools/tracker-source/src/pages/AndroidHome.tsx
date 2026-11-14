@@ -36,17 +36,17 @@ export default function AndroidHome({
   return (
     <div className="android-home">
       <h1 className="sr-only">Home</h1>
-      <div className="mobile-home-intro"><div><p className="mobile-eyebrow">YOUR MONEY, AT A GLANCE</p><p className="muted">A clearer view. A confident next step.</p></div><span className="mobile-home-mark" aria-hidden="true"><Wallet /></span></div>
+      <div className="mobile-home-intro"><div><p className="mobile-eyebrow">YOUR MONEY, AT A GLANCE</p><p className="muted">A clearer view. A confident next step.</p></div></div>
       <section
         className="mobile-balance dashboard-balance"
         aria-labelledby="mobile-balance-title"
       >
         <div className="mobile-balance-heading"><span id="mobile-balance-title">Total cash balance</span><span className="mobile-balance-symbol" aria-hidden="true"><Wallet size={20} /></span></div>
         <strong>{money(cash)}</strong>
-        <p>Opening savings + recorded cash movements</p>
+        <p>Opening savings + recorded movements</p>
         <small className="mobile-balance-date">
-          <CalendarDays size={15} aria-hidden="true" /> {date > today() ? "Forecast through" : "Through"} {displayDate(date, p.settings.dateFormat)} · Includes
-          unallocated cash
+          <CalendarDays size={15} aria-hidden="true" /><span>{date > today() ? "Forecast through" : "Through"} {displayDate(date, p.settings.dateFormat)} · Includes
+          unallocated cash</span>
         </small>
         <button type="button" className="mobile-balance-link" onClick={() => navigate("accounts")}>View accounts <ArrowUpRight size={16} aria-hidden="true" /></button>
       </section>

@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
 } from "lucide-react";
+import { pfActivityRows } from '../domain/activity';
 import { usePlan } from "../store";
 import { money } from "../domain/calculate";
 import { displayDate } from "../domain/dates";
@@ -65,6 +66,7 @@ export default function AndroidActivity({
           .join(" → "),
         fee: t.feeAmount || 0,
       })),
+      ...pfActivityRows(p).map(row => ({ ...row, accounts: [] as (string | undefined)[], destination: 'employment', fee: 0 })),
     ].sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
   }, [p]);
   const shown = activity.filter(

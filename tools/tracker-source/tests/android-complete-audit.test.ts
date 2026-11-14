@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { pfActivityRows } from '../src/domain/activity';
 import { envelopeFrom } from '../src/domain/history';
 import { adjustedBudgetAmount } from '../src/domain/budget-adjustment';
 import { ledgerSummary, reverseLedgerTransaction, validateLedger } from '../src/domain/ledger';
@@ -47,4 +48,12 @@ it('full JSON backup round-trip preserves opening balances, dated transfers and 
  expect(restored.data.accounts).toEqual(envelope.data.accounts);
  expect(restored.data.ledgerTransactions).toEqual(envelope.data.ledgerTransactions);
  expect(ledgerSummary(restored.data,'2026-12-01')).toEqual(ledgerSummary(envelope.data,'2026-12-01'));
+});
+
+it('PF activity projects existing contributions and claims without income/expense classification or mutation',()=>{
+ const p=financialFixture().data;
+ p.pfMovements=[{id:'deposit',date:'2026-11-30',kind:'contribution',source:'cash',amount:25,payment:'Cash',note:''},{id:'claim',date:'2026-12-01',kind:'claim',source:'cash',amount:5,payment:'Cash',note:''}];
+ const before=JSON.stringify(p);
+ expect(pfActivityRows(p).map(row=>[row.type,row.amount])).toEqual([['pf-contribution',25],['pf-claim',5]]);
+ expect(JSON.stringify(p)).toBe(before);
 });

@@ -22,19 +22,25 @@ test('expanded Home has one recent activity surface and unique IDs',async({page}
  await expect(page.locator('.mobile-balance > strong')).toHaveText(value);
 });
 
-test('asset movements remain neutral on Home and Activity without changing report totals',async({page})=>{
+test('supported PF movements are neutral and open the existing PF screen',async({page})=>{
+ const savings=await page.locator('.mobile-summary .stat-card').last().innerText();
  await page.evaluate(async()=>{
-  const module='/src/store.ts';const {store}=await import(module);
-  store.change('Synthetic asset entry',(p:any)=>{
-   p.categories.push({id:'audit-asset',name:'Asset movement',group:'Asset',role:'regular',amount:0,timing:'Daily',day:1,active:true,months:[],note:''});
-   p.entries.push({id:'audit-asset-entry',categoryId:'audit-asset',date:'2027-02-28',amount:25,description:'Synthetic asset record',payment:'Cash',notes:''});
+  const module='/src/store.ts',employment='/src/domain/employment.ts';
+  const {store}=await import(module);const {enablePfAccount}=await import(employment);
+  store.change('Synthetic PF contribution',(p:any)=>{
+   enablePfAccount(p);
+   p.pfMovements.push({id:'audit-pf',kind:'contribution',source:'cash',date:'2027-02-28',amount:25,payment:'Cash',note:'Synthetic only'});
   });
  });
- const row=page.locator('.mobile-recent li').filter({hasText:'Synthetic asset record'});
+ const row=page.locator('.mobile-recent li').filter({hasText:'PF contribution'});
  await expect(row.locator('.mobile-recent-amount')).toHaveClass(/movement/);
- await expect(row.locator('.mobile-recent-amount')).toHaveText('asset movement');
+ await expect(page.locator('.mobile-summary .stat-card').last()).toHaveText(savings);
  await page.getByRole('navigation',{name:'Phone navigation'}).getByRole('button',{name:'Activity',exact:true}).click();
- await expect(page.locator('.unified-activity li').filter({hasText:'Synthetic asset record'})).toContainText('asset movement');
+ const activity=page.locator('.unified-activity li').filter({hasText:'PF contribution'});
+ await expect(activity).toContainText('pf contribution');
+ await expect(activity.locator('svg')).toHaveClass(/movement/);
+ await activity.getByRole('button').click();
+ await expect(page.getByRole('heading',{name:'PF account',exact:true})).toBeVisible();
 });
 
 for(const theme of ['light','dark'])test(`Android design surfaces and forms at phone/tablet widths in ${theme}`,async({page})=>{
