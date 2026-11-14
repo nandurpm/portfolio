@@ -57,6 +57,26 @@ test("four destinations and five quick actions keep every feature reachable with
     ).toBeVisible();
   await page
     .locator(".android-more-card")
+    .filter({ has: page.getByText("Help and Support", { exact: true }) })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Help and Support" })
+    .getByRole("button", { name: "Keyboard shortcuts", exact: true })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Keyboard shortcuts" }),
+  ).toBeVisible();
+  await page
+    .getByRole("dialog", { name: "Keyboard shortcuts" })
+    .getByRole("button", { name: "Close dialog" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Help and Support" })
+    .getByRole("button", { name: "Close dialog" })
+    .click();
+  await nav(page).getByRole("button", { name: "More screens" }).click();
+  await page
+    .locator(".android-more-card")
     .filter({ has: page.getByText("Budgets", { exact: true }) })
     .click();
   await expect(page.locator(".main-scroll")).toHaveAttribute(
@@ -220,11 +240,19 @@ test("backup quick action uses the existing full export and confirmed restore ro
       ),
     )
     .toBe(original.settings.opening);
-  const restored = await page.evaluate(() => JSON.parse(localStorage.getItem("savings-expence-v1")!).data);
+  const restored = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("savings-expence-v1")!).data,
+  );
   // Restore intentionally re-derives loan paid badges from authoritative receipts.
   // Compare every persisted input/receipt; these four cached loan display fields are not inputs.
-  const authoritative = (data: unknown) => JSON.parse(JSON.stringify(data, (key, value) =>
-    ["paid", "paidAmount", "paidBeforeOpening", "paidDate"].includes(key) ? undefined : value));
+  const authoritative = (data: unknown) =>
+    JSON.parse(
+      JSON.stringify(data, (key, value) =>
+        ["paid", "paidAmount", "paidBeforeOpening", "paidDate"].includes(key)
+          ? undefined
+          : value,
+      ),
+    );
   expect(authoritative(restored)).toEqual(authoritative(original));
 });
 
