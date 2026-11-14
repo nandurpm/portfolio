@@ -349,3 +349,7 @@ html[data-platform="android"] .phone-title { display: block; color: var(--mobile
 html[data-platform="android"] .breadcrumbs { display: none; }
 
 html[data-platform="android"][data-theme="dark"] .android-more { background: var(--mobile-bg); --more-bg: var(--mobile-bg); --more-card: var(--mobile-card); --more-text: var(--mobile-ink); --more-muted: var(--mobile-muted); --more-border: var(--mobile-line); }
+/* Let cards reflow with the user's text size instead of clipping their labels. */
+.mobile-summary { grid-template-columns: repeat(auto-fit,minmax(min(100%,7rem),1fr)); }
+.mobile-summary .stat-top { flex-wrap: wrap; }
+.mobile-summary .stat-top > span { overflow-wrap: anywhere; }
