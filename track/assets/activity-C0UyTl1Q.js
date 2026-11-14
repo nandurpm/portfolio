@@ -1,0 +1,1 @@
+function a(i){return(i.pfMovements??[]).map(t=>({id:`pf-${t.id}`,date:t.date,title:t.kind==="claim"?"PF claim":"PF contribution",type:t.kind==="claim"?"pf-claim":"pf-contribution",amount:t.amount,detail:`Provident fund · ${t.kind==="claim"?"Returned to cash":t.source==="cash"?"Cash allocation":"Payroll allocation"} · ${t.payment}`}))}export{a as p};
