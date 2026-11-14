@@ -2,6 +2,12 @@ name: Release tracker web, Windows and Android
 
 on:
   workflow_dispatch:
+    inputs:
+      notify_owner:
+        description: 'Send the owner bot update notification after publication'
+        type: boolean
+        default: false
+        required: false
   push:
     branches:
       - main
@@ -450,6 +456,7 @@ jobs:
           grep -Fx "Savings-and-Expense-Tracker-$VERSION-Source.zip" release-assets/published-assets.txt
           grep -Fx 'SHA256SUMS.txt' release-assets/published-assets.txt
       - name: Check owner software release notification after asset verification
+        if: github.event_name == 'workflow_dispatch' && inputs.notify_owner == true
         env:
           TRACKER_BOT_CRON_SECRET: ${{ secrets.TRACKER_BOT_CRON_SECRET }}
         shell: bash
