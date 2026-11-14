@@ -74,9 +74,10 @@ The web build emitted non-fatal Rollup warnings about comment placement in the i
 
 ## F. GitHub status
 
-- Branch: `audit/savings-expense-manual-20261114`.
+- Branch: [`audit/savings-expense-manual-20261114`](https://github.com/nandurpm/portfolio/tree/audit/savings-expense-manual-20261114).
 - Base commit: `85b22a92ef84848415b0abc9e2a29eca6efda429`.
-- Pull request: to be created against `main` after this report is committed and pushed; it will remain open for user review and will not be merged.
+- Audit report commit: [`54374d7e06872bfae12f1146cd77a91c7d9fad17`](https://github.com/nandurpm/portfolio/commit/54374d7e06872bfae12f1146cd77a91c7d9fad17).
+- Pull request: [#130](https://github.com/nandurpm/portfolio/pull/130), open against `main` for user review; it will not be merged by this audit.
 - No changes are merged by this audit.
 
 ## G. Outstanding risks
