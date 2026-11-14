@@ -23,7 +23,7 @@ test('expanded Home has one recent activity surface and unique IDs',async({page}
 });
 
 test('supported PF movements are neutral and open the existing PF screen',async({page})=>{
- const savings=await page.locator('.mobile-summary .stat-card').last().innerText();
+ const savings=await page.locator('.mobile-summary .stat-card').last().locator(':scope > strong').innerText();
  await page.evaluate(async()=>{
   const module='/src/store.ts',employment='/src/domain/employment.ts';
   const {store}=await import(module);const {enablePfAccount}=await import(employment);
@@ -34,7 +34,8 @@ test('supported PF movements are neutral and open the existing PF screen',async(
  });
  const row=page.locator('.mobile-recent li').filter({hasText:'PF contribution'});
  await expect(row.locator('.mobile-recent-amount')).toHaveClass(/movement/);
- await expect(page.locator('.mobile-summary .stat-card').last()).toHaveText(savings);
+ await expect(page.locator('.mobile-summary .stat-card').last().locator(':scope > strong')).toHaveText(savings);
+ await expect(page.locator('.mobile-balance > strong')).toHaveText('₹475.00');
  await page.getByRole('navigation',{name:'Phone navigation'}).getByRole('button',{name:'Activity',exact:true}).click();
  const activity=page.locator('.unified-activity li').filter({hasText:'PF contribution'});
  await expect(activity).toContainText('pf contribution');
