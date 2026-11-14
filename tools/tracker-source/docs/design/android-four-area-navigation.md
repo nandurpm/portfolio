@@ -62,11 +62,11 @@ Account cards are promoted before advanced position/opening sections. Filter and
 
 ### Transfer sheet
 
-The existing transaction form and `addTransaction` handler are reused in a focus-trapped bottom sheet. Title: Transfer between accounts; fields: From account, To account, Amount, Date, Fees, optional Description, and applicable fee category. Transfer type is fixed while using this focused flow. Same-account options are disabled; changing the source clears a conflicting destination. Save transfer retains existing two-decimal, account-kind, date, conflict and submission-lock validation. Existing reversal/history behavior remains unchanged. No second financial posting path is introduced.
+The existing transaction form and `addTransaction` handler are reused in a focus-trapped bottom sheet. Title: Transfer between accounts; fields: From account, To account, Amount, Date, Fees, optional Description, and applicable fee category. Transfer type is initially fixed in this focused flow; Advanced options retains the original transaction-type editor. Same-account options are disabled; changing the source clears a conflicting destination. Save transfer retains existing two-decimal, account-kind, date, conflict and submission-lock validation. Existing reversal/history behavior remains unchanged. No second financial posting path is introduced.
 
 ### More
 
-Secondary features use single-column grouped rows, with descriptions and existing tool search. Advanced account/planning tools and Undo/Redo stay accessible. Backup/restore and cloud sync have explicit separate destinations, with duplicate combined shortcuts removed from navigation only. Help opens the existing guidance/shortcut dialog. No ads or decorative artwork are introduced.
+Secondary features use single-column grouped rows, with descriptions and existing tool search. Advanced account/planning tools and Undo/Redo stay accessible. Backup/restore and cloud sync have explicit separate destinations, with duplicate combined shortcuts removed from navigation only. Help opens concise Android guidance and the project support link. No ads or decorative artwork are introduced.
 
 ## States and responsive behavior
 
