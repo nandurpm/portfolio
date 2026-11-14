@@ -15,7 +15,7 @@
 | Android | Manifest/permissions, Capacitor/insets, native bridge/session/recovery/update configuration; Home, Activity, Accounts, More and existing secondary screens | Native renderer build and Capacitor sync attempted; financial/UI regressions added | Signed APK, certificate continuity, install/upgrade, Android 16 instrumentation and screenshots must be verified by CI before release |
 | Windows | Separate Electron packaging and shared domain/presentation boundaries preserved | Native renderer/Electron build attempted; no claim of Windows runtime here | CI installer build/release; physical Windows use not tested |
 | Web | Separate auth gate and domain parity retained | Production web build, provenance and bundle checks | CI browser tests, disposable auth/security tests; no live production user sign-in |
-| Financial calculations | Income/expense, paise validation, transfer principal and fees, reversals, budgets, reporting dates, net worth, installments and PF through existing suites plus independent cases | Baseline 290 tests PASS; fixed suite 309 tests PASS | Finite synthetic evidence, not proof for every financial plan |
+| Financial calculations | Income/expense, paise validation, transfer principal and fees, reversals, budgets, reporting dates, net worth, installments and PF through existing suites plus independent cases | Baseline 290 tests PASS; fixed suite 313 tests PASS | Finite synthetic evidence, not proof for every financial plan |
 | Data integrity / backend | Backup normalization/history, offline/cloud revision/conflict code and auth/storage configuration reviewed; no migrations | JSON backup round-trip plus existing import/history/conflict regressions | Disposable DB/RLS and Supabase CI; production configuration is not certified |
 | UI / themes | Android-only hierarchy/colors/touch targets, four navigation areas, More grouping, activity semantics, lazy analysis | Source review and regression specs | Chromium simulation/screenshot/axe checks and native emulator evidence separately identified |
 
@@ -30,6 +30,7 @@
 | F5 — Low, Android navigation/clutter | More had five fragmented groups; Reports and Import/Export navigated to exactly the same unscoped page. | Unnecessary grouping and missing import anchor. | `AndroidMore.tsx`: three cohesive groups, all 14 shortcuts retained, Import/Export targets the actual existing import heading. Existing 13-destination tests retained; new spec checks all 14 titles/group count/import destination and record preservation. |
 | F6 — Low, Android Activity performance | Each ledger row resolved both account IDs by scanning the entire accounts array. | Repeated linear search, O(transactions × accounts), despite stable per-plan data. | `AndroidActivity.tsx`: construct account-name Map once per memoized activity list. Same output, fewer lookups; full existing activity/transfer suites remain. No unmeasured speed claim. |
 | F7 — UI improvement, Android only | Source review found an undifferentiated balance block, repeated monthly labels and no direct balance-to-accounts action. | Weak visual hierarchy rather than an accounting issue. | `AndroidHome.tsx`, scoped `android-simple.css`: navy/indigo cash card, explicit date context, wallet accent, clear monthly heading and consistent cards; direct View accounts action; preserved existing palettes/light/dark, financial labels and four main areas. No new dependencies or fabricated comparison percentage. Browser matrices, existing accessible-rich-theme tests and screenshots required. |
+| F8 — Low, native Android theme | Android bottom navigation uses `--mobile-card` (white/navy), but native system bands were sent `--sidebar-b` and navigation icons were always light. | Legacy sidebar color and fixed DARK system-bar style remained after the four-area redesign. | `App.tsx`, `native-ui.ts`: native bottom band uses Android card color on both settings and OS-theme changes; navigation icon style follows light/dark. Four mocked native-API tests cover light, dark, custom short-hex and non-Android bypass. Physical-device color behavior remains untested. |
 
 ### Not reproduced / deferred
 
@@ -45,7 +46,7 @@ Working directory `tools/tracker-source`. Local runtime Node 24.22.1 / npm 11.9.
 
 - Baseline `npm run check`: PASS, 49 files / 290 unit tests, lint, dependency compatibility, bot, typecheck, web build and bundle/provenance.
 - New `npx vitest run tests/android-complete-audit.test.ts`: PASS (initial 17 cases; extended with backup round-trip and supported PF projection cases).
-- Fixed `npm run check`: PASS, 50 files / 309 tests; the first run correctly detected stale generated bot finance after ledger changes, then passed after `node scripts/build-bot-finance.mjs` regenerated it.
+- Fixed `npm run check`: PASS, 51 files / 313 tests; the first run correctly detected stale generated bot finance after ledger changes, then passed after `node scripts/build-bot-finance.mjs` regenerated it.
 - `npm run build:release`: PASS (renderer + Electron main/preload, not a local Windows installer).
 - `npm audit --json`: PASS, zero vulnerabilities at audit time.
 - `npx cap sync android`: PASS.

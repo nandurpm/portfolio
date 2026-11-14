@@ -26,8 +26,8 @@ export async function applySystemBarTheme(
     bar: SystemBarType.StatusBar,
     style: dark ? SystemBarsStyle.Dark : SystemBarsStyle.Light,
   });
-  await SystemBars.setStyle({ bar: SystemBarType.NavigationBar, style: SystemBarsStyle.Dark });
-  const bands = colors ?? { topColor: dark ? '#1d2134' : '#ffffff', bottomColor: '#6857c7' };
+  await SystemBars.setStyle({ bar: SystemBarType.NavigationBar, style: dark ? SystemBarsStyle.Dark : SystemBarsStyle.Light });
+  const bands = colors ?? { topColor: dark ? '#1d2134' : '#ffffff', bottomColor: dark ? '#20263e' : '#ffffff' };
   const expand = (hex: string) =>
     hex.replace(/^#([a-f0-9])([a-f0-9])([a-f0-9])$/i, '#$1$1$2$2$3$3');
   await native.setBarBackgrounds({

@@ -7,6 +7,8 @@
 - Include existing PF contributions/claims as neutral movements in Android Home and Activity, with access to the existing PF screen. PF does not become income/expense.
 - Resolve Activity account names with one indexed lookup per account rather than repeatedly searching all accounts for each record.
 
+- Match Android system navigation-band color and icon contrast to the actual light/dark bottom navigation instead of the legacy sidebar.
+
 ## Financial correctness
 - Use the existing half-away-from-zero paise rounding rule for both bulk and quick budget percentage changes (₹1 plus 0.5% becomes ₹1.01).
 - Accept valid high-value two-decimal amounts without rejecting them because binary multiplication by 100 leaves a tiny residual. Retain positive-amount, precision, account-type and upper-limit validation.
