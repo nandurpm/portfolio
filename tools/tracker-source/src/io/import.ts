@@ -36,7 +36,7 @@ export function value(cell: ExcelJS.Cell): any {
 export function iso(v: any): string {
   if (v instanceof Date) return v.toISOString().slice(0, 10);
   if (typeof v === 'number')
-    return new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000).toISOString().slice(0, 10);
+    return new Date(Date.UTC(1899, 11, 30) + Math.floor(v) * 86400000).toISOString().slice(0, 10); // The fractional part is a time of day; it must never move the date.
   if (typeof v === 'string') {
     if (validDate(v.slice(0, 10))) return v.slice(0, 10);
     const m = /^(\d{1,2})[-/]([A-Za-z]{3}|\d{1,2})[-/](\d{4})$/.exec(v);
