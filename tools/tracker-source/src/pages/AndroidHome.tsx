@@ -8,7 +8,7 @@ import {
   reportDate,
   savingsOverview,
 } from "../domain/calculate";
-import { monthEnd, monthLabel, displayDate } from "../domain/dates";
+import { monthEnd, monthLabel, displayDate, today } from "../domain/dates";
 import { MobileRecentActivity } from "../components/MobileRecentActivity";
 import { Stat } from "../components/UI";
 const Analysis = lazy(() => import("./AndroidDashboard222"));
@@ -45,7 +45,7 @@ export default function AndroidHome({
         <strong>{money(cash)}</strong>
         <p>Opening savings + recorded cash movements</p>
         <small>
-          Through {displayDate(date, p.settings.dateFormat)} · Includes
+          {date > today() ? "Forecast through" : "Through"} {displayDate(date, p.settings.dateFormat)} · Includes
           unallocated cash
         </small>
       </section>
