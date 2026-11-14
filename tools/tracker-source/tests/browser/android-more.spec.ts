@@ -35,7 +35,6 @@ test('all feature cards open existing destinations without changing financial re
     await expect(page.locator('.screen-loading')).toHaveCount(0);
     if (title === 'Reconciliation') await expect(page.getByRole('heading', { name: 'Balance reconciliation', exact: true })).toBeInViewport();
     if (title === 'Financial Position') await expect(page.getByRole('heading', { name: 'Your money at a glance', exact: true })).toBeInViewport();
-    if (title === 'Forecast (Month-by-Month)') await expect(page.getByRole('heading', { name: 'Full-month forecast', exact: true })).toBeInViewport();
   }
   expect(await financial()).toEqual(before);
 });

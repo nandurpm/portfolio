@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Search, Calculator, BriefcaseBusiness, TrendingUp, FileChartColumn, Layers, ArrowLeftRight, ShieldCheck, Coins, Wallet, ChartNoAxesColumn, Settings, CloudUpload, Target, ChevronRight, Undo2, Redo2 } from 'lucide-react';
+import { ArrowLeft, Search, Calculator, BriefcaseBusiness, TrendingUp, FileChartColumn, Layers, ArrowLeftRight, ShieldCheck, Coins, Wallet, Settings, CloudUpload, Target, ChevronRight, Undo2, Redo2 } from 'lucide-react';
 import { registerDialog, isTopDialog } from '../navigation';
 import './android-more.css';
 
