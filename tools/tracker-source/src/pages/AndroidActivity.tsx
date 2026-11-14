@@ -28,6 +28,7 @@ export default function AndroidActivity({
   const [limit, setLimit] = useState(50);
   const activity = useMemo(() => {
     const categories = new Map(p.categories.map((c) => [c.id, c]));
+    const accounts = new Map((p.accounts ?? []).map(a => [a.id, a.name]));
     return [
       ...p.entries.map((e) => ({
         id: `entry-${e.id}`,
@@ -60,7 +61,7 @@ export default function AndroidActivity({
         destination: "accounts",
         detail: [t.sourceAccountId, t.destinationAccountId]
           .filter(Boolean)
-          .map((id) => p.accounts?.find((a) => a.id === id)?.name || "Account")
+          .map((id) => (id && accounts.get(id)) || "Account")
           .join(" → "),
         fee: t.feeAmount || 0,
       })),

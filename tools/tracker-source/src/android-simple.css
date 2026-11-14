@@ -608,3 +608,46 @@ html[data-platform="android"] .mobile-recent .mobile-recent-icon {
 html[data-platform="android"] .mobile-recent-amount.income { color: var(--mobile-income); }
 html[data-platform="android"] .mobile-recent-amount.expense { color: var(--mobile-expense); }
 html[data-platform="android"] .mobile-recent-amount.movement { color: var(--mobile-movement); text-transform: capitalize; }
+
+/* 2.10.15: consistent Android hierarchy, without changing accounting or saved palettes. */
+html[data-platform="android"] .mobile-home-intro {
+  display:flex; align-items:center; justify-content:space-between; gap:16px; margin:4px 0 18px;
+}
+html[data-platform="android"] .mobile-home-intro p { margin:0; }
+html[data-platform="android"] .mobile-home-intro .muted { margin-top:6px; font-size:.875rem; line-height:1.5; }
+html[data-platform="android"] .mobile-eyebrow { color:var(--mobile-movement); font-size:.6875rem; font-weight:800; letter-spacing:.09em; line-height:1.5; }
+html[data-platform="android"] .mobile-home-mark {
+  display:grid; place-items:center; flex:0 0 46px; height:46px; border-radius:16px;
+  color:var(--mobile-movement); background:var(--mobile-lavender); border:1px solid var(--mobile-line);
+}
+html[data-platform="android"] .mobile-balance {
+  position:relative; overflow:hidden; gap:12px; padding:22px;
+  background:linear-gradient(130deg,#202f65,#4b3f85); border:1px solid #ffffff26;
+  box-shadow:0 12px 28px #24346826;
+}
+html[data-platform="android"][data-theme="dark"] .mobile-balance { background:linear-gradient(130deg,#293968,#443968); box-shadow:0 12px 30px #00000030; }
+html[data-platform="android"] .mobile-balance-heading { display:flex; width:100%; align-items:center; justify-content:space-between; gap:12px; color:#f5f3ff; font-size:.875rem; font-weight:650; }
+html[data-platform="android"] .mobile-balance-symbol { display:grid; place-items:center; flex:0 0 36px; height:36px; border-radius:12px; background:#ffffff17; }
+html[data-platform="android"] .mobile-balance > strong { font-size:clamp(1.85rem,7.5vw,2.7rem); line-height:1.15; letter-spacing:-.035em; }
+html[data-platform="android"] .mobile-balance > p { max-width:32ch; font-size:.8125rem; line-height:1.5; color:#eeeaff; }
+html[data-platform="android"] .mobile-balance-date { display:flex; flex-wrap:wrap; align-items:center; gap:5px; color:#eeeaff; font-size:.75rem; line-height:1.5; }
+html[data-platform="android"] .mobile-balance-link {
+  display:flex; align-items:center; justify-content:space-between; width:100%; gap:12px;
+  margin-top:2px; padding:8px 0 0; border:0; border-top:1px solid #ffffff30; border-radius:0;
+  background:transparent; color:#fff; font-size:.8125rem; font-weight:700; text-align:left;
+}
+html[data-platform="android"] .mobile-section-title { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px 12px; margin:24px 0 12px; }
+html[data-platform="android"] .mobile-section-title h2 { margin:0; font-size:1rem; letter-spacing:-.02em; color:var(--mobile-ink); }
+html[data-platform="android"] .mobile-section-title > span { padding:5px 9px; border:1px solid var(--mobile-line); border-radius:9px; background:var(--mobile-card); font-size:.75rem; font-weight:600; color:var(--mobile-muted); }
+html[data-platform="android"] .mobile-summary { margin-top:0; }
+html[data-platform="android"] .android-add { box-shadow:0 5px 12px #14604520; }
+html[data-platform="android"] .android-more-groups { gap:22px; }
+html[data-platform="android"] .android-more .android-more-groups h2 { font-size:.8125rem; font-weight:750; color:var(--mobile-muted); }
+html[data-platform="android"] .android-more .android-more-card { min-height:76px; }
+html[data-platform="android"] .android-activity > h1 { font-size:1.75rem; letter-spacing:-.04em; margin-bottom:6px; }
+html[data-platform="android"] .android-activity > [role="status"] { color:var(--mobile-muted); font-size:.8125rem; }
+html[data-platform="android"] .mobile-accounts-list .account-card { box-shadow:var(--mobile-shadow); }
+@media (max-width:360px) {
+  html[data-platform="android"] .mobile-home-mark { display:none; }
+  html[data-platform="android"] .mobile-balance { padding:18px; }
+}

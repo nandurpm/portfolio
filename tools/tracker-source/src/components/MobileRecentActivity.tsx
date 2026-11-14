@@ -26,13 +26,15 @@ export function MobileRecentActivity({ navigate, native = false, through, allAct
     const legacy: Activity[] = plan.entries.map((row) => {
       const category = categories.get(row.categoryId);
       const income = category?.group === 'Income';
+      const asset = category?.group === 'Asset';
       return {
         id: `entry-${row.id}`,
         date: row.date,
         title: row.description || category?.name || 'Recorded transaction',
         detail: category?.name ?? 'Daily entry',
         amount: income ? row.amount : -row.amount,
-        kind: income ? 'income' : 'expense',
+        kind: asset ? 'movement' : income ? 'income' : 'expense',
+        movementLabel: asset ? 'asset movement' : undefined,
         destination: 'entries',
       };
     });

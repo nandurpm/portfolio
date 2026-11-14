@@ -1,3 +1,4 @@
+import { adjustedBudgetAmount } from '../domain/budget-adjustment';
 import { isPaise } from '../domain/money-precision';
 import { userError } from '../domain/user-error';
 import { isSalaryCategory } from '../domain/employment';
@@ -141,7 +142,7 @@ export default function Budget() {
       for (const m of monthsBetween(targetStart, targetEnd).filter((m) => months.includes(m)))
         for (const c of cats.filter((c) => !cell || c.id === cell.id))
           d.overrides[key(m, c.id)] =
-            Math.round(fullAmount(p, c, m) * (1 + percent / 100) * 100) / 100;
+            adjustedBudgetAmount(fullAmount(p, c, m), percent);
     });
     triggerActionFeedback('budget');
     toast('Percentage change applied to the target months.');
@@ -150,7 +151,7 @@ export default function Budget() {
     store.change(`Apply ${value}% to budget`, (d) => {
       for (const m of monthsBetween(targetStart, targetEnd).filter((x) => months.includes(x)))
         for (const c of cats.filter((x) => !cell || x.id === cell.id))
-          d.overrides[key(m, c.id)] = Math.round(fullAmount(p, c, m) * (1 + value / 100) * 100) / 100;
+          d.overrides[key(m, c.id)] = adjustedBudgetAmount(fullAmount(p, c, m), value);
     });
     triggerActionFeedback('budget');
     setPercent(value);

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { Plus, ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
+import { Plus, ArrowDownLeft, ArrowUpRight, Wallet, CalendarDays } from "lucide-react";
 import { usePlan } from "../store";
 import {
   actual,
@@ -36,19 +36,21 @@ export default function AndroidHome({
   return (
     <div className="android-home">
       <h1 className="sr-only">Home</h1>
-      <p className="muted">Your money, clearly.</p>
+      <div className="mobile-home-intro"><div><p className="mobile-eyebrow">YOUR MONEY, AT A GLANCE</p><p className="muted">A clearer view. A confident next step.</p></div><span className="mobile-home-mark" aria-hidden="true"><Wallet /></span></div>
       <section
         className="mobile-balance dashboard-balance"
         aria-labelledby="mobile-balance-title"
       >
-        <span id="mobile-balance-title">Total cash balance</span>
+        <div className="mobile-balance-heading"><span id="mobile-balance-title">Total cash balance</span><span className="mobile-balance-symbol" aria-hidden="true"><Wallet size={20} /></span></div>
         <strong>{money(cash)}</strong>
         <p>Opening savings + recorded cash movements</p>
-        <small>
-          {date > today() ? "Forecast through" : "Through"} {displayDate(date, p.settings.dateFormat)} · Includes
+        <small className="mobile-balance-date">
+          <CalendarDays size={15} aria-hidden="true" /> {date > today() ? "Forecast through" : "Through"} {displayDate(date, p.settings.dateFormat)} · Includes
           unallocated cash
         </small>
+        <button type="button" className="mobile-balance-link" onClick={() => navigate("accounts")}>View accounts <ArrowUpRight size={16} aria-hidden="true" /></button>
       </section>
+      <div className="mobile-section-title"><h2>Monthly snapshot</h2><span>{monthLabel(month)}</span></div>
       <div
         className="mobile-summary"
         aria-label={`${monthLabel(month)} summary`}
@@ -56,14 +58,14 @@ export default function AndroidHome({
         <Stat
           label="Income"
           value={totals.income}
-          caption={monthLabel(month, true)}
+          caption="Recorded"
           tone="green"
           icon={<ArrowDownLeft />}
         />
         <Stat
           label="Expenses"
           value={totals.expenses}
-          caption={monthLabel(month, true)}
+          caption="Recorded"
           tone="orange"
           icon={<ArrowUpRight />}
         />
@@ -96,7 +98,7 @@ export default function AndroidHome({
         </p>
         {analysis && (
           <Suspense fallback={<p role="status">Loading analysis…</p>}>
-            <Analysis navigate={navigate} addEntry={addEntry} />
+            <Analysis embedded navigate={navigate} addEntry={addEntry} />
           </Suspense>
         )}
       </details>

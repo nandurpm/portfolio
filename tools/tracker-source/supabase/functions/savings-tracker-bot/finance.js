@@ -10,6 +10,11 @@ function toPaise(value) {
 }
 var roundMoney = (value) => toPaise(value) / 100;
 
+// src/domain/money-precision.ts
+function isPaise(value) {
+  return Number.isFinite(value) && Math.abs(value - Math.round(value * 100) / 100) <= Number.EPSILON * Math.max(0.01, Math.abs(value)) * 2;
+}
+
 // src/domain/dates.ts
 var today = () => {
   const d = /* @__PURE__ */ new Date();
@@ -43,9 +48,9 @@ var isLiability = (kind) => ["credit-card", "liability"].includes(kind);
 var cents = (value) => {
   if (!Number.isFinite(value) || value < 0 || value > 1e12)
     throw Error("Use a valid non-negative amount.");
-  if (Math.abs(value * 100 - Math.round(value * 100)) > 1e-6)
+  if (!isPaise(value))
     throw Error("Use at most two decimal places.");
-  return Math.round(value * 100);
+  return toPaise(value);
 };
 var money = (value) => value === 0 ? 0 : value / 100;
 function validateLedger(accounts, transactions) {
