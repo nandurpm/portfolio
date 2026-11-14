@@ -187,8 +187,9 @@ export function correctInstallmentDates(
     r.month = addMonths(firstDueDate.slice(0, 7), i);
     r.dueDate = monthDay(r.month, day);
     for (const entry of p.entries.filter((e) => e.loanRowId === r.id)) {
-      entry.description = entry.description.replace(oldDate, r.dueDate);
-      if (oldNote) entry.notes = entry.notes.replace(oldNote, note);
+      entry.description = entry.description.replace(oldDate, () => r.dueDate);
+      // Function replacer: user text must never be parsed as a $-replacement pattern ($$, $&, $`, $').
+      if (oldNote) entry.notes = entry.notes.replace(oldNote, () => note);
     }
   });
   loan.firstDueDate = firstDueDate;
