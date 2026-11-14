@@ -353,3 +353,15 @@ html[data-platform="android"][data-theme="dark"] .android-more { background: var
 .mobile-summary { grid-template-columns: repeat(auto-fit,minmax(min(100%,7rem),1fr)); }
 .mobile-summary .stat-top { flex-wrap: wrap; }
 .mobile-summary .stat-top > span { overflow-wrap: anywhere; }
+
+html[data-platform="android"] .android-home .button.android-add:not(.secondary):not(.danger):not(.danger-quiet):not(.paid-button) { background: #247b59; color: white; }
+html[data-platform="android"] .android-home .mobile-recent { display: block; }
+html[data-platform="android"] .mobile-analysis > summary { display: list-item; visibility: visible; }
+/* Keep summary labels and values aligned when all three cards share a row. */
+.mobile-summary .stat-top {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 8px;
+}

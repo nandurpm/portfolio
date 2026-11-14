@@ -25,5 +25,5 @@ test('dedicated Transfer action opens an account-to-account transfer form', asyn
   await page.getByRole('button', { name: 'Save transaction', exact: true }).click();
 
   await expect(page.getByText('Savings transfer', { exact: true })).toBeVisible();
-  await expect(page.getByText('Transfer', { exact: true }).last()).toBeVisible();
+  await expect(page.locator('.ledger-list article').filter({ has: page.getByText('Savings transfer', { exact: true }) })).toContainText('Transfer');
 });

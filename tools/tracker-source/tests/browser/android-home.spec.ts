@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 for (const width of [360, 393, 768]) {
   test(`Android compact Home preserves full analysis at ${width}px without changing shared amounts`, async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-11-14T12:00:00Z'));
     await page.setViewportSize({ width, height: 873 });
     await page.route('https://*.supabase.co/**', r => r.abort());
     await page.route('https://api.github.com/**', r => r.abort());
@@ -16,6 +17,7 @@ for (const width of [360, 393, 768]) {
     await expect(home).toBeVisible();
 
     await expect(home.locator('.mobile-balance strong')).toHaveText(sharedCash);
+    await expect(home.locator('.mobile-balance')).toContainText('Forecast through');
     await page.locator('.mobile-analysis > summary').click();
     await expect(page.getByRole('heading', { name: 'Full dashboard analysis', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Balance breakdown', exact: true })).toBeVisible();
@@ -28,7 +30,7 @@ for (const width of [360, 393, 768]) {
       for (const name of ['Home', 'Activity', 'Accounts'])
         await expect(nav.getByRole('button', { name, exact: true })).toBeVisible();
       await nav.getByRole('button', { name: 'More screens', exact: true }).click();
-      await expect(page.locator('.android-more').getByRole('button', { name: /^Reports / })).toBeVisible();
+      await expect(page.locator('.android-more-card').filter({ has: page.getByText('Reports', { exact: true }) })).toBeVisible();
     }
   });
 }
@@ -59,7 +61,7 @@ test('Android Settings Lavender selection changes the actual UI from green to vi
 
   const nav = page.getByRole('navigation', { name: 'Phone navigation' });
   await nav.getByRole('button', { name: 'More screens' }).click();
-  await page.locator('.android-more').getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.locator('.android-more-card').filter({ has: page.getByText('Settings', { exact: true }) }).click();
   await expect(page.getByRole('heading', { name: 'Appearance' })).toBeVisible();
 
   const colours = async () => page.evaluate(() => {

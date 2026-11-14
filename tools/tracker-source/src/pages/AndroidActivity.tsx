@@ -222,6 +222,7 @@ export default function AndroidActivity({
             <label>
               Account
               <select
+                aria-label="Account"
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
               >
@@ -236,7 +237,7 @@ export default function AndroidActivity({
             </label>
             <label>
               Type
-              <select value={type} onChange={(e) => setType(e.target.value)}>
+              <select aria-label="Type" value={type} onChange={(e) => setType(e.target.value)}>
                 <option value="all">All types</option>
                 {[
                   ...new Set([
