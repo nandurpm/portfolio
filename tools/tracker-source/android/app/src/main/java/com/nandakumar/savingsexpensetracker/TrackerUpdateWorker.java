@@ -13,6 +13,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.work.Constraints;
+import androidx.work.BackoffPolicy;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
@@ -57,6 +58,7 @@ public final class TrackerUpdateWorker extends Worker {
         PeriodicWorkRequest request =
             new PeriodicWorkRequest.Builder(TrackerUpdateWorker.class, 15, TimeUnit.MINUTES)
                 .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .build();
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             UNIQUE_WORK, ExistingPeriodicWorkPolicy.KEEP, request);
@@ -97,7 +99,9 @@ public final class TrackerUpdateWorker extends Worker {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .edit().putString("last-notified-tag", tag).apply();
         } catch (Exception ignored) {
-            // No financial state is affected. Recheck in the next periodic interval.
+            // No financial state is affected. Retry transient network, rate-limit,
+            // and malformed-release failures instead of recording a false success.
+            return Result.retry();
         }
         return Result.success();
     }

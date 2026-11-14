@@ -6,8 +6,6 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
-import android.os.Build;
-import android.Manifest;
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -31,8 +29,6 @@ public class MainActivity extends BridgeActivity {
   // Schedule OS-managed release notifications without accessing financial records.
   try { TrackerUpdateWorker.schedule(getApplicationContext()); }
   catch (RuntimeException ignored) { /* In-app version checking stays available. */ }
-  if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED)
-   requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 4101);
   EdgeToEdge.enable(this);
   // Inset the application content, never DecorView: Android can overwrite decor padding
   // during window layout, allowing the WebView to cover the time/battery and gesture bar.
