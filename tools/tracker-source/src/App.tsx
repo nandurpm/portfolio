@@ -226,7 +226,7 @@ export function Shell() {
   const activeScreen = useMemo(() => (
     page === 'dashboard' ? <Home navigate={navigate} addEntry={addEntry} openAdd={openAdd} /> :
     page === 'entries' ? <Entries initialKind={entryKind} widgetEntry={widgetEntry} /> :
-    page === 'activity' ? <Activity navigate={navigate} addEntry={addEntry} /> :
+    page === 'activity' ? <Activity navigate={navigate} /> :
     page === 'accounts' ? <Accounts action={accountAction} onActionHandled={accountActionDone} navigate={navigate} /> :
     page === 'employment' ? <Employment /> :
     page === 'budget' ? <Budget /> :
@@ -285,7 +285,7 @@ export function Shell() {
         .getPropertyValue("--surface")
         .trim(),
       bottomColor: getComputedStyle(document.documentElement)
-        .getPropertyValue("--sidebar-b")
+        .getPropertyValue(android ? "--mobile-card" : "--sidebar-b")
         .trim(),
     }).catch((e) => console.warn("System bar style:", e));
     document.documentElement.dataset.animations = String(p.settings.animations);
@@ -304,14 +304,14 @@ export function Shell() {
             .getPropertyValue("--surface")
             .trim(),
           bottomColor: getComputedStyle(document.documentElement)
-            .getPropertyValue("--sidebar-b")
+            .getPropertyValue(android ? "--mobile-card" : "--sidebar-b")
             .trim(),
         }).catch((e) => console.warn("System bar style:", e));
       }
     };
     media.addEventListener("change", listener);
     return () => media.removeEventListener("change", listener);
-  }, [p.settings.theme, p.settings.palette, p.settings.animations, p.settings.animationIntensity]);
+  }, [android, p.settings.theme, p.settings.palette, p.settings.animations, p.settings.animationIntensity]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (cloud.locked || cloud.review || cloud.initial !== undefined) return;

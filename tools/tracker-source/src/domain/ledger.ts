@@ -1,4 +1,5 @@
-import { roundMoney } from './round-money';
+import { roundMoney, toPaise } from './round-money';
+import { isPaise } from './money-precision';
 import type { Account, Category, LedgerTransaction, Plan } from "./types";
 import { inRange, today, validDate } from "./dates";
 const round = roundMoney;
@@ -9,9 +10,9 @@ export const isLiability = (kind: Account["kind"]) =>
 const cents = (value: number) => {
   if (!Number.isFinite(value) || value < 0 || value > 1e12)
     throw Error("Use a valid non-negative amount.");
-  if (Math.abs(value * 100 - Math.round(value * 100)) > 1e-6)
+  if (!isPaise(value))
     throw Error("Use at most two decimal places.");
-  return Math.round(value * 100);
+  return toPaise(value);
 };
 const money = (value: number) => (value === 0 ? 0 : value / 100);
 

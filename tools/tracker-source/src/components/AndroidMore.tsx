@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Search, Calculator, BriefcaseBusiness, TrendingUp, FileChartColumn, Layers, ArrowLeftRight, ShieldCheck, Coins, Wallet, Settings, CloudUpload, Target, ChevronRight, Undo2, Redo2 } from 'lucide-react';
+import { ArrowLeft, Search, Calculator, BriefcaseBusiness, TrendingUp, FileChartColumn, Layers, ArrowLeftRight, ShieldCheck, Coins, Wallet, Settings, CloudUpload, ChevronRight, Undo2, Redo2 } from 'lucide-react';
 import { registerDialog, isTopDialog } from '../navigation';
 import './android-more.css';
 
@@ -11,20 +11,16 @@ export const moreGroups = [
     { title: 'Forecast', description: 'Savings forecast and financial planning', page: 'forecast', icon: TrendingUp, tone: 'mint' },
     { title: 'Reports', description: 'Reports, export and import', page: 'reports', icon: FileChartColumn, tone: 'peach' },
   ] },
-  { title: 'Accounts & Money Flow', icon: Layers, cards: [
+  { title: 'Money management', icon: Wallet, cards: [
     { title: 'Reconciliation', description: 'Bank and cash reconciliation', page: 'balances', section: 'Balance reconciliation', icon: ArrowLeftRight, tone: 'mint' },
-  ] },
-  { title: 'Planning & Financial Position', icon: Target, cards: [
     { title: 'Provisions & Reserves', description: 'Reserved funds and planned provisions', page: 'balances', section: 'Bills and provision balances', icon: ShieldCheck, tone: 'peach' },
     { title: 'Financial Position', description: 'Net worth, assets and liabilities', page: 'accounts', section: 'Your money at a glance', icon: Coins, tone: 'coral' },
-  ] },
-  { title: 'Balances & Overview', icon: Wallet, cards: [
     { title: 'Balances & Provisions', description: 'Your balances and reserved funds', page: 'balances', icon: Wallet, tone: 'purple' },
   ] },
   { title: 'App & Data', icon: Settings, cards: [
     { title: 'Settings', description: 'Appearance, preferences and security', page: 'settings', icon: Settings, tone: 'blue' },
     { title: 'Backup and Restore', description: 'Export and recover a full backup', page: 'reports', section: 'Complete backup & restore', icon: CloudUpload, tone: 'blue' },
-    { title: 'Import and Export', description: 'Excel plans and report exports', page: 'reports', icon: FileChartColumn, tone: 'purple' },
+    { title: 'Import and Export', description: 'Excel plans and report exports', page: 'reports', section: 'Bring your Excel plan with you', icon: FileChartColumn, tone: 'purple' },
     { title: 'Cloud Sync', description: 'Account and synchronization status', page: 'settings', section: 'Account & cloud sync', icon: CloudUpload, tone: 'blue' },
     { title: 'Help and Support', description: 'App guidance and keyboard shortcuts', page: 'help', icon: ShieldCheck, tone: 'blue' },
   ] },

@@ -230,7 +230,9 @@ function ProgressTableFiltered({ start, end }: { start: string; end: string }) {
 export default function Dashboard({
   navigate,
   addEntry,
+  embedded = false,
 }: {
+  embedded?: boolean;
   navigate: (page: string) => void;
   addEntry: (kind: 'Income' | 'Expense') => void;
 }) {
@@ -336,7 +338,7 @@ export default function Dashboard({
           </article>
         </div>
       </section>
-      <MobileRecentActivity navigate={navigate} />
+      {!embedded && <MobileRecentActivity navigate={navigate} />}
       <section className="dashboard-analytics" aria-labelledby="dashboard-analytics-title">
         <div className="dashboard-analytics-head">
           <div>

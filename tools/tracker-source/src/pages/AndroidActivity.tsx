@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
 } from "lucide-react";
+import { pfActivityRows } from '../domain/activity';
 import { usePlan } from "../store";
 import { money } from "../domain/calculate";
 import { displayDate } from "../domain/dates";
@@ -13,10 +14,8 @@ import { Modal, Empty } from "../components/UI";
 
 export default function AndroidActivity({
   navigate,
-  addEntry,
 }: {
   navigate: (page: string, section?: string) => void;
-  addEntry: (kind: "Income" | "Expense") => void;
 }) {
   const p = usePlan();
   const [search, setSearch] = useState(""),
@@ -28,6 +27,7 @@ export default function AndroidActivity({
   const [limit, setLimit] = useState(50);
   const activity = useMemo(() => {
     const categories = new Map(p.categories.map((c) => [c.id, c]));
+    const accounts = new Map((p.accounts ?? []).map(a => [a.id, a.name]));
     return [
       ...p.entries.map((e) => ({
         id: `entry-${e.id}`,
@@ -60,10 +60,11 @@ export default function AndroidActivity({
         destination: "accounts",
         detail: [t.sourceAccountId, t.destinationAccountId]
           .filter(Boolean)
-          .map((id) => p.accounts?.find((a) => a.id === id)?.name || "Account")
+          .map((id) => (id && accounts.get(id)) || "Account")
           .join(" → "),
         fee: t.feeAmount || 0,
       })),
+      ...pfActivityRows(p).map(row => ({ ...row, accounts: [] as (string | undefined)[], destination: 'employment', fee: 0 })),
     ].sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
   }, [p]);
   const shown = activity.filter(
@@ -78,7 +79,7 @@ export default function AndroidActivity({
   );
   return (
     <div className="android-activity">
-      <h1>Activity</h1>
+      <h1 className="sr-only">Activity</h1>
       <p className="muted">Daily entries and account movements, together.</p>
       <div className="mobile-search-row">
         <label>
@@ -104,7 +105,7 @@ export default function AndroidActivity({
         </button>
       </div>
       <p role="status">
-        {shown.length} records
+        {shown.length} {shown.length === 1 ? "record" : "records"}
         {from || to || account || type !== "all" ? " · Filters applied" : ""}
       </p>
       {from && to && from > to && (
@@ -190,12 +191,6 @@ export default function AndroidActivity({
           onClick={() => navigate("accounts", "Recent account activity")}
         >
           Manage account activity
-        </button>
-        <button
-          className="button secondary"
-          onClick={() => addEntry("Expense")}
-        >
-          Add expense
         </button>
       </div>
       {filters && (

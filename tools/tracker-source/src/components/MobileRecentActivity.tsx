@@ -2,6 +2,7 @@ import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight } from 'lucide-react';
 import { useMemo } from 'react';
 import { money } from '../domain/calculate';
 import { displayDate } from '../domain/dates';
+import { pfActivityRows } from '../domain/activity';
 import { ledgerPostingFlow } from '../domain/ledger';
 import { usePlan } from '../store';
 import { usePhone } from './usePhone';
@@ -13,7 +14,7 @@ type Activity = {
   detail: string;
   amount: number;
   kind: 'income' | 'expense' | 'movement';
-  destination: 'entries' | 'accounts';
+  destination: 'entries' | 'accounts' | 'employment';
   movementLabel?: string;
 };
 
@@ -52,7 +53,10 @@ export function MobileRecentActivity({ navigate, native = false, through, allAct
         destination: 'accounts',
       };
     });
-    return [...legacy, ...ledger]
+    const pf: Activity[] = allActivity ? pfActivityRows(plan).map(row => ({
+      ...row, kind: 'movement', destination: 'employment', movementLabel: row.title,
+    })) : [];
+    return [...legacy, ...ledger, ...pf]
       .filter(row => !through || (row.date <= through && row.date >= plan.settings.planStart + '-01' && row.date <= plan.settings.planEnd + '-31'))
       .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
       .slice(0, 5);
