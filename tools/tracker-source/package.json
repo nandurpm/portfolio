@@ -1,7 +1,7 @@
 {
   "name": "savings-and-expense-tracker",
   "productName": "Savings and Expense Tracker",
-  "version": "2.10.17",
+  "version": "2.10.18",
   "trackerReleasePlatforms": [
     "android",
     "windows"

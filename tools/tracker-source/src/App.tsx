@@ -251,9 +251,15 @@ export function Shell() {
     });
     void store
       .load()
-      .then(() => sync.start())
+      .then(() => {
+        // Widgets can render the verified local plan while cloud session discovery
+        // continues in the background. A slow/offline auth check must not leave
+        // an otherwise usable Home screen widget permanently unrefreshed.
+        widgets?.ready();
+        return sync.start();
+      })
       .catch((e) => toast(userError(e), true))
-      .finally(() => { setLoading(false); widgets?.ready(); });
+      .finally(() => { setLoading(false); });
     const timer = setInterval(() => setTick((t) => t + 1), 60_000);
     const off = window.desktop?.onBeforeClose(() => store.flush());
     return () => {
