@@ -42,7 +42,8 @@
                 android:resource="@xml/tracker_update_paths" />
         </provider>
 
-        <receiver android:name=".QuickEntryWidget" android:label="Quick Entry" android:exported="false">
+        <!-- AppWidgetHost/Launcher delivers widget lifecycle broadcasts through the system. -->
+        <receiver android:name=".QuickEntryWidget" android:label="Quick Entry" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.DATE_CHANGED" />
@@ -53,7 +54,7 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/tracker_quick_widget" />
         </receiver>
-        <receiver android:name=".MonthlySummaryWidget" android:label="Monthly Summary" android:exported="false">
+        <receiver android:name=".MonthlySummaryWidget" android:label="Monthly Summary" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
