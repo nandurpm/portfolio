@@ -89,6 +89,30 @@
       "note": ""
     },
     {
+      "id": "tea-snacks",
+      "name": "Tea and Snacks",
+      "group": "Living",
+      "role": "regular",
+      "amount": 0,
+      "timing": "Fixed day",
+      "day": 1,
+      "months": [],
+      "active": true,
+      "note": ""
+    },
+    {
+      "id": "travel",
+      "name": "Travel",
+      "group": "Living",
+      "role": "regular",
+      "amount": 0,
+      "timing": "Fixed day",
+      "day": 1,
+      "months": [],
+      "active": true,
+      "note": ""
+    },
+    {
       "id": "emi",
       "name": "Loan payment",
       "group": "Debt",
