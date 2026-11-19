@@ -40,7 +40,7 @@ This is **not** a full end-to-end validation of all three deployed targets. The 
 
 | ID | Severity | Status | Affected area | Evidence / reproduction | Root cause, impact and disposition |
 |---|---|---|---|---|---|
-| SEC-CI-001 | Medium | **RESOLVED on audit branch; PR CI pending** | GitHub Actions release workflow | `.github/workflows/tracker-unified-release.yml` granted workflow-wide `contents: write`; prepare, quality, Windows and Android jobs do not publish releases | Workflow-level permission was broader than required. Changed the default to `contents: read`; only `publish` receives `contents: write`. Added `.github/scripts/test-tracker-release-permissions.rb` and wired it into `tracker-quality.yml`. No release or deployment is invoked by this branch. |
+| SEC-CI-001 | Medium | **RESOLVED on audit branch; PR CI partially passed, full quality run in progress** | GitHub Actions release workflow | `.github/workflows/tracker-unified-release.yml` granted workflow-wide `contents: write`; prepare, quality, Windows and Android jobs do not publish releases | Workflow-level permission was broader than required. Changed the default to `contents: read`; only `publish` receives `contents: write`. Added `.github/scripts/test-tracker-release-permissions.rb` and wired it into `tracker-quality.yml`. No release or deployment is invoked by this branch. |
 | WIN-SIGN-001 | Medium | **CONFIRMED / DEFERRED** | Windows distribution | `README-NATIVE.md` explicitly states that the installer is not Authenticode-signed without an authorized Windows certificate; current build workflow compiles Inno Setup but has no signing step | Users may see SmartScreen/publisher warnings and the executable lacks a trusted publisher signature. Cannot safely implement without an authorized code-signing certificate and protected signing process. |
 | AUTH-LEAKED-PWD-001 | Medium | **CONFIRMED / DEFERRED** | Supabase Auth | Security advisor reports leaked-password protection disabled. Organization plan is Free; current Supabase documentation says the control is available on Pro and above: [password security](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). | Compromised passwords are not rejected during password creation/change. No Auth setting was changed; this feature is plan-gated and the connected Supabase tools do not expose the Auth setting. Review a Pro upgrade or document the accepted risk. |
 | SEC-RPC-001 | Low | **POTENTIAL / INTENTIONAL DESIGN REVIEWED** | Supabase RPC | Advisor flags `public.tracker_save_plan(jsonb,bigint,uuid)` because authenticated users can execute a SECURITY DEFINER function. Metadata confirms anon cannot execute; owner `tracker_plan_writer` is NOLOGIN/NOBYPASSRLS, has no inherited roles or public-schema CREATE privilege, and the function has an empty `search_path`. | The app intentionally uses this RPC for revision-checked, idempotent sync. The function derives owner from the verified JWT subject, validates plan shape and receipt totals, uses advisory/row locks, and has only SELECT/INSERT/UPDATE on `tracker_plans`. No cross-user bypass was observed. Do not revoke or move it without a client/API migration design. See [Supabase function security guidance](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). |
@@ -118,7 +118,7 @@ Run from `tools/tracker-source` unless noted:
 - `npm run android:release` followed by `apksigner verify`, `zipalign -c`, `aapt dump badging`, emulator install/upgrade and connected instrumentation tests.
 - `npm run dist:win` (Inno Setup 6 compile and artifact validation).
 
-The new permission regression test has been added to the PR-triggered quality workflow. Current-head PR quality run [#44509848403](https://github.com/nandurpm/portfolio/actions/runs/44509848403) is in progress; do not treat the new guard as passed until that run completes.
+The new permission regression test passed in PR quality run [#44509848403](https://github.com/nandurpm/portfolio/actions/runs/44509848403); `npm run check` also passed. Database, local-Supabase, native-dependency, Windows-installer and report-gate jobs passed. The browser suite is still running and `npm audit` is pending, so the full PR quality run is not yet complete.
 
 ## F. GitHub status
 
@@ -128,7 +128,11 @@ The new permission regression test has been added to the PR-triggered quality wo
   - https://github.com/nandurpm/portfolio/commit/967a64bbb43db57921d62a34f5cd1b89db73f4b3 — run the permission guard in quality CI.
   - https://github.com/nandurpm/portfolio/commit/789856207261bcf7c89423a92f422336eb18f8d9 — add the permission regression test.
   - https://github.com/nandurpm/portfolio/commit/0d1086816e2d2e49fb5d8eb7dbfa2b0ffec7b987 — add the audit report.
-- **Pull request:** [#147 — restrict tracker release write permissions to publisher](https://github.com/nandurpm/portfolio/pull/147), open and awaiting CI/owner approval.
+  - https://github.com/nandurpm/portfolio/commit/e98e84a4bf9b673250babf20d94196530b9b514f — link report to PR and CI.
+  - https://github.com/nandurpm/portfolio/commit/3afed26cfb041b4cac3d2ae20ed7c1660bf3bb85 — add read-only production Supabase metadata findings.
+  - https://github.com/nandurpm/portfolio/commit/22b37e2fe67a42ca6ac09ce88a0fdac644c322f4 — classify Supabase advisor findings and deployed integrity guard.
+- **Pull request:** [#147 — restrict tracker release write permissions to publisher](https://github.com/nandurpm/portfolio/pull/147), open, mergeable, and awaiting the remainder of CI and owner approval.
+- **Current PR CI:** [run #44509848403](https://github.com/nandurpm/portfolio/actions/runs/44509848403): permission guard and `npm run check` passed; remaining browser and npm-audit steps were still running/pending at report update.
 - **Merge/deployment:** not merged; no release or production deployment was performed by this audit.
 
 ## G. Outstanding risks and approval gates
