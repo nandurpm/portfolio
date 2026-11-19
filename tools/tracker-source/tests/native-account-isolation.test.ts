@@ -24,7 +24,8 @@ async function setup(linked: boolean, remoteConflict = false) {
     };
   e.data.settings.opening += 1;
   const remote = structuredClone(base);
-  if (remoteConflict) remote.settings.opening = base.settings.opening + 2;
+  const remoteOpening = (base.settings.opening ?? 0) + 2;
+  if (remoteConflict) remote.settings.opening = remoteOpening;
   const remoteRevision = remoteConflict ? 2 : 1;
   const session = (id: string) =>
     ({
@@ -109,7 +110,7 @@ async function setup(linked: boolean, remoteConflict = false) {
     rpc,
     headers,
     backup,
-    remoteOpening: remote.settings.opening,
+    remoteOpening,
     change: (id: string | null) => change("SIGNED_IN", id ? session(id) : null),
     onBackup: (fn: () => void | Promise<void>) => {
       holdBackup = fn;
