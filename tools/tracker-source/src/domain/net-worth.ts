@@ -29,9 +29,11 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
   const cash = cumulative(p, date).actualCash;
   const pf = pfSummary(p, date).balance;
   const balances = namedAccountBalances(p, date);
-  const namedCash = (p.accounts ?? [])
-    .filter((a) => liquidKinds.includes(a.kind))
-    .reduce((sum, a) => sum + (balances[a.id] ?? 0), 0);
+  const namedCash = round(
+    (p.accounts ?? [])
+      .filter((a) => liquidKinds.includes(a.kind))
+      .reduce((sum, a) => sum + (balances[a.id] ?? 0), 0),
+  );
   const originalPrincipal = Math.max(
     0,
     p.loan.principal -
