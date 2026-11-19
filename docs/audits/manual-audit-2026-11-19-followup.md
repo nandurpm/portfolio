@@ -131,9 +131,10 @@ The current PR quality run [#44509848403](https://github.com/nandurpm/portfolio/
   - https://github.com/nandurpm/portfolio/commit/0d1086816e2d2e49fb5d8eb7dbfa2b0ffec7b987 — add the audit report.
   - https://github.com/nandurpm/portfolio/commit/e98e84a4bf9b673250babf20d94196530b9b514f — link report to PR and CI.
   - https://github.com/nandurpm/portfolio/commit/3afed26cfb041b4cac3d2ae20ed7c1660bf3bb85 — add read-only production Supabase metadata findings.
--  - https://github.com/nandurpm/portfolio/commit/22b37e2fe67a42ca6ac09ce88a0fdac644c322f4 — classify Supabase advisor findings and deployed integrity guard.
+  - https://github.com/nandurpm/portfolio/commit/22b37e2fe67a42ca6ac09ce88a0fdac644c322f4 — classify Supabase advisor findings and deployed integrity guard.
   - https://github.com/nandurpm/portfolio/commit/83b4604cc57a71d2bb42704fef471424d1e3f273 — update PR verification status.
   - https://github.com/nandurpm/portfolio/commit/35f4cccfa402e6dd0bd2d9cfad8ddc83ce6e5dd6 — verify deployed tracker bot webhook source and guards.
+  - https://github.com/nandurpm/portfolio/commit/287980700b08371910042af9a24a5fea111124c4 — finalize PR CI results and backend review.
 - **Pull request:** [#147 — restrict tracker release write permissions to publisher](https://github.com/nandurpm/portfolio/pull/147), open, mergeable, quality CI passed, awaiting owner approval.
 - **Current PR CI:** [run #44509848403](https://github.com/nandurpm/portfolio/actions/runs/44509848403) — success: permission guard, 324 unit/domain tests, 92 browser tests, npm audit (0 vulnerabilities), 45 database tests, local Supabase, native dependencies, Windows installer and report-gate regression all passed. Run started on code head `0d1086816e2d2e49fb5d8eb7dbfa2b0ffec7b987`; later commits only update documentation.
 - **Merge/deployment:** not merged; no release or production deployment was performed by this audit.
