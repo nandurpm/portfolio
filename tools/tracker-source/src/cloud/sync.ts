@@ -73,6 +73,13 @@ function mergeSafe(base: CloudPlan, local: CloudPlan, remote: CloudPlan) {
   }
   return result;
 }
+async function savePreSyncBackup() {
+  await store.flush();
+  // Native desktop bridges (Windows and Android) create a private file snapshot;
+  // browser builds retain the same pre-sync envelope in localStorage.
+  if (window.desktop) await store.backup();
+  else localStorage.setItem("tracker-before-sync", JSON.stringify(store.get()));
+}
 async function fetchRemote(session: Session): Promise<Remote | null> {
   const { data, error } = await supabase
     .from("tracker_plans")
@@ -349,14 +356,8 @@ export const sync = {
     };
     emit({ busy: true, error: "" });
     try {
-      await store.flush();
       // Keep an independent pre-link copy before replacing any local plan.
-      if (window.desktop) await store.backup();
-      else
-        localStorage.setItem(
-          "tracker-before-sync",
-          JSON.stringify(store.get()),
-        );
+      await savePreSyncBackup();
       requireAccount();
       const initial = state.initial;
       if (choice === "cloud" && initial) {
@@ -395,13 +396,26 @@ export const sync = {
     }
   },
   async useCloudReview() {
-    const review=state.review, session=state.session;
+    const review = state.review, session = state.session;
     if (!review || !session) return;
-    if (WEB_APP) localStorage.setItem('tracker-before-sync', JSON.stringify(store.get()));
-    store.acceptCloud(review.remote.data, meta(session.user.id,review.remote));
-    await store.flush();
-    emit({review:null,error:'',status:'Ready to sync'});
-    queue(0);
+    const epoch = authEpoch;
+    const requireAccount = () => {
+      if (authEpoch !== epoch || state.session?.user.id !== session.user.id)
+        throw Error("Account changed. Sign in again before using the cloud plan.");
+    };
+    emit({ busy: true, error: "" });
+    try {
+      // The UI promises a recovery copy. Do not replace the local plan until
+      // the Windows/Android file backup or browser envelope copy has succeeded.
+      await savePreSyncBackup();
+      requireAccount();
+      store.acceptCloud(review.remote.data, meta(session.user.id, review.remote));
+      await store.flush();
+      emit({ review: null, error: "", status: "Ready to sync" });
+      queue(0);
+    } finally {
+      emit({ busy: false });
+    }
   },
   async resolve(choices: ("local" | "remote")[]) {
     const review = state.review;

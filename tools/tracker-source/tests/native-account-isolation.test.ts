@@ -10,7 +10,7 @@ afterEach(() => {
   vi.doUnmock("../src/cloud/client");
 });
 
-async function setup(linked: boolean) {
+async function setup(linked: boolean, remoteConflict = false) {
   vi.resetModules();
   vi.useFakeTimers();
   const e = financialFixture();
@@ -23,6 +23,9 @@ async function setup(linked: boolean) {
       lastSyncAt: "",
     };
   e.data.settings.opening += 1;
+  const remote = structuredClone(base);
+  if (remoteConflict) remote.settings.opening = base.settings.opening + 2;
+  const remoteRevision = remoteConflict ? 2 : 1;
   const session = (id: string) =>
     ({
       user: { id, email: "synthetic@example.invalid" },
@@ -31,9 +34,9 @@ async function setup(linked: boolean) {
     }) as Session;
   let change!: (event: string, value: Session | null) => void;
   const headers: string[] = [];
-  let holdBackup: (() => void) | undefined;
+  let holdBackup: (() => void | Promise<void>) | undefined;
   const backup = vi.fn(async () => {
-    holdBackup?.();
+    await holdBackup?.();
     return "synthetic-backup";
   });
   const rpc = vi.fn(() => ({
@@ -66,8 +69,8 @@ async function setup(linked: boolean) {
               return Promise.resolve({
                 data:
                   columns === "revision"
-                    ? { revision: 1 }
-                    : { data: base, revision: 1 },
+                    ? { revision: remoteRevision }
+                    : { data: remote, revision: remoteRevision },
                 error: null,
               });
             },
@@ -105,8 +108,10 @@ async function setup(linked: boolean) {
     store,
     rpc,
     headers,
+    backup,
+    remoteOpening: remote.settings.opening,
     change: (id: string | null) => change("SIGNED_IN", id ? session(id) : null),
-    onBackup: (fn: () => void) => {
+    onBackup: (fn: () => void | Promise<void>) => {
       holdBackup = fn;
     },
   };
@@ -141,5 +146,37 @@ it("does not upload a prior workspace when the account changes during pre-link b
   expect(t.rpc).not.toHaveBeenCalled();
   expect(t.sync.get().error).toContain("Account changed");
   expect(t.store.get().sync).toBeUndefined();
+  t.sync.stop();
+});
+
+it("creates a native recovery backup before accepting the complete cloud version", async () => {
+  const t = await setup(true, true);
+  await t.sync.run();
+  expect(t.sync.get().review?.conflicts).toHaveLength(1);
+  const localBefore = JSON.stringify(t.store.get());
+  let backupSnapshot = "";
+  t.onBackup(() => { backupSnapshot = JSON.stringify(t.store.get()); });
+
+  await t.sync.useCloudReview();
+
+  expect(t.backup).toHaveBeenCalledOnce();
+  expect(backupSnapshot).toBe(localBefore);
+  expect(t.store.get().data.settings.opening).toBe(t.remoteOpening);
+  t.sync.stop();
+});
+
+it("does not replace native data if the account changes during the conflict backup", async () => {
+  const t = await setup(true, true);
+  await t.sync.run();
+  const localBefore = JSON.stringify(t.store.get());
+  t.onBackup(async () => {
+    t.change("22222222-2222-4222-8222-222222222222");
+    await Promise.resolve();
+  });
+
+  await expect(t.sync.useCloudReview()).rejects.toThrow("Account changed");
+  expect(t.backup).toHaveBeenCalledOnce();
+  expect(JSON.stringify(t.store.get())).toBe(localBefore);
+  expect(t.sync.get().locked).toBe(true);
   t.sync.stop();
 });
