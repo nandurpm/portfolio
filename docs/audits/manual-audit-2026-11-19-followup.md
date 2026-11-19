@@ -29,7 +29,7 @@ This is **not** a full end-to-end validation of all three deployed targets. The 
 
 | Area | Review result | Build/test result | Outstanding issues |
 |---|---|---|---|
-| Website | Shared React/Vite source, auth gate, financial UI and route manifest reviewed | Web build, bundle/provenance checks and 92 Playwright scenarios passed; `npm audit` reported 0 vulnerabilities | Live `/track/` and `build.json` runtime could not be fetched from this environment; authenticated production browser verification remains outstanding |
+| Website | Shared React/Vite source, auth gate, financial UI and route manifest reviewed | Web build, bundle/provenance checks and 92 Playwright scenarios passed; `npm audit` reported 0 vulnerabilities; Cloudflare PR preview build succeeded | Production `/track/` and PR preview `/track/`/`build.json` could not be fetched from this environment; authenticated runtime verification remains outstanding |
 | Windows | Electron main/preload, storage, OAuth, installer configuration and update packaging reviewed | Inno Setup 6 installer compiled; published EXE is 116,282,946 bytes | No install, launch, in-place upgrade, uninstall/data-retention rehearsal was performed; installer is not Authenticode-signed |
 | Android | Capacitor bridge, Gradle configuration, widgets, storage/backup, update worker, manifest and app ID reviewed | Signed APK verified; certificate matches 2.10.18; install and in-place upgrade passed on Android 16 emulator; 8 JVM unit tests passed; instrumentation: 8 passed, 1 skipped | Physical-device verification not performed; skipped process-isolation test remains unverified |
 | Financial calculations | Paise rounding, account/net-worth aggregation, transfer semantics and financial regression coverage reviewed | 53 test files / 324 tests passed; web/native financial-engine parity check passed | Synthetic tests do not validate the owner's live financial records; date-effective category semantics remain a potential gap |
@@ -95,6 +95,7 @@ No new application-source or financial defect was reproduced during this follow-
   - Native dependency compatibility checks passed; Android debug compilation and `testDebugUnitTest` completed successfully.
   - Windows installer build job compiled the actual Inno Setup installer.
   - Weekly report evidence-gate regression: 9 tests passed.
+- [Cloudflare PR preview check #135516579611](https://github.com/nandurpm/portfolio/runs/135516579611) completed successfully for PR #147 and generated the preview alias [audit-savings-expense-tracker-20261119-followup-portfolio.nandakumarkdpm.workers.dev](https://audit-savings-expense-tracker-20261119-followup-portfolio.nandakumarkdpm.workers.dev). This is a PR preview, not a production release. The preview `/track/` and `build.json` endpoints remained inaccessible from the available web runtime, so only the build result is verified.
 - [Tracker release run #44466056795](https://github.com/nandurpm/portfolio/actions/runs/44466056795)
   - Source commit: `e9b6f31ca6764617055a8a5411c5d32e9ba7c499`.
   - Release-quality steps: financial/lint/TypeScript/bundle checks, web build and web/native financial-engine parity passed.
