@@ -7,7 +7,7 @@
 - **Application source:** `tools/tracker-source`
 - **Verified main baseline:** `8cfde416a70b4141f101ab180426762e8af43527`
 - **Audit branch:** `audit/savings-expense-tracker-20261119-followup`, created directly from the verified main baseline.
-- **Current audit branch tip at report creation:** `789856207261bcf7c89423a92f422336eb18f8d9`
+- **Audit branch tip after report commit:** `0d1086816e2d2e49fb5d8eb7dbfa2b0ffec7b987` (subsequent documentation-only update will be recorded separately).
 - **Application version:** `2.10.19`
 - **Latest published native release inspected:** [tracker-v2.10.19](https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.10.19), published 2026-11-19 05:41 UTC, targeting source commit `e9b6f31ca6764617055a8a5411c5d32e9ba7c499`.
 - **Android application ID:** `com.nandakumar.savingsexpensetracker`; minimum Android 14 / API 34; target API 36.
@@ -101,7 +101,7 @@ Run from `tools/tracker-source` unless noted:
 - `npm run android:release` followed by `apksigner verify`, `zipalign -c`, `aapt dump badging`, emulator install/upgrade and connected instrumentation tests.
 - `npm run dist:win` (Inno Setup 6 compile and artifact validation).
 
-The new permission regression test has been added to the PR-triggered quality workflow; its result is not yet available at report creation. Do not treat it as passed until that run completes.
+The new permission regression test has been added to the PR-triggered quality workflow. Current-head PR quality run [#44509848403](https://github.com/nandurpm/portfolio/actions/runs/44509848403) is in progress; do not treat the new guard as passed until that run completes.
 
 ## F. GitHub status
 
@@ -110,7 +110,8 @@ The new permission regression test has been added to the PR-triggered quality wo
   - https://github.com/nandurpm/portfolio/commit/d38ec997356e5b696555a8694bfbd6b75ef2eb88 — scope release write permission to publisher.
   - https://github.com/nandurpm/portfolio/commit/967a64bbb43db57921d62a34f5cd1b89db73f4b3 — run the permission guard in quality CI.
   - https://github.com/nandurpm/portfolio/commit/789856207261bcf7c89423a92f422336eb18f8d9 — add the permission regression test.
-- **Pull request:** pending creation at report time.
+  - https://github.com/nandurpm/portfolio/commit/0d1086816e2d2e49fb5d8eb7dbfa2b0ffec7b987 — add the audit report.
+- **Pull request:** [#147 — restrict tracker release write permissions to publisher](https://github.com/nandurpm/portfolio/pull/147), open and awaiting CI/owner approval.
 - **Merge/deployment:** not merged; no release or production deployment was performed by this audit.
 
 ## G. Outstanding risks and approval gates
