@@ -7,7 +7,7 @@
 - **Application source:** `tools/tracker-source`
 - **Verified main baseline:** `8cfde416a70b4141f101ab180426762e8af43527`
 - **Audit branch:** `audit/savings-expense-tracker-20261119-followup`, created directly from the verified main baseline.
-- **Audit branch tip:** `35f4cccfa402e6dd0bd2d9cfad8ddc83ce6e5dd6` on [PR #147](https://github.com/nandurpm/portfolio/pull/147); subsequent report changes are documentation-only.
+- **Audit branch tip:** latest head is shown on [PR #147](https://github.com/nandurpm/portfolio/pull/147). The workflow/source changes are commits `d38ec997`, `967a64bb` and `78985620`; all later commits only update the audit report.
 - **Application version:** `2.10.19`
 - **Latest published native release inspected:** [tracker-v2.10.19](https://github.com/nandurpm/portfolio/releases/tag/tracker-v2.10.19), published 2026-11-19 05:41 UTC, targeting source commit `e9b6f31ca6764617055a8a5411c5d32e9ba7c499`.
 - **Android application ID:** `com.nandakumar.savingsexpensetracker`; minimum Android 14 / API 34; target API 36.
@@ -19,7 +19,7 @@
 
 The current source/release has strong automated evidence: 324 unit/domain tests, 92 browser scenarios, dependency audit with zero reported vulnerabilities, 45 disposable PostgreSQL database tests, local Supabase security/recovery checks, native Android compilation, a signed APK, Android 16 emulator install/upgrade and widget instrumentation, and a Windows Inno Setup installer build. A read-only production metadata review also confirmed the plan-preservation trigger is deployed and the bot tables have no anon/authenticated grants. Supabase Auth leaked-password protection is disabled; the organization is on the Free plan, while Supabase documentation lists that protection as Pro+.
 
-One confirmed CI security-hardening defect was found: the tracker release workflow granted `contents: write` to every job, including build/test jobs that only need read access. The audit branch narrows the workflow-wide permission to `contents: read`, grants `contents: write` only to the release publisher, and adds a regression guard to the quality workflow. The new guard is pending this branch's PR CI result.
+One confirmed CI security-hardening defect was found: the tracker release workflow granted `contents: write` to every job, including build/test jobs that only need read access. The audit branch narrows the workflow-wide permission to `contents: read`, grants `contents: write` only to the release publisher, and adds a regression guard to the quality workflow. The new guard and the full PR quality workflow passed in run [#44509848403](https://github.com/nandurpm/portfolio/actions/runs/44509848403).
 
 No new financial calculation defect was confirmed. The named-cash paise-rounding defect was already corrected by merged PR #146 and is covered by the current 324-test suite. The previous potential date-effective category issue remains unresolved and requires an approved data-model decision.
 
