@@ -40,8 +40,8 @@ for (const android of [false, true]) {
     await page.getByRole('button', { name: '+10%', exact: true }).click();
     expect(await overrides()).toMatchObject({ '2026-11|bill': 0.25, '2026-11|retired': 12.75 });
 
-    await page.getByLabel('Target end', { exact: true }).selectOption('2026-12');
-    await page.getByLabel('Target start', { exact: true }).selectOption('2026-12');
+    await page.getByLabel(/^Target end/).selectOption('2026-12');
+    await page.getByLabel(/^Target start/).selectOption('2026-12');
     await page.getByRole('button', { name: 'Copy month', exact: true }).click();
     await page.getByRole('dialog', { name: 'Copy a month’s budget?' })
       .getByRole('button', { name: 'Continue', exact: true }).click();
