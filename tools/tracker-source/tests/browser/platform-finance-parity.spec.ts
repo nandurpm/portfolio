@@ -47,6 +47,23 @@ test('Android progress range remains valid after an incoming plan-range change',
   await expect(card).toContainText('January 2030');
   await expect(card.locator('dl > div').filter({has:page.getByText('Income plan',{exact:true})})).toContainText('₹1,200.00');
   await expect(card.locator('dl > div').filter({has:page.getByText('Income received',{exact:true})})).toContainText('—');
+
+  await page.getByLabel('Progress range end', { exact: true }).selectOption('2030-03');
+  const progress = page.getByRole('region', { name: 'Recorded monthly progress' });
+  await expect(progress.locator('.progress-month-card')).toHaveCount(3);
+  await expect(progress.locator('.progress-month-card').last()).toContainText('March 2030');
+
+  await page.getByLabel('Progress range start', { exact: true }).selectOption('2030-02');
+  await expect(progress.locator('.progress-month-card')).toHaveCount(2);
+  await expect(progress.locator('.progress-month-card').first()).toContainText('February 2030');
+  await page.evaluate(async () => {
+    const modulePath = '/src/store.ts';
+    const { store } = await import(modulePath);
+    store.change('Synthetic budget edit', (plan: { settings: { raisedSalary: number } }) => {
+      plan.settings.raisedSalary = 1300;
+    });
+  });
+  await expect(progress.locator('.progress-month-card').first()).toContainText('₹1,300.00');
 });
 
 test('Accounts rejects an off-cycle bill link before changing any platform records',async({page})=>{

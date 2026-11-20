@@ -15,6 +15,18 @@ describe('Android audit: shared financial regressions',()=>{
  it.each([[1,0.5,1.01],[-1,0.5,-1.01],[10,5,10.5],[100,-100,0],[0,10000,0],[1,10000,101],[0.01,-50,0.01]])('budget %s adjusted by %s%% is %s', (amount,percent,expected)=>{
   expect(adjustedBudgetAmount(amount,percent)).toBe(expected);
  });
+ it.each([
+  [0.15, 50, 0.23],
+  [-0.15, 50, -0.23],
+  [0.05, -30, 0.04],
+  [1.25, 0.4, 1.26],
+  [1.25, 0.3999999999999, 1.25],
+  [0.025, 0, 0.03],
+  [1234567890.09, 50, 1851851835.14],
+  [1e-7, 10000, 0],
+ ])('rounds budget %s adjusted by %s percent to %s', (amount, percent, expected) => {
+  expect(adjustedBudgetAmount(amount, percent)).toBe(expected);
+ });
  it('accepts valid high-value paise and conserves transfer principal across a date boundary',()=>{
   expect(()=>validateLedger(accounts,[transfer])).not.toThrow();
   const before=ledgerSummary({accounts,ledgerTransactions:[transfer]},'2026-11-29');

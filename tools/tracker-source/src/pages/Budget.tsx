@@ -37,7 +37,7 @@ export default function Budget() {
   const p = usePlan(),
     { toast, confirm } = useUi(),
     [edit, setEdit] = useState<Category | null>(null),
-    [cell, setCell] = useState<{ month: string; id: string } | null>(null),
+    [selectedCell, setCell] = useState<{ month: string; id: string } | null>(null),
     [source, setSource] = useState(p.settings.selectedMonth),
     [targetStart, setTargetStart] = useState(p.settings.selectedMonth),
     [targetEnd, setTargetEnd] = useState(p.settings.selectedMonth),
@@ -49,6 +49,9 @@ export default function Budget() {
   const drag = useRef<{ month: string; id: string; value: number } | null>(null);
   const months = monthsBetween(p.settings.planStart, p.settings.planEnd),
     cats = p.categories.filter(c => c.group !== 'Asset');
+  const budgetingCategories = cats.filter((c) => c.active);
+  const cell = selectedCell && budgetingCategories.some((c) => c.id === selectedCell.id)
+    ? selectedCell : null;
   useEffect(() => {
     setBudgetMonth((m) => clampMonth(m, p.settings.planStart, p.settings.planEnd));
     setSource((m) => clampMonth(m, p.settings.planStart, p.settings.planEnd));
@@ -62,17 +65,19 @@ export default function Budget() {
     triggerActionFeedback('budget');
     setCell({ month, id });
   }
-  function reset(scope: 'cell' | 'row' | 'month') {
-    if (!cell) return;
+  function reset(scope: 'cell' | 'row' | 'month', month = cell?.month) {
+    if (!month) return;
+    const activeIds = new Set(budgetingCategories.map((c) => c.id));
     store.change(`Reset ${scope} budget to formulas`, (d) => {
       for (const k of Object.keys(d.overrides)) {
         const [m, id] = k.split('|');
+        if (!id || !activeIds.has(id)) continue;
         if (
           scope === 'cell'
-            ? m === cell.month && id === cell.id
+            ? m === month && id === cell?.id
             : scope === 'row'
-              ? id === cell.id
-              : m === cell.month
+              ? id === cell?.id
+              : m === month
         )
           delete d.overrides[k];
       }
@@ -80,7 +85,7 @@ export default function Budget() {
   }
   function fill(direction: 'right' | 'down') {
     if (!cell) return;
-    const c = cats.find((c) => c.id === cell.id)!;
+    const c = budgetingCategories.find((c) => c.id === cell.id)!;
     const amount = fullAmount(p, c, cell.month);
     store.change(`Fill ${direction} in budget`, (d) => {
       if (direction === 'right')
@@ -90,7 +95,7 @@ export default function Budget() {
             d.overrides[key(m, c.id)] = amount;
           });
       else
-        cats.slice(cats.findIndex((x) => x.id === c.id)).forEach((c) => {
+        budgetingCategories.slice(budgetingCategories.findIndex((x) => x.id === c.id)).forEach((c) => {
           d.overrides[key(cell.month, c.id)] = amount;
         });
     });
@@ -101,14 +106,14 @@ export default function Budget() {
     if (!a) return;
     const m1 = months.indexOf(a.month),
       m2 = months.indexOf(month),
-      c1 = cats.findIndex((c) => c.id === a.id),
-      c2 = cats.findIndex((c) => c.id === id);
+      c1 = budgetingCategories.findIndex((c) => c.id === a.id),
+      c2 = budgetingCategories.findIndex((c) => c.id === id);
     if ([m1, m2, c1, c2].some((n) => n < 0)) return;
     store.change('Drag-fill budget cells', (d) => {
       for (let i = Math.min(m1, m2); i <= Math.max(m1, m2); i++)
         for (let j = Math.min(c1, c2); j <= Math.max(c1, c2); j++) {
           const m = months[i],
-            c = cats[j];
+            c = budgetingCategories[j];
           if (m && c) d.overrides[key(m, c.id)] = a.value;
         }
     });
@@ -128,8 +133,10 @@ export default function Budget() {
     )
       return;
     store.change('Copy monthly budget', (d) => {
+      const activeCategories = d.categories.filter((c) => c.active && c.group !== 'Asset');
       for (const m of targets)
-        for (const c of cats) d.overrides[key(m, c.id)] = fullAmount(p, c, source);
+        for (const c of activeCategories)
+          d.overrides[key(m, c.id)] = fullAmount(p, c, source);
     });
     toast('Budget copied.');
   }
@@ -140,7 +147,7 @@ export default function Budget() {
     }
     store.change(`Apply ${percent}% to budget`, (d) => {
       for (const m of monthsBetween(targetStart, targetEnd).filter((m) => months.includes(m)))
-        for (const c of cats.filter((c) => !cell || c.id === cell.id))
+        for (const c of budgetingCategories.filter((c) => !cell || c.id === cell.id))
           d.overrides[key(m, c.id)] =
             adjustedBudgetAmount(fullAmount(p, c, m), percent);
     });
@@ -150,7 +157,7 @@ export default function Budget() {
   function quickAdjust(value: number) {
     store.change(`Apply ${value}% to budget`, (d) => {
       for (const m of monthsBetween(targetStart, targetEnd).filter((x) => months.includes(x)))
-        for (const c of cats.filter((x) => !cell || x.id === cell.id))
+        for (const c of budgetingCategories.filter((x) => !cell || x.id === cell.id))
           d.overrides[key(m, c.id)] = adjustedBudgetAmount(fullAmount(p, c, m), value);
     });
     triggerActionFeedback('budget');
@@ -258,7 +265,7 @@ export default function Budget() {
           })}
         </div>
         <div className="budget-quick-actions">
-          <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all categories'}</span>
+          <span>Quick adjust {cell ? `· ${cats.find((c) => c.id === cell.id)?.name}` : '· all active categories'}</span>
           <button className="button small secondary" onClick={() => quickAdjust(-10)}>−10%</button>
           <button className="button small secondary" onClick={() => quickAdjust(-5)}>−5%</button>
           <button className="button small secondary" onClick={() => quickAdjust(5)}>+5%</button>
@@ -610,13 +617,7 @@ export default function Budget() {
             <div className="phone-budget-actions">
               <button
                 className="button secondary"
-                onClick={() =>
-                  store.change(`Reset ${budgetMonth} budget`, (d) => {
-                    Object.keys(d.overrides)
-                      .filter((k) => k.startsWith(budgetMonth + '|'))
-                      .forEach((k) => delete d.overrides[k]);
-                  })
-                }
+                onClick={() => reset('month', budgetMonth)}
               >
                 <RotateCcw size={17} />
                 Reset this month
@@ -628,8 +629,7 @@ export default function Budget() {
               )}
             </div>
             <div className="phone-budget-list">
-              {cats
-                .filter((c) => c.active)
+              {budgetingCategories
                 .map((c) => {
                   const edited = key(budgetMonth, c.id) in p.overrides;
                   return (
@@ -705,8 +705,7 @@ export default function Budget() {
                 </tr>
               </thead>
               <tbody>
-                {cats
-                  .filter((c) => c.active)
+                {budgetingCategories
                   .map((c) => (
                     <tr key={c.id}>
                       <td>
@@ -804,7 +803,7 @@ export default function Budget() {
           </button>
         </div>
         <p className="footnote">
-          Percentage changes affect the selected category, or all categories if none is selected.
+          Percentage changes affect the selected category, or all active categories if none is selected.
           Yellow cells are monthly overrides.
         </p>
       </Section>
