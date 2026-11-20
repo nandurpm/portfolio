@@ -19,7 +19,7 @@ on:
       - '.github/workflows/tracker-unified-release.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: tracker-release-${{ github.repository }}
@@ -405,6 +405,8 @@ jobs:
           retention-days: 30
 
   publish:
+    permissions:
+      contents: write
     needs: [prepare, quality, windows, android]
     if: always() && needs.quality.result == 'success' && needs.android.result == 'success' && (needs.windows.result == 'success' || (needs.prepare.outputs.windows_needed == 'false' && needs.windows.result == 'skipped'))
     runs-on: ubuntu-latest

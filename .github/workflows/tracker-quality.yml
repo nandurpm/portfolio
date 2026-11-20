@@ -23,6 +23,8 @@ jobs:
           cache: npm
           cache-dependency-path: tools/tracker-source/package-lock.json
       - run: npm ci --ignore-scripts
+      - name: Verify least-privilege tracker release workflow permissions
+        run: ruby ../../.github/scripts/test-tracker-release-permissions.rb
       - run: npm run check
       - name: Verify the served build against its trusted manifest
         run: |
