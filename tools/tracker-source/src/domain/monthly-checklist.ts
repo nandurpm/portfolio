@@ -32,6 +32,7 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
   const percentage = planned > 0 ? round((recorded / planned) * 100) : null;
   const status = kind === 'income'
     ? recorded === 0 ? 'Not recorded' : recorded < planned ? 'Part received' : 'Income recorded'
+    : recorded < 0 ? 'Net refund or reversal'
     : recorded > 0 && planned === 0 ? 'Unbudgeted spending'
     : recorded > planned && planned >= 0 ? 'Over budget'
     : recorded === 0 ? 'No entry recorded'
@@ -40,6 +41,7 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
       : 'Spending recorded';
   const note = kind === 'income'
     ? remaining > 0 ? 'Expected income not yet recorded' : 'Income recorded'
+    : recorded < 0 ? 'Refunds or reversals exceed recorded expenses this month'
     : recorded > 0 && planned === 0 ? 'No budget was allocated to this category'
     : remaining < 0 ? 'Above the monthly budget' : 'Unspent budget is not savings';
   return { id: c.id, name: c.name, kind, planned, recorded, remaining, percentage, plannedDate, status, note };
@@ -48,13 +50,9 @@ function checklistCategory(p: Plan, c: Category, month: string, cutoff: string):
 /** All totals are from recorded transactions, never a daily budget allocation. */
 export function monthlyChecklistView(p: Plan, month: string, cutoff = reportDate(p)) {
   const items = reportCategories(p)
-    .filter((c) =>
-      c.active &&
-      c.role !== 'emi' &&
-      c.role !== 'closure' &&
-      (categoryPlan(p, c, month) > 0 || actualCategory(p, c, month, cutoff) > 0),
-    )
-    .map((c) => checklistCategory(p, c, month, cutoff));
+    .filter((c) => c.role !== 'emi' && c.role !== 'closure')
+    .map((c) => checklistCategory(p, c, month, cutoff))
+    .filter((item) => item.planned > 0 || item.recorded !== 0);
   const totals = actual(p, month + '-01', cutoff < monthEnd(month) ? cutoff : monthEnd(month));
   return {
     income: items.filter((i) => i.kind === 'income'),

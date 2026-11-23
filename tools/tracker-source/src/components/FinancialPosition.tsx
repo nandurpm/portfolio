@@ -150,9 +150,9 @@ export function FinancialPosition({ onManage }: { onManage?: () => void }) {
           </div>
           {w.estimated && (
             <p>
-              Loan principal includes a proportional estimate where the lender’s
-              principal allocation is unavailable. It is not a lender-confirmed
-              settlement balance.
+              Loan principal can be estimated when the lender’s principal allocation
+              is unavailable or recorded settlement payments do not cover the
+              outstanding principal. Confirm the balance with your lender.
             </p>
           )}
           <p>

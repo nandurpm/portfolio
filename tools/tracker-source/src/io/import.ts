@@ -66,8 +66,18 @@ export function iso(v: any): string {
 const str = (v: any) => (v == null ? '' : String(v));
 // Decode only explicitly marked tracker CSV rows. XLSX and generic CSV text is literal.
 const unguard = (v: string) => v.replace(/^'(?=['=+@\-\t\r])/, '');
-const num = (v: any, fallback = 0) => {
-  const n = Number(typeof v === 'string' ? v.replace(/[₹,]/g, '') : v);
+// Recognize INR grouping and decimal commas without deleting arbitrary punctuation.
+const num = (v: unknown, fallback = 0) => {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : fallback;
+  if (typeof v !== 'string') return fallback;
+  const amount = v.trim().replace(/^₹\s*/, '');
+  const normalized = /^[+-]?\d+,\d{1,2}$/.test(amount)
+    ? amount.replace(',', '.')
+    : /^[+-]?(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*,\d{3})(?:\.\d+)?$/.test(amount)
+      ? amount.replaceAll(',', '')
+      : amount;
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized)) return fallback;
+  const n = Number(normalized);
   return Number.isFinite(n) ? n : fallback;
 };
 function headers(ws: ExcelJS.Worksheet) {
@@ -88,10 +98,12 @@ function importRows(
   map: ColumnMapping,
   firstRow: number,
   encodedCSV = false,
+  entryIdColumn = -1,
 ) {
   const warnings: string[] = [],
     unknownCategories: string[] = [],
     entries: Entry[] = [];
+  const sourceIds = entryIdColumn >= 0 ? new Set(p.entries.map((entry) => entry.id)) : new Set<string>();
   const index = (name: string, fallback: string[]) => {
     let i = head.findIndex((h) => h.toLowerCase() === name.toLowerCase());
     if (i < 0) i = head.findIndex((h) => fallback.some((f) => h.toLowerCase() === f.toLowerCase()));
@@ -111,6 +123,10 @@ function importRows(
     const row = rows[i];
     if (!row) continue;
     if (!row.some((v) => v !== null && v !== undefined && v !== '')) continue;
+    if (encodedCSV && row.slice(head.length).some((v) => str(v).trim())) {
+      warnings.push(`Row ${firstRow + i}: Extra CSV columns. Quote amounts containing commas. Skipped.`);
+      continue;
+    }
     const decode = (v: unknown) =>
       encodedCSV && row[head.indexOf('Tracker CSV encoding')] === 'apostrophe-v2'
         ? unguard(str(v))
@@ -119,6 +135,11 @@ function importRows(
       name = decode(row[cols.category]).trim(),
       amount = row[cols.amount];
     if ((rawDate == null || rawDate === '') && !name && (amount == null || amount === '')) continue;
+    const parsedAmount = num(amount, NaN);
+    if (!Number.isFinite(parsedAmount)) {
+      warnings.push(`Row ${firstRow + i}: Invalid amount. Check the decimal and thousands separators. Skipped.`);
+      continue;
+    }
     let c = p.categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
     if (!c && name) {
       c = {
@@ -137,12 +158,13 @@ function importRows(
       p.categories.push(c);
       unknownCategories.push(name);
     }
+    const sourceId = str(row[entryIdColumn]).trim();
     const e: Entry = {
-      id: crypto.randomUUID(),
+      id: sourceIds.has(sourceId) ? sourceId : crypto.randomUUID(),
       date: iso(rawDate),
       categoryId: c?.id ?? '',
       description: decode(row[cols.description]),
-      amount: num(amount, NaN),
+      amount: parsedAmount,
       payment: decode(row[cols.payment]) || 'Other',
       notes: decode(row[cols.notes]),
       edited: false,
@@ -305,10 +327,15 @@ export async function readWorkbook(
       : s.planEnd;
   if (!validMonth(visibleStart) || !validMonth(visibleEnd) || visibleEnd < visibleStart)
     throw Error('Invalid workbook visible range');
+  const categoriesById = new Map(p.categories.map((category) => [category.id, category]));
   p.overrides = Object.fromEntries(
-    Object.entries(p.overrides).filter(
-      ([k]) => k.slice(0, 7) < visibleStart || k.slice(0, 7) > visibleEnd,
-    ),
+    Object.entries(p.overrides).filter(([k, amount]) => {
+      const [month, id] = k.split('|');
+      if (!month || month < visibleStart || month > visibleEnd) return true;
+      const category = id ? categoriesById.get(id) : undefined;
+      // An effective-budget formula may mask a saved override in the visible grid.
+      return hasMetadata && category !== undefined && amount !== fullAmount(p, category, month);
+    }),
   );
   for (let r = 45; r <= budget.rowCount; r++) {
     const month = iso(value(budget.getCell(r, 1))).slice(0, 7),
@@ -325,19 +352,28 @@ export async function readWorkbook(
       value(daily.getCell(h.row + 1 + i, j + 1)),
     ),
   );
-  const parsed = importRows(data, h.headers, p, map, h.row + 1);
+  const rowIdColumn = hasMetadata ? h.headers.indexOf('Tracker entry ID') : -1;
+  const parsed = importRows(data, h.headers, p, map, h.row + 1, false, rowIdColumn);
   const linked = p.entries;
+  const linkedById = new Map(linked.map((entry) => [entry.id, entry]));
   const used = new Set<string>();
   for (const entry of parsed.entries) {
-    const saved = linked.find(
-      (e) =>
-        !used.has(e.id) &&
-        e.date === entry.date &&
-        e.categoryId === entry.categoryId &&
+    const original = rowIdColumn >= 0 ? linkedById.get(entry.id) : undefined;
+    if (original && used.has(original.id))
+      throw Error('Workbook contains duplicate Tracker entry IDs. Keep the original row ID only once.');
+    let saved = original;
+    if (rowIdColumn < 0) {
+      const candidates = linked.filter((e) =>
+        !used.has(e.id) && e.date === entry.date && e.categoryId === entry.categoryId &&
         Math.abs(e.amount - entry.amount) < 0.01,
-    );
+      );
+      saved = candidates.length === 1 ? candidates[0] : candidates.find((e) =>
+        e.description === entry.description && e.payment === entry.payment && e.notes === entry.notes,
+      );
+    }
     if (saved) {
       entry.id = saved.id;
+      entry.accountId = saved.accountId;
       entry.loanRowId = saved.loanRowId;
       entry.provisionId = saved.provisionId;
       entry.billDueMonth = saved.billDueMonth;

@@ -678,6 +678,21 @@ function reconciliationResult(p, r) {
   };
 }
 
+// src/domain/net-worth.ts
+function namedAccountBalances(p, date = reportDate(p), base = ledgerSummary(p, date).balances) {
+  const balances = { ...base };
+  for (const e of p.entries) {
+    if (!e.accountId || !inRange(e.date, p.settings.planStart, p.settings.planEnd) || e.date > date)
+      continue;
+    const category = p.categories.find((c) => c.id === e.categoryId);
+    if (category && category.group !== "Asset")
+      balances[e.accountId] = round2(
+        (balances[e.accountId] ?? 0) + (category.group === "Income" ? e.amount : -e.amount)
+      );
+  }
+  return balances;
+}
+
 // src/domain/bot-finance.ts
 function financialRange(p, start, end) {
   const totals = actual(p, start, end);
@@ -700,7 +715,12 @@ function botReportPlan(p) {
 var financialForecast = (p) => forecast(botReportPlan(p));
 var financialBudget = (p, c, month) => categoryPlan(botReportPlan(p), c, month);
 var financialReconciliation = reconciliationResult;
-var financialAccounts = (p, through) => ledgerSummary(p, through);
+function financialAccounts(p, through) {
+  const ledger = ledgerSummary(p, through);
+  const balances = namedAccountBalances(p, through, ledger.balances);
+  const adjustment = round2(Object.entries(balances).reduce((total, [id, balance]) => total + balance - (ledger.balances[id] ?? 0), 0));
+  return { ...ledger, balances, assets: round2(ledger.assets + adjustment), netWorth: round2(ledger.netWorth + adjustment) };
+}
 export {
   financialAccounts,
   financialBudget,

@@ -191,6 +191,7 @@ export async function exportWorkbook(
     'Notes',
     'Group',
     'Status',
+    'Tracker entry ID',
   ]);
   const entries = p.entries.filter((e) => e.date >= start + '-01' && e.date <= monthEnd(end));
   entries.forEach((e, i) => {
@@ -204,6 +205,7 @@ export async function exportWorkbook(
       e.notes,
       c?.group,
       e.date <= date ? 'Counted' : 'Future – excluded until report date',
+      e.id,
     ];
     daily.getCell(i + 8, 1).numFmt = 'dd-mmm-yyyy';
     daily.getCell(i + 8, 4).numFmt = currency;
@@ -211,8 +213,9 @@ export async function exportWorkbook(
   bands(daily, 8, Math.max(8, 7 + entries.length), 8);
   daily.getColumn(3).width = 32;
   daily.getColumn(6).width = 36;
+  daily.getColumn(9).hidden = true;
   daily.views = [{ state: 'frozen', ySplit: 7, showGridLines: false }];
-  daily.autoFilter = { from: 'A7', to: `H${Math.max(8, 7 + entries.length)}` };
+  daily.autoFilter = { from: 'A7', to: `I${Math.max(8, 7 + entries.length)}` };
   const activity=baseSheet(wb,'Accounts activity',APP_NAME+' · Typed account movements');
   header(activity,4,['Date','Movement type','Description','Principal / amount','Interest','Fees','Source account','Destination account','Income effect','Expense effect','Income category','Expense category','Record ID','Reversal of ID','Provision ID','Bill due month','Status','Notes']);
   let activityRow=5;
@@ -333,14 +336,17 @@ export async function exportWorkbook(
         formula = `IF(OR(${c.months.map((n) => `MONTH(A${ri})=${n}`).join(',')}),$D$${cr},0)`;
       const provision = p.provisions?.find((x) => x.enabled && x.categoryId === c.id);
       if (provision) formula = String(fullAmount(p, c, m));
-      if (!c.active) formula = '0';
+      const effectiveBudget = fullAmount(p, c, m);
+      const override = p.overrides[key(m, c.id)];
+      if (!c.active || c.group === 'Asset' || (override !== undefined && override !== effectiveBudget))
+        formula = String(effectiveBudget);
       budget.getRow(ri).values = [
         d(m + '-01'),
         c.name,
         c.group,
-        key(m, c.id) in p.overrides
-          ? p.overrides[key(m, c.id)]
-          : { formula, result: fullAmount(p, c, m) },
+        override !== undefined && override === effectiveBudget
+          ? override
+          : { formula, result: effectiveBudget },
         m > date.slice(0, 7) ? null : actualCategory(p, c, m, date),
         provision || (c.role === 'emi' && s.emiPreviousMonth) ? 'Fixed day' : c.timing,
         provision ? provision.dueDay : c.role === 'emi' && s.emiPreviousMonth ? s.salaryDay : c.day,

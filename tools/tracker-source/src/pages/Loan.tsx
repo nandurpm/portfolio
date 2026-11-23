@@ -301,10 +301,10 @@ export default function Loan() {
           icon={<ShieldCheck />}
         />
         <Stat
-          label="Estimated net interest saved"
-          value={analysis.interestSaved}
-          caption="Future interest less entered fees and interest"
-          tone="green"
+          label="Estimated savings from settlement"
+          value={analysis.settlementSavings}
+          caption="Remaining scheduled payments minus settlement amount"
+          tone={analysis.settlementSavings < 0 ? 'orange' : 'green'}
           icon={<TrendingDown />}
         />
       </div>

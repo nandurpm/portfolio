@@ -67,15 +67,24 @@ describe('local persistence protection', () => {
         note: '',
       },
     ];
+    current.data.accounts = [{ id: 'restore-bank', name: 'Restore bank', kind: 'bank', openingBalance: 500, active: true, note: '' }];
+    current.data.ledgerTransactions = [{
+      id: 'restore-posting', kind: 'income', date: '2026-12-05', destinationAccountId: 'restore-bank',
+      amount: 10, description: 'Synthetic income', note: '',
+    }];
     storage(JSON.stringify(current));
     const { store } = await import('../src/store');
     await store.load();
     store.restore(financialFixture());
     expect(store.get().data.reconciliations).toEqual([]);
+    expect(store.get().data.accounts).toEqual([]);
+    expect(store.get().data.ledgerTransactions).toEqual([]);
     expect(store.get().data.salaryChanges).toBeUndefined();
     expect(store.get().data.pfMovements).toBeUndefined();
     store.undo();
     expect(store.get().data.reconciliations).toHaveLength(1);
+    expect(store.get().data.accounts).toHaveLength(1);
+    expect(store.get().data.ledgerTransactions).toHaveLength(1);
     expect(store.get().data.salaryChanges).toHaveLength(1);
     expect(store.get().data.pfMovements).toHaveLength(1);
     store.redo();
