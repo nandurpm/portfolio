@@ -6,8 +6,8 @@ import { inRange } from "./dates";
 import { provisionResult } from "./balances";
 import { paymentRows } from "./loan-summary";
 
-export function namedAccountBalances(p: Plan, date = reportDate(p)) {
-  const balances = { ...ledgerSummary(p, date).balances };
+export function namedAccountBalances(p: Plan, date = reportDate(p), base = ledgerSummary(p, date).balances) {
+  const balances = { ...base };
   for (const e of p.entries) {
     if (
       !e.accountId ||
@@ -28,21 +28,33 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
   const ledger = ledgerSummary(p, date);
   const cash = cumulative(p, date).actualCash;
   const pf = pfSummary(p, date).balance;
-  const balances = namedAccountBalances(p, date);
+  const balances = namedAccountBalances(p, date, ledger.balances);
   const namedCash = round(
     (p.accounts ?? [])
       .filter((a) => liquidKinds.includes(a.kind))
       .reduce((sum, a) => sum + (balances[a.id] ?? 0), 0),
   );
-  const originalPrincipal = Math.max(
+  const principalAt = (cutoff: string) => round(Math.max(
     0,
-    p.loan.principal -
-      paymentRows(p, p.loan.rows, date).reduce(
-        (sum, r) =>
-          sum + r.principal * Math.min(1, r.emi > 0 ? r.paidAmount / r.emi : 0),
-        0,
-      ),
-  );
+    p.loan.principal - paymentRows(p, p.loan.rows, cutoff).reduce(
+      (sum, row) => sum + row.principal * Math.min(1, row.emi > 0 ? row.paidAmount / row.emi : 0),
+      0,
+    ),
+  ));
+  const closureCategories = new Set(p.categories
+    .filter((category) => category.group === 'Debt' && category.role === 'closure')
+    .map((category) => category.id));
+  const settlements = p.entries
+    .filter((entry) => entry.date <= date && closureCategories.has(entry.categoryId))
+    .sort((left, right) => left.date.localeCompare(right.date));
+  let recordedSettlement = 0;
+  // Evaluate coverage on the receipt date. Later ordinary EMIs must not
+  // retroactively turn an earlier partial payment into a full settlement.
+  const settled = settlements.some((entry) => {
+    recordedSettlement = round(recordedSettlement + entry.amount);
+    return recordedSettlement >= principalAt(entry.date);
+  });
+  const originalPrincipal = settled ? 0 : principalAt(date);
   const additionalPrincipal = (p.additionalLoans ?? []).reduce((sum, loan) => {
     const rows = paymentRows(p, loan.rows, date);
     if (loan.rows.every(r => r.principal !== undefined)) {
@@ -91,6 +103,7 @@ export function netWorthSnapshot(p: Plan, date = reportDate(p)) {
     netWorth: round(assets - liabilities),
     planLoans,
     estimated:
+      (recordedSettlement > 0 && originalPrincipal > 0) ||
       (p.additionalLoans ?? []).some(l => !l.rows.every(r => r.principal !== undefined) || paymentRows(p,l.rows,date).some(r=>r.paidAmount > 0 && r.paidAmount < r.emi)) ||
       paymentRows(p, p.loan.rows, date).some(
         (r) => (r.paidAmount > 0 && r.paidAmount < r.emi) || (r.paidBeforeOpening && r.dueDate > date),

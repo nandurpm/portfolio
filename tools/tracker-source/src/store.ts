@@ -136,7 +136,7 @@ export const store = {
     const validated = envelopeFrom(e);
     const previous = current;
     const replaced = commit(previous, 'Restore backup', (d) => {
-      for (const field of ['additionalLoans', 'provisions', 'reconciliations'] as const)
+      for (const field of ['additionalLoans', 'provisions', 'reconciliations', 'accounts', 'ledgerTransactions'] as const)
         if (validated.data[field] === undefined && d[field] !== undefined) d[field] = [];
       if (validated.data.salaryChanges === undefined) delete d.salaryChanges;
       if (validated.data.pfMovements === undefined) delete d.pfMovements;
@@ -161,7 +161,7 @@ export const store = {
     const plan = localPlan(data, current.data);
     current = {
       ...commit(current, 'Synchronize financial plan', (d) => {
-        for (const field of ['additionalLoans', 'provisions', 'reconciliations'] as const)
+        for (const field of ['additionalLoans', 'provisions', 'reconciliations', 'accounts', 'ledgerTransactions'] as const)
           if (plan[field] === undefined && d[field] !== undefined) d[field] = [];
         // Explicit cloud replacement must not retain stale optional ledgers when
         // the selected remote plan does not contain their associated categories.

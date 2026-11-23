@@ -1,8 +1,9 @@
 import {reconciliationResult} from './balances';
 import type {Plan} from './types';
-import {actual,cumulative,forecast,categoryPlan} from './calculate';
+import {actual,cumulative,forecast,categoryPlan,round} from './calculate';
 import {ledgerPostingFlow, reportCategories, ledgerSummary} from './ledger';
 import {monthEnd} from './dates';
+import {namedAccountBalances} from './net-worth';
 /** The bot ships a generated bundle of this adapter; no second money formula. */
 export function financialRange(p:Plan,start:string,end:string) {
  const totals=actual(p,start,end);
@@ -25,4 +26,10 @@ export const financialBudget=(p:Plan,c:Parameters<typeof categoryPlan>[1],month:
 export const financialReconciliation=reconciliationResult;
 
 /** Account positions are computed by the same ledger engine as the website. */
-export const financialAccounts=(p:Plan,through:string)=>ledgerSummary(p,through);
+export function financialAccounts(p: Plan, through: string) {
+ const ledger = ledgerSummary(p, through);
+ const balances = namedAccountBalances(p, through, ledger.balances);
+ const adjustment = round(Object.entries(balances)
+  .reduce((total, [id, balance]) => total + balance - (ledger.balances[id] ?? 0), 0));
+ return { ...ledger, balances, assets: round(ledger.assets + adjustment), netWorth: round(ledger.netWorth + adjustment) };
+}

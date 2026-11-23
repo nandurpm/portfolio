@@ -278,10 +278,12 @@ function accountsText(plan:AnyRow,updated:string) {
   "💵 Liquid accounts: <b>"+amt(liquid)+"</b>","🤝 Money receivable: "+amt(p.receivables),
   "🏦 FD &amp; investments: "+amt(p.investments),"💳 Account liabilities: "+amt(p.liabilities),
   "📊 Account-ledger net worth: <b>"+amt(p.netWorth)+"</b>","\n<b>Account balances</b>"];
- for(const a of (plan.accounts||[]).slice(0,20))
-  lines.push("• "+escape(a.name)+" ("+escape(a.kind)+"): "+amt(Math.abs(num(p.balances[a.id])))+
-   (["credit-card","liability"].includes(a.kind)?" owed":""));
- lines.push("\n<i>Account-ledger position only. Unassigned Daily Entries and PF may be separate; this is not a verified bank statement.</i>");
+ for(const a of (plan.accounts||[]).slice(0,20)){
+  const balance=num(p.balances[a.id]);
+  const liability=["credit-card","liability"].includes(a.kind);
+  lines.push("• "+escape(a.name)+" ("+escape(a.kind)+"): "+amt(liability?-balance:balance)+(liability&&balance<0?" owed":""));
+ }
+ lines.push("\n<i>Named accounts include assigned Daily Entries. Unassigned cash and PF are separate.</i>");
  return lines.join("\n")+syncInfo(updated);
 }
 function lendingText(plan:AnyRow,updated:string) {

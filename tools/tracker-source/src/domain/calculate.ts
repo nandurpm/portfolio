@@ -364,11 +364,10 @@ export function closureAnalysis(p: Plan) {
       x.month >= (p.loan.rows[0]?.month ?? '9999-12') &&
       round(x.cash + releasedAdvance(p, x.month) - closureAmount(p, x.month)) >= p.settings.cushion,
   );
-  const interest = round(
-    p.loan.rows.filter((x) => x.month > m).reduce((n, x) => n + x.interest, 0) -
-      p.settings.accruedInterest -
-      p.settings.fees,
-  );
+  const remainingScheduledPayments = p.loan.rows
+    .filter((row) => row.month > m)
+    .reduce((total, row) => total + row.emi, 0);
+  const settlementSavings = round(remainingScheduledPayments - quote);
   return {
     principal: contractBalance(p, m),
     quote,
@@ -383,7 +382,7 @@ export function closureAnalysis(p: Plan) {
             ? 'Below cushion'
             : 'Meets cushion',
     earliest: earliest?.month ?? null,
-    interestSaved: Math.max(0, interest),
+    settlementSavings,
   };
 }
 export function regenerateLoan(p: Plan): LoanRow[] {

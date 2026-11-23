@@ -443,13 +443,32 @@ export function ledgerTransactionLocked(p: Plan, row: LedgerTransaction) {
   );
 }
 export function assertLedgerCorrections(before: Plan, after: Plan) {
-  for (const row of before.ledgerTransactions ?? []) {
+  const previous = new Map((before.ledgerTransactions ?? []).map((row) => [row.id, row]));
+  const postings = after.ledgerTransactions ?? [];
+  const current = new Map(postings.map((row) => [row.id, row]));
+  for (const row of previous.values()) {
     if (!ledgerTransactionLocked(before, row)) continue;
-    const next = after.ledgerTransactions?.find((r) => r.id === row.id);
+    const next = current.get(row.id);
     if (JSON.stringify(next) !== JSON.stringify(row))
       throw Error(
         "This posting is protected by reconciliation or a reversal. Add a dated reversal instead of editing or deleting it.",
       );
+  }
+  const reversed = new Map(postings.filter((row) => row.reversalOfId).map((row) => [row.reversalOfId, row]));
+  for (const refund of postings) {
+    if (refund.kind !== "refund" || !refund.originalTransactionId) continue;
+    const purchaseReversal = reversed.get(refund.originalTransactionId);
+    if (!purchaseReversal) continue;
+    // Keep historical data readable. New edits cannot leave a refund posted
+    // after its purchase was fully reversed.
+    const refundReversal = reversed.get(refund.id);
+    if (previous.get(refund.id)?.date === refund.date &&
+        previous.get(refund.id)?.originalTransactionId === refund.originalTransactionId &&
+        previous.get(purchaseReversal.id)?.date === purchaseReversal.date &&
+        (!refundReversal || previous.get(refundReversal.id)?.date === refundReversal.date))
+      continue;
+    if (!refundReversal || refundReversal.date > purchaseReversal.date)
+      throw Error("Reverse the linked refund on or before the purchase reversal date.");
   }
 }
 export function reverseLedgerTransaction(
