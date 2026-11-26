@@ -29,7 +29,7 @@ assert.ok(
 let schema = await fs.readFile('database/test-fixture/schema.sql', 'utf8');
 schema = schema.slice(schema.indexOf('CREATE TABLE public.tracker_plans'));
 schema =
-  'CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS; DO $ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = \'service_role\') THEN CREATE ROLE service_role NOLOGIN BYPASSRLS; END IF; END $; GRANT tracker_plan_writer TO postgres WITH SET TRUE; GRANT USAGE ON SCHEMA public TO tracker_plan_writer;\n' +
+  'CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS; GRANT tracker_plan_writer TO postgres WITH SET TRUE; GRANT USAGE ON SCHEMA public TO tracker_plan_writer, service_role;\n' +
   schema;
 const existing = await run('psql', [
   '--dbname',
@@ -58,8 +58,8 @@ await run('psql', [
   await fs.readFile('database/guards/preserve-modern-ledgers.sql', 'utf8'),
 ]);
 
--- Reproduce the broad Supabase default sequence grants, then apply the reviewed
--- migration and assert that only the service role retains the privilege it needs.
+// Reproduce the broad Supabase default sequence grants, then apply the reviewed
+// migration and assert that only the service role retains the privilege it needs.
 await run('psql', [
   '--dbname',
   db.href,
