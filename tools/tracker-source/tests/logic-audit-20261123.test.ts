@@ -72,6 +72,30 @@ it('excludes installment receipts paid by the selected closure month from remain
   expect(closureAnalysis(plan).settlementSavings).toBe(-65);
 });
 
+it('uses the inclusive closure-month cutoff for multiple receipts and legacy schedule payments', () => {
+  const plan = financialFixture().data;
+  plan.settings.closureMonth = '2026-11';
+  plan.settings.lenderQuote = 275;
+  plan.loan.rows[1] = { ...plan.loan.rows[1]!, emi: 140, interest: 40 };
+  plan.loan.rows[2] = { ...plan.loan.rows[2]!, emi: 120, interest: 20 };
+  saveOriginalPayment(plan, plan.loan.rows[1]!.id, '2026-11-30', 20, '__unallocated');
+  saveOriginalPayment(plan, plan.loan.rows[1]!.id, '2026-12-01', 30, '__unallocated');
+  expect(closureAnalysis(plan).settlementSavings).toBe(-35);
+
+  const legacy = financialFixture().data;
+  legacy.settings.closureMonth = '2026-11';
+  legacy.settings.lenderQuote = 275;
+  legacy.loan.rows[1] = {
+    ...legacy.loan.rows[1]!,
+    emi: 140,
+    interest: 40,
+    paidAmount: 50,
+    paidDate: '2026-11-30',
+  };
+  legacy.loan.rows[2] = { ...legacy.loan.rows[2]!, emi: 120, interest: 20 };
+  expect(closureAnalysis(legacy).settlementSavings).toBe(-65);
+});
+
 it('exports effective budgets while restoring dormant overrides and edited named-account entries', async () => {
   const plan = financialFixture().data;
   const bill = plan.categories.find((category) => category.id === 'bill')!;
