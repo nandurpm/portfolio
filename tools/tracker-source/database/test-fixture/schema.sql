@@ -3,6 +3,11 @@
 CREATE ROLE anon NOLOGIN;
 CREATE ROLE authenticated NOLOGIN;
 CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS;
+DO $ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    CREATE ROLE service_role NOLOGIN BYPASSRLS;
+  END IF;
+END $;
 CREATE SCHEMA auth;
 CREATE TABLE auth.users(id uuid PRIMARY KEY);
 CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT coalesce(nullif(current_setting('request.jwt.claim.sub',true),''),nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid $$;
@@ -84,3 +89,21 @@ ALTER FUNCTION public.tracker_save_plan(jsonb,bigint,uuid) OWNER TO tracker_plan
 REVOKE ALL ON FUNCTION public.tracker_save_plan(jsonb,bigint,uuid) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.tracker_save_plan(jsonb,bigint,uuid) TO authenticated;
 REVOKE CREATE ON SCHEMA public FROM tracker_plan_writer;
+
+-- Private bot audit table: only the trusted Edge Function service role can use it.
+CREATE TABLE public.tracker_bot_audit(
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  occurred_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  operation text NOT NULL,
+  category_or_entry text NOT NULL,
+  revision_before bigint NOT NULL,
+  revision_after bigint NOT NULL,
+  amount_before numeric,
+  amount_after numeric
+);
+ALTER TABLE public.tracker_bot_audit ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.tracker_bot_audit FROM PUBLIC, anon, authenticated;
+GRANT ALL ON TABLE public.tracker_bot_audit TO service_role;
+REVOKE ALL ON SEQUENCE public.tracker_bot_audit_id_seq FROM PUBLIC, anon, authenticated, service_role;
+GRANT USAGE ON SEQUENCE public.tracker_bot_audit_id_seq TO service_role;
