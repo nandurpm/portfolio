@@ -3,15 +3,11 @@
 CREATE ROLE anon NOLOGIN;
 CREATE ROLE authenticated NOLOGIN;
 CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS;
-DO $ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
-    CREATE ROLE service_role NOLOGIN BYPASSRLS;
-  END IF;
-END $;
+CREATE ROLE service_role NOLOGIN BYPASSRLS;
 CREATE SCHEMA auth;
 CREATE TABLE auth.users(id uuid PRIMARY KEY);
 CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT coalesce(nullif(current_setting('request.jwt.claim.sub',true),''),nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid $$;
-GRANT USAGE ON SCHEMA auth, public TO anon,authenticated,tracker_plan_writer;
+GRANT USAGE ON SCHEMA auth, public TO anon,authenticated,tracker_plan_writer,service_role;
 GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,tracker_plan_writer;
 CREATE TABLE public.tracker_plans(user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,data jsonb NOT NULL CHECK(jsonb_typeof(data)='object'),revision bigint NOT NULL DEFAULT 1 CHECK(revision>0),mutation_id uuid NOT NULL,updated_at timestamptz NOT NULL DEFAULT now());
 ALTER TABLE public.tracker_plans ENABLE ROW LEVEL SECURITY;
