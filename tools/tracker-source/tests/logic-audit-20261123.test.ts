@@ -62,6 +62,16 @@ it('uses the actual lender quote to show savings or extra cost', () => {
   expect(closureAnalysis(plan)).toMatchObject({ quote: 215, settlementSavings: 45 });
 });
 
+it('excludes installment receipts paid by the selected closure month from remaining scheduled payments', () => {
+  const plan = financialFixture().data;
+  plan.settings.closureMonth = '2026-11';
+  plan.settings.lenderQuote = 275;
+  plan.loan.rows[1] = { ...plan.loan.rows[1]!, emi: 140, interest: 40 };
+  plan.loan.rows[2] = { ...plan.loan.rows[2]!, emi: 120, interest: 20 };
+  saveOriginalPayment(plan, plan.loan.rows[1]!.id, '2026-11-25', 50, '__unallocated');
+  expect(closureAnalysis(plan).settlementSavings).toBe(-65);
+});
+
 it('exports effective budgets while restoring dormant overrides and edited named-account entries', async () => {
   const plan = financialFixture().data;
   const bill = plan.categories.find((category) => category.id === 'bill')!;

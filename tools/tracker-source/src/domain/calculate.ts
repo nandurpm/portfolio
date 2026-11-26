@@ -364,9 +364,26 @@ export function closureAnalysis(p: Plan) {
       x.month >= (p.loan.rows[0]?.month ?? '9999-12') &&
       round(x.cash + releasedAdvance(p, x.month) - closureAmount(p, x.month)) >= p.settings.cushion,
   );
+  const cutoff = monthEnd(m);
+  const receipts = new Map<string, number>();
+  const rowsWithReceipts = new Set<string>();
+  for (const entry of p.entries) {
+    if (!entry.loanRowId) continue;
+    rowsWithReceipts.add(entry.loanRowId);
+    if (entry.date <= cutoff)
+      receipts.set(entry.loanRowId, (receipts.get(entry.loanRowId) ?? 0) + entry.amount);
+  }
   const remainingScheduledPayments = p.loan.rows
     .filter((row) => row.month > m)
-    .reduce((total, row) => total + row.emi, 0);
+    .reduce((total, row) => {
+      const paidByClosure = rowsWithReceipts.has(row.id)
+        ? round(receipts.get(row.id) ?? 0)
+        : ((row.paidBeforeOpening && (!row.paidDate || row.paidDate <= cutoff)) ||
+            Boolean(row.paidDate && row.paidDate <= cutoff))
+          ? row.paidAmount
+          : 0;
+      return total + Math.max(0, round(row.emi - Math.min(row.emi, paidByClosure)));
+    }, 0);
   const settlementSavings = round(remainingScheduledPayments - quote);
   return {
     principal: contractBalance(p, m),
