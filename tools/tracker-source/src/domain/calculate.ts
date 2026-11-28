@@ -53,6 +53,19 @@ export function closureAmount(p: Plan, m = p.settings.closureMonth) {
     ? p.settings.lenderQuote
     : round(principal + p.settings.accruedInterest + p.settings.fees);
 }
+/** A hypothetical closure can cancel an unpaid installment, not its recorded cash outflow. */
+function recordedInstallmentInMonth(p: Plan, c: Category, row: LoanRow, m: string) {
+  const receipts = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId === row.id);
+  return receipts.length
+    ? receipts.reduce((sum, e) => sum + (e.date.slice(0, 7) === m ? e.amount : 0), 0)
+    : row.paidDate.slice(0, 7) === m ? row.paidAmount : 0;
+}
+function recordedFuturePrimaryInstallmentsInMonth(p: Plan, c: Category, m: string) {
+  return round(p.loan.rows.reduce((sum, row) =>
+    row.month > m && !row.paidBeforeOpening
+      ? sum + recordedInstallmentInMonth(p, c, row, m)
+      : sum, 0));
+}
 export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings.mode) {
   if (!c.active) return 0;
   if (c.role === 'emi') {
@@ -63,7 +76,9 @@ export function defaultAmount(p: Plan, c: Category, m: string, mode = p.settings
       rows.reduce((total, row) => {
         if (!c.loanId && row.paidBeforeOpening) return total;
         if (!c.loanId && mode === 'Early closure' && row.month > p.settings.closureMonth)
-          return total;
+          return m <= p.settings.closureMonth
+            ? total + recordedInstallmentInMonth(p, c, row, m)
+            : total;
         const paymentMonth = p.settings.emiPreviousMonth ? addMonths(row.month, -1) : row.month;
         const receipts = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId === row.id);
         const early = receipts.length
@@ -113,10 +128,12 @@ export function fullAmount(p: Plan, c: Category, m: string, mode = p.settings.mo
   if (
     c.role === 'emi' &&
     !c.loanId &&
-    mode === 'Early closure' &&
-    (m > p.settings.closureMonth || (p.settings.emiPreviousMonth && m === p.settings.closureMonth))
-  )
-    return 0;
+    mode === 'Early closure'
+  ) {
+    if (m > p.settings.closureMonth) return 0;
+    if (p.settings.emiPreviousMonth && m === p.settings.closureMonth)
+      return recordedFuturePrimaryInstallmentsInMonth(p, c, m);
+  }
   if (c.role === 'closure' && (mode !== 'Early closure' || m !== p.settings.closureMonth)) return 0;
   return p.overrides[key(m, c.id)] ?? defaultAmount(p, c, m, mode);
 }
@@ -230,13 +247,14 @@ export function actualCategory(p: Plan, c: Category, m: string, date = reportDat
   const t = actual(p, `${m}-01`, date < monthEnd(m) ? date : monthEnd(m), c.id);
   return c.group === 'Income' ? t.income : c.group === 'Living' ? t.living : t.debt;
 }
-// A same-month settlement replaces the advance installment for the following due month.
+// A same-month settlement replaces the unpaid advance installment, not cash already paid.
 function releasedAdvance(p: Plan, m: string) {
   return p.settings.emiPreviousMonth
     ? round(
         p.categories
-          .filter((c) => c.role === 'emi' && !c.loanId)
-          .reduce((sum, c) => sum + fullAmount(p, c, m, 'Scheduled'), 0),
+          .filter((c) => c.role === 'emi' && !c.loanId && c.active)
+          .reduce((sum, c) => sum + fullAmount(p, c, m, 'Scheduled') -
+            recordedFuturePrimaryInstallmentsInMonth(p, c, m), 0),
       )
     : 0;
 }

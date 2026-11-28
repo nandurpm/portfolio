@@ -22,10 +22,18 @@ export function getBuildInfo(mode) {
     throw Error('Release build requires a clean source checkout');
   const epoch = process.env.SOURCE_DATE_EPOCH;
   if (epoch && !/^\d+$/.test(epoch)) throw Error('SOURCE_DATE_EPOCH must be integer seconds');
+  const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+  if (typeof version !== 'string' || !/^(0|[1-9]\d*)\.(0|[1-9]\d?)\.(0|[1-9]\d?)$/.test(version))
+    throw Error('Tracker requires a numeric version with minor and patch below 100');
+  const [major, minor, patch] = version.split('.').map(Number);
+  const androidVersionCode = major * 10000 + minor * 100 + patch;
+  if (!Number.isSafeInteger(androidVersionCode) || androidVersionCode < 1 || androidVersionCode > 2_100_000_000)
+    throw Error('Tracker Android version code is out of range');
   return {
     schemaVersion: 1,
     ...financialFingerprints(),
-    version: JSON.parse(fs.readFileSync('package.json', 'utf8')).version,
+    version,
+    androidVersionCode,
     sourceCommit,
     sourceTree,
     dirty,

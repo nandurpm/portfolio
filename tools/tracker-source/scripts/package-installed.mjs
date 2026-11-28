@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { verifyFinancialParity } from './verify-financial-parity.mjs';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const asar = require('@electron/asar'),
@@ -33,6 +34,17 @@ for (const name of [
 await fs.mkdir(path.join(stage, 'resources'), { recursive: true });
 const archive = path.join(stage, 'resources/app.asar');
 await asar.createPackage(payload, archive);
+const verifyDir = path.join(stage, 'verified-asar');
+try {
+  asar.extractAll(archive, verifyDir);
+  const version = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8')).version;
+  const embedded = JSON.parse(await fs.readFile(path.join(verifyDir, 'package.json'), 'utf8')).version;
+  if (embedded !== version) throw Error('Windows archive version mismatch');
+  if (process.env.GITHUB_ACTIONS === 'true')
+    await verifyFinancialParity([path.join(root, 'dist'), path.join(verifyDir, 'dist')]);
+} finally {
+  await fs.rm(verifyDir, { recursive: true, force: true });
+}
 const header = asar.getRawHeader(archive).headerString;
 const hash = createHash('sha256').update(header).digest('hex');
 const exeName = 'Savings and Expense Tracker.exe';

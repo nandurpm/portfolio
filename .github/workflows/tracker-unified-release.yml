@@ -115,6 +115,9 @@ jobs:
           $installer = "release/installers/Savings-and-Expense-Tracker-Setup-$version.exe"
           if (-not (Test-Path -LiteralPath $installer)) { throw "Missing installer: $installer" }
           if ((Get-Item -LiteralPath $installer).Length -lt 50MB) { throw 'Installer is unexpectedly small.' }
+          $info = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Resolve-Path -LiteralPath $installer).Path)
+          $actual = "$($info.FileMajorPart).$($info.FileMinorPart).$($info.FileBuildPart)"
+          if ($actual -ne $version) { throw "Windows installer version $actual does not match $version." }
           New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP/tracker-windows" | Out-Null
           Copy-Item -LiteralPath $installer -Destination "$env:RUNNER_TEMP/tracker-windows/"
       - uses: actions/upload-artifact@v4
@@ -173,7 +176,13 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 4 "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" > "$RUNNER_TEMP/apk-badging.txt"
           grep -q "package: name='com.nandakumar.savingsexpensetracker'" "$RUNNER_TEMP/apk-badging.txt"
-          grep -q "versionName='$VERSION'" "$RUNNER_TEMP/apk-badging.txt"
+          CODE="$(node -p "require('./dist/build.json').androidVersionCode")"
+          [[ "$CODE" =~ ^[0-9]+$ ]]
+          grep -Fq "versionName='$VERSION'" "$RUNNER_TEMP/apk-badging.txt"
+          grep -Fq "versionCode='$CODE'" "$RUNNER_TEMP/apk-badging.txt"
+          mkdir -p "$RUNNER_TEMP/tracker-apk-payload"
+          unzip -q "$APK" 'assets/public/*' -d "$RUNNER_TEMP/tracker-apk-payload"
+          node scripts/verify-financial-parity.mjs dist "$RUNNER_TEMP/tracker-apk-payload/assets/public"
           mkdir -p "$RUNNER_TEMP/tracker-android"
           cp "$APK" "$RUNNER_TEMP/tracker-android/Savings-and-Expense-Tracker-$VERSION.apk"
       - name: Verify signing certificate matches previous published Android APK

@@ -29,10 +29,12 @@ test('payload parity checks reject both changed financial source and changed ass
  const root=await mkdtemp(path.join(tmpdir(),'financial-payloads-'));
  const roots=['web','windows','android'].map(x=>path.join(root,x));
  const files={'index.html':'fixture','app.js':'fixture module'};
- const manifest={version:'1.0.0',sourceCommit:'a'.repeat(40),sourceTree:'b'.repeat(40),financialLogicSha256:'c'.repeat(64),dataModelSha256:'d'.repeat(64),dirty:false,mode:'release',files:Object.fromEntries(Object.entries(files).map(([k,v])=>[k,createHash('sha256').update(v).digest('hex')]))};
+ const manifest={version:'1.0.0',androidVersionCode:10000,sourceCommit:'a'.repeat(40),sourceTree:'b'.repeat(40),financialLogicSha256:'c'.repeat(64),dataModelSha256:'d'.repeat(64),dirty:false,mode:'release',files:Object.fromEntries(Object.entries(files).map(([k,v])=>[k,createHash('sha256').update(v).digest('hex')]))};
  try{
    for(const dir of roots){await mkdir(dir);for(const [file,data] of Object.entries(files))await writeFile(path.join(dir,file),data);await writeFile(path.join(dir,'build.json'),JSON.stringify({...manifest,mode:dir===roots[0]?'web':'release'}));}
    expect(await verifyFinancialParity(roots)).toMatchObject({verified:true,payloads:3});
+   await writeFile(path.join(roots[2]!,'build.json'),JSON.stringify({...manifest,androidVersionCode:10001}));
+   await expect(verifyFinancialParity(roots)).rejects.toThrow('Invalid Android version code');
    await writeFile(path.join(roots[2]!,'build.json'),JSON.stringify({...manifest,financialLogicSha256:'e'.repeat(64)}));
    await expect(verifyFinancialParity(roots)).rejects.toThrow('Platform mismatch');
    await writeFile(path.join(roots[2]!,'build.json'),JSON.stringify(manifest));
