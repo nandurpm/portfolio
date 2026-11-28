@@ -29,7 +29,7 @@ assert.ok(
 let schema = await fs.readFile('database/test-fixture/schema.sql', 'utf8');
 schema = schema.slice(schema.indexOf('CREATE TABLE public.tracker_plans'));
 schema =
-  'CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS; GRANT tracker_plan_writer TO postgres WITH SET TRUE; GRANT USAGE ON SCHEMA public TO tracker_plan_writer;\n' +
+  'CREATE ROLE tracker_plan_writer NOLOGIN NOBYPASSRLS; GRANT tracker_plan_writer TO postgres WITH SET TRUE; GRANT USAGE ON SCHEMA public TO tracker_plan_writer, service_role;\n' +
   schema;
 const existing = await run('psql', [
   '--dbname',
@@ -57,6 +57,60 @@ await run('psql', [
   '--command',
   await fs.readFile('database/guards/preserve-modern-ledgers.sql', 'utf8'),
 ]);
+
+// Reproduce the broad Supabase default sequence grants, then apply the reviewed
+// migration and assert that only the service role retains the privilege it needs.
+await run('psql', [
+  '--dbname',
+  db.href,
+  '-X',
+  '-q',
+  '--set',
+  'ON_ERROR_STOP=1',
+  '--command',
+  'GRANT ALL ON SEQUENCE public.tracker_bot_audit_id_seq TO anon, authenticated, service_role',
+]);
+await run('psql', [
+  '--dbname',
+  db.href,
+  '-X',
+  '-q',
+  '--set',
+  'ON_ERROR_STOP=1',
+  '--command',
+  await fs.readFile('database/migrations/20261126123000_restrict_tracker_bot_audit_sequence.sql', 'utf8'),
+]);
+const sequencePrivileges = await run('psql', [
+  '--dbname',
+  db.href,
+  '-X',
+  '-qAt',
+  '--set',
+  'ON_ERROR_STOP=1',
+  '--command',
+  `SELECT json_build_object(
+    'anon', json_build_array(
+      has_sequence_privilege('anon', 'public.tracker_bot_audit_id_seq', 'USAGE'),
+      has_sequence_privilege('anon', 'public.tracker_bot_audit_id_seq', 'SELECT'),
+      has_sequence_privilege('anon', 'public.tracker_bot_audit_id_seq', 'UPDATE')
+    ),
+    'authenticated', json_build_array(
+      has_sequence_privilege('authenticated', 'public.tracker_bot_audit_id_seq', 'USAGE'),
+      has_sequence_privilege('authenticated', 'public.tracker_bot_audit_id_seq', 'SELECT'),
+      has_sequence_privilege('authenticated', 'public.tracker_bot_audit_id_seq', 'UPDATE')
+    ),
+    'service_role', json_build_array(
+      has_sequence_privilege('service_role', 'public.tracker_bot_audit_id_seq', 'USAGE'),
+      has_sequence_privilege('service_role', 'public.tracker_bot_audit_id_seq', 'SELECT'),
+      has_sequence_privilege('service_role', 'public.tracker_bot_audit_id_seq', 'UPDATE')
+    )
+  )::text`,
+]);
+const sequenceAccess = JSON.parse(sequencePrivileges.stdout.trim());
+assert.deepEqual(sequenceAccess.anon, [false, false, false], 'Anonymous role must not access the private bot audit sequence');
+assert.deepEqual(sequenceAccess.authenticated, [false, false, false], 'Authenticated role must not access the private bot audit sequence');
+assert.deepEqual(sequenceAccess.service_role, [true, false, false], 'Service role must retain only sequence USAGE for identity inserts');
+console.log('PASS: private bot audit sequence is service-role-only; API roles cannot read or advance it.');
 const key = status.ANON_KEY ?? status.PUBLISHABLE_KEY,
   secret = status.SERVICE_ROLE_KEY ?? status.SECRET_KEY;
 assert.ok(key && secret, 'Local CLI API keys missing');
