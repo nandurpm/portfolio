@@ -54,7 +54,7 @@ export function closureAmount(p: Plan, m = p.settings.closureMonth) {
     : round(principal + p.settings.accruedInterest + p.settings.fees);
 }
 /** A hypothetical closure can cancel an unpaid installment, not its recorded cash outflow. */
-function recordedInstallmentInMonth(p: Plan, c: Category, row: LoanRow, m: string) {
+function recordedInstallmentInMonth(p: Plan, c: Category, row: Pick<LoanRow, 'id' | 'paidDate' | 'paidAmount'>, m: string) {
   const receipts = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId === row.id);
   return receipts.length
     ? receipts.reduce((sum, e) => sum + (e.date.slice(0, 7) === m ? e.amount : 0), 0)
