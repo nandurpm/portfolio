@@ -1,3 +1,4 @@
+import { withSyncDeadline } from "./sync-deadline";
 import {MutationIdentity} from "./mutation-identity";
 const mutationIdentity = new MutationIdentity();
 import {canClearSignedOutCache} from "./cache-policy";
@@ -81,12 +82,15 @@ async function savePreSyncBackup() {
   else localStorage.setItem("tracker-before-sync", JSON.stringify(store.get()));
 }
 async function fetchRemote(session: Session): Promise<Remote | null> {
-  const { data, error } = await supabase
-    .from("tracker_plans")
-    .select("data,revision")
-    .eq("user_id", session.user.id)
-    .maybeSingle()
-    .setHeader("Authorization", `Bearer ${session.access_token}`);
+  const { data, error } = await withSyncDeadline((signal) =>
+    supabase
+      .from("tracker_plans")
+      .select("data,revision")
+      .eq("user_id", session.user.id)
+      .abortSignal(signal)
+      .maybeSingle()
+      .setHeader("Authorization", `Bearer ${session.access_token}`),
+  );
   if (error) throw error;
   if (
     data &&
@@ -260,12 +264,15 @@ export const sync = {
         throw Error(
           "This device is linked to a different account. Sign in with its original account.",
         );
-      const { data: version, error: versionError } = await supabase
-        .from("tracker_plans")
-        .select("revision")
-        .eq("user_id", session.user.id)
-        .maybeSingle()
-        .setHeader("Authorization", `Bearer ${session.access_token}`);
+      const { data: version, error: versionError } = await withSyncDeadline((signal) =>
+        supabase
+          .from("tracker_plans")
+          .select("revision")
+          .eq("user_id", session.user.id)
+          .abortSignal(signal)
+          .maybeSingle()
+          .setHeader("Authorization", `Bearer ${session.access_token}`),
+      );
       if (versionError) throw versionError;
       if (version?.revision === base.revision && equal(local, base.base)) {
         emit({ status: "Up to date" });
@@ -298,13 +305,16 @@ export const sync = {
         emit({ status: "Up to date" });
         return;
       }
-      const { data: reply, error } = await supabase
-        .rpc("tracker_save_plan", {
-          p_data: merged.plan,
-          p_expected_revision: remote.revision,
-          p_mutation_id: mutationIdentity.idFor(session.user.id,remote.revision,merged.plan),
-        })
-        .setHeader("Authorization", `Bearer ${session.access_token}`);
+      const { data: reply, error } = await withSyncDeadline((signal) =>
+        supabase
+          .rpc("tracker_save_plan", {
+            p_data: merged.plan,
+            p_expected_revision: remote.revision,
+            p_mutation_id: mutationIdentity.idFor(session.user.id,remote.revision,merged.plan),
+          })
+          .setHeader("Authorization", `Bearer ${session.access_token}`)
+          .abortSignal(signal),
+      );
       if (error) throw error;
       if (state.session?.user.id !== session.user.id) return;
       if (!reply.ok) {
@@ -364,13 +374,16 @@ export const sync = {
         store.acceptCloud(initial.data, meta(session.user.id, initial));
       } else {
         const local = cloudPlan(store.get().data);
-        const { data: reply, error } = await supabase
-          .rpc("tracker_save_plan", {
-            p_data: local,
-            p_expected_revision: initial?.revision ?? 0,
-            p_mutation_id: mutationIdentity.idFor(session.user.id,initial?.revision ?? 0,local),
-          })
-          .setHeader("Authorization", `Bearer ${session.access_token}`);
+        const { data: reply, error } = await withSyncDeadline((signal) =>
+          supabase
+            .rpc("tracker_save_plan", {
+              p_data: local,
+              p_expected_revision: initial?.revision ?? 0,
+              p_mutation_id: mutationIdentity.idFor(session.user.id,initial?.revision ?? 0,local),
+            })
+            .setHeader("Authorization", `Bearer ${session.access_token}`)
+            .abortSignal(signal),
+        );
         requireAccount();
         if (error) throw error;
         if (!reply.ok) {

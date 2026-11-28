@@ -40,7 +40,7 @@ npm run verify:deployment -- https://nandakumarm.dpdns.org/track/ APPROVED_40_CH
 
 The trusted manifest must come from the approved CI artifact or versioned generated release, not from the live site being tested. This detects mixed/stale assets and identity mismatch; it is not a signed software attestation. `SOURCE_DATE_EPOCH` can fix the timestamp for reproducible rebuilds.
 
-Axe/keyboard and cold Loan-route smoke tests use synthetic data at 320, 390, 768 and 1366 CSS pixels. Their artifacts contain no real accounts. Automated WCAG checks do not replace a screen-reader/manual accessibility assessment. Installed Windows/Android storage/backup validation requires the actual native source and builds, absent from this web-source repository. Google OAuth must still be tested with an authorized provider/test account. Proposed SQL is not a production migration and requires separate approval.
+Axe/keyboard and cold Loan-route smoke tests use synthetic data at 320, 390, 768 and 1366 CSS pixels. Their artifacts contain no real accounts. Automated WCAG checks do not replace a screen-reader/manual accessibility assessment. This repository includes the Windows source in `electron/` and Android source in `android/`. Installed storage/backup verification still requires actual Windows/Android builds in disposable profiles. See the [tracking-safe rollout checklist](docs/audit/TRACKING_SAFE_ROLLOUT.md) before deploying. Google OAuth must still be tested with an authorized provider/test account. Proposed SQL is not a production migration and requires separate approval.
 
 ### Website sign-in experience
 

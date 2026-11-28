@@ -40,13 +40,18 @@ async function setup(linked: boolean, remoteConflict = false) {
     await holdBackup?.();
     return "synthetic-backup";
   });
-  const rpc = vi.fn(() => ({
+  const saveReply = () => ({
+    data: { ok: true, revision: 2, data: cloudPlan(e.data) },
+    error: null,
+  });
+  let saveOverride: ((signal: AbortSignal) => Promise<ReturnType<typeof saveReply>>) | undefined;
+  const rpc = vi.fn((_name: string, _payload: { p_mutation_id: string }) => ({
     setHeader: (_key: string, token: string) => {
       headers.push(token);
-      return Promise.resolve({
-        data: { ok: true, revision: 2, data: cloudPlan(e.data) },
-        error: null,
-      });
+      return {
+        abortSignal: (signal: AbortSignal) =>
+          saveOverride?.(signal) ?? Promise.resolve(saveReply()),
+      };
     },
   }));
   const supabase = {
@@ -64,17 +69,19 @@ async function setup(linked: boolean, remoteConflict = false) {
     from: () => ({
       select: (columns: string) => ({
         eq: () => ({
-          maybeSingle: () => ({
-            setHeader: (_key: string, token: string) => {
-              headers.push(token);
-              return Promise.resolve({
-                data:
-                  columns === "revision"
-                    ? { revision: remoteRevision }
-                    : { data: remote, revision: remoteRevision },
-                error: null,
-              });
-            },
+          abortSignal: () => ({
+            maybeSingle: () => ({
+              setHeader: (_key: string, token: string) => {
+                headers.push(token);
+                return Promise.resolve({
+                  data:
+                    columns === "revision"
+                      ? { revision: remoteRevision }
+                      : { data: remote, revision: remoteRevision },
+                  error: null,
+                });
+              },
+            }),
           }),
         }),
       }),
@@ -111,6 +118,8 @@ async function setup(linked: boolean, remoteConflict = false) {
     headers,
     backup,
     remoteOpening,
+    saveReply,
+    overrideSave: (fn?: typeof saveOverride) => { saveOverride = fn; },
     change: (id: string | null) => change("SIGNED_IN", id ? session(id) : null),
     onBackup: (fn: () => void | Promise<void>) => {
       holdBackup = fn;
@@ -179,5 +188,42 @@ it("does not replace native data if the account changes during the conflict back
   expect(t.backup).toHaveBeenCalledOnce();
   expect(JSON.stringify(t.store.get())).toBe(localBefore);
   expect(t.sync.get().locked).toBe(true);
+  t.sync.stop();
+});
+
+
+it("keeps the full local envelope and reuses the mutation ID after a timed-out save", async () => {
+  const t = await setup(true);
+  const original = structuredClone(t.store.get());
+  let firstSignal: AbortSignal | undefined;
+  let lateReply: (() => void) | undefined;
+  t.overrideSave((signal) => {
+    firstSignal = signal;
+    return new Promise((resolve) => {
+      lateReply = () => resolve(t.saveReply());
+    });
+  });
+
+  const first = t.sync.run();
+  await vi.advanceTimersByTimeAsync(20_000);
+  await first;
+
+  expect(firstSignal?.aborted).toBe(true);
+  expect(t.sync.get()).toMatchObject({ busy: false, status: "Sync needs attention" });
+  expect(t.sync.get().error).toContain("Local changes are retained");
+  expect(t.store.get()).toEqual(original);
+  expect(t.rpc).toHaveBeenCalledTimes(1);
+
+  lateReply?.();
+  await Promise.resolve();
+  expect(t.store.get()).toEqual(original);
+
+  t.overrideSave();
+  await t.sync.run();
+  expect(t.rpc).toHaveBeenCalledTimes(2);
+  expect(t.rpc.mock.calls[1]?.[1].p_mutation_id).toBe(t.rpc.mock.calls[0]?.[1].p_mutation_id);
+  expect(t.sync.get()).toMatchObject({ busy: false, status: "Up to date" });
+  expect(t.store.get().data).toEqual(original.data);
+  expect(t.store.get().sync?.revision).toBe(2);
   t.sync.stop();
 });
