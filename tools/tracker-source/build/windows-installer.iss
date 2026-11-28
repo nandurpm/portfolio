@@ -2,7 +2,7 @@
   #error AppSource is required
 #endif
 #ifndef AppVersion
-  #define AppVersion "1.4.0"
+  #error AppVersion is required
 #endif
 #ifndef InstallDir
   #define InstallDir "{localappdata}\Programs\Savings and Expense Tracker"

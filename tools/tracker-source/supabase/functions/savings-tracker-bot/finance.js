@@ -484,6 +484,13 @@ function closureAmount(p, m = p.settings.closureMonth) {
   if (m !== p.settings.closureMonth) return principal;
   return p.settings.lenderQuote > 0 ? p.settings.lenderQuote : round2(principal + p.settings.accruedInterest + p.settings.fees);
 }
+function recordedInstallmentInMonth(p, c, row, m) {
+  const receipts = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId === row.id);
+  return receipts.length ? receipts.reduce((sum, e) => sum + (e.date.slice(0, 7) === m ? e.amount : 0), 0) : row.paidDate.slice(0, 7) === m ? row.paidAmount : 0;
+}
+function recordedFuturePrimaryInstallmentsInMonth(p, c, m) {
+  return round2(p.loan.rows.reduce((sum, row) => row.month > m && !row.paidBeforeOpening ? sum + recordedInstallmentInMonth(p, c, row, m) : sum, 0));
+}
 function defaultAmount(p, c, m, mode = p.settings.mode) {
   if (!c.active) return 0;
   if (c.role === "emi") {
@@ -492,7 +499,7 @@ function defaultAmount(p, c, m, mode = p.settings.mode) {
       rows.reduce((total, row) => {
         if (!c.loanId && row.paidBeforeOpening) return total;
         if (!c.loanId && mode === "Early closure" && row.month > p.settings.closureMonth)
-          return total;
+          return m <= p.settings.closureMonth ? total + recordedInstallmentInMonth(p, c, row, m) : total;
         const paymentMonth = p.settings.emiPreviousMonth ? addMonths(row.month, -1) : row.month;
         const receipts = p.entries.filter((e) => e.categoryId === c.id && e.loanRowId === row.id);
         const early = receipts.length ? receipts.filter((e) => e.date.slice(0, 7) < paymentMonth) : row.paidDate && row.paidDate.slice(0, 7) < paymentMonth ? [{ date: row.paidDate, amount: row.paidAmount }] : [];
@@ -529,8 +536,11 @@ function defaultAmount(p, c, m, mode = p.settings.mode) {
 function fullAmount(p, c, m, mode = p.settings.mode) {
   if (c.group === "Asset") return 0;
   if (!c.active) return 0;
-  if (c.role === "emi" && !c.loanId && mode === "Early closure" && (m > p.settings.closureMonth || p.settings.emiPreviousMonth && m === p.settings.closureMonth))
-    return 0;
+  if (c.role === "emi" && !c.loanId && mode === "Early closure") {
+    if (m > p.settings.closureMonth) return 0;
+    if (p.settings.emiPreviousMonth && m === p.settings.closureMonth)
+      return recordedFuturePrimaryInstallmentsInMonth(p, c, m);
+  }
   if (c.role === "closure" && (mode !== "Early closure" || m !== p.settings.closureMonth)) return 0;
   return p.overrides[key(m, c.id)] ?? defaultAmount(p, c, m, mode);
 }
@@ -595,7 +605,7 @@ function actualFromEntries(p, start, end, entries, cats, catId) {
 }
 function releasedAdvance(p, m) {
   return p.settings.emiPreviousMonth ? round2(
-    p.categories.filter((c) => c.role === "emi" && !c.loanId).reduce((sum, c) => sum + fullAmount(p, c, m, "Scheduled"), 0)
+    p.categories.filter((c) => c.role === "emi" && !c.loanId && c.active).reduce((sum, c) => sum + fullAmount(p, c, m, "Scheduled") - recordedFuturePrimaryInstallmentsInMonth(p, c, m), 0)
   ) : 0;
 }
 function forecast(p, mode = p.settings.mode) {

@@ -10,6 +10,9 @@ export async function verifyFinancialParity(roots) {
     for (const key of ['financialLogicSha256', 'dataModelSha256'])
       if (!/^[a-f0-9]{64}$/.test(manifest[key] ?? '')) throw Error(`Missing ${key}: ${root}`);
     if (manifest.dirty !== false || !/^\d+\.\d+\.\d+$/.test(manifest.version ?? '') || !/^[a-f0-9]{40}$/.test(manifest.sourceCommit ?? '') || !/^[a-f0-9]{40}$/.test(manifest.sourceTree ?? '') || !['web', 'release'].includes(manifest.mode)) throw Error(`Not a clean production payload: ${root}`);
+    const [major, minor, patch] = manifest.version.split('.').map(Number);
+    if (manifest.androidVersionCode !== major * 10000 + minor * 100 + patch)
+      throw Error(`Invalid Android version code: ${root}`);
     if (!manifest.files?.['index.html']) throw Error(`Incomplete payload inventory: ${root}`);
     for (const [file, digest] of Object.entries(manifest.files)) {
       if (path.isAbsolute(file) || file.split(/[\\/]/).includes('..')) throw Error('Unsafe manifest path');
@@ -18,9 +21,9 @@ export async function verifyFinancialParity(roots) {
     }
     manifests.push(manifest);
   }
-  for (const key of ['version', 'sourceCommit', 'sourceTree', 'financialLogicSha256', 'dataModelSha256'])
+  for (const key of ['version', 'androidVersionCode', 'sourceCommit', 'sourceTree', 'financialLogicSha256', 'dataModelSha256'])
     if (manifests.some(item => item[key] !== manifests[0][key])) throw Error(`Platform mismatch: ${key}`);
-  return {version: manifests[0].version, sourceCommit: manifests[0].sourceCommit,
+  return {version: manifests[0].version, androidVersionCode: manifests[0].androidVersionCode, sourceCommit: manifests[0].sourceCommit,
     financialLogicSha256: manifests[0].financialLogicSha256, dataModelSha256: manifests[0].dataModelSha256,
     payloads: roots.length, verified: true};
 }

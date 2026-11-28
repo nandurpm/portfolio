@@ -3,7 +3,7 @@ import ExcelJS from 'exceljs';
 import { financialFixture } from './fixtures/financial';
 import { readCSV, readWorkbook } from '../src/io/import';
 import { exportWorkbook } from '../src/io/export';
-import { closureAnalysis, fullAmount } from '../src/domain/calculate';
+import { closureAnalysis, forecast, fullAmount } from '../src/domain/calculate';
 import { saveOriginalPayment } from '../src/domain/installments';
 import { namedAccountBalances, netWorthSnapshot } from '../src/domain/net-worth';
 import { monthlyChecklistView } from '../src/domain/monthly-checklist';
@@ -94,6 +94,37 @@ it('uses the inclusive closure-month cutoff for multiple receipts and legacy sch
   };
   legacy.loan.rows[2] = { ...legacy.loan.rows[2]!, emi: 120, interest: 20 };
   expect(closureAnalysis(legacy).settlementSavings).toBe(-65);
+});
+
+it('retains a paid advance in closure-month cash and cancels only its unpaid portion', () => {
+  const plan = financialFixture().data;
+  plan.settings.closureMonth = '2026-11';
+  plan.settings.lenderQuote = 100;
+  plan.settings.emiPreviousMonth = true;
+  const before = closureAnalysis(plan);
+  saveOriginalPayment(plan, plan.loan.rows[1]!.id, '2026-11-20', 40, '__unallocated');
+  expect(closureAnalysis(plan)).toMatchObject({
+    after: before.after! - 40,
+    settlementSavings: before.settlementSavings - 40,
+  });
+  expect(forecast(plan, 'Early closure')[0]).toMatchObject({
+    emi: 40,
+    cash: before.after! - 40,
+  });
+  expect(forecast(plan, 'Scheduled')[0]!.headroom).toBe(before.after! - 40);
+});
+
+it('retains earlier recorded future EMI outflows in an early-closure forecast', () => {
+  const plan = financialFixture().data;
+  plan.settings.closureMonth = '2026-12';
+  plan.settings.lenderQuote = 100;
+  const before = forecast(plan, 'Early closure');
+  saveOriginalPayment(plan, plan.loan.rows[2]!.id, '2026-11-10', 45, '__unallocated');
+  const after = forecast(plan, 'Early closure');
+  expect(after[0]).toMatchObject({ cash: before[0]!.cash - 45, emi: before[0]!.emi + 45 });
+  expect(after[1]!.cash).toBe(before[1]!.cash - 45);
+  expect(after[2]!.emi).toBe(0);
+  expect(closureAnalysis(plan).after).toBe(after[1]!.cash);
 });
 
 it('exports effective budgets while restoring dormant overrides and edited named-account entries', async () => {
